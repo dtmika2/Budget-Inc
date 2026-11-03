@@ -107,7 +107,7 @@ describe('endings', () => {
     const s0 = sim.state.resources.support;
     sim.tick();
     expect(sim.state.phase).toBe('running');
-    expect(s0 - sim.state.resources.support).toBeCloseTo(0.05 + 0.3);
+    expect(s0 - sim.state.resources.support).toBeCloseTo(-config.drift.support + 0.3);
     expect(sim.state.anger.media).toBe(100);
   });
 });

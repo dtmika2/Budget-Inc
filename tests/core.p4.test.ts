@@ -201,7 +201,7 @@ describe('budget vote', () => {
     expect(p).toBeCloseTo(0.75 + (sim0Coalition() - 50) / 100 - 0.1, 1);
     expect(Math.abs(passed / N - p)).toBeLessThan(0.05);
     function sim0Coalition() {
-      return 40 - 0.03; // one day of drift before the vote opens
+      return 40 + config.drift.coalition; // one day of drift before the vote opens
     }
   });
 
@@ -261,7 +261,7 @@ describe('upgrades: Public Support branch', () => {
     sim.state.ongoing = [];
     const s0 = sim.state.resources.support;
     sim.tick();
-    expect(sim.state.resources.support - s0).toBeCloseTo(-0.05 * 0.7);
+    expect(sim.state.resources.support - s0).toBeCloseTo(config.drift.support * 0.7);
 
     // Press Office: media anger gains x0.75 (card preview)
     const mediaBefore = sim.previewCard('dummy_respondable').anger.media!;

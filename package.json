@@ -12,7 +12,8 @@
     "test": "vitest run",
     "simulate": "tsx scripts/simulate.ts",
     "gen:filler": "tsx scripts/gen-filler-cards.ts",
-    "build:map": "tsx scripts/build-map.ts"
+    "build:map": "tsx scripts/build-map.ts",
+    "analyze": "tsx scripts/analyze.ts"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible": "^5.3.0",

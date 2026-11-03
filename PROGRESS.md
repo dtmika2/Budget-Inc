@@ -10,5 +10,5 @@
 - [x] P6 — UI shell and HUD
 - [x] P7 — Modals and pop-ups
 - [x] P8 — Endings, election night, final screen, meta
-- [ ] P9 — Balance pass
+- [x] P9 — Balance pass
 - [ ] P10 — Mobile, performance, README, final check

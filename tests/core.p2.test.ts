@@ -161,7 +161,7 @@ describe('zero penalties', () => {
     const c0 = sim.state.resources.coalition;
     const a0 = sim.state.anger.activists;
     sim.tick();
-    expect(c0 - sim.state.resources.coalition).toBeCloseTo(0.15 + 0.03, 5);
+    expect(c0 - sim.state.resources.coalition).toBeCloseTo(0.15 - config.drift.coalition, 5);
     expect(sim.state.anger.activists).toBeGreaterThan(a0);
   });
 

@@ -62,4 +62,22 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 _None._
 
 ## Balance log
-_Filled in P9._
+**Balance is provisional:** 44 generated `[FILLER]` cards stand in for real content, and the budget is MOCK DATA. Re-run `npm run simulate` and `npm run analyze` once Daniel's cards and the Státní pokladna data arrive.
+
+Tools: `npm run simulate -- --runs N --bot random|greedy|both --leader mupka|abis|both --difficulty easy|normal|hard|all` and `npm run analyze -- --runs N [--set config.path=value] [--leader abis.start.support=45]` (end-of-run averages, with in-memory config/leader overrides for experiments).
+
+| # | change (Normal) | random Mupka | random Abis | greedy Mupka | greedy Abis | notes |
+|---|---|---|---|---|---|---|
+| 0 | spec defaults (support drift −0.05, coalition −0.03, T_base 45) | 9.5 % | 78.5 % | 73.0 % | 98.4 % | 74–99 % of runs end in a snap election: Coalition always drains to 0, and a snap election while support is high is an easy win |
+| 1 | coalition drift −0.03 → −0.015, support drift −0.05 → −0.07 | 0 % | 44 % | 28 % | 92 % | greedy Mupka reaches Q15.4 on average, snap 19 % |
+| 2 | + T_base 47 / 49 (not kept) | 0 / 0 % | 41 / 38 % | 24 / 20 % | 90 / 89 % | threshold barely moves Abis (avg support 70) → T_base stays at the spec's 45 |
+| 3 | filler `angerUp` 3–9 → 4–12 (reverted) | 0.9 % | 42.8 % | 29.1 % | 89.4 % | aimed at making the Oligarchs ending reachable; no effect — reverted, filler unchanged |
+| **final** | **iteration 1 values**, 2000 runs/row | **0.9 %** | **43.0 %** | **29.0 %** | **90.0 %** | greedy Mupka avg 15.4 quarters; ending 0 % |
+
+Difficulty direction (1000 runs/row): greedy Mupka easy 89.4 % → normal 29.7 % → hard 5.0 %; greedy Abis 100 % → 91.3 % → 59.2 %; random Mupka 10.7 % → 1.0 % → 0.1 %; random Abis 93.3 % → 43.8 % → 13.0 %. All move in the expected direction.
+
+**Targets met:** random Mupka ≤ 15 %, greedy Mupka 20–40 %, greedy Mupka run length ≈ 16 quarters (15.4).
+**Targets NOT met:** random Abis (43 % > 15 %), greedy Abis (90 % > 40 %), leader parity (61 pp gap > 10 pp).
+- Cause (structural, in leader data, not config): Bander Abis starts with support 55 vs 40 and Campaign Mode adds +10 support every year (~+40 over a term), while Mupka's Austerity Freeze only protects Finances, which the election formula (§4.6) does not use. Config knobs act on both leaders equally, so they cannot close the gap.
+- Measured proposal for Daniel (in-memory experiment, not applied; spec §5.1 values are kept): Campaign Mode support +10 → +5 **and** Abis start support 55 → 45 gives greedy Abis 43 % / random Abis 7 % (vs greedy Mupka 24 % at T_base 47). Closing the rest probably needs Austerity Freeze to touch P (or Mupka to get a support-side ability).
+- The Oligarchs ending never fired in bot runs (greedy avoids it; random picks spread anger over 5 groups and anger decays ~1.8/quarter). It is reachable through deliberate play (e.g. the `[DUMMY] Karta 6` +15…20). Real content with stronger oligarch trade-offs will make it rarer-but-possible as intended.

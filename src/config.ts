@@ -27,7 +27,8 @@ export const config = {
   },
 
   /** Baseline drift per day (§4.2). */
-  drift: { finances: 0, support: -0.05, coalition: -0.03, prestige: 0 } as Record<ResourceId, number>,
+  // P9 balance: support -0.05 -> -0.07, coalition -0.03 -> -0.015 (see DECISIONS.md Balance log)
+  drift: { finances: 0, support: -0.07, coalition: -0.015, prestige: 0 } as Record<ResourceId, number>,
 
   anger: {
     /** Daily pull toward the leader's starting value (§4.3). 0 disables. */
