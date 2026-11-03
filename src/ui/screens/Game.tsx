@@ -2,6 +2,7 @@ import { t } from '@i18n/index';
 import { DebugOverlay } from '../DebugOverlay';
 import { LeaderDock } from '../hud/LeaderDock';
 import { TopBar } from '../hud/TopBar';
+import { MapTempo } from '../hud/MapTempo';
 import { CzMap, RegionScreen } from '@/regions';
 import { AbilityPicker } from '../modals/AbilityPicker';
 import { BudgetVoteModal } from '../modals/BudgetVoteModal';
@@ -40,6 +41,7 @@ export function Game() {
             {t('hud.panel')}
           </button>
           <CzMap />
+          <MapTempo />
           <PledgeTracker />
           <PausedBadge />
           <div className="game__dock">

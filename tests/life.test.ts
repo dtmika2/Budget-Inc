@@ -130,40 +130,32 @@ describe('living map director', () => {
 
 describe('living map in the store', () => {
   it('spawns while the run is running (at most the cap), prunes expired actors, and spawns nothing with reduced motion', () => {
-    // fake real-time clock: 1 s per game day, so the ambient quiet gap passes during the loop
-    const realNow = performance.now;
-    let clock = realNow.call(performance);
-    performance.now = () => clock;
-    try {
-      const store = initStore({ ok: true, data: gameData(), warnings: [] });
-      store.startRun('mupka', 'normal');
-      const sim = store.sim!;
-      store.ui = { ...store.ui, tutorialQueue: [], tutorial: null };
-      sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
-      sim.state.schedule = [];
-      let seen = 0;
-      for (let i = 0; i < 60; i++) {
-        clock += 1000;
-        sim.tick();
-        store.frame(16, true);
-        seen += store.ui.actors.length;
-        expect(store.ui.actors.length).toBeLessThanOrEqual(config.life.maxActors);
-      }
-      expect(seen).toBeGreaterThan(0);
-      // all expire after their lifetime
-      clock += 60_000;
-      store.frame(16, true);
-      expect(store.ui.actors).toHaveLength(0);
-
-      store.setSettings({ reducedMotion: true });
-      for (let i = 0; i < 60; i++) {
-        clock += 1000;
-        sim.tick();
-      }
-      expect(store.ui.actors).toHaveLength(0);
-    } finally {
-      performance.now = realNow;
+    // actors are timed on the store's map clock, which store.frame(ms) advances: 1 s per game day, so the
+    // ambient quiet gap passes during the loop
+    const store = initStore({ ok: true, data: gameData(), warnings: [] });
+    store.startRun('mupka', 'normal');
+    const sim = store.sim!;
+    store.ui = { ...store.ui, tutorialQueue: [], tutorial: null };
+    sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
+    sim.state.schedule = [];
+    let seen = 0;
+    for (let i = 0; i < 60; i++) {
+      store.frame(1000, true);
+      sim.tick();
+      seen += store.ui.actors.length;
+      expect(store.ui.actors.length).toBeLessThanOrEqual(config.life.maxActors);
     }
+    expect(seen).toBeGreaterThan(0);
+    // all expire after their lifetime
+    store.frame(60_000, true);
+    expect(store.ui.actors).toHaveLength(0);
+
+    store.setSettings({ reducedMotion: true });
+    for (let i = 0; i < 60; i++) {
+      store.frame(1000, true);
+      sim.tick();
+    }
+    expect(store.ui.actors).toHaveLength(0);
   });
 
   it('weekly trend points carry the projection, and replays still match', () => {
