@@ -12,6 +12,7 @@ import type {
   BudgetVoteOption,
   ChaosEventDef,
   DemandTemplate,
+  RegionEventTemplate,
   EffectBundle,
   EndingDef,
   GameData,
@@ -27,6 +28,7 @@ import type {
 import { GROUP_IDS, RESOURCE_IDS } from '../core/types';
 import {
   demandSchema,
+  regionEventSchema,
   budgetItemSchema,
   budgetSchema,
   budgetVoteOptionSchema,
@@ -169,6 +171,8 @@ export function loadGameData(
   const opportunities = many(opportunitySchema, 'data/opportunities');
   const trees = many(upgradeTreeSchema, 'data/upgrades');
   const demandsAll = many(demandSchema, 'data/demands');
+  const regionEventsAll = many(regionEventSchema, 'data/region_events');
+  const regionEvents = regionEventsAll.filter((e) => e.item.status !== 'DRAFT' || includeFiller);
   // DRAFT demands (drafted from programmes, not yet approved) only load with includeDevFiller
   const demands = demandsAll.filter((d) => d.item.status !== 'DRAFT' || includeFiller);
 
@@ -307,7 +311,21 @@ export function loadGameData(
       it.chapters.forEach((c, j) => {
         if (budget && !chapterCodes.has(c.chapter)) err('unknownChapter', f, `[${i}].chapters[${j}].chapter`, c.chapter);
       });
+      const { minSteps, maxSteps } = config.budgetVote.sliders;
+      if (it.band.min < minSteps || it.band.max > maxSteps) err('schema', f, `[${i}].band`, `band must be within ${minSteps}..${maxSteps}`);
+      if (it.advisor) {
+        locKey(it.advisor.cut, f, `[${i}].advisor.cut`);
+        locKey(it.advisor.overspend, f, `[${i}].advisor.overspend`);
+      }
+      const traits = new Set(Object.values(config.regions.traits).flat());
+      for (const side of ['onCut', 'onOverspend'] as const) {
+        checkBundle(it[side], f, `[${i}].${side}`);
+        for (const tr of Object.keys(it[side].regionTraits ?? {})) if (!traits.has(tr)) err('unknownTrait', f, `[${i}].${side}.regionTraits.${tr}`, tr);
+      }
     });
+    const { core, extra } = config.budgetVote.hand;
+    if (itemsRaw.filter((it) => it.core).length < core) warnings.push({ code: 'schema', file: 'data/budget_items.json', path: 'core', detail: `fewer than ${core} core categories` });
+    if (itemsRaw.filter((it) => !it.core).length < extra) warnings.push({ code: 'schema', file: 'data/budget_items.json', path: 'core', detail: `fewer than ${extra} extra categories` });
   }
 
   if (voteRaw) {
@@ -405,6 +423,18 @@ export function loadGameData(
         if (itemsRaw && !itemIds.has(f.item)) err('unknownItem', file, `${fp}.item`, f.item);
       } else if (f.region !== 'self' && regions && !regionCodes.has(f.region)) err('unknownRegion', file, `${fp}.region`, f.region);
     });
+  }
+
+  // region events (regions workspace)
+  dupCheck(regionEventsAll.map((e) => ({ id: e.item.id, file: e.file, path: `[${e.idx}]` })));
+  const knownTraits = new Set(Object.values(config.regions.traits).flat());
+  for (const { item: e, file, idx } of regionEventsAll) {
+    const p = `[${idx}]`;
+    locKey(e.title, file, `${p}.title`);
+    locKey(e.text, file, `${p}.text`);
+    e.variants.forEach((v, i: number) => locKey(v.text, file, `${p}.variants[${i}].text`));
+    for (const k of ['onIntervene', 'onIgnore'] as const) checkBundle(e[k], file, `${p}.${k}`);
+    for (const tr of Object.keys(e.regionWeights)) if (!knownTraits.has(tr)) err('unknownTrait', file, `${p}.regionWeights.${tr}`, tr);
   }
 
   dupCheck(opportunities.map((o) => ({ id: o.item.id, file: o.file, path: `[${o.idx}]` })));
@@ -511,11 +541,12 @@ export function loadGameData(
     }) as ChaosEventDef[],
     opportunities: opportunities.map((o) => ({ ...o.item, reward: normalise(o.item.reward) })) as OpportunityDef[],
     budgetVote: voteRaw.map(normalise) as BudgetVoteOption[],
-    budgetItems: itemsRaw as BudgetItem[],
+    budgetItems: itemsRaw.map((it) => ({ ...it, onCut: normalise(it.onCut), onOverspend: normalise(it.onOverspend) })) as BudgetItem[],
     minigames: minigamesRaw as MinigameTexts,
     regionProfiles: profilesRaw as RegionProfiles,
     parties: partiesRaw as PartyDef[],
     demands: demands.map((d) => d.item) as DemandTemplate[],
+    regionEvents: regionEvents.map((e) => ({ ...e.item, onIntervene: normalise(e.item.onIntervene), onIgnore: normalise(e.item.onIgnore) })) as RegionEventTemplate[],
     upgrades: trees.map((t) => t.item) as UpgradeTree[],
     endings: endingsRaw as EndingDef[],
     fileHashes,

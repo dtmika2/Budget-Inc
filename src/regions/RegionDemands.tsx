@@ -81,7 +81,7 @@ export function RegionDemands({ code }: { code: string }) {
   );
 }
 
-function Outcome({ label, preview, tone }: { label: string; preview: Parameters<typeof RangeChips>[0]['preview']; tone: 'good' | 'bad' | 'neutral' }) {
+export function Outcome({ label, preview, tone }: { label: string; preview: Parameters<typeof RangeChips>[0]['preview']; tone: 'good' | 'bad' | 'neutral' }) {
   const empty = !Object.keys(preview.resources).length && !Object.keys(preview.anger).length && !Object.keys(preview.regions).length;
   return (
     <div className={`demand__out demand__out--${tone}`}>

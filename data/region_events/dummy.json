@@ -1,0 +1,90 @@
+[
+  {
+    "id": "flood",
+    "status": "DUMMY",
+    "animation": "flood",
+    "regionWeights": { "rural": 2, "agriculture": 2, "urban": 0.5 },
+    "title": "regionEvent.flood.title",
+    "text": "regionEvent.flood.text",
+    "onIntervene": {
+      "effects": { "finances": { "min": -0.25, "max": -0.1 } },
+      "regions": { "self": { "min": 2, "max": 3 } },
+      "anger": { "pensioners": { "min": -1, "max": -0.5 } }
+    },
+    "onIgnore": {
+      "regions": { "self": { "min": -2, "max": -1 } },
+      "anger": { "pensioners": { "min": 0.5, "max": 1 } }
+    }
+  },
+  {
+    "id": "blackout",
+    "status": "DUMMY",
+    "animation": "blackout",
+    "regionWeights": { "industry": 1.5, "coal": 2 },
+    "title": "regionEvent.blackout.title",
+    "text": "regionEvent.blackout.text",
+    "onIntervene": {
+      "effects": { "finances": { "min": -0.25, "max": -0.1 } },
+      "regions": { "self": { "min": 1.5, "max": 2.5 } },
+      "anger": { "oligarchs": { "min": -1, "max": -0.5 } }
+    },
+    "onIgnore": {
+      "regions": { "self": { "min": -2, "max": -1 } },
+      "anger": { "media": { "min": 0.5, "max": 1 } }
+    }
+  },
+  {
+    "id": "protest",
+    "status": "DUMMY",
+    "animation": "protest",
+    "regionWeights": { "urban": 2, "university": 2, "rural": 0.5 },
+    "title": "regionEvent.protest.title",
+    "text": "regionEvent.protest.text",
+    "onIntervene": {
+      "pc": -1,
+      "regions": { "self": { "min": 1.5, "max": 2.5 } },
+      "anger": { "activists": { "min": -1.5, "max": -1 } }
+    },
+    "onIgnore": {
+      "regions": { "self": { "min": -2, "max": -1 } },
+      "anger": { "activists": { "min": 1, "max": 1.5 } }
+    }
+  },
+  {
+    "id": "factory",
+    "status": "DUMMY",
+    "animation": "factory",
+    "regionWeights": { "industry": 2, "coal": 2, "services": 0.5 },
+    "title": "regionEvent.factory.title",
+    "text": "regionEvent.factory.text",
+    "onIntervene": {
+      "effects": { "finances": { "min": -0.35, "max": -0.2 } },
+      "regions": { "self": { "min": 2, "max": 3 } },
+      "anger": { "oligarchs": { "min": -1, "max": -0.5 } }
+    },
+    "onIgnore": {
+      "regions": { "self": { "min": -2.5, "max": -1.5 } },
+      "anger": { "pensioners": { "min": 0.5, "max": 1 } }
+    }
+  },
+  {
+    "id": "duo",
+    "status": "DUMMY",
+    "animation": "duo",
+    "regionWeights": {},
+    "title": "regionEvent.duo.title",
+    "text": "regionEvent.duo.text",
+    "variants": [
+      { "id": "meman", "text": "regionEvent.duo.meman" },
+      { "id": "vlaus", "text": "regionEvent.duo.vlaus" }
+    ],
+    "onIntervene": {
+      "regions": { "self": { "min": 1.5, "max": 2.5 } },
+      "anger": { "media": { "min": 0.5, "max": 1 }, "eu": { "min": 0.5, "max": 1 } }
+    },
+    "onIgnore": {
+      "regions": { "self": { "min": -1.5, "max": -0.5 } },
+      "anger": { "pensioners": { "min": 0.5, "max": 1 } }
+    }
+  }
+]

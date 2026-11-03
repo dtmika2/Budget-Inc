@@ -11,7 +11,7 @@ export const DemandPin = memo(function DemandPin({ demand, x, y }: { demand: Ope
     <button
       className={`dpin${life < 0.3 ? ' dpin--expiring' : ''}`}
       style={{ left: `${x}%`, top: `${y}%`, ['--life' as string]: life }}
-      onClick={() => getStore().setUi({ selectedRegion: demand.region })}
+      onClick={() => getStore().setUi({ selectedRegion: demand.region, regionTab: 'events' })}
       aria-label={`${t('map.demand')}: ${t(`region.${demand.region}`)}`}
     >
       <span className="dpin__bubble" aria-hidden="true">

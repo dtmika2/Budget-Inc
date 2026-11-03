@@ -78,11 +78,15 @@ export interface UiState {
   tutorialQueue: TutorialStep[];
   settings: Settings;
   selectedRegion: string | null;
+  /** Open tab of the region screen (regions workspace). */
+  regionTab: RegionTab;
   setup: { leader: LeaderId; difficulty: DifficultyId };
   newBest: boolean;
   electionRevealed: boolean;
   isMobile: boolean;
 }
+
+export type RegionTab = 'main' | 'events' | 'data';
 
 type Listener = () => void;
 
@@ -128,6 +132,7 @@ export class Store {
       tutorialQueue: [],
       settings,
       selectedRegion: null,
+      regionTab: 'main',
       setup: { leader: this.data?.leaders[0]?.id ?? 'mupka', difficulty: config.defaultDifficulty },
       newBest: false,
       electionRevealed: false,
@@ -193,6 +198,7 @@ export class Store {
       tutorialQueue: tut ? [...TUTORIAL_STEPS] : [],
       tutorial: null,
       selectedRegion: null,
+      regionTab: 'main',
       newBest: false,
       electionRevealed: false,
     };
@@ -381,6 +387,11 @@ export class Store {
       case 'mandatory_growth':
         add({ kind: 'news', titleKey: 'budgetVote.title', textKey: 'popup.mandatoryGrowth', params: { pct: config.budgetVote.mandatoryGrowthPct }, tone: 'neutral', deltas: e.deltas });
         return;
+      case 'region_event_spawned': {
+        const tpl = sim.data.regionEvents.find((x) => x.id === e.templateId);
+        if (tpl) add({ kind: 'news', titleKey: tpl.title, textKey: 'popup.regionEvent', keyParams: { region: `region.${e.region}` }, tone: 'bad' });
+        return;
+      }
       case 'demand_spawned':
         add({
           kind: 'news',

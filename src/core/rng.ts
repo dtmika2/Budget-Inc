@@ -1,6 +1,6 @@
 /** Seeded PRNG (sfc32) with independent named streams (spec §10.2). */
 
-export const STREAM_NAMES = ['draft', 'effects', 'chaos', 'opportunities', 'budgetVote', 'election', 'filler', 'regions', 'demands'] as const;
+export const STREAM_NAMES = ['draft', 'effects', 'chaos', 'opportunities', 'budgetVote', 'election', 'filler', 'regions', 'demands', 'regionEvents'] as const;
 export type StreamName = (typeof STREAM_NAMES)[number];
 
 /** cyrb128 string hash -> four 32-bit seeds. */

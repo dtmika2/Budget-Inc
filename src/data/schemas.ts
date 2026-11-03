@@ -38,7 +38,7 @@ export const budgetChangeSchema = z
   .strict();
 
 const modifierSourceSchema = z.enum([
-  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'demand', 'any',
+  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'demand', 'region_event', 'any',
 ]);
 
 export const modifierSchema = z
@@ -142,6 +142,10 @@ export const budgetVoteOptionSchema = z
   })
   .strict();
 
+const budgetZoneSchema = z
+  .object({ ...bundleShape, regionTraits: z.record(z.string(), rangeSchema).optional(), pass: z.number().optional() })
+  .strict();
+
 export const budgetItemSchema = z
   .object({
     id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),
@@ -157,6 +161,14 @@ export const budgetItemSchema = z
     supportPerStep: z.number().default(0),
     passPerStep: z.number().default(0),
     canBeRedLine: z.boolean().default(true),
+    core: z.boolean().default(false),
+    band: z
+      .object({ min: z.number().int().max(0), max: z.number().int().min(0) })
+      .strict()
+      .default({ min: -1, max: 1 }),
+    onCut: budgetZoneSchema.default({}),
+    onOverspend: budgetZoneSchema.default({}),
+    advisor: z.object({ cut: z.string(), overspend: z.string() }).strict().nullable().default(null),
   })
   .strict();
 
@@ -316,6 +328,20 @@ const fulfilSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('compromise'), region: z.string(), minRegionGain: z.number().positive() }).strict(),
   z.object({ type: z.literal('budget'), item: z.string(), minSteps: z.number().int().refine((n) => n !== 0, 'minSteps must not be 0') }).strict(),
 ]);
+
+export const regionEventSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),
+    status: z.enum(['DUMMY', 'DRAFT', 'APPROVED']),
+    animation: z.enum(['flood', 'blackout', 'protest', 'factory', 'duo']),
+    regionWeights: z.record(z.string(), z.number().min(0)).default({}),
+    title: z.string(),
+    text: z.string(),
+    variants: z.array(z.object({ id: z.string().regex(/^[a-z0-9_]+$/), text: z.string() }).strict()).default([]),
+    onIntervene: bundleSchema,
+    onIgnore: bundleSchema,
+  })
+  .strict();
 
 export const demandSchema = z
   .object({

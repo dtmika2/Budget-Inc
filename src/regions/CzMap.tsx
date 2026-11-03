@@ -12,6 +12,8 @@ import { MapLife } from './MapLife';
 import { ProjectionTicker } from '@ui/charts/ProjectionTicker';
 import { Floaters } from '@ui/popups/Floaters';
 import { DemandPin } from './DemandPin';
+import { RegionEventLayer } from './RegionEventLayer';
+import { RegionEventPin } from './RegionEventPin';
 import { OpportunityPin } from './OpportunityPin';
 import { MAP_ATTRIBUTION, MAP_HEIGHT, MAP_SCHEMATIC, MAP_WIDTH, REGION_PATHS } from './regionsPath';
 
@@ -36,7 +38,7 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
           className="region region--outline"
           fill="transparent"
           fillRule="evenodd"
-          onClick={() => store.setUi({ selectedRegion: r.code })}
+          onClick={() => store.setUi({ selectedRegion: r.code, regionTab: 'main' })}
           onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(r.code)}
           onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered((h) => (h === r.code ? null : h))}
         >
@@ -44,6 +46,7 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
         </path>
       ))}
       <MapLife />
+      <RegionEventLayer />
       {highlights.map((code) => (
         <path
           key={`hl-${code}`}
@@ -60,6 +63,7 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
 function Pins() {
   const pins = useStore((s) => (s.sim ? [...s.sim.state.pins] : []));
   const demands = useStore((s) => (s.sim ? [...s.sim.state.demands] : []));
+  const regionEvents = useStore((s) => (s.sim ? [...s.sim.state.regionEvents] : []));
   const pledgeRegions = useStore((s) => (s.sim ? [...new Set(s.sim.state.pledges.map((p) => p.region))] : []));
   return (
     <div className="pins">
@@ -76,6 +80,11 @@ function Pins() {
         const r = LABEL_BY_CODE.get(d.region);
         if (!r) return null;
         return <DemandPin key={d.id} demand={d} x={((r.labelX + 22) / MAP_WIDTH) * 100} y={((r.labelY - 30) / MAP_HEIGHT) * 100} />;
+      })}
+      {regionEvents.map((e) => {
+        const r = LABEL_BY_CODE.get(e.region);
+        if (!r) return null;
+        return <RegionEventPin key={e.id} ev={e} x={((r.labelX - 4) / MAP_WIDTH) * 100} y={((r.labelY - 40) / MAP_HEIGHT) * 100} />;
       })}
       {pledgeRegions.map((code) => {
         const r = LABEL_BY_CODE.get(code);
