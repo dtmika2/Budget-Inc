@@ -88,13 +88,17 @@ Each `name` / `description` key needs a line in `locales/skilltree.cs.json`.
 | `anger.<group>.gain` / `.loss` | anger of `oligarchs`, `pensioners`, `media`, `eu`, `activists` (gain = getting angrier) |
 | `pc.perQuarter` | Political Capital per quarter (`add`) |
 | `election.T_base` | the election threshold (`add`, negative = easier) |
+| `budget.change` | every budget change, both ways (`multiplier`; Dotace uses ×2) |
+| `budgetVote.redLinePenalty` | pass-chance penalty per crossed red line (`multiplier`; Microbossing uses ×0) |
+| `compromise.<channel>.score` | mini-game score of a compromise channel, e.g. `compromise.press.score` (`add`) |
+| `party.positiveOnly` | while > 0 (`add`), party demands apply only their good parts (Microbossing) |
 
 Regional support changes count as `support` changes.
 
 ## Effects that need new code first
 
 Anything tied to the newer mechanics needs a new modifier target in code before a node can use it, for
-example: Campaign Mode twice a year or a stronger ability, an extra regional tour per year, bigger rewards
+example: a second use of a leader ability or a stronger one, an extra regional tour per year, bigger rewards
 or penalties for pledges, a softer red line in the budget vote, mutually exclusive nodes ("pick one of
 two"). Adding a target touches shared code (see the seams above), so agree on it with whoever works on the
 rest; once the target exists, nodes can use it.

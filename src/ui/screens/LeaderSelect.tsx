@@ -2,6 +2,7 @@ import type { DifficultyId, LeaderDef } from '@core/types';
 import { DIFFICULTY_IDS, GROUP_IDS, LEANING_IDS, RESOURCE_IDS } from '@core/types';
 import { fmt, t } from '@i18n/index';
 import { initials } from '../format';
+import { AbilityIcon } from '../abilityIcons';
 import { LeaderSprite } from '../LeaderSprite';
 import { bestScore } from '../persist';
 import { getStore, useStore } from '../store';
@@ -14,7 +15,7 @@ function LeaderCard({ leader, selected, difficulty }: { leader: LeaderDef; selec
   return (
     <button
       className={`leader-card${selected ? ' is-selected' : ''}`}
-      style={{ ['--party' as string]: leader.color }}
+      style={{ ['--party' as string]: leader.color, ['--party-light' as string]: leader.colorLight }}
       aria-pressed={selected}
       onClick={() => store.setUi({ setup: { ...store.ui.setup, leader: leader.id } })}
     >
@@ -50,9 +51,16 @@ function LeaderCard({ leader, selected, difficulty }: { leader: LeaderDef; selec
       </dl>
       <div className="leader-card__ability">
         <h3>{t('leaderSelect.ability')}</h3>
-        <p>
-          <b>{t(leader.ability.name)}</b> {t(leader.ability.description)}
-        </p>
+        <ul className="leader-abilities">
+          {leader.abilities.map((a) => (
+            <li key={a.id} className="leader-ability">
+              <AbilityIcon icon={a.icon} size={40} />
+              <p>
+                <b>{t(a.name)}</b> {t(a.description)}
+              </p>
+            </li>
+          ))}
+        </ul>
       </div>
       <p className="leader-card__leanings">
         {t('leaderSelect.leanings')}: {top.map((l) => `${t(`leaning.${l}`)} ${fmt((leader.leaningWeights[l] / total) * 100)} %`).join(', ')}

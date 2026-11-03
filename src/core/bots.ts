@@ -8,6 +8,7 @@
  *   effects (re-election probability P plus safety terms for resources near 0 and anger near 100), buys
  *   the cheapest available upgrade, collects all pins, uses the ability when it is useful.
  */
+import { canUseAbility, condemnTargets, type CondemnTarget } from './abilities';
 import { canRerollBudget, failBundle, presetSliders, sameSliders, shownItems, type Sliders } from './budgetVote';
 import { channelBlocked } from './compromise';
 import { budgetConditionMet, pledgesForCard, pledgesForCompromise, templateOf } from './demands';
@@ -107,6 +108,52 @@ export function greedyIntervenes(sim: Simulation, eventId: string): boolean {
   const ev = sim.state.regionEvents.find((e) => e.id === eventId)!;
   const pr = sim.previewRegionEvent(ev.templateId, ev.region);
   return gain(sim, pr.intervene) > gain(sim, pr.ignore);
+}
+
+/** Greedy use of the once-per-game abilities: a simple trigger per ability, anything left in the last year. */
+export function greedyAbility(sim: Simulation): { kind: 'useAbility'; abilityId: string; target?: string } | null {
+  const s = sim.state;
+  const unused = sim.leaderDef.abilities.filter((a) => !s.abilitiesUsed.includes(a.id));
+  if (!unused.length) return null;
+  const lastYear = s.quarter >= sim.cfg.time.quarters - 3;
+  const angriest = [...GROUP_IDS].sort((a, b) => s.anger[b] - s.anger[a])[0];
+  for (const a of unused) {
+    const tryUse = (target?: string) => (canUseAbility(sim, a.id, target) ? null : { kind: 'useAbility' as const, abilityId: a.id, target });
+    if (a.action === 'halveAnger') {
+      if (s.anger[angriest] >= 60 || lastYear) return tryUse(angriest);
+      continue;
+    }
+    if (a.action === 'cancelEvent') {
+      // the open item whose default outcome hurts most
+      const worst = condemnTargets(sim)
+        .map((c) => ({ c, v: condemnValue(sim, c) }))
+        .sort((x, y) => x.v - y.v)[0];
+      if (worst && (worst.v < -0.02 || lastYear)) return tryUse(worst.c.target);
+      continue;
+    }
+    // year-long effects pay off most when used early; the rest wait for their moment
+    const early = s.quarter >= 2;
+    const trigger =
+      (a.id === 'press_release' && (s.anger.media >= 40 || early)) ||
+      (a.id === 'godfathers' && (s.anger.oligarchs >= 40 || early)) ||
+      (a.id === 'microbossing' && s.resources.coalition < 45) ||
+      (a.id === 'subsidies' && s.resources.finances >= 55);
+    if (trigger || lastYear) return tryUse();
+  }
+  return null;
+}
+
+/** Value change if an open item ran its default course (what condemning it saves, negative = it hurts). */
+function condemnValue(sim: Simulation, c: CondemnTarget): number {
+  const s = sim.state;
+  const now = stateValue(sim, s.resources, s.anger);
+  if (c.kind === 'regionEvent') return valueAfter(sim, sim.previewRegionEvent(c.ref, c.region!).ignore) - now;
+  if (c.kind === 'demand') return valueAfter(sim, sim.previewDemand(c.ref, c.region!).ignore) - now;
+  if (c.kind === 'response') {
+    const ev = sim.eventById.get(c.ref);
+    return ev?.responses ? valueAfter(sim, sim.previewResponse(ev.id, ev.responses.default)) - now : 0;
+  }
+  return -0.01;
 }
 
 /** Compromise channels usable right now (config order). */
@@ -231,7 +278,14 @@ export function createBot(kind: BotKind, seed: string): Bot {
           const nodes = availableNodes(sim).filter((n) => n.cost <= s.pc);
           if (nodes.length) sim.dispatch({ kind: 'buyUpgrade', nodeId: rng.pick(nodes).id });
         }
-        if (s.abilityCharges > 0 && rng.next() < 0.005) sim.dispatch({ kind: 'useAbility' });
+        if (rng.next() < 0.005) {
+          const unused = sim.leaderDef.abilities.filter((a) => !s.abilitiesUsed.includes(a.id));
+          if (unused.length) {
+            const a = rng.pick(unused);
+            const targets = a.action === 'cancelEvent' ? condemnTargets(sim).map((c) => c.target) : a.action === 'halveAnger' ? [...GROUP_IDS] : [undefined];
+            if (targets.length) sim.dispatch({ kind: 'useAbility', abilityId: a.id, target: rng.pick(targets) });
+          }
+        }
       },
     };
   }
@@ -295,20 +349,9 @@ export function createBot(kind: BotKind, seed: string): Bot {
       // cheapest available upgrade
       const avail = availableNodes(sim).sort((a, b) => a.cost - b.cost);
       if (avail.length && avail[0].cost <= s.pc) sim.dispatch({ kind: 'buyUpgrade', nodeId: avail[0].id });
-      // ability when useful
-      if (s.abilityCharges > 0) {
-        const ability = sim.leaderDef.ability;
-        const hasInstant = !!(ability.bundle.effects || ability.bundle.anger);
-        if (hasInstant) {
-          const gain = valueAfter(sim, sim.previewAbility()) - stateValue(sim, s.resources, s.anger);
-          const lastChance = s.quarter % 4 === 0 && s.day > 60;
-          if (gain > 0.03 || (lastChance && gain > 0)) sim.dispatch({ kind: 'useAbility' });
-        } else {
-          // modifier-only ability (Austerity Freeze): time it to cover the budget vote's mandatory growth
-          const voteQ = sim.cfg.budgetVote.quarters.includes(s.quarter);
-          if (voteQ && s.day >= sim.cfg.budgetVote.day - 20 && s.day < sim.cfg.budgetVote.day) sim.dispatch({ kind: 'useAbility' });
-        }
-      }
+      // abilities: each once, by a simple rule
+      const input = greedyAbility(sim);
+      if (input) sim.dispatch(input);
     },
   };
 }
