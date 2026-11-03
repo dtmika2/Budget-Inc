@@ -166,12 +166,19 @@ export const upgradeTreeSchema = z
     name: z.string(),
     /** Leader tree: only this leader sees and can buy it. Omit for trees every leader has. */
     leader: z.string().optional(),
+    /** Start node per leader id (owned for free at run start). */
+    start: z.record(z.string(), z.string()).default({}),
+    /** Fork groups: buying one node locks out the others. */
+    exclusive: z.array(z.array(z.string()).min(2)).default([]),
+    /** Axis labels around the tree view (locale keys). */
+    axes: z.object({ top: z.string(), bottom: z.string(), left: z.string(), right: z.string() }).strict().optional(),
     nodes: z.array(
       z
         .object({
           id: z.string(),
           cost: z.number().min(0),
           requires: z.array(z.string()).default([]),
+          links: z.array(z.string()).default([]),
           modifiers: z.array(modifierSchema),
           name: z.string(),
           description: z.string(),

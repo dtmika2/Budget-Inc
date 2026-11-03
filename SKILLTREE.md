@@ -8,13 +8,12 @@ files below; other work does not edit them.
 
 | File | What it holds |
 |---|---|
-| `data/upgrades/support.json` | the shared Public Support tree (every leader) |
-| `data/upgrades/abis.json` | Bander Abis's leader tree (`"leader": "abis"`), starter version with `[DUMMY]` texts |
-| `data/upgrades/mupka.json` | Kartin Mupka's leader tree (create it the same way, `"leader": "mupka"`) |
+| `data/upgrades/compass.json` | the Political Compass tree every leader has (28 boxes, `[DUMMY]` texts and effects) |
 | `locales/skilltree.cs.json` | Czech texts: tree and node names/descriptions and the tree screen's UI chrome (`upgrades.*`, `hud.upgrades`) |
 | `src/skilltree/` | tree screen (`UpgradeTree.tsx`), HUD button (`UpgradeButton.tsx`), styles (`skilltree.css`) |
 | `src/core/upgrades.ts` | buying rules: node status, which trees a leader has, `buyUpgrade` |
 | `tests/skilltree.test.ts` | skill-tree tests |
+| `tests/fixtures/support-tree.json`, `tests/fixtures/trees.ts` | the old Public Support tree, kept as a fixture for the engine / modifier tests |
 
 ### Seams into the shared code
 
@@ -32,24 +31,46 @@ those changes small and tell the other side:
 Open a pull request from `David` into `main` when a version is ready, and merge `main` into `David` now
 and then to pick up the other work.
 
-## A tree
+## The Political Compass
+
+The tree is a compass seen from above: **Levice** on the left, **Pravice** on the right, **Progrese** at the
+top, **Tradice** at the bottom (9 × 9 grid; `col` 0–8 from left, `row` 0–8 from top). The middle column
+holds the Progrese and Tradice boxes; each side has an inner pair joined to them and then branches outwards.
+
+Rules:
+- **Start box.** Each leader owns their `start` box for free at the beginning of a run, and its effect is
+  active from day 1. Placeholders: Mupka `c_r1t` (Pravice · tradice), Abis `c_l1t` (Levice · tradice).
+- **Paths.** A box can be bought when a box it is linked to is owned. Links have no direction: list each
+  connection once, on either box.
+- **Joints.** A box with `requires` needs **all** listed boxes, not just one. The Levice and Pravice
+  střed boxes (`c_l4m`, `c_r4m`) require both their 3B boxes, so they open only when both the Progrese and
+  the Tradice side are owned. Lines into a joint are thicker and carry a "+" badge.
+- **Forks.** Each group in `exclusive` is a fork: buying one box locks the others out for good. The links
+  into a fork carry a lock icon, and buying a fork box asks the player to confirm first.
 
 ```jsonc
 {
-  "id": "abis",                         // unique tree id
-  "name": "upgrades.abis.name",         // key in locales/skilltree.cs.json
-  "leader": "abis",                     // leave out for a tree every leader has
+  "id": "compass",
+  "name": "upgrades.compass.name",                // key in locales/skilltree.cs.json
+  "axes": { "top": "upgrades.compass.axis.top", "bottom": "…", "left": "…", "right": "…" },
+  "start": { "mupka": "c_r1t", "abis": "c_l1t" },  // every leader needs one
+  "exclusive": [["c_r3pa", "c_r3pb"], …],          // forks: pick one
   "nodes": [
-    { "id": "abis_own_media",           // unique across all trees; prefix with the tree id
+    { "id": "c_r1t",                    // unique across all trees
       "cost": 2,                        // Political Capital
-      "requires": [],                   // node ids that must be owned first (all of them)
-      "pos": { "col": 1, "row": 0 },    // place in the tree view (grid)
-      "name": "upgrade.abis_own_media.name",
-      "description": "upgrade.abis_own_media.desc",
-      "modifiers": [{ "type": "multiplier", "target": "anger.media.gain", "value": 0.8 }] }
+      "links": ["c_trad", "c_r2t"],     // neighbours (path)
+      "pos": { "col": 5, "row": 5 },    // place in the grid
+      "name": "upgrade.c_r1t.name",
+      "description": "upgrade.c_r1t.desc",
+      "modifiers": [{ "type": "multiplier", "target": "anger.oligarchs.gain", "value": 0.85 }] }
   ]
 }
 ```
+
+Box ids: `c_prog` / `c_trad` in the middle; `c_r…` on the Pravice side and `c_l…` on Levice; then the step
+outwards (1–4), `p` / `t` for the Progrese / Tradice half, and `a` / `b` / `1` / `2` / `m` for the boxes of a
+fork or the shared middle box. A node can still use `"requires"` (all listed nodes owned) instead of
+links, and a tree can still be leader-only with `"leader"`; more trees show as tabs.
 
 Each `name` / `description` key needs a line in `locales/skilltree.cs.json`.
 
@@ -94,6 +115,7 @@ Catches typos: unknown targets, missing texts, unknown prerequisites, cycles, du
 npm run simulate -- --runs 1000 --bot both
 ```
 Balance: win rates per leader. Targets on Normal: random ≤ 15 %, greedy 20–40 %, and the two leaders
-within about 10 points of each other. Today Abis is already stronger than Mupka; the starter Abis tree
-raises greedy Abis from ~58 % to ~72 %, so the final tree should trade power for drawbacks or cover his
-weak spots (media and EU anger, prestige) rather than add support.
+within about 10 points of each other. With the `[DUMMY]` compass (1000 runs, Normal): random Mupka 0.5 %,
+random Abis 22.7 %, greedy Mupka 29.8 %, greedy Abis 73.8 %. Abis is far stronger than Mupka. His start
+box and side of the tree should cover his weak spots (media and EU anger, prestige) at a cost, rather
+than add more support.

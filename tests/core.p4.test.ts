@@ -6,6 +6,7 @@ import { registerOngoing } from '../src/core/effects';
 import { passChance, presetSliders } from '../src/core/budgetVote';
 import { nodeStatus } from '../src/core/upgrades';
 import { advanceQuiet, cfgWith, gameData, makeSim, quietSim } from './helpers';
+import { withSupportTree } from './fixtures/trees';
 
 const cardById = (id: string) => gameData().policies.find((c) => c.id === id)!;
 
@@ -30,7 +31,7 @@ describe('chaos events', () => {
   it('is scheduled inside its window and quarter offset, then fires and applies effects', () => {
     const sim = makeSim({ seed: 'fire' });
     sim.state.schedule = sim.state.schedule.filter((e) => e.kind === 'budgetVote');
-    const data = { ...gameData(), events: gameData().events.map((e) => ({ ...e, chance: 1 })) };
+    const data = { ...withSupportTree(), events: gameData().events.map((e) => ({ ...e, chance: 1 })) };
     const s2 = makeSim({ seed: 'fire' }, config, data);
     s2.state.schedule = [];
     scheduleChaosForPick(s2, cardById('dummy_expenditure')); // dummy_evt_3: offset 1, window 5–60
@@ -73,7 +74,7 @@ describe('chaos events', () => {
 });
 
 function firedRespondable() {
-  const data = { ...gameData(), events: gameData().events.map((e) => ({ ...e, chance: 1 })) };
+  const data = { ...withSupportTree(), events: gameData().events.map((e) => ({ ...e, chance: 1 })) };
   const sim = makeSim({ seed: 'resp' }, config, data);
   sim.state.schedule = [];
   sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
@@ -246,15 +247,15 @@ describe('budget vote', () => {
   });
 });
 
-describe('upgrades: Public Support branch', () => {
+describe('upgrades: Public Support branch (fixture tree)', () => {
   it('enforces prerequisites and cost', () => {
-    const sim = quietSim();
+    const sim = quietSim({}, config, withSupportTree());
     sim.state.pc = 100;
     expect(sim.dispatch({ kind: 'buyUpgrade', nodeId: 'sup_press_office' }).ok).toBe(false);
     expect(sim.dispatch({ kind: 'buyUpgrade', nodeId: 'sup_campaign_office' }).ok).toBe(true);
     expect(sim.dispatch({ kind: 'buyUpgrade', nodeId: 'sup_campaign_office' }).ok).toBe(false);
     const tree = sim.data.upgrades.find((x) => x.id === 'support')!;
-    const status = (id: string) => nodeStatus(sim.state.ownedUpgrades, tree.nodes.find((n) => n.id === id)!);
+    const status = (id: string) => nodeStatus(sim.state.ownedUpgrades, tree.nodes.find((n) => n.id === id)!, tree);
     expect(status('sup_press_office')).toBe('available');
     expect(status('sup_permanent_campaign')).toBe('locked');
     sim.state.pc = 0;
@@ -262,7 +263,7 @@ describe('upgrades: Public Support branch', () => {
   });
 
   it('each node changes the right numbers', () => {
-    const sim = quietSim();
+    const sim = quietSim({}, config, withSupportTree());
     sim.state.pc = 100;
     const buy = (id: string) => expect(sim.dispatch({ kind: 'buyUpgrade', nodeId: id }).ok).toBe(true);
 
