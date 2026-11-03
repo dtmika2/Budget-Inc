@@ -5,7 +5,7 @@
 import type { Config, DifficultyPreset } from '../config';
 import { activateAbility, canUseAbility, rechargeIfYearStart } from './abilities';
 import { computeFinances, initPct } from './budget';
-import { openBudgetVote, passChance, scheduleBudgetVotes, voteBudget } from './budgetVote';
+import { openBudgetVote, passChance, scheduleBudgetVotes, validateVote, violations, voteBudget, voteBundle, type Sliders } from './budgetVote';
 import { canRespond, fireChaos, respond, scheduleChaosForPick } from './chaos';
 import { canMakeCompromise, makeCompromise, openCompromise, scheduleQuarterCompromise } from './compromise';
 import { drawHand, rerollCost } from './draft';
@@ -122,6 +122,7 @@ export class Simulation implements EffectHost {
       zeroPenalties: { finances: false, support: false, prestige: false },
       draft: null,
       compromiseOffer: null,
+      budgetVoteRedLines: null,
       picked: [],
       schedule: [],
       scheduleSeq: 0,
@@ -397,6 +398,7 @@ export class Simulation implements EffectHost {
     s.pendingResponses = [];
     s.draft = null;
     s.compromiseOffer = null;
+    s.budgetVoteRedLines = null;
   }
 
   private finishElection(snap: boolean): void {
@@ -448,7 +450,7 @@ export class Simulation implements EffectHost {
         return canMakeCompromise(this, input.cardId);
       case 'voteBudget':
         if (s.phase !== 'budgetVote') return 'no vote open';
-        return this.data.budgetVote.some((o) => o.id === input.optionId) ? null : 'no such option';
+        return validateVote(this, input.sliders, input.presetId);
       case 'buyUpgrade':
         return canBuy(this, input.nodeId);
       case 'useAbility':
@@ -490,7 +492,7 @@ export class Simulation implements EffectHost {
         collectPin(this, input.pinId);
         break;
       case 'voteBudget':
-        voteBudget(this, input.optionId);
+        voteBudget(this, input.sliders, input.presetId);
         break;
       case 'buyUpgrade':
         buyUpgrade(this, input.nodeId);
@@ -522,9 +524,13 @@ export class Simulation implements EffectHost {
     return this.preview(opt ?? {}, 'response');
   }
 
-  previewBudgetOption(optionId: string): PreviewRanges & { passChance: number } {
-    const opt = this.data.budgetVote.find((o) => o.id === optionId);
-    return { ...this.preview(opt ?? {}, 'budget_vote'), passChance: passChance(this, optionId) };
+  /** Preview of a budget-vote slider setting: ranges, pass chance and crossed red lines. */
+  previewVote(sliders: Sliders, presetId: string | null): PreviewRanges & { passChance: number; violations: string[] } {
+    return {
+      ...this.preview(voteBundle(this, sliders, presetId), 'budget_vote'),
+      passChance: passChance(this, sliders, presetId),
+      violations: violations(this, sliders).map((r) => r.item),
+    };
   }
 
   previewAbility(): PreviewRanges {

@@ -136,6 +136,25 @@ export const budgetVoteOptionSchema = z
     label: z.string(),
     description: z.string(),
     passChanceMod: z.number(),
+    sliders: z.record(z.string(), z.number().int()).default({}),
+  })
+  .strict();
+
+export const budgetItemSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),
+    label: z.string(),
+    chapters: z
+      .array(
+        z
+          .object({ chapter: z.string().min(1), type: z.enum(['revenue', 'expenditure']), weight: z.number().positive().max(1) })
+          .strict(),
+      )
+      .min(1),
+    angerPerStep: z.object(Object.fromEntries(GROUP_IDS.map((g) => [g, z.number()]))).partial().strict().default({}),
+    supportPerStep: z.number().default(0),
+    passPerStep: z.number().default(0),
+    canBeRedLine: z.boolean().default(true),
   })
   .strict();
 

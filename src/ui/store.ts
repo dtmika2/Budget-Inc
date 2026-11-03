@@ -369,10 +369,10 @@ export class Store {
         return;
       }
       case 'budget_vote': {
-        const opt = sim.data.budgetVote.find((o) => o.id === e.optionId);
+        const opt = sim.data.budgetVote.find((o) => o.id === e.presetId);
         add(
           e.passed
-            ? { kind: 'news', titleKey: 'budgetVote.title', textKey: 'popup.budgetPassed', keyParams: { name: opt?.label ?? '' }, tone: 'good', deltas: e.deltas }
+            ? { kind: 'news', titleKey: 'budgetVote.title', textKey: 'popup.budgetPassed', keyParams: { name: opt?.label ?? 'budgetVote.custom' }, tone: 'good', deltas: e.deltas }
             : { kind: 'news', titleKey: 'budgetVote.title', textKey: 'popup.budgetFailed', tone: 'bad', deltas: e.deltas },
         );
         return;

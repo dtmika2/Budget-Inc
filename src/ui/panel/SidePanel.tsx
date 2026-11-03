@@ -48,7 +48,7 @@ function originLabel(origin: string): string {
   if (kind === 'chaos') return t(sim.eventById.get(id)?.text ?? id);
   if (kind === 'ability') return t(sim.leaderDef.ability.name);
   if (kind === 'upgrade') return t(`upgrade.${id}.name`);
-  if (kind === 'budget_vote') return t(sim.data.budgetVote.find((o) => o.id === id)?.label ?? 'budgetVote.title');
+  if (kind === 'budget_vote') return t(sim.data.budgetVote.find((o) => o.id === id)?.label ?? (id === 'custom' ? 'budgetVote.custom' : 'budgetVote.title'));
   return origin;
 }
 
@@ -143,8 +143,8 @@ export function historyTitle(e: LogEntry): { kind: string; name: string } {
       return { kind: t('history.response'), name: `${opt ? t(opt.label) : ''}${e.timedOut ? ` (${t('history.timedOut')})` : ''}` };
     }
     case 'budget_vote': {
-      const opt = sim.data.budgetVote.find((o) => o.id === e.optionId);
-      return { kind: t('history.budget'), name: `${opt ? t(opt.label) : ''}: ${e.passed ? t('history.passed') : t('history.failed')}` };
+      const opt = sim.data.budgetVote.find((o) => o.id === e.presetId);
+      return { kind: t('history.budget'), name: `${t(opt ? opt.label : 'budgetVote.custom')}: ${e.passed ? t('history.passed') : t('history.failed')}` };
     }
     case 'ability_used':
       return { kind: t('history.ability'), name: t(sim.leaderDef.ability.name) };

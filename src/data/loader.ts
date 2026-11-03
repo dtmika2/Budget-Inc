@@ -8,6 +8,7 @@ import { config } from '../config';
 import { shortHash } from '../core/rng';
 import type {
   CompromiseCard,
+  BudgetItem,
   BudgetVoteOption,
   ChaosEventDef,
   EffectBundle,
@@ -21,6 +22,7 @@ import type {
 } from '../core/types';
 import { GROUP_IDS, RESOURCE_IDS } from '../core/types';
 import {
+  budgetItemSchema,
   budgetSchema,
   budgetVoteOptionSchema,
   compromiseSchema,
@@ -53,7 +55,8 @@ export type DataErrorCode =
   | 'unknownRegion'
   | 'tooFewCards'
   | 'badResponse'
-  | 'badTarget';
+  | 'badTarget'
+  | 'unknownItem';
 
 export interface DataIssue {
   code: DataErrorCode;
@@ -143,6 +146,7 @@ export function loadGameData(
   const leadersRaw = single(leaderSchema.array().min(1), 'data/leaders.json');
   const endingsRaw = single(endingSchema.array(), 'data/endings.json');
   const voteRaw = single(budgetVoteOptionSchema.array().min(1), 'data/annual/budget_vote.json');
+  const itemsRaw = single(budgetItemSchema.array().min(1), 'data/budget_items.json');
   const policies = many(policySchema, 'data/policies');
   const compromises = many(compromiseSchema, 'data/compromises');
   const events = many(eventSchema, 'data/events');
@@ -239,6 +243,18 @@ export function loadGameData(
     });
   }
 
+  const itemIds = new Set(itemsRaw?.map((it) => it.id) ?? []);
+  if (itemsRaw) {
+    const f = 'data/budget_items.json';
+    dupCheck(itemsRaw.map((it, i) => ({ id: it.id, file: f, path: `[${i}]` })));
+    itemsRaw.forEach((it, i) => {
+      locKey(it.label, f, `[${i}].label`);
+      it.chapters.forEach((c, j) => {
+        if (budget && !chapterCodes.has(c.chapter)) err('unknownChapter', f, `[${i}].chapters[${j}].chapter`, c.chapter);
+      });
+    });
+  }
+
   if (voteRaw) {
     const f = 'data/annual/budget_vote.json';
     dupCheck(voteRaw.map((o, i) => ({ id: o.id, file: f, path: `[${i}]` })));
@@ -246,6 +262,11 @@ export function loadGameData(
       locKey(o.label, f, `[${i}].label`);
       locKey(o.description, f, `[${i}].description`);
       checkBundle(o, f, `[${i}]`);
+      for (const [item, steps] of Object.entries(o.sliders)) {
+        if (itemsRaw && !itemIds.has(item)) err('unknownItem', f, `[${i}].sliders.${item}`, item);
+        const { minSteps, maxSteps } = config.budgetVote.sliders;
+        if (steps < minSteps || steps > maxSteps) err('schema', f, `[${i}].sliders.${item}`, `steps must be within ${minSteps}..${maxSteps}`);
+      }
     });
   }
 
@@ -350,7 +371,7 @@ export function loadGameData(
     }
   }
 
-  if (errors.length > 0 || !budget || !regions || !leadersRaw || !endingsRaw || !voteRaw) {
+  if (errors.length > 0 || !budget || !regions || !leadersRaw || !endingsRaw || !voteRaw || !itemsRaw) {
     return { ok: false, errors, warnings };
   }
 
@@ -377,6 +398,7 @@ export function loadGameData(
     }) as ChaosEventDef[],
     opportunities: opportunities.map((o) => ({ ...o.item, reward: normalise(o.item.reward) })) as OpportunityDef[],
     budgetVote: voteRaw.map(normalise) as BudgetVoteOption[],
+    budgetItems: itemsRaw as BudgetItem[],
     upgrades: trees.map((t) => t.item) as UpgradeTree[],
     endings: endingsRaw as EndingDef[],
     fileHashes,

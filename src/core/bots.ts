@@ -8,7 +8,7 @@
  *   effects (re-election probability P plus safety terms for resources near 0 and anger near 100), buys
  *   the cheapest available upgrade, collects all pins, uses the ability when it is useful.
  */
-import { failBundle, passChance } from './budgetVote';
+import { failBundle, presetSliders, sameSliders, type Sliders } from './budgetVote';
 import type { PreviewRanges } from './effects';
 import { Rng } from './rng';
 import type { Simulation } from './simulation';
@@ -74,6 +74,53 @@ function respondAll(sim: Simulation, choose: (instanceId: string, eventId: strin
   }
 }
 
+/** Vote input for a preset as-is. */
+export function presetVote(sim: Simulation, presetId: string): { kind: 'voteBudget'; sliders: Sliders; presetId: string } {
+  return { kind: 'voteBudget', sliders: presetSliders(sim, presetId), presetId };
+}
+
+/** Expected value of a slider setting: pass chance x value after + fail chance x value after failing. */
+function voteValue(sim: Simulation, sliders: Sliders, presetId: string | null, failV: number): number {
+  const p = sim.previewVote(sliders, presetId);
+  return p.passChance * valueAfter(sim, p) + (1 - p.passChance) * failV;
+}
+
+/** Greedy vote: best preset, then a bounded deterministic hill-climb over the sliders. */
+export function greedyVote(sim: Simulation, maxPasses = 2): { kind: 'voteBudget'; sliders: Sliders; presetId: string | null } {
+  const failV = valueAfter(sim, sim.preview(failBundle(sim), 'budget_vote'));
+  let presetId: string | null = sim.data.budgetVote[0].id;
+  let bestV = -Infinity;
+  for (const o of sim.data.budgetVote) {
+    const v = voteValue(sim, presetSliders(sim, o.id), o.id, failV);
+    if (v > bestV) {
+      bestV = v;
+      presetId = o.id;
+    }
+  }
+  const base = presetSliders(sim, presetId);
+  let sliders = { ...base };
+  const { minSteps, maxSteps } = sim.cfg.budgetVote.sliders;
+  for (let pass = 0; pass < maxPasses; pass++) {
+    let improved = false;
+    for (const it of sim.data.budgetItems) {
+      for (const d of [-1, 1]) {
+        const next = sliders[it.id] + d;
+        if (next < minSteps || next > maxSteps) continue;
+        const cand = { ...sliders, [it.id]: next };
+        const pid = sameSliders(sim, cand, base) ? presetId : null;
+        const v = voteValue(sim, cand, pid, failV);
+        if (v > bestV + 1e-9) {
+          bestV = v;
+          sliders = cand;
+          improved = true;
+        }
+      }
+    }
+    if (!improved) break;
+  }
+  return { kind: 'voteBudget', sliders, presetId: sameSliders(sim, sliders, base) ? presetId : null };
+}
+
 export function createBot(kind: BotKind, seed: string): Bot {
   const rng = new Rng(`${seed}:bot:${kind}`);
   const pinDecided = new Set<string>();
@@ -85,7 +132,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
         const s = sim.state;
         if (s.phase === 'draft' && s.draft) sim.dispatch({ kind: 'pickPolicy', cardId: s.draft.hand[0] });
         else if (s.phase === 'compromise' && s.compromiseOffer) sim.dispatch({ kind: 'makeCompromise', cardId: s.compromiseOffer[0] });
-        else if (s.phase === 'budgetVote') sim.dispatch({ kind: 'voteBudget', optionId: sim.data.budgetVote[0].id });
+        else if (s.phase === 'budgetVote') sim.dispatch(presetVote(sim, sim.data.budgetVote[0].id));
       },
     };
   }
@@ -105,7 +152,15 @@ export function createBot(kind: BotKind, seed: string): Bot {
           return;
         }
         if (s.phase === 'budgetVote') {
-          sim.dispatch({ kind: 'voteBudget', optionId: rng.pick(sim.data.budgetVote).id });
+          const preset = rng.pick(sim.data.budgetVote).id;
+          const sliders = presetSliders(sim, preset);
+          const { minSteps, maxSteps } = sim.cfg.budgetVote.sliders;
+          const nudges = rng.int(0, 3);
+          for (let i = 0; i < nudges; i++) {
+            const id = rng.pick(sim.data.budgetItems).id;
+            sliders[id] = Math.min(maxSteps, Math.max(minSteps, sliders[id] + (rng.next() < 0.5 ? -1 : 1)));
+          }
+          sim.dispatch({ kind: 'voteBudget', sliders, presetId: sameSliders(sim, sliders, presetSliders(sim, preset)) ? preset : null });
           return;
         }
         if (s.phase === 'compromise' && s.compromiseOffer) {
@@ -163,18 +218,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
         return;
       }
       if (s.phase === 'budgetVote') {
-        const failV = valueAfter(sim, sim.preview(failBundle(sim), 'budget_vote'));
-        let best = sim.data.budgetVote[0].id;
-        let bestV = -Infinity;
-        for (const o of sim.data.budgetVote) {
-          const p = passChance(sim, o.id);
-          const v = p * valueAfter(sim, sim.previewBudgetOption(o.id)) + (1 - p) * failV;
-          if (v > bestV) {
-            bestV = v;
-            best = o.id;
-          }
-        }
-        sim.dispatch({ kind: 'voteBudget', optionId: best });
+        sim.dispatch(greedyVote(sim));
         return;
       }
       if (s.phase !== 'running') return;

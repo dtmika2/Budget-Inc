@@ -144,6 +144,28 @@ export interface BudgetVoteOption extends EffectBundle {
   label: string;
   description: string;
   passChanceMod: number;
+  /** Preset slider positions (steps per budget category) set when the player picks this preset. */
+  sliders: Record<string, number>;
+}
+
+/** Player-facing budget category with a slider. Maps to hidden chapters; its name is a locale key. */
+export interface BudgetItem {
+  id: string;
+  label: string;
+  /** Hidden mapping: one step of stepPct % adds stepPct * weight to each chapter's changePct. */
+  chapters: { chapter: string; type: 'revenue' | 'expenditure'; weight: number }[];
+  /** Anger change per +1 step (a cut is a negative step, so it inverts the sign). */
+  angerPerStep: Partial<Record<GroupId, number>>;
+  supportPerStep: number;
+  /** Pass-chance change per +1 step (e.g. partners like more spending on this). */
+  passPerStep: number;
+  canBeRedLine: boolean;
+}
+
+export interface RedLine {
+  item: string;
+  /** Cutting by more than this many steps violates the red line. */
+  maxCutSteps: number;
 }
 
 export interface UpgradeNode {
@@ -233,6 +255,7 @@ export interface GameData {
   events: ChaosEventDef[];
   opportunities: OpportunityDef[];
   budgetVote: BudgetVoteOption[];
+  budgetItems: BudgetItem[];
   upgrades: UpgradeTree[];
   endings: EndingDef[];
   /** File path -> short content hash, logged in run_started. */
@@ -248,7 +271,7 @@ export type Input =
   | { kind: 'reroll' }
   | { kind: 'respond'; eventInstanceId: string; responseId: string; timedOut: boolean }
   | { kind: 'collectOpportunity'; pinId: string }
-  | { kind: 'voteBudget'; optionId: string }
+  | { kind: 'voteBudget'; sliders: Record<string, number>; presetId: string | null }
   | { kind: 'makeCompromise'; cardId: string }
   | { kind: 'buyUpgrade'; nodeId: string }
   | { kind: 'useAbility' };
@@ -381,6 +404,8 @@ export interface GameState {
   draft: DraftState | null;
   /** Open regional-compromise decision: the compromise card ids offered against each other. */
   compromiseOffer: string[] | null;
+  /** Coalition red lines of the open budget vote (drawn at vote open). */
+  budgetVoteRedLines: RedLine[] | null;
   picked: { cardId: string; quarter: number }[];
   schedule: ScheduledEntry[];
   scheduleSeq: number;

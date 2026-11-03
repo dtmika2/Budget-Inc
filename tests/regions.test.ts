@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { presetVote } from '../src/core/bots';
 import { config } from '../src/config';
 import { createBot, runToEnd } from '../src/core/bots';
 import { exportRun } from '../src/core/log';
@@ -54,7 +55,7 @@ function untilCompromise(sim: Simulation, maxQuarters = 16): boolean {
     const ph = sim.state.phase;
     if (ph === 'compromise') return true;
     if (ph === 'draft') sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
-    else if (ph === 'budgetVote') sim.dispatch({ kind: 'voteBudget', optionId: 'budget_balanced' });
+    else if (ph === 'budgetVote') sim.dispatch(presetVote(sim, 'budget_balanced'));
     else sim.tick();
   }
   return false;

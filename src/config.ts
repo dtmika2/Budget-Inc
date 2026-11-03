@@ -113,6 +113,14 @@ export const config = {
     passMin: 0.05,
     passMax: 0.98,
     failEffects: { coalition: -8, prestige: -3, support: -2 } as Partial<Record<ResourceId, number>>,
+    /** Budget sliders (phase 11): one step changes a category's spending by stepPct %. */
+    sliders: { minSteps: -3, maxSteps: 3, stepPct: 5 },
+    /**
+     * Coalition red lines: at vote open, min..max categories (with canBeRedLine) are drawn from the
+     * budgetVote stream. Cutting one by more than maxCutSteps steps is a violation; each violation lowers
+     * the pass chance by passPenalty.
+     */
+    redLines: { min: 1, max: 2, maxCutSteps: 1, passPenalty: 0.2 },
   },
 
   draft: {
