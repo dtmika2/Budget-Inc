@@ -33,24 +33,69 @@
 /* numerals (same as the shared rule in global.css) */
 .popup__countdown, .btn-response__cost, .popups__queued { font-family: var(--f-num); font-weight: 400; }
 
-/* ------------------------------------------------------------ special cards: warnings banner */
-.special-warnings {
-  position: absolute; top: 12px; right: var(--gutter); z-index: 5; width: min(300px, 60%);
-  margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; pointer-events: none;
+/* ------------------------------------------------------------ event timeline (top right) */
+.timeline { position: absolute; top: 12px; right: var(--gutter); z-index: 5; width: min(560px, 52%); }
+.timeline__strip {
+  position: relative; height: 84px; background: rgba(27, 23, 41, 0.92); border: 2px solid var(--line);
+  box-shadow: var(--shadow-sm); overflow: visible;
 }
-.special-warning {
-  display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: rgba(35, 30, 54, 0.94);
-  border: 2px solid var(--gold-dim); box-shadow: var(--shadow-sm); color: var(--text);
-  animation: sp-warn-in 0.3s steps(4) both, sp-warn-pulse 1.2s steps(2) 0.3s infinite;
+/* the shared paused badge sits where the timeline is: move it below */
+.game__stage > .paused-badge { top: 108px; }
+.tl-quarter { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dotted var(--line); }
+.tl-quarter__label { position: absolute; bottom: 2px; left: 3px; font: 11px var(--f-num); color: var(--text-dim); white-space: nowrap; }
+.tl-now { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 3px solid var(--gold); z-index: 1; }
+.tl-now::before {
+  content: ''; position: absolute; top: -2px; left: -7px; border: 6px solid transparent; border-top: 7px solid var(--gold);
 }
-.special-warning--catastrophe { border-color: var(--stamp); --pulse: var(--stamp); }
-.special-warning--agent { border-color: var(--gold); --pulse: var(--gold); }
-.special-warning__art { flex: none; width: 48px; height: 28px; padding: 2px; background: #2a2440; border: 2px solid var(--pulse); }
-.special-warning__text { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
-.special-warning__text b { font: 15px var(--f-pixel); }
-.special-warning__text span { font-size: 13px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-@keyframes sp-warn-in { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes sp-warn-pulse { 50% { box-shadow: 0 0 0 3px var(--pulse); } }
+.tl-item {
+  position: absolute; z-index: 2; width: 22px; height: 22px; padding: 0; transform: translateX(-50%); cursor: default;
+  display: grid; place-items: center; border: 2px solid var(--ink); box-shadow: 2px 2px 0 #0c0a14;
+  background: var(--panel-2); color: var(--text); transition: left 0.3s linear;
+}
+.tl-item--row0 { top: 6px; }
+.tl-item--row1 { top: 30px; }
+.tl-item--anchor { top: 54px; }
+.tl-item--unknown { background: #3a3158; color: var(--gold); animation: tl-unknown 1.6s steps(2) infinite; }
+@keyframes tl-unknown { 50% { color: var(--paper); } }
+.tl-item--catastrophe { background: var(--stamp); color: var(--paper); }
+.tl-item--agent { background: var(--gold); color: var(--ink); }
+.tl-item--chaos { background: #5d5a68; color: var(--gold); }
+.tl-item--budgetVote { background: var(--paper); color: var(--ink); }
+.tl-item--election { background: var(--ink); color: var(--gold); border-color: var(--gold); }
+.tl-item.is-past { opacity: 0.5; }
+.tl-item.is-past::after {
+  position: absolute; right: -6px; top: -7px; font: 700 11px var(--f-pixel); line-height: 1; padding: 1px 2px; background: var(--ink);
+}
+.tl-item.is-passed::after { content: '✓'; color: var(--good); }
+.tl-item.is-failed::after { content: '✕'; color: var(--bad); }
+.tl-item.is-fresh { animation: tl-flip 0.6s steps(6), tl-glow 0.4s steps(2) 0.6s 2; }
+@keyframes tl-flip { from { transform: translateX(-50%) rotateY(180deg) scale(1.4); } to { transform: translateX(-50%); } }
+@keyframes tl-glow { 50% { box-shadow: 0 0 0 4px var(--gold); } }
+.tl-tip {
+  position: absolute; top: calc(100% + 6px); right: 50%; z-index: 4; display: none; flex-direction: column; gap: 1px;
+  width: max-content; max-width: 260px; padding: 6px 8px; text-align: left; white-space: normal;
+  font: 13px var(--f-body, inherit); background: var(--paper); color: var(--ink); box-shadow: var(--shadow-sm); pointer-events: none;
+}
+.tl-tip b { font-family: var(--f-pixel); }
+.tl-item:hover .tl-tip, .tl-item:focus-visible .tl-tip { display: flex; }
+.tl-item:hover, .tl-item:focus-visible { z-index: 3; opacity: 1; }
+.timeline__toasts { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.tl-toast {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--paper); color: var(--ink);
+  border-left: 6px solid var(--gold); box-shadow: var(--shadow-sm); animation: tl-toast-in 0.3s steps(4) both;
+}
+.tl-toast--catastrophe { border-left-color: var(--stamp); }
+.tl-toast--chaos { border-left-color: #5d5a68; }
+.tl-toast__art { flex: none; width: 48px; height: 28px; padding: 2px; background: #2a2440; }
+.tl-toast__text { display: flex; flex-direction: column; min-width: 0; font-size: 13px; line-height: 1.25; }
+.tl-toast__text b { font: 14px var(--f-pixel); text-transform: uppercase; }
+.tl-toast__detail { color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@keyframes tl-toast-in { from { transform: translateY(-12px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 760px) {
+  .timeline { top: 56px; left: 12px; right: 12px; width: auto; }
+  .game__stage > .paused-badge { top: 152px; }
+  .tl-tip { right: auto; left: -40px; max-width: 220px; }
+}
 
 /* ------------------------------------------------------------ special cards: the card */
 .special-layer {
@@ -169,7 +214,6 @@ body[data-quake] .game { animation: sp-quake 0.9s steps(12); }
 [data-reduced-motion] .quake-fx__dust, [data-reduced-motion] .agent-fx { display: none; }
 
 @media (max-width: 760px) {
-  .special-warnings { top: auto; bottom: 140px; left: 12px; right: 12px; width: auto; }
   .special-card__title { font-size: 20px; }
   .special-card__check strong { font-size: 18px; }
   .special-stamp { font-size: 18px; top: -12px; }

@@ -4,7 +4,8 @@
  * A special card is a single, unrefusable card that checks the state at the moment it fires
  * ("Finances >= 40 %?"). A catastrophe applies `onFail` when the check fails; an agent applies `onPass`
  * when it passes. Cards are drawn at each year start (own RNG stream `specials`), announced
- * `warnDays` before they fire, and resolved in phase 'special': accept (evaluate + apply) -> close.
+ * never announced (surprises; the timeline shows them only once they happened), and resolved in phase
+ * 'special': accept (evaluate + apply) -> close.
  */
 import { applyBundle } from './effects';
 import { regionalSupport } from './election';
@@ -108,16 +109,6 @@ export function scheduleYearSpecials(sim: Simulation): void {
   }
 }
 
-/** Upcoming cards whose warning is showing (fire day within `warnDays`). */
-export function visibleWarnings(sim: Simulation): (UpcomingSpecial & { daysLeft: number; card: SpecialCardDef })[] {
-  const abs = sim.absDay;
-  return sim.state.specials.upcoming
-    .filter((u) => u.fireAbsDay - sim.cfg.specials.warnDays <= abs && u.fireAbsDay >= abs)
-    .sort((a, b) => a.fireAbsDay - b.fireAbsDay)
-    .map((u) => ({ ...u, daysLeft: u.fireAbsDay - abs, card: specialCard(sim, u.cardId)! }))
-    .filter((u) => u.card);
-}
-
 export function specialCard(sim: Simulation, cardId: string): SpecialCardDef | undefined {
   return sim.data.specialCards.find((c) => c.id === cardId);
 }
@@ -210,23 +201,6 @@ export function forceOpenSpecial(sim: Simulation, cardId: string): boolean {
   const id = `preview${state.specials.seq++}`;
   state.specials.upcoming.push({ id, cardId, fireAbsDay: sim.absDay });
   return openSpecial(sim, { seq: -1, kind: 'special', absDay: sim.absDay, payload: { id } });
-}
-
-/**
- * Preview page (special.html): show the warning banner for `cardId`, `daysAhead` days out. The card is
- * only announced, not scheduled, so it never fires. Replaces an earlier preview warning and closes an
- * open card so the banner is visible.
- */
-export function forceWarning(sim: Simulation, cardId: string, daysAhead: number): boolean {
-  const { state } = sim;
-  if (!specialCard(sim, cardId)) return false;
-  if (state.phase === 'special') {
-    state.specials.open = null;
-    state.phase = 'running';
-  }
-  state.specials.upcoming = state.specials.upcoming.filter((u) => !u.id.startsWith('warn'));
-  state.specials.upcoming.push({ id: `warn${state.specials.seq++}`, cardId, fireAbsDay: sim.absDay + daysAhead });
-  return true;
 }
 
 /** Headless bots and tests: accept and close. */

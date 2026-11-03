@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { config } from '../src/config';
 import { createBot, runToEnd } from '../src/core/bots';
-import { evaluate, specialCard, visibleWarnings, type SpecialCardDef, type SpecialCondition } from '../src/core/specialCards';
+import { evaluate, specialCard, type SpecialCardDef, type SpecialCondition } from '../src/core/specialCards';
+import { timelineItems, timelineWindow } from '../src/core/timeline';
 import { schedule } from '../src/core/scheduler';
 import type { Simulation } from '../src/core/simulation';
 import { loadGameData } from '../src/data/loader';
@@ -53,12 +54,50 @@ describe('special cards: scheduling', () => {
     expect(a.state.specials.upcoming).toEqual(b.state.specials.upcoming);
   });
 
-  it('shows a warning only within warnDays before the card fires', () => {
+});
+
+describe('event timeline', () => {
+  it('spans one quarter back and three ahead', () => {
     const s = sim();
-    s.state.specials.upcoming = [{ id: 'w', cardId: 'dummy_cat_finances', fireAbsDay: s.absDay + config.specials.warnDays + 1 }];
-    expect(visibleWarnings(s)).toHaveLength(0);
-    s.state.specials.upcoming[0].fireAbsDay = s.absDay + config.specials.warnDays;
-    expect(visibleWarnings(s).map((w) => w.daysLeft)).toEqual([config.specials.warnDays]);
+    const w = timelineWindow(s);
+    const q = config.time.daysPerQuarter;
+    expect(w.now - w.from).toBe(config.timeline.quartersBack * q);
+    expect(w.to - w.now).toBe(config.timeline.quartersAhead * q);
+  });
+
+  it('always shows budget votes and quarter starts; never pins, demands or compromises', () => {
+    const s = sim();
+    const items = timelineItems(s);
+    expect(items.some((i) => i.kind === 'budgetVote' && i.revealed)).toBe(true);
+    expect(items.filter((i) => i.kind === 'quarter').length).toBeGreaterThanOrEqual(3);
+    expect(new Set(items.map((i) => i.kind))).not.toContain('pin');
+  });
+
+  it("catastrophes and agents are never shown ahead; chaos events are '?' until revealDays before", () => {
+    const s = sim();
+    s.state.schedule = [];
+    const r = config.timeline.revealDays;
+    s.state.specials.upcoming = [
+      { id: 'far', cardId: 'dummy_cat_finances', fireAbsDay: s.absDay + r + 5 },
+      { id: 'near', cardId: 'dummy_agent_pc', fireAbsDay: s.absDay + 3 },
+    ];
+    schedule(s.state, 'chaos', s.absDay + r + 10, { eventId: 'dummy_evt_1' });
+    schedule(s.state, 'chaos', s.absDay + r, { eventId: 'dummy_evt_3' });
+    const items = timelineItems(s);
+    expect(items.filter((i) => i.kind === 'catastrophe' || i.kind === 'agent')).toHaveLength(0);
+    const chaos = items.filter((i) => i.kind === 'chaos');
+    expect(chaos.map((i) => i.revealed)).toEqual([true, false]);
+  });
+
+  it('a resolved card stays on the timeline with its outcome', () => {
+    const s = sim();
+    fire(s, 'dummy_cat_finances');
+    s.state.resources.finances = 10;
+    s.dispatch({ kind: 'acceptSpecial' });
+    s.dispatch({ kind: 'closeSpecial' });
+    const past = timelineItems(s).find((i) => i.kind === 'catastrophe' && i.past)!;
+    expect(past.outcome).toBe('failed');
+    expect(past.revealed).toBe(true);
   });
 });
 

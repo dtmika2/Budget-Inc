@@ -1,6 +1,6 @@
 /** Panel of the special-card preview page: one button per card, replay, and a shareable link. */
 import { useState } from 'react';
-import { forceOpenSpecial, forceWarning } from '@core/specialCards';
+import { forceOpenSpecial } from '@core/specialCards';
 import { t } from '@i18n/index';
 import { getStore } from '@ui/store';
 
@@ -35,20 +35,9 @@ export function PreviewPanel() {
           </li>
         ))}
       </ul>
-      <div className="special-preview__actions">
-        <button className="btn" onClick={() => current && open(current)} disabled={!current}>
-          {t('special.preview.replay')}
-        </button>
-        <button
-          className="btn"
-          disabled={!current}
-          onClick={() => {
-            if (store.sim && current && forceWarning(store.sim, current, 3)) store.emit();
-          }}
-        >
-          {t('special.preview.warning')}
-        </button>
-      </div>
+      <button className="btn special-preview__replay" onClick={() => current && open(current)} disabled={!current}>
+        {t('special.preview.replay')}
+      </button>
     </aside>
   );
 }

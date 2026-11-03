@@ -14,9 +14,9 @@
 .special-preview__card--catastrophe span { background: var(--stamp); }
 .special-preview__card--agent span { background: var(--gold); }
 .special-preview__card.is-on { border-color: var(--gold); }
-.special-preview__actions { display: flex; gap: 6px; }
-.special-preview__actions .btn { flex: 1; padding-inline: 6px; font-size: 14px; }
+.special-preview__replay { align-self: stretch; }
 @media (max-width: 760px) {
-  .special-preview { top: 8px; bottom: auto; }
+  /* below the card overlay on phones, so an open card stays clickable */
+  .special-preview { bottom: 8px; z-index: 60; }
   .special-preview__list { max-height: 22vh; }
 }

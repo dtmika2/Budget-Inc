@@ -343,13 +343,22 @@ export const config = {
     /** Cards drawn per game year (days and cards drawn at the year's first quarter, `specials` stream). */
     catastrophesPerYear: 2,
     agentsPerYear: 2,
-    /** The warning banner shows this many days before a card fires. */
-    warnDays: 7,
     /** Spawn window inside the year (days from the year's start / before its end). */
     spawnFromDay: 15,
     spawnBeforeYearEnd: 20,
     /** Minimum days between two special cards of the same year. */
     minGapDays: 20,
+  },
+
+  /** Event timeline in the top right (catastrophes workspace, core/timeline.ts). */
+  timeline: {
+    /** Visible span around today. */
+    quartersBack: 1,
+    quartersAhead: 3,
+    /** Catastrophes, agents and chaos events show as '?' until this many days before they happen. */
+    revealDays: 91,
+    /** How long the "now revealed" notification stays (real seconds). */
+    toastSeconds: 7,
   },
 
   /** Compromise mini-games (UI only; the core only sees the final score). */
