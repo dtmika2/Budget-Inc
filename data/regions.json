@@ -1,0 +1,20 @@
+{
+  "seatsSource": "PLACEHOLDER — replace with volby.cz",
+  "regions": [
+    { "code": "CZ010", "name": "region.CZ010", "seats": 24, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ020", "name": "region.CZ020", "seats": 26, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ031", "name": "region.CZ031", "seats": 13, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ032", "name": "region.CZ032", "seats": 11, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ041", "name": "region.CZ041", "seats": 5, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ042", "name": "region.CZ042", "seats": 14, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ051", "name": "region.CZ051", "seats": 8, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ052", "name": "region.CZ052", "seats": 10, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ053", "name": "region.CZ053", "seats": 10, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ063", "name": "region.CZ063", "seats": 10, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ064", "name": "region.CZ064", "seats": 23, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ071", "name": "region.CZ071", "seats": 12, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ072", "name": "region.CZ072", "seats": 11, "offsets": { "mupka": 0, "abis": 0 } },
+    { "code": "CZ080", "name": "region.CZ080", "seats": 23, "offsets": { "mupka": 0, "abis": 0 } }
+  ],
+  "revealOrder": ["CZ041", "CZ051", "CZ052", "CZ053", "CZ063", "CZ032", "CZ072", "CZ071", "CZ031", "CZ042", "CZ064", "CZ020", "CZ080", "CZ010"]
+}

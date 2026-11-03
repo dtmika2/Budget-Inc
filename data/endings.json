@@ -1,0 +1,17 @@
+[
+  { "id": "ending_oligarchs", "group": "oligarchs", "threshold": 100, "built": true,
+    "title": "ending.oligarchs.title", "text": "ending.oligarchs.text", "art": "ending_oligarchs",
+    "standInPenalty": { "target": "support", "perDay": -0.3 } },
+  { "id": "ending_media", "group": "media", "threshold": 100, "built": false,
+    "title": "ending.media.title", "text": "ending.media.text", "art": "ending_media",
+    "standInPenalty": { "target": "support", "perDay": -0.3 } },
+  { "id": "ending_eu", "group": "eu", "threshold": 100, "built": false,
+    "title": "ending.eu.title", "text": "ending.eu.text", "art": "ending_eu",
+    "standInPenalty": { "target": "support", "perDay": -0.3 } },
+  { "id": "ending_activists", "group": "activists", "threshold": 100, "built": false,
+    "title": "ending.activists.title", "text": "ending.activists.text", "art": "ending_activists",
+    "standInPenalty": { "target": "support", "perDay": -0.3 } },
+  { "id": "ending_pensioners", "group": "pensioners", "threshold": 100, "built": false,
+    "title": "ending.pensioners.title", "text": "ending.pensioners.text", "art": "ending_pensioners",
+    "standInPenalty": { "target": "support", "perDay": -0.3 } }
+]

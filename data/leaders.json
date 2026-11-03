@@ -1,0 +1,40 @@
+[
+  {
+    "id": "mupka",
+    "name": "leader.mupka.name",
+    "party": "leader.mupka.party",
+    "profile": "leader.mupka.profile",
+    "color": "#2f6fe4",
+    "colorLight": "#9fbef7",
+    "start": { "finances": 60, "support": 40, "coalition": 55, "prestige": 60 },
+    "startAnger": { "oligarchs": 35, "media": 30, "eu": 20, "activists": 40, "pensioners": 45 },
+    "leaningWeights": { "libertarianism": 35, "conservatism": 35, "populism": 10, "socialism": 7, "progressivism": 8, "fascism": 3, "communism": 2 },
+    "ability": {
+      "id": "austerity_freeze",
+      "name": "ability.austerity_freeze.name",
+      "description": "ability.austerity_freeze.desc",
+      "modifiers": [{ "type": "multiplier", "target": "finances.negative", "value": 0.5, "days": 30 }],
+      "bundle": {}
+    },
+    "sprite": "mupka"
+  },
+  {
+    "id": "abis",
+    "name": "leader.abis.name",
+    "party": "leader.abis.party",
+    "profile": "leader.abis.profile",
+    "color": "#14b8a6",
+    "colorLight": "#8de8dc",
+    "start": { "finances": 50, "support": 55, "coalition": 45, "prestige": 40 },
+    "startAnger": { "oligarchs": 25, "media": 50, "eu": 45, "activists": 35, "pensioners": 20 },
+    "leaningWeights": { "libertarianism": 8, "conservatism": 15, "populism": 35, "socialism": 30, "progressivism": 5, "fascism": 3, "communism": 4 },
+    "ability": {
+      "id": "campaign_mode",
+      "name": "ability.campaign_mode.name",
+      "description": "ability.campaign_mode.desc",
+      "modifiers": [],
+      "bundle": { "effects": { "support": { "min": 10, "max": 10 } }, "anger": { "media": { "min": 5, "max": 5 } } }
+    },
+    "sprite": "abis"
+  }
+]

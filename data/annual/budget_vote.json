@@ -1,0 +1,29 @@
+[
+  {
+    "id": "budget_tight",
+    "label": "budgetVote.budget_tight.label",
+    "description": "budgetVote.budget_tight.desc",
+    "passChanceMod": -0.10,
+    "effects": { "support": { "min": -4, "max": -2 } },
+    "anger": { "pensioners": { "min": 4, "max": 8 } },
+    "budgetChanges": [{ "chapter": "*", "type": "expenditure", "changePct": -3 }]
+  },
+  {
+    "id": "budget_balanced",
+    "label": "budgetVote.budget_balanced.label",
+    "description": "budgetVote.budget_balanced.desc",
+    "passChanceMod": 0,
+    "effects": { "support": { "min": -1, "max": 1 } },
+    "anger": { "pensioners": { "min": -1, "max": 1 } },
+    "budgetChanges": [{ "chapter": "*", "type": "expenditure", "changePct": -1 }]
+  },
+  {
+    "id": "budget_generous",
+    "label": "budgetVote.budget_generous.label",
+    "description": "budgetVote.budget_generous.desc",
+    "passChanceMod": 0.05,
+    "effects": { "support": { "min": 2, "max": 4 } },
+    "anger": { "pensioners": { "min": -6, "max": -3 } },
+    "budgetChanges": [{ "chapter": "*", "type": "expenditure", "changePct": 2 }]
+  }
+]

@@ -1,0 +1,2087 @@
+[
+  {
+    "id": "filler_mupka_01",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_01.title",
+    "description": "policy.filler_mupka_01.desc",
+    "drivenBy": "policy.filler_mupka_01.drivenBy",
+    "effects": {
+      "support": {
+        "min": 2,
+        "max": 3
+      },
+      "prestige": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 6,
+        "max": 8
+      },
+      "pensioners": {
+        "min": 4,
+        "max": 5
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "329",
+        "type": "expenditure",
+        "changePct": 16.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_01"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_02",
+    "leaning": "conservatism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_02.title",
+    "description": "policy.filler_mupka_02.desc",
+    "drivenBy": "policy.filler_mupka_02.drivenBy",
+    "effects": {
+      "support": {
+        "min": 2,
+        "max": 3
+      },
+      "prestige": {
+        "min": -4,
+        "max": -3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 3,
+        "max": 4
+      },
+      "media": {
+        "min": -6,
+        "max": -5
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "315",
+        "type": "revenue",
+        "changePct": 20
+      },
+      {
+        "chapter": "333",
+        "type": "revenue",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_02"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_03",
+    "leaning": "populism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_03.title",
+    "description": "policy.filler_mupka_03.desc",
+    "drivenBy": "policy.filler_mupka_03.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 4,
+        "max": 6
+      },
+      "coalition": {
+        "min": -2,
+        "max": 0
+      },
+      "support": {
+        "min": -3,
+        "max": -2
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 3,
+        "max": 4
+      },
+      "activists": {
+        "min": -6,
+        "max": -4
+      }
+    },
+    "ongoing": [
+      {
+        "target": "support",
+        "perDay": -0.05,
+        "days": 90,
+        "label": "policy.filler_mupka_03.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "329",
+        "type": "revenue",
+        "changePct": 20
+      },
+      {
+        "chapter": "333",
+        "type": "expenditure",
+        "changePct": 5.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_03"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_04",
+    "leaning": "socialism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_04.title",
+    "description": "policy.filler_mupka_04.desc",
+    "drivenBy": "policy.filler_mupka_04.drivenBy",
+    "effects": {
+      "coalition": {
+        "min": 2,
+        "max": 4
+      },
+      "prestige": {
+        "min": 0,
+        "max": 2
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 6,
+        "max": 7
+      },
+      "oligarchs": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "314",
+        "type": "revenue",
+        "changePct": 20
+      },
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "changePct": 6
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_04"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_05",
+    "leaning": "progressivism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_05.title",
+    "description": "policy.filler_mupka_05.desc",
+    "drivenBy": "policy.filler_mupka_05.drivenBy",
+    "effects": {
+      "support": {
+        "min": 3,
+        "max": 5
+      },
+      "coalition": {
+        "min": -3,
+        "max": -1
+      },
+      "prestige": {
+        "min": -1,
+        "max": 0
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 8,
+        "max": 9
+      },
+      "eu": {
+        "min": -4,
+        "max": -3
+      },
+      "oligarchs": {
+        "min": -8,
+        "max": -6
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "313",
+        "type": "revenue",
+        "changePct": 1.5
+      },
+      {
+        "chapter": "329",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_05"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_06",
+    "leaning": "fascism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_06.title",
+    "description": "policy.filler_mupka_06.desc",
+    "drivenBy": "policy.filler_mupka_06.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 3,
+        "max": 4
+      },
+      "coalition": {
+        "min": -1,
+        "max": 1
+      },
+      "support": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 3,
+        "max": 5
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "313",
+        "type": "expenditure",
+        "changePct": -1.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_06"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_07",
+    "leaning": "communism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_07.title",
+    "description": "policy.filler_mupka_07.desc",
+    "drivenBy": "policy.filler_mupka_07.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 2,
+        "max": 3
+      },
+      "coalition": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 5,
+        "max": 7
+      },
+      "pensioners": {
+        "min": -8,
+        "max": -7
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "398",
+        "type": "revenue",
+        "changePct": -1
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_07"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_08",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_08.title",
+    "description": "policy.filler_mupka_08.desc",
+    "drivenBy": "policy.filler_mupka_08.drivenBy",
+    "effects": {
+      "support": {
+        "min": 2,
+        "max": 3
+      },
+      "coalition": {
+        "min": 1,
+        "max": 3
+      },
+      "prestige": {
+        "min": -1,
+        "max": 1
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 7,
+        "max": 9
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "327",
+        "type": "expenditure",
+        "changePct": -6
+      },
+      {
+        "chapter": "327",
+        "type": "expenditure",
+        "changePct": -19
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_08"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_09",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_09.title",
+    "description": "policy.filler_mupka_09.desc",
+    "drivenBy": "policy.filler_mupka_09.drivenBy",
+    "effects": {
+      "support": {
+        "min": 3,
+        "max": 5
+      },
+      "coalition": {
+        "min": -3,
+        "max": -2
+      },
+      "prestige": {
+        "min": 2,
+        "max": 4
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 7,
+        "max": 9
+      },
+      "pensioners": {
+        "min": -5,
+        "max": -4
+      },
+      "oligarchs": {
+        "min": -6,
+        "max": -4
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_09"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_10",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_10.title",
+    "description": "policy.filler_mupka_10.desc",
+    "drivenBy": "policy.filler_mupka_10.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 4,
+        "max": 5
+      },
+      "support": {
+        "min": 0,
+        "max": 2
+      },
+      "coalition": {
+        "min": 0,
+        "max": 2
+      }
+    },
+    "anger": {
+      "pensioners": {
+        "min": 5,
+        "max": 7
+      }
+    },
+    "ongoing": [
+      {
+        "target": "anger.eu",
+        "perDay": -0.05,
+        "days": 130,
+        "label": "policy.filler_mupka_10.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "333",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_10"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_11",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_11.title",
+    "description": "policy.filler_mupka_11.desc",
+    "drivenBy": "policy.filler_mupka_11.drivenBy",
+    "effects": {
+      "coalition": {
+        "min": 5,
+        "max": 6
+      },
+      "support": {
+        "min": -4,
+        "max": -2
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 7,
+        "max": 9
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "315",
+        "type": "expenditure",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_11"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_12",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_12.title",
+    "description": "policy.filler_mupka_12.desc",
+    "drivenBy": "policy.filler_mupka_12.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 5,
+        "max": 6
+      },
+      "coalition": {
+        "min": -2,
+        "max": -1
+      },
+      "support": {
+        "min": -4,
+        "max": -3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 8,
+        "max": 9
+      },
+      "pensioners": {
+        "min": -4,
+        "max": -3
+      },
+      "eu": {
+        "min": -8,
+        "max": -7
+      }
+    },
+    "ongoing": [
+      {
+        "target": "anger.oligarchs",
+        "perDay": -0.02,
+        "days": 170,
+        "label": "policy.filler_mupka_12.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "313",
+        "type": "revenue",
+        "changePct": 3.5
+      },
+      {
+        "chapter": "329",
+        "type": "expenditure",
+        "changePct": -10.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_12"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_13",
+    "leaning": "conservatism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_13.title",
+    "description": "policy.filler_mupka_13.desc",
+    "drivenBy": "policy.filler_mupka_13.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 3,
+        "max": 4
+      },
+      "coalition": {
+        "min": -1,
+        "max": 0
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 7,
+        "max": 9
+      },
+      "eu": {
+        "min": 7,
+        "max": 8
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "313",
+        "type": "revenue",
+        "changePct": -2.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_13"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_14",
+    "leaning": "conservatism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_14.title",
+    "description": "policy.filler_mupka_14.desc",
+    "drivenBy": "policy.filler_mupka_14.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 4,
+        "max": 5
+      },
+      "support": {
+        "min": 0,
+        "max": 2
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 8,
+        "max": 9
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "329",
+        "type": "revenue",
+        "changePct": 20
+      },
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "changePct": -6
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_14"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_15",
+    "leaning": "conservatism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_15.title",
+    "description": "policy.filler_mupka_15.desc",
+    "drivenBy": "policy.filler_mupka_15.drivenBy",
+    "effects": {
+      "support": {
+        "min": 4,
+        "max": 5
+      },
+      "coalition": {
+        "min": -2,
+        "max": 0
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 5,
+        "max": 7
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "312",
+        "type": "expenditure",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_15"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_16",
+    "leaning": "conservatism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_16.title",
+    "description": "policy.filler_mupka_16.desc",
+    "drivenBy": "policy.filler_mupka_16.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 4,
+        "max": 6
+      },
+      "coalition": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 5,
+        "max": 7
+      },
+      "pensioners": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "312",
+        "type": "revenue",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_16"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_17",
+    "leaning": "conservatism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_17.title",
+    "description": "policy.filler_mupka_17.desc",
+    "drivenBy": "policy.filler_mupka_17.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 4,
+        "max": 6
+      },
+      "coalition": {
+        "min": 0,
+        "max": 1
+      },
+      "support": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 3,
+        "max": 5
+      },
+      "activists": {
+        "min": 8,
+        "max": 9
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "312",
+        "type": "revenue",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_17"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_18",
+    "leaning": "populism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_18.title",
+    "description": "policy.filler_mupka_18.desc",
+    "drivenBy": "policy.filler_mupka_18.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 5,
+        "max": 6
+      },
+      "coalition": {
+        "min": -1,
+        "max": 1
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    "ongoing": [
+      {
+        "target": "support",
+        "perDay": 0.04,
+        "days": 150,
+        "label": "policy.filler_mupka_18.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "333",
+        "type": "revenue",
+        "changePct": -20
+      },
+      {
+        "chapter": "315",
+        "type": "expenditure",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_18"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_19",
+    "leaning": "socialism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_19.title",
+    "description": "policy.filler_mupka_19.desc",
+    "drivenBy": "policy.filler_mupka_19.drivenBy",
+    "effects": {
+      "support": {
+        "min": 3,
+        "max": 4
+      },
+      "coalition": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 3,
+        "max": 5
+      },
+      "media": {
+        "min": -8,
+        "max": -6
+      },
+      "activists": {
+        "min": 3,
+        "max": 5
+      }
+    },
+    "ongoing": [
+      {
+        "target": "coalition",
+        "perDay": 0.05,
+        "days": 160,
+        "label": "policy.filler_mupka_19.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "changePct": 10.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_19"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_20",
+    "leaning": "progressivism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_20.title",
+    "description": "policy.filler_mupka_20.desc",
+    "drivenBy": "policy.filler_mupka_20.drivenBy",
+    "effects": {
+      "coalition": {
+        "min": 2,
+        "max": 4
+      },
+      "support": {
+        "min": -1,
+        "max": 0
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 5,
+        "max": 7
+      }
+    },
+    "ongoing": [
+      {
+        "target": "prestige",
+        "perDay": 0.06,
+        "days": 160,
+        "label": "policy.filler_mupka_20.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "307",
+        "type": "revenue",
+        "changePct": 20
+      },
+      {
+        "chapter": "314",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_20"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_21",
+    "leaning": "populism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_21.title",
+    "description": "policy.filler_mupka_21.desc",
+    "drivenBy": "policy.filler_mupka_21.drivenBy",
+    "effects": {
+      "support": {
+        "min": 3,
+        "max": 5
+      },
+      "coalition": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 5,
+        "max": 6
+      }
+    },
+    "ongoing": [
+      {
+        "target": "coalition",
+        "perDay": -0.05,
+        "days": 130,
+        "label": "policy.filler_mupka_21.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "313",
+        "type": "revenue",
+        "changePct": -1.5
+      },
+      {
+        "chapter": "307",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_21"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_mupka_22",
+    "leaning": "fascism",
+    "availableFor": [
+      "mupka"
+    ],
+    "title": "policy.filler_mupka_22.title",
+    "description": "policy.filler_mupka_22.desc",
+    "drivenBy": "policy.filler_mupka_22.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 3,
+        "max": 4
+      },
+      "coalition": {
+        "min": 1,
+        "max": 2
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 5,
+        "max": 6
+      },
+      "pensioners": {
+        "min": -5,
+        "max": -3
+      },
+      "media": {
+        "min": 8,
+        "max": 9
+      }
+    },
+    "ongoing": [
+      {
+        "target": "anger.oligarchs",
+        "perDay": 0.02,
+        "days": 170,
+        "label": "policy.filler_mupka_22.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "333",
+        "type": "revenue",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_mupka_22"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_01",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_01.title",
+    "description": "policy.filler_abis_01.desc",
+    "drivenBy": "policy.filler_abis_01.drivenBy",
+    "effects": {
+      "support": {
+        "min": 2,
+        "max": 3
+      },
+      "coalition": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 6,
+        "max": 7
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "333",
+        "type": "expenditure",
+        "changePct": -3.5
+      },
+      {
+        "chapter": "398",
+        "type": "expenditure",
+        "changePct": -2
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_01"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_02",
+    "leaning": "conservatism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_02.title",
+    "description": "policy.filler_abis_02.desc",
+    "drivenBy": "policy.filler_abis_02.drivenBy",
+    "effects": {
+      "coalition": {
+        "min": 3,
+        "max": 5
+      },
+      "prestige": {
+        "min": 0,
+        "max": 2
+      },
+      "support": {
+        "min": -1,
+        "max": 0
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 7,
+        "max": 8
+      },
+      "activists": {
+        "min": 5,
+        "max": 6
+      },
+      "media": {
+        "min": -7,
+        "max": -5
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "327",
+        "type": "revenue",
+        "changePct": -20
+      },
+      {
+        "chapter": "315",
+        "type": "expenditure",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_02"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_03",
+    "leaning": "populism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_03.title",
+    "description": "policy.filler_abis_03.desc",
+    "drivenBy": "policy.filler_abis_03.drivenBy",
+    "effects": {
+      "support": {
+        "min": 5,
+        "max": 6
+      },
+      "coalition": {
+        "min": -3,
+        "max": -2
+      },
+      "prestige": {
+        "min": 1,
+        "max": 2
+      }
+    },
+    "anger": {
+      "pensioners": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "307",
+        "type": "revenue",
+        "changePct": 20
+      },
+      {
+        "chapter": "313",
+        "type": "expenditure",
+        "changePct": 1
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_03"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_04",
+    "leaning": "socialism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_04.title",
+    "description": "policy.filler_abis_04.desc",
+    "drivenBy": "policy.filler_abis_04.drivenBy",
+    "effects": {
+      "support": {
+        "min": 4,
+        "max": 5
+      },
+      "coalition": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "anger": {
+      "pensioners": {
+        "min": 8,
+        "max": 9
+      },
+      "oligarchs": {
+        "min": -6,
+        "max": -4
+      },
+      "activists": {
+        "min": 7,
+        "max": 9
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "312",
+        "type": "expenditure",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_04"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_05",
+    "leaning": "progressivism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_05.title",
+    "description": "policy.filler_abis_05.desc",
+    "drivenBy": "policy.filler_abis_05.drivenBy",
+    "effects": {
+      "support": {
+        "min": 3,
+        "max": 4
+      },
+      "coalition": {
+        "min": 0,
+        "max": 1
+      },
+      "prestige": {
+        "min": -3,
+        "max": -2
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 8,
+        "max": 10
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "312",
+        "type": "revenue",
+        "changePct": -20
+      },
+      {
+        "chapter": "329",
+        "type": "revenue",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_05"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_06",
+    "leaning": "fascism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_06.title",
+    "description": "policy.filler_abis_06.desc",
+    "drivenBy": "policy.filler_abis_06.drivenBy",
+    "effects": {
+      "coalition": {
+        "min": 3,
+        "max": 4
+      },
+      "prestige": {
+        "min": -2,
+        "max": -1
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 3,
+        "max": 5
+      },
+      "pensioners": {
+        "min": -5,
+        "max": -3
+      },
+      "media": {
+        "min": 3,
+        "max": 4
+      }
+    },
+    "ongoing": [
+      {
+        "target": "coalition",
+        "perDay": 0.04,
+        "days": 100,
+        "label": "policy.filler_abis_06.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "changePct": -20
+      },
+      {
+        "chapter": "335",
+        "type": "expenditure",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_06"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_07",
+    "leaning": "communism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_07.title",
+    "description": "policy.filler_abis_07.desc",
+    "drivenBy": "policy.filler_abis_07.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 3,
+        "max": 5
+      },
+      "coalition": {
+        "min": -4,
+        "max": -3
+      },
+      "support": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "313",
+        "type": "expenditure",
+        "changePct": -2
+      },
+      {
+        "chapter": "333",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_07"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_08",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_08.title",
+    "description": "policy.filler_abis_08.desc",
+    "drivenBy": "policy.filler_abis_08.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 5,
+        "max": 6
+      },
+      "coalition": {
+        "min": 0,
+        "max": 2
+      },
+      "support": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 2,
+        "max": 4
+      },
+      "eu": {
+        "min": -6,
+        "max": -5
+      },
+      "activists": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "313",
+        "type": "revenue",
+        "changePct": 3.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_08"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_09",
+    "leaning": "conservatism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_09.title",
+    "description": "policy.filler_abis_09.desc",
+    "drivenBy": "policy.filler_abis_09.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 4,
+        "max": 6
+      },
+      "coalition": {
+        "min": -4,
+        "max": -2
+      },
+      "support": {
+        "min": 0,
+        "max": 2
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 3,
+        "max": 4
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "313",
+        "type": "expenditure",
+        "changePct": -2
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_09"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_10",
+    "leaning": "conservatism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_10.title",
+    "description": "policy.filler_abis_10.desc",
+    "drivenBy": "policy.filler_abis_10.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 5,
+        "max": 6
+      },
+      "coalition": {
+        "min": -2,
+        "max": 0
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 5,
+        "max": 6
+      },
+      "media": {
+        "min": 6,
+        "max": 7
+      },
+      "activists": {
+        "min": -8,
+        "max": -6
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "307",
+        "type": "expenditure",
+        "changePct": 10.5
+      },
+      {
+        "chapter": "314",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_10"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_11",
+    "leaning": "populism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_11.title",
+    "description": "policy.filler_abis_11.desc",
+    "drivenBy": "policy.filler_abis_11.drivenBy",
+    "effects": {
+      "support": {
+        "min": 2,
+        "max": 4
+      },
+      "coalition": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 8,
+        "max": 10
+      },
+      "activists": {
+        "min": 6,
+        "max": 7
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "313",
+        "type": "revenue",
+        "changePct": -3.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_11"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_12",
+    "leaning": "populism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_12.title",
+    "description": "policy.filler_abis_12.desc",
+    "drivenBy": "policy.filler_abis_12.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 2,
+        "max": 3
+      },
+      "coalition": {
+        "min": -1,
+        "max": 1
+      },
+      "support": {
+        "min": -4,
+        "max": -2
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 3,
+        "max": 4
+      },
+      "eu": {
+        "min": 4,
+        "max": 5
+      },
+      "pensioners": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "ongoing": [
+      {
+        "target": "anger.media",
+        "perDay": -0.03,
+        "days": 160,
+        "label": "policy.filler_abis_12.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "314",
+        "type": "revenue",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_12"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_13",
+    "leaning": "populism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_13.title",
+    "description": "policy.filler_abis_13.desc",
+    "drivenBy": "policy.filler_abis_13.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 2,
+        "max": 3
+      },
+      "coalition": {
+        "min": -2,
+        "max": -1
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 5,
+        "max": 6
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "313",
+        "type": "revenue",
+        "changePct": -3
+      },
+      {
+        "chapter": "315",
+        "type": "revenue",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_13"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_14",
+    "leaning": "populism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_14.title",
+    "description": "policy.filler_abis_14.desc",
+    "drivenBy": "policy.filler_abis_14.drivenBy",
+    "effects": {
+      "support": {
+        "min": 3,
+        "max": 5
+      },
+      "coalition": {
+        "min": 0,
+        "max": 2
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 5,
+        "max": 7
+      },
+      "pensioners": {
+        "min": 7,
+        "max": 8
+      },
+      "eu": {
+        "min": 3,
+        "max": 4
+      }
+    },
+    "ongoing": [
+      {
+        "target": "coalition",
+        "perDay": -0.05,
+        "days": 150,
+        "label": "policy.filler_abis_14.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "333",
+        "type": "expenditure",
+        "changePct": -4.5
+      },
+      {
+        "chapter": "398",
+        "type": "revenue",
+        "changePct": 0.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_14"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_15",
+    "leaning": "populism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_15.title",
+    "description": "policy.filler_abis_15.desc",
+    "drivenBy": "policy.filler_abis_15.drivenBy",
+    "effects": {
+      "support": {
+        "min": 3,
+        "max": 4
+      },
+      "coalition": {
+        "min": 1,
+        "max": 3
+      },
+      "prestige": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 2,
+        "max": 4
+      },
+      "pensioners": {
+        "min": 6,
+        "max": 7
+      },
+      "activists": {
+        "min": 6,
+        "max": 8
+      }
+    },
+    "ongoing": [
+      {
+        "target": "anger.oligarchs",
+        "perDay": 0.06,
+        "days": 150,
+        "label": "policy.filler_abis_15.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "398",
+        "type": "expenditure",
+        "changePct": 2
+      },
+      {
+        "chapter": "327",
+        "type": "revenue",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_15"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_16",
+    "leaning": "socialism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_16.title",
+    "description": "policy.filler_abis_16.desc",
+    "drivenBy": "policy.filler_abis_16.drivenBy",
+    "effects": {
+      "support": {
+        "min": 2,
+        "max": 4
+      },
+      "prestige": {
+        "min": -4,
+        "max": -2
+      },
+      "coalition": {
+        "min": -1,
+        "max": 0
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 7,
+        "max": 9
+      },
+      "pensioners": {
+        "min": -9,
+        "max": -7
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "315",
+        "type": "expenditure",
+        "changePct": -19.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_16"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_17",
+    "leaning": "socialism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_17.title",
+    "description": "policy.filler_abis_17.desc",
+    "drivenBy": "policy.filler_abis_17.drivenBy",
+    "effects": {
+      "support": {
+        "min": 4,
+        "max": 6
+      },
+      "coalition": {
+        "min": -2,
+        "max": -1
+      },
+      "prestige": {
+        "min": -1,
+        "max": 1
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 5,
+        "max": 7
+      }
+    },
+    "ongoing": [
+      {
+        "target": "prestige",
+        "perDay": 0.05,
+        "days": 80,
+        "label": "policy.filler_abis_17.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "314",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_17"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_18",
+    "leaning": "socialism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_18.title",
+    "description": "policy.filler_abis_18.desc",
+    "drivenBy": "policy.filler_abis_18.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 3,
+        "max": 4
+      },
+      "coalition": {
+        "min": 0,
+        "max": 1
+      },
+      "support": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 3,
+        "max": 4
+      },
+      "eu": {
+        "min": -6,
+        "max": -4
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "333",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_18"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_19",
+    "leaning": "socialism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_19.title",
+    "description": "policy.filler_abis_19.desc",
+    "drivenBy": "policy.filler_abis_19.drivenBy",
+    "effects": {
+      "support": {
+        "min": 4,
+        "max": 6
+      },
+      "coalition": {
+        "min": -1,
+        "max": 1
+      },
+      "prestige": {
+        "min": -1,
+        "max": 0
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 2,
+        "max": 4
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "335",
+        "type": "revenue",
+        "changePct": 20
+      },
+      {
+        "chapter": "329",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_19"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_20",
+    "leaning": "progressivism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_20.title",
+    "description": "policy.filler_abis_20.desc",
+    "drivenBy": "policy.filler_abis_20.drivenBy",
+    "effects": {
+      "coalition": {
+        "min": 3,
+        "max": 5
+      },
+      "support": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 8,
+        "max": 9
+      },
+      "pensioners": {
+        "min": -6,
+        "max": -5
+      }
+    },
+    "ongoing": [
+      {
+        "target": "anger.eu",
+        "perDay": 0.04,
+        "days": 140,
+        "label": "policy.filler_abis_20.ongoing"
+      }
+    ],
+    "budgetChanges": [
+      {
+        "chapter": "312",
+        "type": "revenue",
+        "changePct": 20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_20"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_21",
+    "leaning": "communism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_21.title",
+    "description": "policy.filler_abis_21.desc",
+    "drivenBy": "policy.filler_abis_21.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 2,
+        "max": 4
+      },
+      "coalition": {
+        "min": -2,
+        "max": 0
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 3,
+        "max": 4
+      },
+      "eu": {
+        "min": -7,
+        "max": -6
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "333",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_21"
+    ],
+    "devOnly": true
+  },
+  {
+    "id": "filler_abis_22",
+    "leaning": "socialism",
+    "availableFor": [
+      "abis"
+    ],
+    "title": "policy.filler_abis_22.title",
+    "description": "policy.filler_abis_22.desc",
+    "drivenBy": "policy.filler_abis_22.drivenBy",
+    "effects": {
+      "prestige": {
+        "min": 4,
+        "max": 5
+      },
+      "coalition": {
+        "min": -4,
+        "max": -2
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 4,
+        "max": 5
+      },
+      "pensioners": {
+        "min": 8,
+        "max": 10
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "333",
+        "type": "expenditure",
+        "changePct": 5.5
+      }
+    ],
+    "chaosEvents": [
+      "filler_evt_abis_22"
+    ],
+    "devOnly": true
+  }
+]

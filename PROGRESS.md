@@ -1,8 +1,8 @@
 # Progress
 
 - [x] P0 — Scaffolding
-- [ ] P1 — Data layer and seed data
-- [ ] P1.4 — Map
+- [x] P1 — Data layer and seed data
+- [x] P1.4 — Map
 - [ ] P2 — Core simulation
 - [ ] P3 — Leaders, abilities, draft, PC
 - [ ] P4 — Chaos, responses, opportunities, budget vote, upgrades

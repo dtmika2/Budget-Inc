@@ -1,0 +1,24 @@
+{
+  "id": "support",
+  "name": "upgrades.support.name",
+  "nodes": [
+    { "id": "sup_campaign_office", "cost": 2, "requires": [], "pos": { "col": 1, "row": 0 },
+      "name": "upgrade.sup_campaign_office.name", "description": "upgrade.sup_campaign_office.desc",
+      "modifiers": [{ "type": "multiplier", "target": "support.drift", "value": 0.7 }] },
+    { "id": "sup_regional_tours", "cost": 3, "requires": ["sup_campaign_office"], "pos": { "col": 0, "row": 1 },
+      "name": "upgrade.sup_regional_tours.name", "description": "upgrade.sup_regional_tours.desc",
+      "modifiers": [{ "type": "add", "target": "pc.perQuarter", "value": 1 }] },
+    { "id": "sup_press_office", "cost": 3, "requires": ["sup_campaign_office"], "pos": { "col": 2, "row": 1 },
+      "name": "upgrade.sup_press_office.name", "description": "upgrade.sup_press_office.desc",
+      "modifiers": [{ "type": "multiplier", "target": "anger.media.gain", "value": 0.75 }] },
+    { "id": "sup_pensioner_outreach", "cost": 4, "requires": ["sup_regional_tours"], "pos": { "col": 0, "row": 2 },
+      "name": "upgrade.sup_pensioner_outreach.name", "description": "upgrade.sup_pensioner_outreach.desc",
+      "modifiers": [{ "type": "multiplier", "target": "anger.pensioners.gain", "value": 0.75 }] },
+    { "id": "sup_spin_doctors", "cost": 4, "requires": ["sup_press_office"], "pos": { "col": 2, "row": 2 },
+      "name": "upgrade.sup_spin_doctors.name", "description": "upgrade.sup_spin_doctors.desc",
+      "modifiers": [{ "type": "multiplier", "target": "support.loss", "source": "chaos", "value": 0.7 }] },
+    { "id": "sup_permanent_campaign", "cost": 6, "requires": ["sup_pensioner_outreach", "sup_spin_doctors"], "pos": { "col": 1, "row": 3 },
+      "name": "upgrade.sup_permanent_campaign.name", "description": "upgrade.sup_permanent_campaign.desc",
+      "modifiers": [{ "type": "add", "target": "election.T_base", "value": -3 }] }
+  ]
+}

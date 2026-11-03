@@ -1,0 +1,51 @@
+[
+  {
+    "id": "dummy_evt_1",
+    "chance": 0.4,
+    "quarterOffset": 0,
+    "window": { "fromDay": 10, "toDay": 80 },
+    "text": "event.dummy_evt_1.text",
+    "effects": { "support": { "min": -4, "max": -2 } },
+    "anger": { "media": { "min": 2, "max": 4 } },
+    "responses": null
+  },
+  {
+    "id": "dummy_evt_2",
+    "chance": 0.5,
+    "quarterOffset": 0,
+    "window": { "fromDay": 10, "toDay": 80 },
+    "text": "event.dummy_evt_2.text",
+    "effects": { "support": { "min": -3, "max": -1 } },
+    "anger": { "media": { "min": 2, "max": 5 } },
+    "responses": {
+      "default": "ignore",
+      "options": [
+        { "id": "deny", "label": "event.dummy_evt_2.resp.deny", "cost": { "pc": 0 },
+          "effects": { "support": { "min": -2, "max": 0 } }, "anger": { "media": { "min": 3, "max": 5 } } },
+        { "id": "apologise", "label": "event.dummy_evt_2.resp.apologise", "cost": { "pc": 1 },
+          "effects": { "coalition": { "min": -3, "max": -1 }, "support": { "min": 1, "max": 2 } } },
+        { "id": "ignore", "label": "event.dummy_evt_2.resp.ignore", "cost": { "pc": 0 } }
+      ]
+    }
+  },
+  {
+    "id": "dummy_evt_3",
+    "chance": 0.35,
+    "quarterOffset": 1,
+    "window": { "fromDay": 5, "toDay": 60 },
+    "text": "event.dummy_evt_3.text",
+    "effects": { "coalition": { "min": -5, "max": -2 } },
+    "anger": { "eu": { "min": 1, "max": 3 } },
+    "responses": null
+  },
+  {
+    "id": "dummy_evt_4",
+    "chance": 0.3,
+    "quarterOffset": 0,
+    "window": { "fromDay": 20, "toDay": 85 },
+    "text": "event.dummy_evt_4.text",
+    "effects": { "prestige": { "min": -4, "max": -2 }, "financesExtra": { "min": -2, "max": -1 } },
+    "ongoing": [{ "target": "anger.activists", "perDay": 0.05, "days": 60, "label": "event.dummy_evt_4.ongoing" }],
+    "responses": null
+  }
+]

@@ -1,0 +1,1655 @@
+[
+  {
+    "id": "filler_evt_mupka_01",
+    "chance": 0.43,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 15,
+      "toDay": 43
+    },
+    "text": "event.filler_evt_mupka_01.text",
+    "effects": {
+      "coalition": {
+        "min": -6,
+        "max": -4
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 3,
+        "max": 4
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_01.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "prestige": {
+              "min": -2,
+              "max": -1
+            }
+          },
+          "anger": {
+            "oligarchs": {
+              "min": -4,
+              "max": -2
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_01.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "coalition": {
+              "min": 2,
+              "max": 4
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_01.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_02",
+    "chance": 0.39,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 9,
+      "toDay": 54
+    },
+    "text": "event.filler_evt_mupka_02.text",
+    "effects": {
+      "coalition": {
+        "min": -4,
+        "max": -3
+      },
+      "financesExtra": {
+        "min": -2,
+        "max": -1
+      }
+    },
+    "anger": {},
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_03",
+    "chance": 0.53,
+    "quarterOffset": 2,
+    "window": {
+      "fromDay": 28,
+      "toDay": 57
+    },
+    "text": "event.filler_evt_mupka_03.text",
+    "effects": {
+      "coalition": {
+        "min": -4,
+        "max": -3
+      }
+    },
+    "anger": {},
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_03.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "support": {
+              "min": -4,
+              "max": -2
+            }
+          },
+          "anger": {
+            "oligarchs": {
+              "min": -4,
+              "max": -3
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_03.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "coalition": {
+              "min": 3,
+              "max": 4
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_03.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_04",
+    "chance": 0.34,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 8,
+      "toDay": 31
+    },
+    "text": "event.filler_evt_mupka_04.text",
+    "effects": {
+      "coalition": {
+        "min": -4,
+        "max": -2
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_04.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "support": {
+              "min": -2,
+              "max": -1
+            }
+          },
+          "anger": {
+            "media": {
+              "min": -4,
+              "max": -2
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_04.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "coalition": {
+              "min": 2,
+              "max": 4
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_04.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_05",
+    "chance": 0.32,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 8,
+      "toDay": 51
+    },
+    "text": "event.filler_evt_mupka_05.text",
+    "effects": {
+      "support": {
+        "min": -5,
+        "max": -4
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 5,
+        "max": 6
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_06",
+    "chance": 0.58,
+    "quarterOffset": 2,
+    "window": {
+      "fromDay": 39,
+      "toDay": 62
+    },
+    "text": "event.filler_evt_mupka_06.text",
+    "effects": {
+      "prestige": {
+        "min": -5,
+        "max": -4
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_07",
+    "chance": 0.34,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 16,
+      "toDay": 53
+    },
+    "text": "event.filler_evt_mupka_07.text",
+    "effects": {
+      "coalition": {
+        "min": -7,
+        "max": -5
+      },
+      "financesExtra": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "anger": {
+      "pensioners": {
+        "min": 3,
+        "max": 5
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_07.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "support": {
+              "min": -4,
+              "max": -2
+            }
+          },
+          "anger": {
+            "eu": {
+              "min": -3,
+              "max": -2
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_07.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "coalition": {
+              "min": 3,
+              "max": 5
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_07.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_08",
+    "chance": 0.5,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 21,
+      "toDay": 52
+    },
+    "text": "event.filler_evt_mupka_08.text",
+    "effects": {
+      "coalition": {
+        "min": -6,
+        "max": -5
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 4,
+        "max": 5
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_08.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "prestige": {
+              "min": -3,
+              "max": -2
+            }
+          },
+          "anger": {
+            "oligarchs": {
+              "min": -3,
+              "max": -2
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_08.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "coalition": {
+              "min": 1,
+              "max": 3
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_08.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_09",
+    "chance": 0.32,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 38,
+      "toDay": 74
+    },
+    "text": "event.filler_evt_mupka_09.text",
+    "effects": {
+      "support": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 5,
+        "max": 6
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_09.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "prestige": {
+              "min": -2,
+              "max": -1
+            }
+          },
+          "anger": {
+            "pensioners": {
+              "min": -4,
+              "max": -3
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_09.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "support": {
+              "min": 3,
+              "max": 4
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_09.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_10",
+    "chance": 0.32,
+    "quarterOffset": 2,
+    "window": {
+      "fromDay": 20,
+      "toDay": 48
+    },
+    "text": "event.filler_evt_mupka_10.text",
+    "effects": {
+      "coalition": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 3,
+        "max": 4
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_11",
+    "chance": 0.32,
+    "quarterOffset": 2,
+    "window": {
+      "fromDay": 10,
+      "toDay": 31
+    },
+    "text": "event.filler_evt_mupka_11.text",
+    "effects": {
+      "coalition": {
+        "min": -6,
+        "max": -4
+      },
+      "financesExtra": {
+        "min": -3,
+        "max": -2
+      }
+    },
+    "anger": {
+      "pensioners": {
+        "min": 4,
+        "max": 5
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_11.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "prestige": {
+              "min": -3,
+              "max": -2
+            }
+          },
+          "anger": {
+            "pensioners": {
+              "min": -4,
+              "max": -2
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_11.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "coalition": {
+              "min": 3,
+              "max": 5
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_11.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_12",
+    "chance": 0.51,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 17,
+      "toDay": 50
+    },
+    "text": "event.filler_evt_mupka_12.text",
+    "effects": {
+      "coalition": {
+        "min": -3,
+        "max": -2
+      },
+      "financesExtra": {
+        "min": -2,
+        "max": -1
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 2,
+        "max": 4
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_12.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "support": {
+              "min": -3,
+              "max": -2
+            }
+          },
+          "anger": {
+            "activists": {
+              "min": -5,
+              "max": -3
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_12.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "coalition": {
+              "min": 3,
+              "max": 5
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_12.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_13",
+    "chance": 0.32,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 20,
+      "toDay": 48
+    },
+    "text": "event.filler_evt_mupka_13.text",
+    "effects": {
+      "support": {
+        "min": -6,
+        "max": -5
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 3,
+        "max": 4
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_13.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "prestige": {
+              "min": -2,
+              "max": -1
+            }
+          },
+          "anger": {
+            "oligarchs": {
+              "min": -6,
+              "max": -4
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_13.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "support": {
+              "min": 3,
+              "max": 4
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_13.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_14",
+    "chance": 0.32,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 18,
+      "toDay": 53
+    },
+    "text": "event.filler_evt_mupka_14.text",
+    "effects": {
+      "prestige": {
+        "min": -6,
+        "max": -5
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_14.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "coalition": {
+              "min": -3,
+              "max": -2
+            }
+          },
+          "anger": {
+            "eu": {
+              "min": -5,
+              "max": -3
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_14.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "prestige": {
+              "min": 2,
+              "max": 3
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_14.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_15",
+    "chance": 0.49,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 9,
+      "toDay": 32
+    },
+    "text": "event.filler_evt_mupka_15.text",
+    "effects": {
+      "support": {
+        "min": -6,
+        "max": -5
+      }
+    },
+    "anger": {},
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_16",
+    "chance": 0.3,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 5,
+      "toDay": 46
+    },
+    "text": "event.filler_evt_mupka_16.text",
+    "effects": {
+      "prestige": {
+        "min": -4,
+        "max": -3
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_17",
+    "chance": 0.43,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 10,
+      "toDay": 38
+    },
+    "text": "event.filler_evt_mupka_17.text",
+    "effects": {
+      "coalition": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_18",
+    "chance": 0.49,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 21,
+      "toDay": 51
+    },
+    "text": "event.filler_evt_mupka_18.text",
+    "effects": {
+      "coalition": {
+        "min": -6,
+        "max": -4
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 5,
+        "max": 7
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_mupka_18.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "support": {
+              "min": -3,
+              "max": -2
+            }
+          },
+          "anger": {
+            "oligarchs": {
+              "min": -5,
+              "max": -3
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_mupka_18.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "coalition": {
+              "min": 2,
+              "max": 3
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_mupka_18.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_19",
+    "chance": 0.55,
+    "quarterOffset": 1,
+    "window": {
+      "fromDay": 25,
+      "toDay": 46
+    },
+    "text": "event.filler_evt_mupka_19.text",
+    "effects": {
+      "support": {
+        "min": -6,
+        "max": -4
+      },
+      "financesExtra": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "anger": {
+      "pensioners": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_20",
+    "chance": 0.31,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 33,
+      "toDay": 68
+    },
+    "text": "event.filler_evt_mupka_20.text",
+    "effects": {
+      "prestige": {
+        "min": -6,
+        "max": -5
+      },
+      "financesExtra": {
+        "min": -3,
+        "max": -2
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 5,
+        "max": 6
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_21",
+    "chance": 0.57,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 17,
+      "toDay": 55
+    },
+    "text": "event.filler_evt_mupka_21.text",
+    "effects": {
+      "coalition": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 2,
+        "max": 4
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_mupka_22",
+    "chance": 0.56,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 40,
+      "toDay": 74
+    },
+    "text": "event.filler_evt_mupka_22.text",
+    "effects": {
+      "coalition": {
+        "min": -5,
+        "max": -4
+      }
+    },
+    "anger": {},
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_01",
+    "chance": 0.37,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 26,
+      "toDay": 61
+    },
+    "text": "event.filler_evt_abis_01.text",
+    "effects": {
+      "coalition": {
+        "min": -3,
+        "max": -2
+      },
+      "financesExtra": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 5,
+        "max": 6
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_02",
+    "chance": 0.54,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 15,
+      "toDay": 58
+    },
+    "text": "event.filler_evt_abis_02.text",
+    "effects": {
+      "support": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_03",
+    "chance": 0.41,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 27,
+      "toDay": 63
+    },
+    "text": "event.filler_evt_abis_03.text",
+    "effects": {
+      "prestige": {
+        "min": -3,
+        "max": -2
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_04",
+    "chance": 0.57,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 7,
+      "toDay": 29
+    },
+    "text": "event.filler_evt_abis_04.text",
+    "effects": {
+      "support": {
+        "min": -5,
+        "max": -4
+      },
+      "financesExtra": {
+        "min": -2,
+        "max": -1
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_05",
+    "chance": 0.38,
+    "quarterOffset": 2,
+    "window": {
+      "fromDay": 11,
+      "toDay": 56
+    },
+    "text": "event.filler_evt_abis_05.text",
+    "effects": {
+      "prestige": {
+        "min": -4,
+        "max": -2
+      }
+    },
+    "anger": {},
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_abis_05.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "coalition": {
+              "min": -2,
+              "max": 0
+            }
+          },
+          "anger": {
+            "oligarchs": {
+              "min": -4,
+              "max": -3
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_abis_05.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "prestige": {
+              "min": 2,
+              "max": 3
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_abis_05.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_06",
+    "chance": 0.48,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 31,
+      "toDay": 64
+    },
+    "text": "event.filler_evt_abis_06.text",
+    "effects": {
+      "prestige": {
+        "min": -4,
+        "max": -3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 3,
+        "max": 5
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_07",
+    "chance": 0.43,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 24,
+      "toDay": 45
+    },
+    "text": "event.filler_evt_abis_07.text",
+    "effects": {
+      "prestige": {
+        "min": -3,
+        "max": -2
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 3,
+        "max": 5
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_08",
+    "chance": 0.6,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 32,
+      "toDay": 60
+    },
+    "text": "event.filler_evt_abis_08.text",
+    "effects": {
+      "prestige": {
+        "min": -6,
+        "max": -5
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_09",
+    "chance": 0.32,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 32,
+      "toDay": 75
+    },
+    "text": "event.filler_evt_abis_09.text",
+    "effects": {
+      "coalition": {
+        "min": -6,
+        "max": -4
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_10",
+    "chance": 0.37,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 9,
+      "toDay": 47
+    },
+    "text": "event.filler_evt_abis_10.text",
+    "effects": {
+      "support": {
+        "min": -4,
+        "max": -2
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 3,
+        "max": 4
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_11",
+    "chance": 0.52,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 8,
+      "toDay": 32
+    },
+    "text": "event.filler_evt_abis_11.text",
+    "effects": {
+      "support": {
+        "min": -6,
+        "max": -5
+      }
+    },
+    "anger": {},
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_12",
+    "chance": 0.43,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 22,
+      "toDay": 67
+    },
+    "text": "event.filler_evt_abis_12.text",
+    "effects": {
+      "prestige": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 2,
+        "max": 4
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_13",
+    "chance": 0.48,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 6,
+      "toDay": 27
+    },
+    "text": "event.filler_evt_abis_13.text",
+    "effects": {
+      "support": {
+        "min": -6,
+        "max": -5
+      }
+    },
+    "anger": {
+      "pensioners": {
+        "min": 2,
+        "max": 4
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_14",
+    "chance": 0.47,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 40,
+      "toDay": 85
+    },
+    "text": "event.filler_evt_abis_14.text",
+    "effects": {
+      "support": {
+        "min": -4,
+        "max": -3
+      }
+    },
+    "anger": {
+      "pensioners": {
+        "min": 4,
+        "max": 5
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_15",
+    "chance": 0.54,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 9,
+      "toDay": 44
+    },
+    "text": "event.filler_evt_abis_15.text",
+    "effects": {
+      "support": {
+        "min": -5,
+        "max": -3
+      },
+      "financesExtra": {
+        "min": -2,
+        "max": -1
+      }
+    },
+    "anger": {
+      "pensioners": {
+        "min": 5,
+        "max": 6
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_16",
+    "chance": 0.32,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 21,
+      "toDay": 49
+    },
+    "text": "event.filler_evt_abis_16.text",
+    "effects": {
+      "support": {
+        "min": -3,
+        "max": -2
+      }
+    },
+    "anger": {},
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_17",
+    "chance": 0.31,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 28,
+      "toDay": 56
+    },
+    "text": "event.filler_evt_abis_17.text",
+    "effects": {
+      "prestige": {
+        "min": -3,
+        "max": -2
+      },
+      "financesExtra": {
+        "min": -3,
+        "max": -2
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_18",
+    "chance": 0.45,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 39,
+      "toDay": 77
+    },
+    "text": "event.filler_evt_abis_18.text",
+    "effects": {
+      "coalition": {
+        "min": -5,
+        "max": -4
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 4,
+        "max": 6
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_19",
+    "chance": 0.31,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 8,
+      "toDay": 31
+    },
+    "text": "event.filler_evt_abis_19.text",
+    "effects": {
+      "support": {
+        "min": -4,
+        "max": -3
+      }
+    },
+    "anger": {},
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_abis_19.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "support": {
+              "min": -4,
+              "max": -2
+            }
+          },
+          "anger": {
+            "activists": {
+              "min": -4,
+              "max": -2
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_abis_19.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "support": {
+              "min": 3,
+              "max": 4
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_abis_19.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_20",
+    "chance": 0.54,
+    "quarterOffset": 1,
+    "window": {
+      "fromDay": 17,
+      "toDay": 62
+    },
+    "text": "event.filler_evt_abis_20.text",
+    "effects": {
+      "support": {
+        "min": -4,
+        "max": -2
+      }
+    },
+    "anger": {},
+    "responses": null,
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_21",
+    "chance": 0.46,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 12,
+      "toDay": 32
+    },
+    "text": "event.filler_evt_abis_21.text",
+    "effects": {
+      "prestige": {
+        "min": -7,
+        "max": -5
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    "responses": {
+      "default": "c",
+      "options": [
+        {
+          "id": "a",
+          "label": "event.filler_evt_abis_21.resp.a",
+          "cost": {
+            "pc": 0
+          },
+          "effects": {
+            "support": {
+              "min": -3,
+              "max": -2
+            }
+          },
+          "anger": {
+            "media": {
+              "min": -6,
+              "max": -4
+            }
+          }
+        },
+        {
+          "id": "b",
+          "label": "event.filler_evt_abis_21.resp.b",
+          "cost": {
+            "pc": 1
+          },
+          "effects": {
+            "prestige": {
+              "min": 3,
+              "max": 4
+            }
+          }
+        },
+        {
+          "id": "c",
+          "label": "event.filler_evt_abis_21.resp.c",
+          "cost": {
+            "pc": 0
+          }
+        }
+      ]
+    },
+    "devOnly": true
+  },
+  {
+    "id": "filler_evt_abis_22",
+    "chance": 0.31,
+    "quarterOffset": 0,
+    "window": {
+      "fromDay": 28,
+      "toDay": 69
+    },
+    "text": "event.filler_evt_abis_22.text",
+    "effects": {
+      "support": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 3,
+        "max": 4
+      }
+    },
+    "responses": null,
+    "devOnly": true
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "source": "MOCK DATA",
+  "year": 2026,
+  "currency": "CZK",
+  "chapters": [
+    { "code": "398", "name": "Všeobecná pokladní správa", "revenue": 1650000000000, "expenditure": 700000000000 },
+    { "code": "313", "name": "Ministerstvo práce a sociálních věcí", "revenue": 680000000000, "expenditure": 1050000000000 },
+    { "code": "333", "name": "Ministerstvo školství, mládeže a tělovýchovy", "revenue": 20000000000, "expenditure": 270000000000 },
+    { "code": "307", "name": "Ministerstvo obrany", "revenue": 5000000000, "expenditure": 165000000000 },
+    { "code": "327", "name": "Ministerstvo dopravy", "revenue": 15000000000, "expenditure": 125000000000 },
+    { "code": "314", "name": "Ministerstvo vnitra", "revenue": 10000000000, "expenditure": 90000000000 },
+    { "code": "329", "name": "Ministerstvo zemědělství", "revenue": 10000000000, "expenditure": 70000000000 },
+    { "code": "315", "name": "Ministerstvo životního prostředí", "revenue": 15000000000, "expenditure": 40000000000 },
+    { "code": "312", "name": "Ministerstvo financí", "revenue": 5000000000, "expenditure": 30000000000 },
+    { "code": "335", "name": "Ministerstvo zdravotnictví", "revenue": 2000000000, "expenditure": 20000000000 }
+  ]
+}

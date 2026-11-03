@@ -1,0 +1,8 @@
+[
+  { "id": "dummy_opp_1", "weight": 3, "text": "opportunity.dummy_opp_1.text",
+    "reward": { "pc": 1 } },
+  { "id": "dummy_opp_2", "weight": 2, "text": "opportunity.dummy_opp_2.text",
+    "reward": { "effects": { "support": { "min": 1, "max": 2 } } } },
+  { "id": "dummy_opp_3", "weight": 1, "text": "opportunity.dummy_opp_3.text",
+    "reward": { "pc": 1, "anger": { "pensioners": { "min": -3, "max": -1 } } } }
+]
