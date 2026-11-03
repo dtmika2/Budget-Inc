@@ -33,6 +33,10 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 - §3.1 — `Phase` keeps `finished` in the type for future use; the core ends in `ending` or `election` with the result and score already computed, and the UI presents election night / final screen.
 - §10.1 — Extra log types beyond the spec table: `quarter_started` (PC gained), `opportunity_spawned`, `mandatory_growth`, `budget_vote_opened`, `ability_recharged` — useful for analytics, cheap.
 - plan §2 — Core modules P2–P5 were written together because `simulation.ts` wires all of them; each phase commit adds that phase's tests and fixes.
+- §5.3 — Relaxation level 2 is used only once never-picked cards are exhausted; it then takes the card with the oldest last pick (deterministic, no weighting). Levels 1 and 3 keep the weighted leaning draw. A hand stays at the highest level it reached; `pool_relaxed` is logged once per hand with that level.
+- §5.3 — If all available leanings have weight 0, leanings are drawn uniformly (avoids a dead draft).
+- §5.2 — Abilities can be used while the game runs or during the draft (not during the budget vote / after the run).
+- §6.1 — Rerolls: cost = `rerollBaseCost × rerollCostFactor^n` (1, 2, 4, …) in PC (`config.draft.rerollCurrency`, [OPEN]); the counter lives in the per-quarter draft state, so it resets each quarter.
 
 ## Blockers
 _None._
