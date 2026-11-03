@@ -43,6 +43,7 @@ export const PolicyCard = memo(function PolicyCard({
           {isCompromise ? t('draft.compromiseTag') : t(`leaning.${card.leaning}`)}
         </span>
       </header>
+      {'topic' in card && card.topic && <p className="memo__topic">{t(card.topic)}</p>}
       <h3 className="memo__title">{t(card.title)}</h3>
       <p className="memo__desc">{t(card.description)}</p>
       <p className="memo__driven">

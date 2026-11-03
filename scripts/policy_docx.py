@@ -3,9 +3,16 @@
   python scripts/policy_docx.py export            -> exports/policies/<file>.docx (one per data/policies/*.json)
   python scripts/policy_docx.py import <docx...>  -> writes edits back to data/policies/*.json and locales/cs.json
 
-Each card is one two-column table (label | value). Texts live in locales/cs.json under
-policy.<id>.title / .desc / .drivenBy / .ongoing, numbers live in data/policies/<file>.json.
+Each card is one two-column table (label | value) under a heading. The heading is the card's topic (the
+small label above the name), the "Název" row its name. Texts live in locales/cs.json under
+policy.<id>.topic / .title / .desc / .drivenBy / .ongoing, numbers live in data/policies/<file>.json.
 Cards removed from the document are left untouched; a table with a new ID adds a card.
+
+The source of truth for the filler cards is content/policies/_filler.docx (imports into
+data/policies/_filler.json). The importer is forgiving about hand edits: ranges written high-to-low are
+sorted, a missing ":" or ";" between items is accepted, ideologies may be written in Czech, and a name
+left as "[text] Karta M01 (…)" keeps only the text in brackets; "[FILLER]" and "(ideology)" around the
+heading are dropped from the topic.
 """
 
 import json
@@ -14,7 +21,9 @@ import sys
 from pathlib import Path
 
 from docx import Document
+from docx.oxml.ns import qn
 from docx.shared import Pt
+from docx.table import Table
 
 ROOT = Path(__file__).resolve().parent.parent
 POLICY_DIR = ROOT / "data" / "policies"
@@ -22,6 +31,15 @@ LOCALE = ROOT / "locales" / "cs.json"
 OUT_DIR = ROOT / "exports" / "policies"
 
 LEANINGS = ["libertarianism", "conservatism", "populism", "socialism", "progressivism", "fascism", "communism"]
+LEANINGS_CZ = {
+    "libertarianismus": "libertarianism",
+    "konzervatismus": "conservatism",
+    "populismus": "populism",
+    "socialismus": "socialism",
+    "progresivismus": "progressivism",
+    "fašismus": "fascism",
+    "komunismus": "communism",
+}
 EFFECTS = ["finances", "financesExtra", "support", "coalition", "prestige"]
 GROUPS = ["oligarchs", "pensioners", "media", "eu", "activists"]
 
@@ -92,18 +110,25 @@ def parse_list(s):
     return [x.strip() for x in clean(s).split(",") if x.strip()]
 
 
+RANGE_ITEM = re.compile(rf"(\w+)\s*:?\s*({NUM})(?:\s*(?:až|\.\.)\s*({NUM}))?")
+
+
 def parse_ranges(s, allowed, where):
+    """`key: a až b; key: c` — also accepts a missing ":" or ";" and ranges written high-to-low (sorted)."""
     out = {}
-    for part in filter(None, (p.strip() for p in clean(s).split(";"))):
-        m = re.fullmatch(rf"(\w+)\s*:\s*({NUM})(?:\s*(?:až|\.\.)\s*({NUM}))?", part)
-        if not m:
-            raise ValueError(f"{where}: nečitelné „{part}“")
+    s = clean(s)
+    pos = 0
+    for m in RANGE_ITEM.finditer(s):
+        gap = s[pos : m.start()]
+        if gap.strip(" ;,"):
+            raise ValueError(f"{where}: nečitelné „{gap.strip()}“")
+        pos = m.end()
         key, lo, hi = m.group(1), to_num(m.group(2)), to_num(m.group(3) or m.group(2))
         if allowed and key not in allowed:
             raise ValueError(f"{where}: neznámé „{key}“ (povolené: {', '.join(allowed)})")
-        if lo > hi:
-            raise ValueError(f"{where}: min > max v „{part}“")
-        out[key] = {"min": lo, "max": hi}
+        out[key] = {"min": min(lo, hi), "max": max(lo, hi)}
+    if s[pos:].strip(" ;,"):
+        raise ValueError(f"{where}: nečitelné „{s[pos:].strip()}“")
     return out
 
 
@@ -130,6 +155,35 @@ def cell_text(cell):
     return "\n".join(p.text for p in cell.paragraphs).strip()
 
 
+def card_tables(doc):
+    """Card tables with the heading right above each of them."""
+    out, heading = [], ""
+    for el in doc.element.body.iterchildren():
+        if el.tag == qn("w:p"):
+            text = "".join(t.text or "" for t in el.iter(qn("w:t"))).strip()
+            if text:
+                heading = text
+        elif el.tag == qn("w:tbl"):
+            table = Table(el, doc)
+            if table.rows and cell_text(table.rows[0].cells[0]) == L_ID:
+                out.append((table, heading))
+            heading = ""
+    return out
+
+
+def topic_from_heading(heading):
+    t = clean(heading)
+    t = re.sub(r"^\[FILLER\]\s*", "", t)
+    t = re.sub(r"\s*\((?:" + "|".join(LEANINGS_CZ) + r")\)\s*$", "", t)
+    return t
+
+
+def name_from_title(title):
+    """A name left as "[text] Karta M01 (…)" (the filler placeholder with its word replaced) keeps the text."""
+    m = re.fullmatch(r"\[(.+)\]\s*Karta\s+[MA]\d+\b.*", clean(title), re.S)
+    return m.group(1).strip() if m else title.strip()
+
+
 def export():
     texts = json.loads(LOCALE.read_text(encoding="utf-8"))
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -141,7 +195,7 @@ def export():
         for line in GUIDE:
             doc.add_paragraph(line, style="List Bullet")
         for c in cards:
-            doc.add_heading(texts.get(c["title"], c["id"]), 2)
+            doc.add_heading(texts.get(c.get("topic", ""), "") or texts.get(c["title"], c["id"]), 2)
             rows = [
                 (L_ID, c["id"]),
                 (L_TITLE, texts.get(c["title"], "")),
@@ -177,7 +231,7 @@ def export():
 
 # ---------- import ----------
 
-def read_card(table, where):
+def read_card(table, where, heading=""):
     rows = [(cell_text(r.cells[0]), cell_text(r.cells[1])) for r in table.rows]
     fields, ongoing = {}, []
     for label, value in rows:
@@ -194,6 +248,7 @@ def read_card(table, where):
         raise ValueError(f"{where}: neplatné ID „{cid}“")
     where = f"{where} ({cid})"
     leaning = clean(fields.get(L_LEANING, ""))
+    leaning = LEANINGS_CZ.get(leaning.lower(), leaning)
     if leaning not in LEANINGS:
         raise ValueError(f"{where}: neznámá ideologie „{leaning}“")
     dev = clean(fields.get(L_DEV, "ne")).lower()
@@ -201,7 +256,12 @@ def read_card(table, where):
         raise ValueError(f"{where}: „{L_DEV}“ musí být ano/ne")
     return {
         "id": cid,
-        "texts": {"title": fields.get(L_TITLE, ""), "desc": fields.get(L_DESC, ""), "drivenBy": fields.get(L_DRIVEN, "")},
+        "texts": {
+            "topic": topic_from_heading(heading),
+            "title": name_from_title(fields.get(L_TITLE, "")),
+            "desc": fields.get(L_DESC, "").strip(),
+            "drivenBy": fields.get(L_DRIVEN, "").strip(),
+        },
         "leaning": leaning,
         "availableFor": parse_list(fields.get(L_LEADERS, "")),
         "tags": parse_list(fields.get(L_TAGS, "")),
@@ -223,6 +283,12 @@ def apply(card, new, texts):
     for field, key in (("title", "title"), ("description", "desc"), ("drivenBy", "drivenBy")):
         card.setdefault(field, f"policy.{cid}.{key}")
         texts[card[field]] = new["texts"][key]
+    topic = new["texts"]["topic"]
+    if topic and topic != new["texts"]["title"]:
+        card["topic"] = card.get("topic") or f"policy.{cid}.topic"
+        texts[card["topic"]] = topic
+    elif "topic" in card:
+        texts.pop(card.pop("topic"), None)
     card["leaning"] = new["leaning"]
     card["availableFor"] = new["availableFor"]
     old_ongoing = card.get("ongoing", [])
@@ -262,10 +328,9 @@ def import_(paths):
             sys.exit(f"{p.name}: k němu neexistuje {target.relative_to(ROOT)} (název souboru musí zůstat stejný)")
         cards = json.loads(target.read_text(encoding="utf-8"))
         by_id = {c["id"]: c for c in cards}
-        tables = [t for t in Document(p).tables if t.rows and cell_text(t.rows[0].cells[0]) == L_ID]
         found = []
-        for i, t in enumerate(tables, 1):
-            new = read_card(t, f"{p.name} tabulka {i}")
+        for i, (t, heading) in enumerate(card_tables(Document(p)), 1):
+            new = read_card(t, f"{p.name} tabulka {i}", heading)
             if new["id"] in seen:
                 sys.exit(f"{p.name}: ID „{new['id']}“ je v dokumentech dvakrát")
             seen.add(new["id"])
