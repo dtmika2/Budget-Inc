@@ -80,44 +80,38 @@ export const LifeDefs = memo(function LifeDefs({ scale }: { scale: number }) {
   );
 });
 
-/** Ambient cows: walk a few pixels, graze, turn around, walk back. */
-const Cows = memo(function Cows() {
-  const cows = config.life.cows.flatMap(([code, n]) =>
-    Array.from({ length: n }, (_, i) => {
-      const h = hash(`${code}-cow-${i}`);
-      const u = ((h % 1000) / 1000) * 2 - 1;
-      const v = (((h >>> 10) % 1000) / 1000) * 1.4 - 0.2;
-      const p = spot(code, u, v, 0.22);
-      const dx = snap(18 + ((h >>> 20) % 4) * 6);
-      const dur = 10 + ((h >>> 4) % 7);
-      return { key: `${code}-${i}`, x: p.x - dx / 2, y: p.y, dx, dur, delay: (h >>> 8) % dur };
-    }),
-  );
+function timing(a: Actor): CSSProperties {
+  return { animationDuration: `${a.ttlMs}ms`, animationDelay: `${a.delayMs}ms` };
+}
+
+/** 1-2 cows: fade in, walk a few pixels, graze, turn around, walk back, fade out (one cycle = lifetime). */
+function Cows({ a }: { a: Actor }) {
+  const p = spot(a.region, a.u, a.v * 0.8 + 0.2, 0.22);
+  const once: CSSProperties = { ...timing(a), animationIterationCount: 1, animationFillMode: 'both' };
   return (
-    <g className="life-cows">
-      {cows.map((c) => {
-        const timing: CSSProperties = { animationDuration: `${c.dur}s`, animationDelay: `-${c.delay}s` };
-        return (
-          <g key={c.key} transform={`translate(${c.x} ${c.y})`}>
-            <g className="life-walk" style={{ ...timing, '--dx': `${c.dx}px`, animationTimingFunction: `steps(${c.dx / SPX})` } as Vars}>
-              <g className="life-face-r" style={timing}>
-                <Sprite name="cow" style={{ '--fr': '0.9s' }} />
-              </g>
-              <g className="life-face-l" style={timing}>
-                <g transform="scale(-1 1)">
+    <g transform={`translate(${p.x} ${p.y})`}>
+      <g className="life-fade" style={timing(a)}>
+        {Array.from({ length: a.n ?? 1 }, (_, i) => {
+          const h = hash(`${a.id}-${i}`);
+          const dx = snap(18 + (h % 4) * 6);
+          return (
+            <g key={i} transform={`translate(${i * 16 * SPX - dx / 2} ${i * 3 * SPX})`}>
+              <g className="life-walk" style={{ ...once, '--dx': `${dx}px`, animationTimingFunction: `steps(${dx / SPX})` } as Vars}>
+                <g className="life-face-r" style={once}>
                   <Sprite name="cow" style={{ '--fr': '0.9s' }} />
+                </g>
+                <g className="life-face-l" style={once}>
+                  <g transform="scale(-1 1)">
+                    <Sprite name="cow" style={{ '--fr': '0.9s' }} />
+                  </g>
                 </g>
               </g>
             </g>
-          </g>
-        );
-      })}
+          );
+        })}
+      </g>
     </g>
   );
-});
-
-function timing(a: Actor): CSSProperties {
-  return { animationDuration: `${a.ttlMs}ms`, animationDelay: `${a.delayMs}ms` };
 }
 
 function Mover({ a }: { a: Actor }) {
@@ -217,13 +211,15 @@ function ActorView({ a }: { a: Actor }) {
       return <Crowd a={a} />;
     case 'blackout':
       return <Blackout a={a} />;
+    case 'cow':
+      return <Cows a={a} />;
     default:
       return <Burst a={a} />;
   }
 }
 
-/** Blackouts sit under everything else; then cows, crowds and effects; movers on top. */
-const ORDER: Record<Actor['kind'], number> = { blackout: 0, rain: 1, firework: 1, crowd: 2, truck: 3, limo: 3 };
+/** Blackouts sit under everything else; then cows and effects, crowds; movers on top. */
+const ORDER: Record<Actor['kind'], number> = { blackout: 0, cow: 1, rain: 1, firework: 1, crowd: 2, truck: 3, limo: 3 };
 
 export function MapLife() {
   const actors = useStore((s) => s.ui.actors);
@@ -237,7 +233,6 @@ export function MapLife() {
         .map((a) => (
           <ActorView key={a.id} a={a} />
         ))}
-      <Cows />
       {sorted
         .filter((a) => a.kind !== 'blackout')
         .map((a) => (

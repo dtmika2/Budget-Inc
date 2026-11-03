@@ -11,13 +11,14 @@
  *  - blackouts on chaos events and while finances are low / at the zero penalty
  *  - fireworks / rain clouds over kraje whose regional support moved
  *  - an oligarch limo heading to the capital when oligarchs calm down
+ *  - ambient cows grazing for a while in rural kraje
  */
 import type { Config } from '@/config';
 import type { GroupId, LogEntry, ResourceId } from '@core/types';
 import { GROUP_IDS } from '@core/types';
 import type { Rng } from '@core/rng';
 
-export type ActorKind = 'truck' | 'crowd' | 'blackout' | 'firework' | 'rain' | 'limo';
+export type ActorKind = 'truck' | 'crowd' | 'blackout' | 'firework' | 'rain' | 'limo' | 'cow';
 
 export interface ActorSpawn {
   kind: ActorKind;
@@ -29,7 +30,7 @@ export interface ActorSpawn {
   /** Position jitter inside the kraj, each in [-1, 1] (scaled by the kraj's size when drawn). */
   u: number;
   v: number;
-  /** Crowd size. */
+  /** Crowd size / number of cows. */
   n?: number;
   /** Real-time lifetime and start delay. */
   ttlMs: number;
@@ -122,8 +123,13 @@ export function planLife(ctx: LifeContext, rng: Rng, L: LifeConfig, pulseAt: num
     }
     if ((ctx.zeroFinances || f < L.blackoutBelow) && rng.next() < L.blackoutPerDay) blackout(rng.pick(ctx.regions));
     if (ctx.anger.oligarchs < L.limoCalmBelow && rng.next() < L.limoPerDay) limo(other(L.capital));
+    if (L.cowRegions.length && rng.next() < L.cowPerDay) {
+      const code = rng.pick(L.cowRegions);
+      if (room() > 0 && !busy('cow', code)) out.push({ kind: 'cow', region: code, n: rng.int(1, 2), ttlMs: L.cowMs, delayMs: 0, ...jitter() });
+    }
   }
-  // keep a single ambient spawn (several rolls can succeed on the same day)
-  const ambient = out.slice(events, events + 1).map((a) => ({ ...a, ambient: true }));
+  // keep a single ambient spawn: when several rolls succeed on the same day, pick one at random
+  const candidates = out.slice(events);
+  const ambient = candidates.length ? [{ ...rng.pick(candidates), ambient: true }] : [];
   return [...out.slice(0, events), ...ambient];
 }

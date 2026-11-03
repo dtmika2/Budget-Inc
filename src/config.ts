@@ -207,27 +207,21 @@ export const config = {
    * read the game state. Spawn chances are per elapsed game day; lifetimes are real milliseconds.
    */
   life: {
-    /** At most this many actors on the map at once (cows not counted). */
+    /** At most this many actors on the map at once (cows included). */
     maxActors: 3,
     maxActorsMobile: 3,
     /**
-     * After any actor appears, the next ambient one waits a random real-time gap (ms), so the map has
-     * quiet stretches. Event actors (chaos, budget vote, regional shifts) ignore the gap but not the cap.
+     * The next ambient actor waits until the last one (ambient or event) has finished, plus a random
+     * real-time quiet gap (ms), so the map is regularly empty. Event actors (chaos, budget vote, regional
+     * shifts) ignore the gap but not the cap.
      */
-    ambientGapMs: { min: 3000, max: 9000 },
+    ambientGapMs: { min: 3000, max: 8000 },
     /** Sprites are drawn this much larger on phones (the whole map is much smaller there). */
     mobileSpriteScale: 1.6,
-    /** Ambient cows grazing in rural kraje: [region, count]. */
-    cows: [
-      ['CZ031', 2],
-      ['CZ063', 2],
-      ['CZ053', 1],
-      ['CZ064', 1],
-      ['CZ041', 1],
-      ['CZ052', 1],
-      ['CZ071', 1],
-      ['CZ032', 1],
-    ] as [string, number][],
+    /** Ambient cows (1-2) wander into a rural kraj, graze and leave; they count toward maxActors. */
+    cowRegions: ['CZ031', 'CZ063', 'CZ053', 'CZ064', 'CZ041', 'CZ052', 'CZ071', 'CZ032'] as string[],
+    cowPerDay: 0.2,
+    cowMs: 8000,
     /** Trucks: chance/day = truckPerDay * (truckBase + finances / 100). Under truckEmptyBelow they drive empty. */
     truckPerDay: 0.25,
     truckBase: 0.3,

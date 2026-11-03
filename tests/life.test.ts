@@ -107,6 +107,15 @@ describe('living map director', () => {
     expect(ev.some((a) => a.ambient)).toBe(false);
   });
 
+  it('cows wander only into rural kraje, as ordinary (capped) actors', () => {
+    const out = many(ctx(), 'cows', { ...L, truckPerDay: 0, limoPerDay: 0 });
+    const cows = out.filter((a) => a.kind === 'cow');
+    expect(cows.length).toBeGreaterThan(0);
+    expect(cows.every((a) => L.cowRegions.includes(a.region) && a.ambient && (a.n === 1 || a.n === 2))).toBe(true);
+    const full = [{ kind: 'cow' as const, region: 'CZ031' }, { kind: 'truck' as const, region: 'CZ010' }, { kind: 'crowd' as const, region: 'CZ080' }];
+    expect(many(ctx({ active: full, maxActors: 3 }), 'full', L, 50)).toEqual([]);
+  });
+
   it('respects the actor cap (counting actors already on the map)', () => {
     const regionSupport = Object.fromEntries(REGIONS.map((r) => [r, 0]));
     const active = [{ kind: 'truck' as const, region: 'CZ010' }, { kind: 'truck' as const, region: 'CZ020' }];

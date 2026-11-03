@@ -337,8 +337,9 @@ export class Store {
       config.anger.pulseAt,
     );
     if (!spawns.length) return actors;
-    // any new actor (ambient or event) restarts the quiet gap before the next ambient one
-    this.nextAmbientAt = Math.max(this.nextAmbientAt, now + this.lifeRng.uniform(config.life.ambientGapMs.min, config.life.ambientGapMs.max));
+    // the next ambient actor waits until every new actor (ambient or event) has finished, plus a quiet gap
+    const end = Math.max(...spawns.map((a) => now + a.delayMs + a.ttlMs));
+    this.nextAmbientAt = Math.max(this.nextAmbientAt, end + this.lifeRng.uniform(config.life.ambientGapMs.min, config.life.ambientGapMs.max));
     return [...actors, ...spawns.map((a) => ({ ...a, id: ++this.actorSeq, born: now }))];
   }
 
