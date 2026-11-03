@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { presetVote } from '../src/core/bots';
 import { config } from '../src/config';
 import { createBot, runToEnd } from '../src/core/bots';
 import { exportRun } from '../src/core/log';
@@ -54,7 +55,7 @@ function untilCompromise(sim: Simulation, maxQuarters = 16): boolean {
     const ph = sim.state.phase;
     if (ph === 'compromise') return true;
     if (ph === 'draft') sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
-    else if (ph === 'budgetVote') sim.dispatch({ kind: 'voteBudget', optionId: 'budget_balanced' });
+    else if (ph === 'budgetVote') sim.dispatch(presetVote(sim, 'budget_balanced'));
     else sim.tick();
   }
   return false;
@@ -83,7 +84,7 @@ describe('compromise decision (two compromises against each other)', () => {
       expect(new Set(offer).size).toBe(offer.length);
       expect(offer.every((id) => sim.compromiseById.has(id))).toBe(true);
       quarters.push(sim.state.quarter);
-      sim.dispatch({ kind: 'makeCompromise', cardId: offer[1] });
+      sim.dispatch({ kind: 'makeCompromise', cardId: offer[1], channelId: 'press', score: 0.5 });
       expect(sim.state.phase).toBe('running');
     }
     expect(quarters).toEqual([1, 2, 3, 4, 5, 6]);
@@ -104,10 +105,10 @@ describe('compromise decision (two compromises against each other)', () => {
     const sim = makeSim({ seed: 'only' }, always());
     untilCompromise(sim);
     const notOffered = sim.compromises.find((c) => !sim.state.compromiseOffer!.includes(c.id))!.id;
-    expect(sim.dispatch({ kind: 'makeCompromise', cardId: notOffered }).ok).toBe(false);
+    expect(sim.dispatch({ kind: 'makeCompromise', cardId: notOffered, channelId: 'press', score: 0.5 }).ok).toBe(false);
     expect(sim.dispatch({ kind: 'pickPolicy', cardId: 'dummy_revenue' }).ok).toBe(false);
-    expect(sim.dispatch({ kind: 'makeCompromise', cardId: sim.state.compromiseOffer![0] }).ok).toBe(true);
-    expect(sim.dispatch({ kind: 'makeCompromise', cardId: notOffered }).ok).toBe(false);
+    expect(sim.dispatch({ kind: 'makeCompromise', cardId: sim.state.compromiseOffer![0], channelId: 'press', score: 0.5 }).ok).toBe(true);
+    expect(sim.dispatch({ kind: 'makeCompromise', cardId: notOffered, channelId: 'press', score: 0.5 }).ok).toBe(false);
   });
 
   it('with chance 0 no decision ever opens', () => {
@@ -125,7 +126,7 @@ describe('compromise decision (two compromises against each other)', () => {
     const shift0 = { ...sim.state.regionShift };
     const S0 = sim.computeProjection().S;
     const preview = sim.previewCard(id);
-    expect(sim.dispatch({ kind: 'makeCompromise', cardId: id }).ok).toBe(true);
+    expect(sim.dispatch({ kind: 'makeCompromise', cardId: id, channelId: 'press', score: 0.5 }).ok).toBe(true);
     const log = sim.state.log.find((e) => e.type === 'compromise_made')!;
     expect(log.cardId).toBe(id);
     expect(log.rejected).toEqual([other]);
@@ -151,7 +152,7 @@ describe('compromise decision (two compromises against each other)', () => {
       }
       const id = sim.state.compromiseOffer![0];
       made.push({ id, q: sim.state.quarter });
-      sim.dispatch({ kind: 'makeCompromise', cardId: id });
+      sim.dispatch({ kind: 'makeCompromise', cardId: id, channelId: 'press', score: 0.5 });
     }
     expect(made.length).toBe(8);
   });
@@ -171,7 +172,7 @@ describe('compromise decision (two compromises against each other)', () => {
     const sim = makeSim({ seed: 'cap' }, cfg);
     untilCompromise(sim);
     sim.state.compromiseOffer = ['dummy_comp_regions', sim.state.compromiseOffer![0]];
-    sim.dispatch({ kind: 'makeCompromise', cardId: 'dummy_comp_regions' });
+    sim.dispatch({ kind: 'makeCompromise', cardId: 'dummy_comp_regions', channelId: 'press', score: 0.5 });
     for (const code of ['CZ010', 'CZ080', 'CZ042']) expect(Math.abs(sim.state.regionShift[code])).toBeLessThanOrEqual(5);
   });
 

@@ -51,6 +51,8 @@ export interface RunExport {
   difficulty: string;
   inputs: RecordedInput[];
   log: LogEntry[];
+  /** Weekly regional support (phase 13). */
+  regionHistory?: GameState['regionHistory'];
 }
 
 export function exportRun(state: GameState): RunExport {
@@ -63,5 +65,6 @@ export function exportRun(state: GameState): RunExport {
     difficulty: state.difficulty,
     inputs: state.inputs,
     log: state.log,
+    regionHistory: state.regionHistory,
   };
 }

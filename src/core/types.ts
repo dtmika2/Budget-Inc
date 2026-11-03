@@ -53,6 +53,8 @@ export interface EffectBundle {
   pc?: number;
   /** Regional support shifts per kraj code (added to national support for that region only). */
   regions?: Partial<Record<string, Range>>;
+  /** Hidden tags (agriculture, transport, ...) that region traits react to (phase 13). */
+  tags?: string[];
 }
 
 export type ModifierSource =
@@ -66,6 +68,7 @@ export type ModifierSource =
   | 'penalty'
   | 'ability'
   | 'compromise'
+  | 'demand'
   | 'any';
 
 /** Where a value change comes from (a modifier `source` other than `any`). */
@@ -144,6 +147,28 @@ export interface BudgetVoteOption extends EffectBundle {
   label: string;
   description: string;
   passChanceMod: number;
+  /** Preset slider positions (steps per budget category) set when the player picks this preset. */
+  sliders: Record<string, number>;
+}
+
+/** Player-facing budget category with a slider. Maps to hidden chapters; its name is a locale key. */
+export interface BudgetItem {
+  id: string;
+  label: string;
+  /** Hidden mapping: one step of stepPct % adds stepPct * weight to each chapter's changePct. */
+  chapters: { chapter: string; type: 'revenue' | 'expenditure'; weight: number }[];
+  /** Anger change per +1 step (a cut is a negative step, so it inverts the sign). */
+  angerPerStep: Partial<Record<GroupId, number>>;
+  supportPerStep: number;
+  /** Pass-chance change per +1 step (e.g. partners like more spending on this). */
+  passPerStep: number;
+  canBeRedLine: boolean;
+}
+
+export interface RedLine {
+  item: string;
+  /** Cutting by more than this many steps violates the red line. */
+  maxCutSteps: number;
 }
 
 export interface UpgradeNode {
@@ -224,6 +249,107 @@ export interface RegionsData {
   revealOrder: string[];
 }
 
+/** Texts for the compromise mini-games (locale keys). */
+export interface MinigameTexts {
+  pressSpin: string[];
+  pressGaffe: string[];
+  debateQuestions: string[];
+}
+
+/** A displayed statistic with its source; value null until filled from the official source. */
+export interface StatValue {
+  value: number | null;
+  year: number | null;
+  source: string;
+  status: 'TODO' | 'OK';
+}
+
+export const DEMOGRAPHIC_FIELDS = ['population', 'avgWage', 'medianWage', 'employmentRate', 'unemploymentRate', 'gdpPerCapita', 'povertyRate'] as const;
+export type DemographicField = (typeof DEMOGRAPHIC_FIELDS)[number];
+
+export interface RegionProfile {
+  traits: string[];
+  demographics: Record<DemographicField, StatValue>;
+  coalition: {
+    /** 'kraj' = regional council; 'city' = Prague city council. */
+    council: 'kraj' | 'city';
+    parties: string[];
+    source: string;
+    asOf: string | null;
+    status: 'TODO' | 'OK';
+  };
+}
+
+export interface RegionProfiles {
+  traitsSource: string;
+  regions: Record<string, RegionProfile>;
+}
+
+export interface PartyDef {
+  id: string;
+  label: string;
+}
+
+export type FulfilCondition =
+  | { type: 'policy'; tags?: string[]; cardIds?: string[] }
+  | { type: 'compromise'; region: string; minRegionGain: number }
+  | { type: 'budget'; item: string; minSteps: number };
+
+export interface ProgrammeRef {
+  party: string;
+  file: string;
+  page?: number;
+  section?: string;
+  quote?: string;
+}
+
+/**
+ * Regional demand template (phase 14). Bundles may use the region key "self" for the demand's region.
+ * DUMMY and APPROVED demands spawn; DRAFT ones only with includeDevFiller.
+ */
+export interface DemandTemplate {
+  id: string;
+  status: 'DUMMY' | 'DRAFT' | 'APPROVED';
+  requesterTypes: ('party' | 'interestGroup')[];
+  parties: string[];
+  interestGroups: GroupId[];
+  /** Weight multiplier per region trait (missing = 1). */
+  regionWeights: Record<string, number>;
+  /** Optional fixed list of region codes. */
+  regions: string[];
+  text: string;
+  fulfilHint: string;
+  fulfil: FulfilCondition[];
+  onAccept: EffectBundle;
+  onFulfil: EffectBundle;
+  onFail: EffectBundle;
+  onReject: EffectBundle;
+  programmeRef?: ProgrammeRef;
+}
+
+export interface Requester {
+  type: 'party' | 'interestGroup';
+  id: string;
+}
+
+export interface OpenDemand {
+  id: string;
+  templateId: string;
+  region: string;
+  requester: Requester;
+  spawnAbsDay: number;
+  expireAbsDay: number;
+}
+
+export interface Pledge {
+  id: string;
+  templateId: string;
+  region: string;
+  requester: Requester;
+  acceptedAbsDay: number;
+  deadlineAbsDay: number;
+}
+
 export interface GameData {
   budget: BudgetData;
   regions: RegionsData;
@@ -233,6 +359,11 @@ export interface GameData {
   events: ChaosEventDef[];
   opportunities: OpportunityDef[];
   budgetVote: BudgetVoteOption[];
+  budgetItems: BudgetItem[];
+  minigames: MinigameTexts;
+  regionProfiles: RegionProfiles;
+  parties: PartyDef[];
+  demands: DemandTemplate[];
   upgrades: UpgradeTree[];
   endings: EndingDef[];
   /** File path -> short content hash, logged in run_started. */
@@ -248,10 +379,12 @@ export type Input =
   | { kind: 'reroll' }
   | { kind: 'respond'; eventInstanceId: string; responseId: string; timedOut: boolean }
   | { kind: 'collectOpportunity'; pinId: string }
-  | { kind: 'voteBudget'; optionId: string }
-  | { kind: 'makeCompromise'; cardId: string }
+  | { kind: 'voteBudget'; sliders: Record<string, number>; presetId: string | null }
+  | { kind: 'makeCompromise'; cardId: string; channelId: string; score: number }
   | { kind: 'buyUpgrade'; nodeId: string }
-  | { kind: 'useAbility' };
+  | { kind: 'useAbility' }
+  | { kind: 'acceptDemand'; demandId: string }
+  | { kind: 'rejectDemand'; demandId: string };
 
 export interface RecordedInput {
   /** Number of effective ticks executed before this input (replay anchor). */
@@ -271,7 +404,7 @@ export interface OngoingInstance {
   label?: string;
 }
 
-export type ScheduledKind = 'budgetVote' | 'compromise' | 'chaos' | 'pinSpawn' | 'pinExpire';
+export type ScheduledKind = 'budgetVote' | 'compromise' | 'chaos' | 'pinSpawn' | 'pinExpire' | 'demandSpawn' | 'demandExpire';
 
 export interface ScheduledEntry {
   seq: number;
@@ -381,6 +514,16 @@ export interface GameState {
   draft: DraftState | null;
   /** Open regional-compromise decision: the compromise card ids offered against each other. */
   compromiseOffer: string[] | null;
+  /** Coalition red lines of the open budget vote (drawn at vote open). */
+  budgetVoteRedLines: RedLine[] | null;
+  /** Open regional demands ("!" pins) and accepted pledges (phase 14). */
+  demands: OpenDemand[];
+  pledges: Pledge[];
+  demandSeq: number;
+  /** Weekly regional support s_r (phase 13 history), first point at the run start. */
+  regionHistory: { absDay: number; s: Record<string, number>; national: number }[];
+  /** Game year (1-4) in which a once-per-year compromise channel (the regional tour) was last used. */
+  tourUsedInYear: number | null;
   picked: { cardId: string; quarter: number }[];
   schedule: ScheduledEntry[];
   scheduleSeq: number;

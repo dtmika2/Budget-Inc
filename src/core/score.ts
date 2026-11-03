@@ -18,7 +18,7 @@ export function computeScore(
   return Math.round(total);
 }
 
-export const KEY_DECISION_TYPES = ['policy_picked', 'compromise_made', 'chaos_fired', 'event_response', 'budget_vote', 'ability_used'];
+export const KEY_DECISION_TYPES = ['policy_picked', 'compromise_made', 'chaos_fired', 'event_response', 'budget_vote', 'ability_used', 'pledge_fulfilled', 'pledge_failed'];
 
 /**
  * impact = sum |resource deltas| + angerWeight * sum |anger deltas| (spec §10.3), plus regional shifts

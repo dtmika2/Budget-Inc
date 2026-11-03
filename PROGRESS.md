@@ -12,6 +12,10 @@
 - [x] P8 — Endings, election night, final screen, meta
 - [x] P9 — Balance pass
 - [x] P10 — Mobile, performance, README, final check
+- [x] P11 — Budget sliders, presets and coalition red lines
+- [x] P12 — Compromise channels and mini-games
+- [x] P13 — Region screen, traits and history
+- [x] P14 — Regional demands ("!") and pledges
 
 Every phase gate passed (`typecheck`, `lint`, `test` — 98 tests, `build`, and from P5 on `simulate --runs 200 --bot random`).
 

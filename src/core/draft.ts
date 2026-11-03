@@ -11,6 +11,8 @@ export interface DraftInput {
   quarter: number;
   repeatCooldownQuarters: number;
   handSize: number;
+  /** Optional weight multiplier per card (cards that fulfil an active pledge, phase 14). */
+  boost?: (card: PolicyCard) => number;
 }
 
 export interface DraftResult {
@@ -19,8 +21,18 @@ export interface DraftResult {
   relaxLevel: 0 | 1 | 2 | 3;
 }
 
-/** Leaning by renormalised weights over leanings that still have cards, then a uniform card. */
-export function weightedPick(pool: readonly PolicyCard[], weights: Record<LeaningId, number>, rng: Rng): PolicyCard {
+/**
+ * Leaning by renormalised weights over leanings that still have cards, then a uniform card. With a boost
+ * on some card, the pick is per card instead: leaning weight / cards in that leaning x boost.
+ */
+export function weightedPick(pool: readonly PolicyCard[], weights: Record<LeaningId, number>, rng: Rng, boost?: (c: PolicyCard) => number): PolicyCard {
+  if (boost && pool.some((c) => boost(c) !== 1)) {
+    const count = new Map<LeaningId, number>();
+    for (const c of pool) count.set(c.leaning, (count.get(c.leaning) ?? 0) + 1);
+    let w = pool.map((c) => ((weights[c.leaning] ?? 0) / count.get(c.leaning)!) * boost(c));
+    if (w.every((x) => x <= 0)) w = pool.map((c) => boost(c));
+    return pool[rng.weightedIndex(w)];
+  }
   const leanings: LeaningId[] = [];
   for (const c of pool) if (!leanings.includes(c.leaning)) leanings.push(c.leaning);
   let w = leanings.map((l) => weights[l] ?? 0);
@@ -31,7 +43,7 @@ export function weightedPick(pool: readonly PolicyCard[], weights: Record<Leanin
 }
 
 export function drawHand(input: DraftInput, rng: Rng): DraftResult {
-  const { cards, weights, picked, shownThisQuarter, quarter, repeatCooldownQuarters, handSize } = input;
+  const { cards, weights, picked, shownThisQuarter, quarter, repeatCooldownQuarters, handSize, boost } = input;
   const lastPick = new Map<string, number>();
   for (const p of picked) lastPick.set(p.cardId, Math.max(lastPick.get(p.cardId) ?? -Infinity, p.quarter));
   const shown = new Set(shownThisQuarter);
@@ -45,7 +57,7 @@ export function drawHand(input: DraftInput, rng: Rng): DraftResult {
     if (level === 0) {
       const pool = cards.filter((c) => notInHand(c) && neverPicked(c) && !shown.has(c.id));
       if (pool.length) {
-        hand.push(weightedPick(pool, weights, rng));
+        hand.push(weightedPick(pool, weights, rng, boost));
         continue;
       }
       level = 1;
@@ -53,7 +65,7 @@ export function drawHand(input: DraftInput, rng: Rng): DraftResult {
     if (level === 1) {
       const pool = cards.filter((c) => notInHand(c) && neverPicked(c));
       if (pool.length) {
-        hand.push(weightedPick(pool, weights, rng));
+        hand.push(weightedPick(pool, weights, rng, boost));
         continue;
       }
       level = 2;
@@ -71,7 +83,7 @@ export function drawHand(input: DraftInput, rng: Rng): DraftResult {
     }
     const pool = cards.filter(notInHand);
     if (!pool.length) break; // fewer cards than a hand: the validator prevents this
-    hand.push(weightedPick(pool, weights, rng));
+    hand.push(weightedPick(pool, weights, rng, boost));
   }
   return { hand: hand.map((c) => c.id), relaxLevel: level };
 }
@@ -92,6 +104,7 @@ export function drawCompromises(
   cooldownQuarters: number,
   n: number,
   rng: Rng,
+  boost?: (card: CompromiseCard) => number,
 ): string[] {
   const last = new Map<string, number>();
   for (const p of picked) last.set(p.cardId, Math.max(last.get(p.cardId) ?? -Infinity, p.quarter));
@@ -102,7 +115,11 @@ export function drawCompromises(
   const rest = cards.filter((c) => !fresh.includes(c) && !cooled.includes(c));
   const out: string[] = [];
   const pool = [...fresh];
-  while (out.length < n && pool.length) out.push(pool.splice(Math.floor(rng.next() * pool.length), 1)[0].id);
+  const boosted = !!boost && pool.some((c) => boost(c) !== 1);
+  while (out.length < n && pool.length) {
+    const i = boosted ? rng.weightedIndex(pool.map((c) => boost!(c))) : Math.floor(rng.next() * pool.length);
+    out.push(pool.splice(i, 1)[0].id);
+  }
   for (const c of [...cooled, ...rest]) if (out.length < n && !out.includes(c.id)) out.push(c.id);
   return out;
 }

@@ -2,6 +2,7 @@ import { config, type Config } from '../src/config';
 import { Simulation, type SimOptions } from '../src/core/simulation';
 import type { GameData } from '../src/core/types';
 import { mustLoad } from '../scripts/lib/nodeData';
+import { presetVote } from '../src/core/bots';
 
 let cached: GameData | null = null;
 export function gameData(): GameData {
@@ -23,8 +24,8 @@ export function makeSim(opts: Partial<SimOptions> = {}, cfg: Config = config, da
 export function resolveModal(sim: Simulation): void {
   const s = sim.state;
   if (s.phase === 'draft' && s.draft) sim.dispatch({ kind: 'pickPolicy', cardId: s.draft.hand[0] });
-  else if (s.phase === 'budgetVote') sim.dispatch({ kind: 'voteBudget', optionId: sim.data.budgetVote[1].id });
-  else if (s.phase === 'compromise' && s.compromiseOffer) sim.dispatch({ kind: 'makeCompromise', cardId: s.compromiseOffer[0] });
+  else if (s.phase === 'budgetVote') sim.dispatch(presetVote(sim, sim.data.budgetVote[1].id));
+  else if (s.phase === 'compromise' && s.compromiseOffer) sim.dispatch({ kind: 'makeCompromise', cardId: s.compromiseOffer[0], channelId: 'press', score: 0.5 });
 }
 
 /** A sim in phase running with no chaos/pins scheduled (budget votes kept). */

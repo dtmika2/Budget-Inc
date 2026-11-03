@@ -8,27 +8,37 @@ import { config } from '../config';
 import { shortHash } from '../core/rng';
 import type {
   CompromiseCard,
+  BudgetItem,
   BudgetVoteOption,
   ChaosEventDef,
+  DemandTemplate,
   EffectBundle,
   EndingDef,
   GameData,
   LeaderDef,
+  MinigameTexts,
   ModifierDef,
   OpportunityDef,
+  PartyDef,
   PolicyCard,
+  RegionProfiles,
   UpgradeTree,
 } from '../core/types';
 import { GROUP_IDS, RESOURCE_IDS } from '../core/types';
 import {
+  demandSchema,
+  budgetItemSchema,
   budgetSchema,
   budgetVoteOptionSchema,
   compromiseSchema,
   endingSchema,
   eventSchema,
   leaderSchema,
+  minigameTextsSchema,
   opportunitySchema,
+  partySchema,
   policySchema,
+  regionProfilesSchema,
   regionsSchema,
   upgradeTreeSchema,
 } from './schemas';
@@ -53,7 +63,12 @@ export type DataErrorCode =
   | 'unknownRegion'
   | 'tooFewCards'
   | 'badResponse'
-  | 'badTarget';
+  | 'badTarget'
+  | 'unknownItem'
+  | 'unknownTrait'
+  | 'unknownTag'
+  | 'unknownParty'
+  | 'badDemand';
 
 export interface DataIssue {
   code: DataErrorCode;
@@ -143,11 +158,18 @@ export function loadGameData(
   const leadersRaw = single(leaderSchema.array().min(1), 'data/leaders.json');
   const endingsRaw = single(endingSchema.array(), 'data/endings.json');
   const voteRaw = single(budgetVoteOptionSchema.array().min(1), 'data/annual/budget_vote.json');
+  const itemsRaw = single(budgetItemSchema.array().min(1), 'data/budget_items.json');
+  const minigamesRaw = single(minigameTextsSchema, 'data/minigames/texts.json');
+  const profilesRaw = single(regionProfilesSchema, 'data/region_profiles.json');
+  const partiesRaw = single(partySchema.array().min(1), 'data/parties.json');
   const policies = many(policySchema, 'data/policies');
   const compromises = many(compromiseSchema, 'data/compromises');
   const events = many(eventSchema, 'data/events');
   const opportunities = many(opportunitySchema, 'data/opportunities');
   const trees = many(upgradeTreeSchema, 'data/upgrades');
+  const demandsAll = many(demandSchema, 'data/demands');
+  // DRAFT demands (drafted from programmes, not yet approved) only load with includeDevFiller
+  const demands = demandsAll.filter((d) => d.item.status !== 'DRAFT' || includeFiller);
 
   // ---- normalise: `finances` in effects is an alias of `financesExtra`
   const normalise = <T extends EffectBundle>(b: T): T => {
@@ -177,8 +199,13 @@ export function loadGameData(
   const regionCodes = new Set(regions?.regions.map((r) => r.code) ?? []);
   const leaderIds = new Set(leadersRaw?.map((l) => l.id) ?? []);
 
+  const knownTags = new Set(config.regions.tags);
   const checkBundle = (b: EffectBundle, file: string, path: string) => {
+    b.tags?.forEach((tag, i) => {
+      if (!knownTags.has(tag)) err('unknownTag', file, `${path}.tags[${i}]`, tag);
+    });
     for (const code of Object.keys(b.regions ?? {})) {
+      if (code === 'self' && path.includes('.on')) continue; // demand bundles: the demand's own region
       if (regions && !regionCodes.has(code)) err('unknownRegion', file, `${path}.regions.${code}`, code);
     }
     b.budgetChanges?.forEach((bc, i) => {
@@ -239,6 +266,49 @@ export function loadGameData(
     });
   }
 
+  const partyIds = new Set(partiesRaw?.map((p) => p.id) ?? []);
+  if (partiesRaw) {
+    const f = 'data/parties.json';
+    dupCheck(partiesRaw.map((p, i) => ({ id: p.id, file: f, path: `[${i}]` })));
+    partiesRaw.forEach((p, i) => locKey(p.label, f, `[${i}].label`));
+  }
+
+  if (profilesRaw) {
+    const f = 'data/region_profiles.json';
+    const axes = config.regions.traits;
+    for (const c of EXPECTED_REGION_CODES) if (!(c in profilesRaw.regions)) err('unknownRegion', f, 'regions', `missing ${c}`);
+    for (const [code, p] of Object.entries(profilesRaw.regions)) {
+      if (!EXPECTED_REGION_CODES.includes(code)) err('unknownRegion', f, `regions.${code}`, `unexpected ${code}`);
+      p.traits.forEach((tr, i) => {
+        if (![...axes.settlement, ...axes.economy, ...axes.special].includes(tr)) err('unknownTrait', f, `regions.${code}.traits[${i}]`, tr);
+      });
+      const count = (list: string[]) => p.traits.filter((tr) => list.includes(tr)).length;
+      if (count(axes.settlement) !== 1 || count(axes.economy) !== 1 || count(axes.special) > 1)
+        err('unknownTrait', f, `regions.${code}.traits`, 'needs exactly one settlement trait, one economy trait and at most one special trait');
+      p.coalition.parties.forEach((pid, i) => {
+        if (partiesRaw && !partyIds.has(pid)) err('unknownParty', f, `regions.${code}.coalition.parties[${i}]`, pid);
+      });
+    }
+  }
+
+  if (minigamesRaw) {
+    const f = 'data/minigames/texts.json';
+    for (const k of ['pressSpin', 'pressGaffe', 'debateQuestions'] as const)
+      minigamesRaw[k].forEach((key, i) => locKey(key, f, `${k}[${i}]`));
+  }
+
+  const itemIds = new Set(itemsRaw?.map((it) => it.id) ?? []);
+  if (itemsRaw) {
+    const f = 'data/budget_items.json';
+    dupCheck(itemsRaw.map((it, i) => ({ id: it.id, file: f, path: `[${i}]` })));
+    itemsRaw.forEach((it, i) => {
+      locKey(it.label, f, `[${i}].label`);
+      it.chapters.forEach((c, j) => {
+        if (budget && !chapterCodes.has(c.chapter)) err('unknownChapter', f, `[${i}].chapters[${j}].chapter`, c.chapter);
+      });
+    });
+  }
+
   if (voteRaw) {
     const f = 'data/annual/budget_vote.json';
     dupCheck(voteRaw.map((o, i) => ({ id: o.id, file: f, path: `[${i}]` })));
@@ -246,6 +316,11 @@ export function loadGameData(
       locKey(o.label, f, `[${i}].label`);
       locKey(o.description, f, `[${i}].description`);
       checkBundle(o, f, `[${i}]`);
+      for (const [item, steps] of Object.entries(o.sliders)) {
+        if (itemsRaw && !itemIds.has(item)) err('unknownItem', f, `[${i}].sliders.${item}`, item);
+        const { minSteps, maxSteps } = config.budgetVote.sliders;
+        if (steps < minSteps || steps > maxSteps) err('schema', f, `[${i}].sliders.${item}`, `steps must be within ${minSteps}..${maxSteps}`);
+      }
     });
   }
 
@@ -293,6 +368,41 @@ export function loadGameData(
     });
     card.availableFor.forEach((lid: string, i: number) => {
       if (leadersRaw && !leaderIds.has(lid)) err('unknownLeader', file, `${p}.availableFor[${i}]`, lid);
+    });
+  }
+
+  // demands (phase 14)
+  dupCheck(demandsAll.map((d) => ({ id: d.item.id, file: d.file, path: `[${d.idx}]` })));
+  const policyTags = new Set(policies.flatMap((c) => c.item.tags ?? []));
+  const policyIds = new Set(policies.map((c) => c.item.id));
+  for (const { item: d, file, idx } of demandsAll) {
+    const p = `[${idx}]`;
+    locKey(d.text, file, `${p}.text`);
+    locKey(d.fulfilHint, file, `${p}.fulfilHint`);
+    for (const k of ['onAccept', 'onFulfil', 'onFail', 'onReject'] as const) checkBundle(d[k], file, `${p}.${k}`);
+    d.parties.forEach((pid: string, i: number) => {
+      if (partiesRaw && !partiesRaw.some((x) => x.id === pid)) err('unknownParty', file, `${p}.parties[${i}]`, pid);
+    });
+    d.regions.forEach((code: string, i: number) => {
+      if (regions && !regionCodes.has(code)) err('unknownRegion', file, `${p}.regions[${i}]`, code);
+    });
+    if (d.requesterTypes.includes('party') && d.status !== 'DUMMY' && !d.programmeRef)
+      err('badDemand', file, `${p}.programmeRef`, 'a party demand needs a programmeRef (spec: demands come from real party programmes)');
+    if (d.programmeRef && !d.parties.includes(d.programmeRef.party))
+      err('badDemand', file, `${p}.programmeRef.party`, `"${d.programmeRef.party}" is not one of the demand's parties`);
+    d.fulfil.forEach((f, i: number) => {
+      const fp = `${p}.fulfil[${i}]`;
+      if (f.type === 'policy') {
+        if (!f.tags?.length && !f.cardIds?.length) err('badDemand', file, fp, 'a policy condition needs tags or cardIds');
+        f.tags?.forEach((tag) => {
+          if (!policyTags.has(tag)) err('badDemand', file, `${fp}.tags`, `no policy card has tag "${tag}"`);
+        });
+        f.cardIds?.forEach((id) => {
+          if (!policyIds.has(id)) err('badDemand', file, `${fp}.cardIds`, `unknown card "${id}"`);
+        });
+      } else if (f.type === 'budget') {
+        if (itemsRaw && !itemIds.has(f.item)) err('unknownItem', file, `${fp}.item`, f.item);
+      } else if (f.region !== 'self' && regions && !regionCodes.has(f.region)) err('unknownRegion', file, `${fp}.region`, f.region);
     });
   }
 
@@ -350,7 +460,7 @@ export function loadGameData(
     }
   }
 
-  if (errors.length > 0 || !budget || !regions || !leadersRaw || !endingsRaw || !voteRaw) {
+  if (errors.length > 0 || !budget || !regions || !leadersRaw || !endingsRaw || !voteRaw || !itemsRaw || !minigamesRaw || !profilesRaw || !partiesRaw) {
     return { ok: false, errors, warnings };
   }
 
@@ -377,6 +487,11 @@ export function loadGameData(
     }) as ChaosEventDef[],
     opportunities: opportunities.map((o) => ({ ...o.item, reward: normalise(o.item.reward) })) as OpportunityDef[],
     budgetVote: voteRaw.map(normalise) as BudgetVoteOption[],
+    budgetItems: itemsRaw as BudgetItem[],
+    minigames: minigamesRaw as MinigameTexts,
+    regionProfiles: profilesRaw as RegionProfiles,
+    parties: partiesRaw as PartyDef[],
+    demands: demands.map((d) => d.item) as DemandTemplate[],
     upgrades: trees.map((t) => t.item) as UpgradeTree[],
     endings: endingsRaw as EndingDef[],
     fileHashes,

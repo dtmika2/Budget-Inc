@@ -5,9 +5,22 @@
 import type { Config, DifficultyPreset } from '../config';
 import { activateAbility, canUseAbility, rechargeIfYearStart } from './abilities';
 import { computeFinances, initPct } from './budget';
-import { openBudgetVote, passChance, scheduleBudgetVotes, voteBudget } from './budgetVote';
+import { openBudgetVote, passChance, scheduleBudgetVotes, validateVote, violations, voteBudget, voteBundle, type Sliders } from './budgetVote';
 import { canRespond, fireChaos, respond, scheduleChaosForPick } from './chaos';
-import { canMakeCompromise, makeCompromise, openCompromise, scheduleQuarterCompromise } from './compromise';
+import { canMakeCompromise, makeCompromise, openCompromise, scaleBundle, scheduleQuarterCompromise, soldBundle } from './compromise';
+import {
+  acceptDemand,
+  canAnswerDemand,
+  checkPledgeDeadlines,
+  checkPledgesPolicy,
+  expireDemand,
+  pledgesForCard,
+  rejectDemand,
+  resolveSelf,
+  scheduleYearDemands,
+  spawnDemand,
+  templateOf,
+} from './demands';
 import { drawHand, rerollCost } from './draft';
 import { applyBundle, applyDaily, previewBundle, type EffectHost, type PreviewRanges } from './effects';
 import { electionNight, projection } from './election';
@@ -122,6 +135,12 @@ export class Simulation implements EffectHost {
       zeroPenalties: { finances: false, support: false, prestige: false },
       draft: null,
       compromiseOffer: null,
+      budgetVoteRedLines: null,
+      tourUsedInYear: null,
+      regionHistory: [],
+      demands: [],
+      pledges: [],
+      demandSeq: 0,
       picked: [],
       schedule: [],
       scheduleSeq: 0,
@@ -145,6 +164,7 @@ export class Simulation implements EffectHost {
     this.recomputeFinances();
     this.state.projection = this.computeProjection();
     this.pushTrend();
+    this.pushRegionHistory();
 
     this.log('run_started', {
       runId: this.state.runId,
@@ -216,6 +236,13 @@ export class Simulation implements EffectHost {
     return entry;
   }
 
+  /** Weekly snapshot of every region's support s_r (region screen history, phase 13). */
+  private pushRegionHistory(): void {
+    const s: Record<string, number> = {};
+    for (const [code, v] of Object.entries(this.state.projection.regionSupport)) s[code] = Math.round(v * 100) / 100;
+    this.state.regionHistory.push({ absDay: this.absDay, s, national: Math.round(this.state.resources.support * 100) / 100 });
+  }
+
   private pushTrend(): void {
     const s = this.state;
     s.trend.push({ absDay: this.absDay, resources: { ...s.resources }, anger: { ...s.anger }, P: s.projection.P });
@@ -265,6 +292,7 @@ export class Simulation implements EffectHost {
     this.log('quarter_started', { pcGained: gain });
     scheduleQuarterPins(this);
     scheduleQuarterCompromise(this);
+    scheduleYearDemands(this);
     s.draft = { hand: [], shownThisQuarter: [], rerolls: 0 };
     s.phase = 'draft';
     this.deal();
@@ -282,6 +310,7 @@ export class Simulation implements EffectHost {
         quarter: s.quarter,
         repeatCooldownQuarters: this.cfg.draft.repeatCooldownQuarters,
         handSize: this.cfg.draft.handSize,
+        boost: s.pledges.length ? (c) => (pledgesForCard(this, c.id).length ? this.cfg.demands.draftBoost : 1) : undefined,
       },
       this.rng.draft,
     );
@@ -322,6 +351,8 @@ export class Simulation implements EffectHost {
       if (e.kind === 'chaos') fireChaos(this, e);
       else if (e.kind === 'pinSpawn') spawnPin(this, e);
       else if (e.kind === 'pinExpire') expirePin(this, e);
+      else if (e.kind === 'demandSpawn') spawnDemand(this);
+      else if (e.kind === 'demandExpire') expireDemand(this, e);
     }
 
     // 2. daily changes: drift -> ongoing -> zero penalties (+ stand-ins) -> anger decay; then durations
@@ -332,6 +363,7 @@ export class Simulation implements EffectHost {
     for (const o of s.ongoing) applyDaily(this, o.target, o.perDay, 'ongoing');
     applyZeroPenalties(this);
     applyStandInPenalties(this);
+    checkPledgeDeadlines(this);
     const pull = this.cfg.anger.pullPerDay;
     if (pull > 0) {
       for (const g of GROUP_IDS) {
@@ -358,6 +390,7 @@ export class Simulation implements EffectHost {
     if (abs % this.cfg.election.projectionEveryDays === 0) {
       s.projection = this.computeProjection();
       this.pushTrend();
+      this.pushRegionHistory();
     }
     // 7. end of quarter
     if (s.day >= this.cfg.time.daysPerQuarter) {
@@ -391,12 +424,17 @@ export class Simulation implements EffectHost {
     for (const o of s.ongoing) this.log('scheduled_cancelled', { what: 'ongoing', key: o.key, daysLeft: o.daysLeft, reason });
     for (const p of s.pins) this.log('scheduled_cancelled', { what: 'pin', pinId: p.id, reason });
     for (const p of s.pendingResponses) this.log('scheduled_cancelled', { what: 'response', eventId: p.eventId, reason });
+    for (const d of s.demands) this.log('scheduled_cancelled', { what: 'demand', demandId: d.id, reason });
+    for (const p of s.pledges) this.log('scheduled_cancelled', { what: 'pledge', pledgeId: p.id, reason });
+    s.demands = [];
+    s.pledges = [];
     s.schedule = [];
     s.ongoing = [];
     s.pins = [];
     s.pendingResponses = [];
     s.draft = null;
     s.compromiseOffer = null;
+    s.budgetVoteRedLines = null;
   }
 
   private finishElection(snap: boolean): void {
@@ -445,14 +483,17 @@ export class Simulation implements EffectHost {
         if (s.phase !== 'running') return 'not running';
         return s.pins.some((p) => p.id === input.pinId) ? null : 'no such pin';
       case 'makeCompromise':
-        return canMakeCompromise(this, input.cardId);
+        return canMakeCompromise(this, input.cardId, input.channelId, input.score);
       case 'voteBudget':
         if (s.phase !== 'budgetVote') return 'no vote open';
-        return this.data.budgetVote.some((o) => o.id === input.optionId) ? null : 'no such option';
+        return validateVote(this, input.sliders, input.presetId);
       case 'buyUpgrade':
         return canBuy(this, input.nodeId);
       case 'useAbility':
         return canUseAbility(this);
+      case 'acceptDemand':
+      case 'rejectDemand':
+        return canAnswerDemand(this, input.demandId);
     }
   }
 
@@ -463,7 +504,7 @@ export class Simulation implements EffectHost {
     s.inputs.push({ tick: s.tickCount, quarter: s.quarter, day: s.day, input });
     switch (input.kind) {
       case 'makeCompromise':
-        makeCompromise(this, input.cardId);
+        makeCompromise(this, input.cardId, input.channelId, input.score);
         break;
       case 'pickPolicy': {
         const card = this.cardById.get(input.cardId)!;
@@ -472,6 +513,7 @@ export class Simulation implements EffectHost {
         s.draft = null;
         s.phase = 'running';
         this.log('policy_picked', { cardId: card.id, leaning: card.leaning, rolled }, deltas);
+        checkPledgesPolicy(this, card.id);
         scheduleChaosForPick(this, card);
         break;
       }
@@ -490,13 +532,19 @@ export class Simulation implements EffectHost {
         collectPin(this, input.pinId);
         break;
       case 'voteBudget':
-        voteBudget(this, input.optionId);
+        voteBudget(this, input.sliders, input.presetId);
         break;
       case 'buyUpgrade':
         buyUpgrade(this, input.nodeId);
         break;
       case 'useAbility':
         activateAbility(this);
+        break;
+      case 'acceptDemand':
+        acceptDemand(this, input.demandId);
+        break;
+      case 'rejectDemand':
+        rejectDemand(this, input.demandId);
         break;
     }
     this.checkTerminal();
@@ -517,14 +565,42 @@ export class Simulation implements EffectHost {
     return this.preview(this.cardById.get(cardId)!, 'policy');
   }
 
+  /** Preview of a compromise sold through a channel with a given mini-game score. */
+  previewCompromise(cardId: string, channelId: string, score: number): PreviewRanges {
+    return this.preview(soldBundle(this, cardId, channelId, score), 'compromise');
+  }
+
   previewResponse(eventId: string, responseId: string): PreviewRanges {
     const opt = this.eventById.get(eventId)?.responses?.options.find((o) => o.id === responseId);
     return this.preview(opt ?? {}, 'response');
   }
 
-  previewBudgetOption(optionId: string): PreviewRanges & { passChance: number } {
-    const opt = this.data.budgetVote.find((o) => o.id === optionId);
-    return { ...this.preview(opt ?? {}, 'budget_vote'), passChance: passChance(this, optionId) };
+  /** Preview of a budget-vote slider setting: ranges, pass chance and crossed red lines. */
+  previewVote(sliders: Sliders, presetId: string | null): PreviewRanges & { passChance: number; violations: string[] } {
+    return {
+      ...this.preview(voteBundle(this, sliders, presetId), 'budget_vote'),
+      passChance: passChance(this, sliders, presetId),
+      violations: violations(this, sliders).map((r) => r.item),
+    };
+  }
+
+  /** Ranges of a demand's four outcomes in its region. */
+  previewDemand(templateId: string, region: string): Record<'accept' | 'fulfil' | 'fail' | 'reject' | 'ignore', PreviewRanges> {
+    const tpl = templateOf(this, templateId);
+    const f = this.cfg.demands.ignoreFactor;
+    const p = (b: EffectBundle) => this.preview(resolveSelf(b, region), 'demand');
+    return {
+      accept: p(tpl.onAccept),
+      fulfil: p(tpl.onFulfil),
+      fail: p(tpl.onFail),
+      reject: p(tpl.onReject),
+      ignore: p(scaleBundle(tpl.onReject, f, f)),
+    };
+  }
+
+  /** Random stream of the demand system. */
+  demandRng() {
+    return this.rng.demands;
   }
 
   previewAbility(): PreviewRanges {

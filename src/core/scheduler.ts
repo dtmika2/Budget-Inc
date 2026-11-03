@@ -5,7 +5,7 @@
 import type { GameState, ScheduledEntry, ScheduledKind } from './types';
 
 /** Order of firing within one day (plan §3.4 step 1). */
-export const KIND_PRIORITY: Record<ScheduledKind, number> = { budgetVote: 0, compromise: 1, chaos: 2, pinSpawn: 3, pinExpire: 4 };
+export const KIND_PRIORITY: Record<ScheduledKind, number> = { budgetVote: 0, compromise: 1, chaos: 2, pinSpawn: 3, pinExpire: 4, demandSpawn: 5, demandExpire: 6 };
 
 export function schedule(state: GameState, kind: ScheduledKind, absDay: number, payload: ScheduledEntry['payload']): ScheduledEntry {
   const entry: ScheduledEntry = { seq: state.scheduleSeq++, kind, absDay, payload };

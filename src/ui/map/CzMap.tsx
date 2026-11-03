@@ -5,12 +5,13 @@
  * Opportunity pins are HTML buttons laid over the SVG so they stay >= 44 px at any map size.
  */
 import { memo, useState } from 'react';
-import { fmt, t } from '@i18n/index';
+import { t } from '@i18n/index';
 import { getStore, useStore } from '../store';
 import { LiquidDefs, LiquidRegion } from './Liquid';
 import { MapLife } from './MapLife';
 import { ProjectionTicker } from '../charts/ProjectionTicker';
 import { Floaters } from '../popups/Floaters';
+import { DemandPin } from './DemandPin';
 import { OpportunityPin } from './OpportunityPin';
 import { MAP_ATTRIBUTION, MAP_HEIGHT, MAP_SCHEMATIC, MAP_WIDTH, REGION_PATHS } from './regionsPath';
 
@@ -35,7 +36,7 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
           className="region region--outline"
           fill="transparent"
           fillRule="evenodd"
-          onClick={() => store.setUi({ selectedRegion: store.ui.selectedRegion === r.code ? null : r.code })}
+          onClick={() => store.setUi({ selectedRegion: r.code })}
           onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(r.code)}
           onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered((h) => (h === r.code ? null : h))}
         >
@@ -56,28 +57,10 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
   );
 });
 
-function RegionInfo() {
-  const store = getStore();
-  const code = useStore((s) => s.ui.selectedRegion);
-  const support = useStore((s) => (code ? (s.sim?.state.projection.regionSupport[code] ?? 0) : 0));
-  if (!code || !store.data) return null;
-  const region = store.data.regions.regions.find((r) => r.code === code);
-  if (!region) return null;
-  const total = store.data.regions.regions.reduce((s, r) => s + r.seats, 0);
-  return (
-    <div className="region-info" role="status">
-      <b>{t(region.name)}</b>
-      <span>{t('map.support', { v: fmt(support) })}</span>
-      <span>{t('map.seats', { seats: region.seats, w: fmt(region.seats / total, 3) })}</span>
-      <button className="btn-icon" onClick={() => store.setUi({ selectedRegion: null })} aria-label={t('common.close')}>
-        {'✕'}
-      </button>
-    </div>
-  );
-}
-
 function Pins() {
   const pins = useStore((s) => (s.sim ? [...s.sim.state.pins] : []));
+  const demands = useStore((s) => (s.sim ? [...s.sim.state.demands] : []));
+  const pledgeRegions = useStore((s) => (s.sim ? [...new Set(s.sim.state.pledges.map((p) => p.region))] : []));
   return (
     <div className="pins">
       {pins.map((p) => {
@@ -88,6 +71,20 @@ function Pins() {
         const dx = ((n * 37) % 5) * 8 - 16;
         const dy = ((n * 53) % 3) * 10 - 10;
         return <OpportunityPin key={p.id} pin={p} x={((r.labelX + dx) / MAP_WIDTH) * 100} y={((r.labelY + dy) / MAP_HEIGHT) * 100} />;
+      })}
+      {demands.map((d) => {
+        const r = LABEL_BY_CODE.get(d.region);
+        if (!r) return null;
+        return <DemandPin key={d.id} demand={d} x={((r.labelX + 22) / MAP_WIDTH) * 100} y={((r.labelY - 30) / MAP_HEIGHT) * 100} />;
+      })}
+      {pledgeRegions.map((code) => {
+        const r = LABEL_BY_CODE.get(code);
+        if (!r) return null;
+        return (
+          <span key={`pl-${code}`} className="pledge-mark" style={{ left: `${((r.labelX - 22) / MAP_WIDTH) * 100}%`, top: `${((r.labelY - 26) / MAP_HEIGHT) * 100}%` }} aria-hidden="true">
+            {'⏳'}
+          </span>
+        );
       })}
     </div>
   );
@@ -132,7 +129,6 @@ export function CzMap() {
         <Pins />
       </div>
       <ProjectionTicker />
-      <RegionInfo />
       <p className="map__credit">{MAP_SCHEMATIC ? t('map.schematic') : MAP_ATTRIBUTION ? t('map.attribution') : ''}</p>
     </div>
   );

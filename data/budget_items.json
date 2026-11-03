@@ -1,0 +1,94 @@
+[
+  {
+    "id": "pensions",
+    "label": "budgetItem.pensions",
+    "chapters": [{ "chapter": "313", "type": "expenditure", "weight": 0.6 }],
+    "angerPerStep": { "pensioners": -3 },
+    "supportPerStep": 0.6,
+    "passPerStep": 0.02,
+    "canBeRedLine": true
+  },
+  {
+    "id": "ngos",
+    "label": "budgetItem.ngos",
+    "chapters": [
+      { "chapter": "313", "type": "expenditure", "weight": 0.02 },
+      { "chapter": "333", "type": "expenditure", "weight": 0.03 },
+      { "chapter": "315", "type": "expenditure", "weight": 0.1 },
+      { "chapter": "314", "type": "expenditure", "weight": 0.03 }
+    ],
+    "angerPerStep": { "activists": -2.5, "eu": -0.5 },
+    "supportPerStep": -0.2,
+    "passPerStep": 0,
+    "canBeRedLine": true
+  },
+  {
+    "id": "defence",
+    "label": "budgetItem.defence",
+    "chapters": [{ "chapter": "307", "type": "expenditure", "weight": 1 }],
+    "angerPerStep": { "eu": -1.5, "activists": 0.5 },
+    "supportPerStep": 0,
+    "passPerStep": 0.01,
+    "canBeRedLine": true
+  },
+  {
+    "id": "education",
+    "label": "budgetItem.education",
+    "chapters": [{ "chapter": "333", "type": "expenditure", "weight": 0.9 }],
+    "angerPerStep": { "activists": -1 },
+    "supportPerStep": 0.4,
+    "passPerStep": 0.01,
+    "canBeRedLine": true
+  },
+  {
+    "id": "transport",
+    "label": "budgetItem.transport",
+    "chapters": [{ "chapter": "327", "type": "expenditure", "weight": 1 }],
+    "angerPerStep": { "oligarchs": -1.5 },
+    "supportPerStep": 0.3,
+    "passPerStep": 0,
+    "canBeRedLine": true
+  },
+  {
+    "id": "health",
+    "label": "budgetItem.health",
+    "chapters": [
+      { "chapter": "335", "type": "expenditure", "weight": 1 },
+      { "chapter": "313", "type": "expenditure", "weight": 0.05 }
+    ],
+    "angerPerStep": { "pensioners": -1 },
+    "supportPerStep": 0.5,
+    "passPerStep": 0.01,
+    "canBeRedLine": true
+  },
+  {
+    "id": "agriculture",
+    "label": "budgetItem.agriculture",
+    "chapters": [{ "chapter": "329", "type": "expenditure", "weight": 1 }],
+    "angerPerStep": { "oligarchs": -1 },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.01,
+    "canBeRedLine": true
+  },
+  {
+    "id": "environment",
+    "label": "budgetItem.environment",
+    "chapters": [{ "chapter": "315", "type": "expenditure", "weight": 0.9 }],
+    "angerPerStep": { "activists": -1.5, "eu": -1, "oligarchs": 0.5 },
+    "supportPerStep": 0,
+    "passPerStep": 0,
+    "canBeRedLine": true
+  },
+  {
+    "id": "administration",
+    "label": "budgetItem.administration",
+    "chapters": [
+      { "chapter": "314", "type": "expenditure", "weight": 0.3 },
+      { "chapter": "312", "type": "expenditure", "weight": 0.5 }
+    ],
+    "angerPerStep": { "media": 0.5 },
+    "supportPerStep": -0.3,
+    "passPerStep": 0,
+    "canBeRedLine": false
+  }
+]

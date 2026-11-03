@@ -11,6 +11,17 @@ export interface DifficultyPreset {
   driftMultiplier: number;
 }
 
+export interface CompromiseChannel {
+  gainAtZero: number;
+  gainAtOne: number;
+  lossAtZero: number;
+  lossAtOne: number;
+  /** Usable once per game year (Q1-4, Q5-8, ...). */
+  oncePerYear: boolean;
+  /** The UI offers a Skip button (scored as compromise.skipScore). */
+  skippable: boolean;
+}
+
 export const config = {
   /** Load generated `[FILLER]` content (files starting with `_`). Turn off once real content meets §5.3. */
   includeDevFiller: true,
@@ -82,6 +93,31 @@ export const config = {
     startJitter: 6,
     /** Cap on a region's accumulated shift (+-). */
     maxShift: 40,
+    /** Phase 13: region traits. Every region has one settlement trait, one economy trait, optionally one special. */
+    traits: {
+      settlement: ['urban', 'mixed', 'rural'],
+      economy: ['industry', 'services', 'agriculture', 'tourism'],
+      special: ['coal', 'border', 'university'],
+    } as Record<'settlement' | 'economy' | 'special', string[]>,
+    /** Hidden card tags that traits react to. */
+    tags: ['agriculture', 'industry', 'transport', 'services', 'tourism', 'environment', 'education', 'social', 'coal', 'border'] as string[],
+    /**
+     * How strongly a region reacts to a tagged card: multiplier per trait and tag (missing = 1). The product
+     * over the region's traits and the card's tags scales the card's regional effects and adds
+     * support x (mult - 1) to the region's shift (national support itself is unchanged).
+     */
+    traitResponse: {
+      urban: { agriculture: 0.7, transport: 1.2, services: 1.2, environment: 1.2, education: 1.1 },
+      mixed: {},
+      rural: { agriculture: 1.3, services: 0.8, social: 1.2, environment: 0.9 },
+      industry: { industry: 1.4, environment: 0.8 },
+      services: { services: 1.3 },
+      agriculture: { agriculture: 1.5 },
+      tourism: { tourism: 1.5, transport: 1.1 },
+      coal: { coal: 1.6, environment: 0.6, industry: 1.2 },
+      border: { border: 1.4, tourism: 1.1 },
+      university: { education: 1.4 },
+    } as Record<string, Record<string, number>>,
   },
 
   /**
@@ -97,6 +133,20 @@ export const config = {
     choices: 2,
     /** Compromises picked within this many quarters are not offered again (unless too few are left). */
     cooldownQuarters: 6,
+    /**
+     * Phase 12: after picking a deal the player sells it through a channel (a mini-game scoring 0..1).
+     * The score scales the deal: gains x gainMult, losses x lossMult. Each multiplier is piecewise linear
+     * through (0, atZero), (neutralScore, 1), (1, atOne), so a score of neutralScore gives the plain deal.
+     * A negative gain multiplier turns gains into losses (the regional tour can backfire).
+     */
+    neutralScore: 0.5,
+    /** Score used when the player skips a skippable mini-game. */
+    skipScore: 0.4,
+    channels: {
+      press: { gainAtZero: 0.8, gainAtOne: 1.2, lossAtZero: 1.2, lossAtOne: 0.8, oncePerYear: false, skippable: true },
+      debate: { gainAtZero: 0.4, gainAtOne: 1.3, lossAtZero: 1.6, lossAtOne: 0.5, oncePerYear: false, skippable: true },
+      tour: { gainAtZero: -0.5, gainAtOne: 1.5, lossAtZero: 1.8, lossAtOne: 0.5, oncePerYear: true, skippable: false },
+    } as Record<string, CompromiseChannel>,
   },
 
   finances: {
@@ -113,6 +163,14 @@ export const config = {
     passMin: 0.05,
     passMax: 0.98,
     failEffects: { coalition: -8, prestige: -3, support: -2 } as Partial<Record<ResourceId, number>>,
+    /** Budget sliders (phase 11): one step changes a category's spending by stepPct %. */
+    sliders: { minSteps: -3, maxSteps: 3, stepPct: 5 },
+    /**
+     * Coalition red lines: at vote open, min..max categories (with canBeRedLine) are drawn from the
+     * budgetVote stream. Cutting one by more than maxCutSteps steps is a violation; each violation lowers
+     * the pass chance by passPenalty.
+     */
+    redLines: { min: 1, max: 2, maxCutSteps: 1, passPenalty: 0.2 },
   },
 
   draft: {
@@ -259,6 +317,42 @@ export const config = {
   /** Trend charts (side panel + map ticker). Trend points are weekly. */
   charts: {
     tickerWeeks: 26,
+  },
+
+  /** Phase 14: regional demands ("!") and pledges. */
+  demands: {
+    /** Demands spawned per game year (spawn days drawn at the year's first quarter from the `demands` stream). */
+    perYear: 3,
+    /** Spawn window inside the year (days from the year's start / before its end). */
+    spawnFromDay: 10,
+    spawnBeforeYearEnd: 30,
+    /** At most this many open "!" pins; at most one demand or pledge per region. */
+    maxOpen: 2,
+    /** Days a "!" pin waits for an answer before it expires (counts as ignored). */
+    responseDays: 30,
+    /** Time to fulfil an accepted demand. */
+    deadlineQuarters: 4,
+    /** An ignored demand applies onReject x ignoreFactor. */
+    ignoreFactor: 0.5,
+    /** Draft / compromise-offer weight multiplier for cards that would fulfil an active pledge. */
+    draftBoost: 2,
+  },
+
+  /** Compromise mini-games (UI only; the core only sees the final score). */
+  minigames: {
+    countdownSec: 3,
+    /** Result splash: score >= great -> "Skvele", >= ok -> "Ujde to", else "Prusvih". */
+    tiers: { great: 0.7, ok: 0.4 },
+    press: { durationMs: 12000, spawnMs: 650, fallMsStart: 3200, fallMsEnd: 2100, spinShare: 0.6, gaffePenalty: 2 },
+    debate: { questions: 5, zoneStart: 0.26, zoneShrink: 0.035, edge: 0.07, periodMsStart: 1500, periodMsShrink: 130, timeoutMs: 3500, feedbackMs: 550 },
+    tour: { durationMs: 12000, spawnMs: 520, lifeMsStart: 1000, lifeMsEnd: 650, handShare: 0.75, hitPenalty: 2 },
+  },
+
+  /** Headless bots: assumed mini-game score of the greedy bot (random draws uniform 0..1). */
+  bots: {
+    greedyMinigameScore: 0.75,
+    /** Greedy bot's estimate of the chance to fulfil a pledge it accepts. */
+    pledgeFulfilEstimate: 0.6,
   },
 
   /** Simulator targets on Normal (§13). */

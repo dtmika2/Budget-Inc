@@ -18,7 +18,7 @@ export const OpportunityPin = memo(function OpportunityPin({ pin, x, y }: { pin:
     >
       <span className="pin__ring" aria-hidden="true" />
       <span className="pin__icon" aria-hidden="true">
-        !
+        {t('map.pinPc')}
       </span>
     </button>
   );

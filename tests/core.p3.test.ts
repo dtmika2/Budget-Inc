@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { presetVote } from '../src/core/bots';
 import { config } from '../src/config';
 import { drawHand, rerollCost } from '../src/core/draft';
 import { Rng } from '../src/core/rng';
@@ -133,8 +134,8 @@ describe('rerolls', () => {
     sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
     sim.state.resources.coalition = 100;
     while (sim.state.quarter === 1 && !sim.isOver) {
-      if (sim.state.phase === 'budgetVote') sim.dispatch({ kind: 'voteBudget', optionId: 'budget_balanced' });
-      else if (sim.state.phase === 'compromise') sim.dispatch({ kind: 'makeCompromise', cardId: sim.state.compromiseOffer![0] });
+      if (sim.state.phase === 'budgetVote') sim.dispatch(presetVote(sim, 'budget_balanced'));
+      else if (sim.state.phase === 'compromise') sim.dispatch({ kind: 'makeCompromise', cardId: sim.state.compromiseOffer![0], channelId: 'press', score: 0.5 });
       else sim.tick();
     }
     expect(sim.state.quarter).toBe(2);

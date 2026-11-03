@@ -158,14 +158,51 @@ Add to any file in `data/opportunities/`:
 ```
 `weight` 1 = rare, 3 = common. Rewards use the same effect format as cards (plus `pc`).
 
-### A budget-vote option
-Edit `data/annual/budget_vote.json` (same effect format as cards, plus `passChanceMod`, `label`, `description`):
+### A budget category (slider) and a budget preset
+The budget vote is a slider per **budget category** in `data/budget_items.json`. The player sees only the
+category name; the hidden `chapters` mapping says which `data/budget.json` chapters one step moves
+(one step = `config.budgetVote.sliders.stepPct` % × `weight`):
+```jsonc
+{ "id": "pensions", "label": "budgetItem.pensions",
+  "chapters": [{ "chapter": "313", "type": "expenditure", "weight": 0.6 }],
+  "angerPerStep": { "pensioners": -3 },   // per +1 step; a cut (negative step) inverts it
+  "supportPerStep": 0.6, "passPerStep": 0.02, "canBeRedLine": true }
+```
+`data/annual/budget_vote.json` holds the **presets** (named slider settings + `passChanceMod`, optional base effects):
 ```jsonc
 { "id": "budget_tight", "label": "budgetVote.budget_tight.label", "description": "budgetVote.budget_tight.desc",
-  "passChanceMod": -0.10, "effects": { "support": { "min": -4, "max": -2 } },
-  "anger": { "pensioners": { "min": 4, "max": 8 } },
-  "budgetChanges": [{ "chapter": "*", "type": "expenditure", "changePct": -3 }] }
+  "passChanceMod": -0.10, "sliders": { "pensions": -1, "ngos": -2 } }
 ```
+
+### A regional demand ("!")
+`data/demands/*.json`. A party or an interest group asks for something in a region; the player accepts
+(a one-year pledge) or rejects. Bundles use the same effect format as cards; `"self"` in `regions` means
+the demand's own region. **Party demands come from real party programmes** (see `sources/programmes/README.md`):
+every non-`DUMMY` party demand needs a `programmeRef`; `DRAFT` demands only load with `includeDevFiller`.
+```jsonc
+{ "id": "dummy_demand_parking", "status": "DUMMY",            // DUMMY | DRAFT | APPROVED
+  "requesterTypes": ["party"], "parties": ["ano"], "regions": ["CZ041"],
+  "regionWeights": { "urban": 2 },                             // optional, by region trait
+  "text": "demand.dummy_demand_parking.text", "fulfilHint": "demand.dummy_demand_parking.hint",
+  "fulfil": [                                                   // any one fulfils the pledge
+    { "type": "budget", "item": "transport", "minSteps": 1 },
+    { "type": "compromise", "region": "self", "minRegionGain": 2 },
+    { "type": "policy", "tags": ["transport"] }                 // or "cardIds": [...]
+  ],
+  "onAccept": { "regions": { "self": { "min": 1, "max": 1 } } },
+  "onFulfil": { ... }, "onFail": { ... }, "onReject": { ... },
+  "programmeRef": { "party": "ano", "file": "program-2024-kraje.pdf", "page": 12, "section": "Doprava", "quote": "…" } }
+```
+
+### Region profiles, parties and mini-game texts
+| File | Contents |
+|---|---|
+| `data/region_profiles.json` | per kraj: 2–3 `traits` (one settlement, one economy, optional special; **DRAFT**), socio-demographics (`value`/`year`/`source`, `status: "TODO"` until filled from ČSÚ/ISPV/MPSV), regional `coalition` (party ids, source, as-of date; Praha = city council) |
+| `data/parties.json` | party ids and their label keys |
+| `data/minigames/texts.json` | locale keys of the press-release words and TV-debate questions (`[DUMMY]` for now) |
+
+Cards, compromises and demands may carry hidden `tags` (list in `config.regions.tags`); region traits react
+to them through `config.regions.traitResponse`.
 
 ### Other data
 | File | Contents |

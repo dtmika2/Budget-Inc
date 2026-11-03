@@ -1,6 +1,6 @@
 /** Zod schemas for every data file in spec §13. */
 import { z } from 'zod';
-import { GROUP_IDS, LEANING_IDS, RESOURCE_IDS } from '../core/types';
+import { DEMOGRAPHIC_FIELDS, GROUP_IDS, LEANING_IDS, RESOURCE_IDS } from '../core/types';
 
 export const rangeSchema = z
   .object({ min: z.number(), max: z.number() })
@@ -38,7 +38,7 @@ export const budgetChangeSchema = z
   .strict();
 
 const modifierSourceSchema = z.enum([
-  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'any',
+  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'demand', 'any',
 ]);
 
 export const modifierSchema = z
@@ -59,6 +59,8 @@ const bundleShape = {
   pc: z.number().optional(),
   /** Regional support shifts keyed by kraj code (validated against data/regions.json). */
   regions: z.record(z.string(), rangeSchema).optional(),
+  /** Hidden tags that region traits react to (validated against config.regions.tags). */
+  tags: z.array(z.string()).optional(),
 };
 
 export const bundleSchema = z.object(bundleShape).strict();
@@ -136,6 +138,25 @@ export const budgetVoteOptionSchema = z
     label: z.string(),
     description: z.string(),
     passChanceMod: z.number(),
+    sliders: z.record(z.string(), z.number().int()).default({}),
+  })
+  .strict();
+
+export const budgetItemSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),
+    label: z.string(),
+    chapters: z
+      .array(
+        z
+          .object({ chapter: z.string().min(1), type: z.enum(['revenue', 'expenditure']), weight: z.number().positive().max(1) })
+          .strict(),
+      )
+      .min(1),
+    angerPerStep: z.object(Object.fromEntries(GROUP_IDS.map((g) => [g, z.number()]))).partial().strict().default({}),
+    supportPerStep: z.number().default(0),
+    passPerStep: z.number().default(0),
+    canBeRedLine: z.boolean().default(true),
   })
   .strict();
 
@@ -236,3 +257,82 @@ export const regionsSchema = z
   .strict();
 
 export const localeSchema = z.record(z.string(), z.string());
+
+export const minigameTextsSchema = z
+  .object({
+    pressSpin: z.array(z.string()).min(3),
+    pressGaffe: z.array(z.string()).min(2),
+    debateQuestions: z.array(z.string()).min(5),
+  })
+  .strict();
+
+const statValueSchema = z
+  .object({
+    value: z.number().nullable(),
+    year: z.number().int().nullable(),
+    source: z.string(),
+    status: z.enum(['TODO', 'OK']),
+  })
+  .strict()
+  .refine((v) => v.status === 'TODO' || (v.value !== null && v.year !== null), { message: 'status OK needs a value and a year' });
+
+export const regionProfilesSchema = z
+  .object({
+    traitsSource: z.string(),
+    regions: z.record(
+      z.string(),
+      z
+        .object({
+          traits: z.array(z.string()).min(2).max(3),
+          demographics: z.object(Object.fromEntries(DEMOGRAPHIC_FIELDS.map((f) => [f, statValueSchema]))).strict(),
+          coalition: z
+            .object({
+              council: z.enum(['kraj', 'city']),
+              parties: z.array(z.string()),
+              source: z.string(),
+              asOf: z.string().nullable(),
+              status: z.enum(['TODO', 'OK']),
+            })
+            .strict(),
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+
+export const partySchema = z.object({ id: z.string().regex(/^[a-z0-9_]+$/), label: z.string() }).strict();
+
+const fulfilSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('policy'), tags: z.array(z.string()).optional(), cardIds: z.array(z.string()).optional() }).strict(),
+  z.object({ type: z.literal('compromise'), region: z.string(), minRegionGain: z.number().positive() }).strict(),
+  z.object({ type: z.literal('budget'), item: z.string(), minSteps: z.number().int().refine((n) => n !== 0, 'minSteps must not be 0') }).strict(),
+]);
+
+export const demandSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),
+    status: z.enum(['DUMMY', 'DRAFT', 'APPROVED']),
+    requesterTypes: z.array(z.enum(['party', 'interestGroup'])).min(1),
+    parties: z.array(z.string()).default([]),
+    interestGroups: z.array(z.enum(GROUP_IDS)).default([]),
+    regionWeights: z.record(z.string(), z.number().min(0)).default({}),
+    regions: z.array(z.string()).default([]),
+    text: z.string(),
+    fulfilHint: z.string(),
+    fulfil: z.array(fulfilSchema).min(1),
+    onAccept: bundleSchema.default({}),
+    onFulfil: bundleSchema,
+    onFail: bundleSchema,
+    onReject: bundleSchema,
+    programmeRef: z
+      .object({
+        party: z.string(),
+        file: z.string(),
+        page: z.number().int().positive().optional(),
+        section: z.string().optional(),
+        quote: z.string().max(240).optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import type { CompromiseCard, PolicyCard as Card } from '@core/types';
 import { t } from '@i18n/index';
+import { pledgesForCard, pledgesForCompromise } from '@core/demands';
 import { getStore } from '../store';
 import { RangeChips } from './RangeChips';
 
@@ -31,6 +32,7 @@ export const PolicyCard = memo(function PolicyCard({
   const preview = sim.previewCard(card.id);
   const isCompromise = !('leaning' in card);
   const action = isCompromise ? t('draft.compromise') : t('draft.pick');
+  const pledges = isCompromise ? pledgesForCompromise(sim, card.id) : pledgesForCard(sim, card.id);
   return (
     <article className={`memo${isCompromise ? ' memo--compromise' : ''}${stamped ? ' is-stamped' : ''}`} data-leaning={isCompromise ? undefined : card.leaning}>
       <header className="memo__head">
@@ -47,6 +49,11 @@ export const PolicyCard = memo(function PolicyCard({
         {t('draft.drivenBy')}: <b>{t(card.drivenBy)}</b>
       </p>
       <RangeChips preview={preview} all />
+      {pledges.map((p) => (
+        <p key={p.id} className="memo__pledge">
+          {t('pledge.badge', { region: t(`region.short.${p.region}`) })}
+        </p>
+      ))}
       <button className={`btn memo__pick ${isCompromise ? 'btn--compromise' : 'btn--stamp'}`} onClick={onPick} disabled={stamped}>
         {action}
       </button>
