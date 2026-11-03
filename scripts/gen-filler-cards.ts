@@ -193,11 +193,11 @@ function makeCard(leader: LeaderDef, n: number, leaning: LeaningId): { card: Pol
   return { card, event: makeEvent(eventId, tag) };
 }
 
-// Cards already written by the team (they have a topic; source: content/policies/_filler.docx, imported
+// Cards already written by the team (they have a topic; source: content/policies/Policies_filler.docx, imported
 // with scripts/policy_docx.py) are kept as they are, texts included. Everything else is regenerated.
 const previous: PolicyCard[] = existsSync('data/policies/_filler.json') ? JSON.parse(readFileSync('data/policies/_filler.json', 'utf8')) : [];
 const written = new Map(previous.filter((c) => c.topic).map((c) => [c.id, c]));
-// Compromises edited in content/compromises/_filler.docx (their name no longer the generated
+// Compromises edited in content/compromises/kompro_filler.docx (their name no longer the generated
 // "[FILLER] Kompromis …") are kept the same way.
 const previousComp: CompromiseCard[] = existsSync('data/compromises/_filler.json')
   ? JSON.parse(readFileSync('data/compromises/_filler.json', 'utf8'))

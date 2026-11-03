@@ -12,8 +12,8 @@ locales/cs.json under policy.<id>.topic / .title / .desc / .drivenBy / .ongoing 
 compromises, which have no topic and no ideology), numbers in data/policies|compromises/<file>.json.
 Cards removed from the document are left untouched; a table with a new ID adds a card.
 
-Sources of truth (content/): policies/_filler.docx, policies/dummy.docx, compromises/_filler.docx,
-compromises/dummy.docx. The importer is forgiving about hand edits: ranges written high-to-low are
+Sources of truth (content/): policies/Policies_filler.docx, policies/policies_dummy.docx,
+compromises/kompro_filler.docx, compromises/Kompro_dummy.docx. The importer is forgiving about hand edits: ranges written high-to-low are
 sorted, a missing ":" or ";" between items is accepted, ideologies may be written in Czech, and a name
 left as "[text] Karta M01 (…)" keeps only the text in brackets; "[FILLER]" and "(ideology)" around the
 heading are dropped from the topic.
@@ -38,6 +38,17 @@ KINDS = {
     "policies": {"data": ROOT / "data" / "policies", "out": ROOT / "exports" / "policies", "prefix": "policy", "heading": "Karty politik"},
     "compromises": {"data": ROOT / "data" / "compromises", "out": ROOT / "exports" / "compromises", "prefix": "compromise", "heading": "Regionální kompromisy"},
 }
+
+
+def data_file_for(doc_path, kind):
+    """The data file a document belongs to: same name, or a name ending with it, ignoring case and a
+    leading "_" (Policies_filler.docx -> _filler.json, Kompro_dummy.docx -> dummy.json)."""
+    doc = Path(doc_path).stem.lower()
+    for f in sorted(KINDS[kind]["data"].glob("*.json")):
+        base = f.stem.lower().lstrip("_")
+        if doc.lstrip("_") == base or doc.endswith("_" + base):
+            return f
+    return None
 
 
 def kind_of(path):
@@ -362,9 +373,10 @@ def import_(paths):
     seen, writes = set(), []
     for p in map(Path, paths):
         kind = kind_of(p)
-        target = KINDS[kind]["data"] / f"{p.stem}.json"
-        if not target.exists():
-            sys.exit(f"{p.name}: k němu neexistuje {target.relative_to(ROOT)} (název souboru musí zůstat stejný)")
+        target = data_file_for(p, kind)
+        if not target:
+            names = ", ".join(f.name for f in sorted(KINDS[kind]["data"].glob("*.json")))
+            sys.exit(f"{p.name}: nevím, do kterého souboru patří (název musí končit jedním z: {names})")
         cards = json.loads(target.read_text(encoding="utf-8"))
         by_id = {c["id"]: c for c in cards}
         found = []
