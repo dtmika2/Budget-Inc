@@ -1,0 +1,305 @@
+"""Round-trip policy cards through Word.
+
+  python scripts/policy_docx.py export            -> exports/policies/<file>.docx (one per data/policies/*.json)
+  python scripts/policy_docx.py import <docx...>  -> writes edits back to data/policies/*.json and locales/cs.json
+
+Each card is one two-column table (label | value). Texts live in locales/cs.json under
+policy.<id>.title / .desc / .drivenBy / .ongoing, numbers live in data/policies/<file>.json.
+Cards removed from the document are left untouched; a table with a new ID adds a card.
+"""
+
+import json
+import re
+import sys
+from pathlib import Path
+
+from docx import Document
+from docx.shared import Pt
+
+ROOT = Path(__file__).resolve().parent.parent
+POLICY_DIR = ROOT / "data" / "policies"
+LOCALE = ROOT / "locales" / "cs.json"
+OUT_DIR = ROOT / "exports" / "policies"
+
+LEANINGS = ["libertarianism", "conservatism", "populism", "socialism", "progressivism", "fascism", "communism"]
+EFFECTS = ["finances", "financesExtra", "support", "coalition", "prestige"]
+GROUPS = ["oligarchs", "pensioners", "media", "eu", "activists"]
+
+L_ID = "ID"
+L_TITLE = "Název"
+L_DESC = "Popis"
+L_DRIVEN = "Kdo prosazuje"
+L_LEANING = "Ideologie"
+L_LEADERS = "Dostupné pro"
+L_TAGS = "Tagy"
+L_EFFECTS = "Efekty"
+L_ANGER = "Hněv skupin"
+L_BUDGET = "Rozpočet"
+L_ONGOING = "Trvalý efekt"
+L_ONGOING_TEXT = "Trvalý efekt – popisek"
+L_REGIONS = "Regiony"
+L_PC = "PC"
+L_CHAOS = "Chaos události"
+L_DEV = "Jen pro vývoj"
+
+GUIDE = [
+    "Každá karta je jedna tabulka. Měňte jen pravý sloupec. Prázdná buňka = pole se nepoužije.",
+    "Rozsahy: „název: min až max“, více položek odděluje středník, např. „support: 1 až 3; coalition: -2 až 0“.",
+    f"Efekty: {', '.join(EFFECTS)}. Skupiny (hněv): {', '.join(GROUPS)}.",
+    f"Ideologie: {', '.join(LEANINGS)}.",
+    "Rozpočet: „kapitola revenue|expenditure procento“, např. „398 revenue -3; 313 expenditure 5“.",
+    "Trvalý efekt: „cíl: denní hodnota / den, počet dní“, např. „support: 0.04 / den, 120 dní“. "
+    "Řádek „Trvalý efekt – popisek“ hned pod ním je jeho text. Další trvalý efekt = přidejte další dvojici řádků.",
+    "Seznamy (Dostupné pro, Tagy, Chaos události) oddělujte čárkou. Jen pro vývoj: ano / ne.",
+    "Novou kartu přidáte zkopírováním celé tabulky a změnou ID (malá písmena, číslice, podtržítko).",
+]
+
+
+# ---------- formatting ----------
+
+def num(v):
+    return str(int(v)) if float(v).is_integer() else repr(float(v))
+
+
+def fmt_ranges(d):
+    return "; ".join(f"{k}: {num(r['min'])} až {num(r['max'])}" for k, r in (d or {}).items())
+
+
+def fmt_budget(lst):
+    return "; ".join(f"{b['chapter']} {b['type']} {num(b['changePct'])}" for b in (lst or []))
+
+
+def fmt_ongoing(o):
+    return f"{o['target']}: {num(o['perDay'])} / den, {o['days']} dní"
+
+
+# ---------- parsing ----------
+
+def clean(s):
+    # Word autocorrect turns hyphens into dashes and adds non-breaking spaces
+    return s.replace("–", "-").replace("—", "-").replace("−", "-").replace(" ", " ").strip()
+
+
+NUM = r"[-+]?\d+(?:[.,]\d+)?"
+
+
+def to_num(s):
+    v = float(s.replace(",", "."))
+    return int(v) if v.is_integer() else v
+
+
+def parse_list(s):
+    return [x.strip() for x in clean(s).split(",") if x.strip()]
+
+
+def parse_ranges(s, allowed, where):
+    out = {}
+    for part in filter(None, (p.strip() for p in clean(s).split(";"))):
+        m = re.fullmatch(rf"(\w+)\s*:\s*({NUM})(?:\s*(?:až|\.\.)\s*({NUM}))?", part)
+        if not m:
+            raise ValueError(f"{where}: nečitelné „{part}“")
+        key, lo, hi = m.group(1), to_num(m.group(2)), to_num(m.group(3) or m.group(2))
+        if allowed and key not in allowed:
+            raise ValueError(f"{where}: neznámé „{key}“ (povolené: {', '.join(allowed)})")
+        if lo > hi:
+            raise ValueError(f"{where}: min > max v „{part}“")
+        out[key] = {"min": lo, "max": hi}
+    return out
+
+
+def parse_budget(s, where):
+    out = []
+    for part in filter(None, (p.strip() for p in clean(s).split(";"))):
+        m = re.fullmatch(rf"(\S+)\s+(revenue|expenditure)\s+({NUM})\s*%?", part)
+        if not m:
+            raise ValueError(f"{where}: nečitelné „{part}“")
+        out.append({"chapter": m.group(1), "type": m.group(2), "changePct": to_num(m.group(3))})
+    return out
+
+
+def parse_ongoing(s, where):
+    m = re.fullmatch(rf"([\w.]+)\s*:\s*({NUM})\s*/\s*den\s*,\s*(\d+)\s*dn(?:í|i|y|u)?", clean(s))
+    if not m:
+        raise ValueError(f"{where}: nečitelné „{s}“")
+    return {"target": m.group(1), "perDay": to_num(m.group(2)), "days": int(m.group(3))}
+
+
+# ---------- export ----------
+
+def cell_text(cell):
+    return "\n".join(p.text for p in cell.paragraphs).strip()
+
+
+def export():
+    texts = json.loads(LOCALE.read_text(encoding="utf-8"))
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    for path in sorted(POLICY_DIR.glob("*.json")):
+        cards = json.loads(path.read_text(encoding="utf-8"))
+        doc = Document()
+        doc.styles["Normal"].font.size = Pt(10)
+        doc.add_heading(f"Karty politik – {path.name}", 0)
+        for line in GUIDE:
+            doc.add_paragraph(line, style="List Bullet")
+        for c in cards:
+            doc.add_heading(texts.get(c["title"], c["id"]), 2)
+            rows = [
+                (L_ID, c["id"]),
+                (L_TITLE, texts.get(c["title"], "")),
+                (L_DESC, texts.get(c["description"], "")),
+                (L_DRIVEN, texts.get(c["drivenBy"], "")),
+                (L_LEANING, c["leaning"]),
+                (L_LEADERS, ", ".join(c["availableFor"])),
+                (L_TAGS, ", ".join(c.get("tags", []))),
+                (L_EFFECTS, fmt_ranges(c.get("effects"))),
+                (L_ANGER, fmt_ranges(c.get("anger"))),
+                (L_BUDGET, fmt_budget(c.get("budgetChanges"))),
+            ]
+            for o in c.get("ongoing", []):
+                rows.append((L_ONGOING, fmt_ongoing(o)))
+                rows.append((L_ONGOING_TEXT, texts.get(o.get("label", ""), "")))
+            rows += [
+                (L_REGIONS, fmt_ranges(c.get("regions"))),
+                (L_PC, num(c["pc"]) if "pc" in c else ""),
+                (L_CHAOS, ", ".join(c.get("chaosEvents", []))),
+                (L_DEV, "ano" if c.get("devOnly") else "ne"),
+            ]
+            table = doc.add_table(rows=0, cols=2)
+            table.style = "Table Grid"
+            for label, value in rows:
+                r = table.add_row().cells
+                r[0].text = label
+                r[0].paragraphs[0].runs[0].bold = True
+                r[1].text = value
+        out = OUT_DIR / f"{path.stem}.docx"
+        doc.save(out)
+        print(f"{out.relative_to(ROOT)}: {len(cards)} karet")
+
+
+# ---------- import ----------
+
+def read_card(table, where):
+    rows = [(cell_text(r.cells[0]), cell_text(r.cells[1])) for r in table.rows]
+    fields, ongoing = {}, []
+    for label, value in rows:
+        if label == L_ONGOING:
+            ongoing.append([value, ""])
+        elif label == L_ONGOING_TEXT:
+            if not ongoing:
+                raise ValueError(f"{where}: „{L_ONGOING_TEXT}“ bez řádku „{L_ONGOING}“ nad ním")
+            ongoing[-1][1] = value
+        else:
+            fields[label] = value
+    cid = clean(fields.get(L_ID, ""))
+    if not re.fullmatch(r"[a-z0-9_]+", cid):
+        raise ValueError(f"{where}: neplatné ID „{cid}“")
+    where = f"{where} ({cid})"
+    leaning = clean(fields.get(L_LEANING, ""))
+    if leaning not in LEANINGS:
+        raise ValueError(f"{where}: neznámá ideologie „{leaning}“")
+    dev = clean(fields.get(L_DEV, "ne")).lower()
+    if dev not in ("ano", "ne"):
+        raise ValueError(f"{where}: „{L_DEV}“ musí být ano/ne")
+    return {
+        "id": cid,
+        "texts": {"title": fields.get(L_TITLE, ""), "desc": fields.get(L_DESC, ""), "drivenBy": fields.get(L_DRIVEN, "")},
+        "leaning": leaning,
+        "availableFor": parse_list(fields.get(L_LEADERS, "")),
+        "tags": parse_list(fields.get(L_TAGS, "")),
+        "effects": parse_ranges(fields.get(L_EFFECTS, ""), EFFECTS, f"{where} {L_EFFECTS}"),
+        "anger": parse_ranges(fields.get(L_ANGER, ""), GROUPS, f"{where} {L_ANGER}"),
+        "budgetChanges": parse_budget(fields.get(L_BUDGET, ""), f"{where} {L_BUDGET}"),
+        "ongoing": [(parse_ongoing(v, f"{where} {L_ONGOING}"), t) for v, t in ongoing],
+        "regions": parse_ranges(fields.get(L_REGIONS, ""), None, f"{where} {L_REGIONS}"),
+        "pc": to_num(clean(fields[L_PC])) if clean(fields.get(L_PC, "")) else None,
+        "chaosEvents": parse_list(fields.get(L_CHAOS, "")),
+        "devOnly": dev == "ano",
+    }
+
+
+def apply(card, new, texts):
+    """Update `card` (dict from JSON, key order kept) with values read from Word; returns it."""
+    cid = new["id"]
+    card["id"] = cid
+    for field, key in (("title", "title"), ("description", "desc"), ("drivenBy", "drivenBy")):
+        card.setdefault(field, f"policy.{cid}.{key}")
+        texts[card[field]] = new["texts"][key]
+    card["leaning"] = new["leaning"]
+    card["availableFor"] = new["availableFor"]
+    old_ongoing = card.get("ongoing", [])
+    ongoing = []
+    for i, (o, text) in enumerate(new["ongoing"]):
+        label = old_ongoing[i].get("label") if i < len(old_ongoing) else None
+        if text:
+            label = label or f"policy.{cid}.ongoing" + (str(i + 1) if i else "")
+            texts[label] = text
+            o["label"] = label
+        ongoing.append(o)
+    for key, value in (
+        ("tags", new["tags"]),
+        ("effects", new["effects"]),
+        ("anger", new["anger"]),
+        ("budgetChanges", new["budgetChanges"]),
+        ("ongoing", ongoing),
+        ("regions", new["regions"]),
+        ("pc", new["pc"]),
+    ):
+        if value in (None, [], {}):
+            card.pop(key, None)
+        else:
+            card[key] = value
+    card["chaosEvents"] = new["chaosEvents"]
+    card["devOnly"] = new["devOnly"]
+    return card
+
+
+def import_(paths):
+    texts = json.loads(LOCALE.read_text(encoding="utf-8"))
+    texts_before = json.dumps(texts, ensure_ascii=False)
+    seen, writes = set(), []
+    for p in map(Path, paths):
+        target = POLICY_DIR / f"{p.stem}.json"
+        if not target.exists():
+            sys.exit(f"{p.name}: k němu neexistuje {target.relative_to(ROOT)} (název souboru musí zůstat stejný)")
+        cards = json.loads(target.read_text(encoding="utf-8"))
+        by_id = {c["id"]: c for c in cards}
+        tables = [t for t in Document(p).tables if t.rows and cell_text(t.rows[0].cells[0]) == L_ID]
+        found = []
+        for i, t in enumerate(tables, 1):
+            new = read_card(t, f"{p.name} tabulka {i}")
+            if new["id"] in seen:
+                sys.exit(f"{p.name}: ID „{new['id']}“ je v dokumentech dvakrát")
+            seen.add(new["id"])
+            found.append(new["id"])
+            if new["id"] in by_id:
+                apply(by_id[new["id"]], new, texts)
+            else:
+                cards.append(apply({}, new, texts))
+                print(f"  + nová karta {new['id']}")
+        for missing in sorted(set(by_id) - set(found)):
+            print(f"  ! {missing} v dokumentu chybí – ponechána beze změny")
+        before = json.loads(target.read_text(encoding="utf-8"))
+        if before != cards:
+            writes.append((target, cards))
+        else:
+            print(f"{target.relative_to(ROOT)}: beze změny")
+    # write only once every document parsed cleanly
+    if json.dumps(texts, ensure_ascii=False) != texts_before:
+        writes.append((LOCALE, texts))
+    for target, data in writes:
+        target.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(f"{target.relative_to(ROOT)}: uloženo")
+    print("Hotovo. Ověřte: npm test")
+
+
+if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+    if len(sys.argv) >= 2 and sys.argv[1] == "export":
+        export()
+    elif len(sys.argv) >= 3 and sys.argv[1] == "import":
+        try:
+            import_(sys.argv[2:])
+        except ValueError as e:
+            sys.exit(f"Chyba: {e}")
+    else:
+        sys.exit(__doc__)
