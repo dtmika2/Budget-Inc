@@ -1,6 +1,6 @@
 /**
  * The open special card (phase 'special'): a catastrophe drops from the top and shakes the game; an
- * agent card flips over and shines. Accept (special.accept) evaluates the check, the card reveals the result, and
+ * agent card flips over and shines. Accept (special.accept.<kind>) evaluates the check, the card reveals the result, and
  * Continue (special.continue) lets the game run on. Rendered in a portal so it sits above everything.
  */
 import { useEffect } from 'react';
@@ -82,7 +82,7 @@ export function SpecialCard() {
               <RangeChips preview={preview} compact />
             </div>
             <button className="btn btn--stamp special-card__btn" onClick={() => store.dispatch({ kind: 'acceptSpecial' })} autoFocus>
-              {t('special.accept')}
+              {t(`special.accept.${kind}`)}
             </button>
           </>
         ) : (
