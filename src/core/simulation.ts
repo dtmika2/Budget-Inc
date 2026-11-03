@@ -74,6 +74,7 @@ import type {
 } from './types';
 import { GROUP_IDS, RESOURCE_IDS } from './types';
 import { buyUpgrade, canBuy, grantStartNodes } from './upgrades';
+import { acceptSpecial, canAcceptSpecial, canCloseSpecial, closeSpecial, initialSpecials, openSpecial, scheduleYearSpecials } from './specialCards';
 
 export interface SimOptions {
   seed: string;
@@ -175,6 +176,7 @@ export class Simulation implements EffectHost {
       eventSeq: 0,
       abilityCharges: cfg.abilities.chargesPerYear,
       ownedUpgrades: [],
+      specials: initialSpecials(),
       projection: { S: 0, T: 0, P: 0, regionSupport: {} },
       trend: [],
       endingId: null,
@@ -320,6 +322,7 @@ export class Simulation implements EffectHost {
     scheduleQuarterCompromise(this);
     scheduleYearDemands(this);
     scheduleYearRegionEvents(this);
+    scheduleYearSpecials(this);
     s.draft = { hand: [], shownThisQuarter: [], rerolls: 0 };
     s.phase = 'draft';
     this.deal();
@@ -370,6 +373,13 @@ export class Simulation implements EffectHost {
       }
       if (e.kind === 'compromise') {
         if (openCompromise(this)) {
+          this.changed();
+          return;
+        }
+        continue;
+      }
+      if (e.kind === 'special') {
+        if (openSpecial(this, e)) {
           this.changed();
           return;
         }
@@ -531,6 +541,10 @@ export class Simulation implements EffectHost {
       case 'interveneRegionEvent':
       case 'ignoreRegionEvent':
         return canAnswerRegionEvent(this, input.eventId, input.kind === 'interveneRegionEvent');
+      case 'acceptSpecial':
+        return canAcceptSpecial(this);
+      case 'closeSpecial':
+        return canCloseSpecial(this);
     }
   }
 
@@ -591,6 +605,12 @@ export class Simulation implements EffectHost {
         break;
       case 'ignoreRegionEvent':
         ignoreRegionEvent(this, input.eventId);
+        break;
+      case 'acceptSpecial':
+        acceptSpecial(this);
+        break;
+      case 'closeSpecial':
+        closeSpecial(this);
         break;
     }
     this.checkTerminal();

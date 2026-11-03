@@ -32,3 +32,189 @@
 }
 /* numerals (same as the shared rule in global.css) */
 .popup__countdown, .btn-response__cost, .popups__queued { font-family: var(--f-num); font-weight: 400; }
+
+/* ------------------------------------------------------------ event timeline (top right) */
+.timeline { position: absolute; top: 12px; right: var(--gutter); z-index: 5; width: min(560px, 52%); }
+.timeline__strip {
+  position: relative; height: 84px; background: rgba(27, 23, 41, 0.92); border: 2px solid var(--line);
+  box-shadow: var(--shadow-sm); overflow: visible;
+}
+/* the shared paused badge sits where the timeline is: move it below */
+.game__stage > .paused-badge { top: 108px; }
+.tl-quarter { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dotted var(--line); }
+.tl-quarter__label { position: absolute; bottom: 2px; left: 3px; font: 11px var(--f-num); color: var(--text-dim); white-space: nowrap; }
+.tl-now { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 3px solid var(--gold); z-index: 1; }
+.tl-now::before {
+  content: ''; position: absolute; top: -2px; left: -7px; border: 6px solid transparent; border-top: 7px solid var(--gold);
+}
+.tl-item {
+  position: absolute; z-index: 2; width: 22px; height: 22px; padding: 0; transform: translateX(-50%); cursor: default;
+  display: grid; place-items: center; border: 2px solid var(--ink); box-shadow: 2px 2px 0 #0c0a14;
+  background: var(--panel-2); color: var(--text); transition: left 0.3s linear;
+}
+.tl-item--row0 { top: 6px; }
+.tl-item--row1 { top: 30px; }
+.tl-item--anchor { top: 54px; }
+.tl-item--unknown { background: #3a3158; color: var(--gold); animation: tl-unknown 1.6s steps(2) infinite; }
+@keyframes tl-unknown { 50% { color: var(--paper); } }
+.tl-item--catastrophe { background: var(--stamp); color: var(--paper); }
+.tl-item--agent { background: var(--gold); color: var(--ink); }
+.tl-item--chaos { background: #5d5a68; color: var(--gold); }
+.tl-item--budgetVote { background: var(--paper); color: var(--ink); }
+.tl-item--election { background: var(--ink); color: var(--gold); border-color: var(--gold); }
+.tl-item.is-past { opacity: 0.5; }
+.tl-item.is-past::after {
+  position: absolute; right: -6px; top: -7px; font: 700 11px var(--f-pixel); line-height: 1; padding: 1px 2px; background: var(--ink);
+}
+.tl-item.is-passed::after { content: '✓'; color: var(--good); }
+.tl-item.is-failed::after { content: '✕'; color: var(--bad); }
+.tl-item.is-fresh { animation: tl-flip 0.6s steps(6), tl-glow 0.4s steps(2) 0.6s 2; }
+@keyframes tl-flip { from { transform: translateX(-50%) rotateY(180deg) scale(1.4); } to { transform: translateX(-50%); } }
+@keyframes tl-glow { 50% { box-shadow: 0 0 0 4px var(--gold); } }
+.tl-tip {
+  position: absolute; top: calc(100% + 6px); right: 50%; z-index: 4; display: none; flex-direction: column; gap: 1px;
+  width: max-content; max-width: 260px; padding: 6px 8px; text-align: left; white-space: normal;
+  font: 13px var(--f-body, inherit); background: var(--paper); color: var(--ink); box-shadow: var(--shadow-sm); pointer-events: none;
+}
+.tl-tip b { font-family: var(--f-pixel); }
+.tl-item:hover .tl-tip, .tl-item:focus-visible .tl-tip { display: flex; }
+.tl-item:hover, .tl-item:focus-visible { z-index: 3; opacity: 1; }
+.timeline__toasts { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.tl-toast {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--paper); color: var(--ink);
+  border-left: 6px solid var(--gold); box-shadow: var(--shadow-sm); animation: tl-toast-in 0.3s steps(4) both;
+}
+.tl-toast--catastrophe { border-left-color: var(--stamp); }
+.tl-toast--chaos { border-left-color: #5d5a68; }
+.tl-toast__art { flex: none; width: 48px; height: 28px; padding: 2px; background: #2a2440; }
+.tl-toast__text { display: flex; flex-direction: column; min-width: 0; font-size: 13px; line-height: 1.25; }
+.tl-toast__text b { font: 14px var(--f-pixel); text-transform: uppercase; }
+.tl-toast__detail { color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@keyframes tl-toast-in { from { transform: translateY(-12px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 760px) {
+  .timeline { top: 56px; left: 12px; right: 12px; width: auto; }
+  .game__stage > .paused-badge { top: 152px; }
+  .tl-tip { right: auto; left: -40px; max-width: 220px; }
+}
+
+/* ------------------------------------------------------------ special cards: the card */
+.special-layer {
+  position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; overflow: auto;
+  background: rgba(12, 10, 20, 0.74); animation: sp-dim 0.25s steps(3) both;
+}
+@keyframes sp-dim { from { background: rgba(12, 10, 20, 0); } }
+.special-card { position: relative; width: min(430px, 100%); perspective: 900px; }
+.special-flip { position: relative; transform-style: preserve-3d; }
+.special-face {
+  position: relative; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: var(--paper); color: var(--ink); border: 4px solid var(--ink); box-shadow: var(--shadow);
+}
+.special-card__banner {
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+  font: 700 20px var(--f-pixel); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.special-card__icon { display: inline-grid; place-items: center; width: 28px; height: 28px; font: 700 20px var(--f-pixel); }
+.special-card__art { padding: 10px 14px 6px; border-bottom: 4px solid var(--ink); }
+.special-card__art svg { display: block; width: 100%; max-height: 132px; }
+.special-card--catastrophe .special-card__art { background: #3a1f2a; border-bottom-color: var(--stamp-dark); }
+.special-card--agent .special-card__art { background: #2a2440; border-bottom-color: var(--gold); }
+.special-card__body { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; }
+.special-card__title { margin: 0; font: 700 24px var(--f-pixel); line-height: 1.1; }
+.special-card__text { margin: 0; }
+.special-card__check { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 3px dashed var(--ink-soft); }
+.special-card__check strong { font: 700 22px var(--f-pixel); }
+.special-card__label { font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); }
+.special-card__stakes { display: flex; flex-direction: column; gap: 4px; }
+.special-card__value { margin: 0; font-weight: 700; }
+.special-card__btn { align-self: flex-end; }
+
+/* catastrophe: red card that drops from the top, cracks the ground and shakes the game */
+.special-card--catastrophe .special-face { border-color: var(--stamp-dark); }
+.special-card--catastrophe .special-card__banner { background: var(--stamp); color: var(--paper); }
+.special-card--catastrophe .special-card__icon { background: var(--paper); color: var(--stamp); }
+.special-card--catastrophe { animation: sp-drop 0.48s steps(6) both, sp-land 0.3s steps(3) 0.48s; }
+@keyframes sp-drop { from { transform: translateY(-110vh); } to { transform: none; } }
+@keyframes sp-land { 0% { transform: translateY(8px) scaleY(0.94); } 100% { transform: none; } }
+.special-layer--catastrophe::before {
+  content: ''; position: fixed; inset: 0; background: var(--stamp); opacity: 0; pointer-events: none;
+  animation: sp-flash 0.45s steps(3) 0.48s;
+}
+@keyframes sp-flash { 0% { opacity: 0.45; } 100% { opacity: 0; } }
+body[data-quake] .game { animation: sp-quake 0.9s steps(12); }
+@keyframes sp-quake {
+  0%, 100% { transform: none; }
+  10% { transform: translate(-8px, 4px) rotate(-0.4deg); }
+  20% { transform: translate(7px, -5px) rotate(0.4deg); }
+  30% { transform: translate(-6px, -3px); }
+  40% { transform: translate(6px, 4px) rotate(-0.3deg); }
+  55% { transform: translate(-4px, 2px); }
+  70% { transform: translate(3px, -2px) rotate(0.2deg); }
+  85% { transform: translate(-2px, 1px); }
+}
+.quake-fx { position: absolute; left: -35%; right: -35%; top: 100%; height: 130px; pointer-events: none; }
+.quake-fx__cracks { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(2px 2px 0 #0c0a14); }
+.quake-fx__cracks polyline {
+  fill: none; stroke: var(--paper); stroke-width: 3px; vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1600; stroke-dashoffset: 0; animation: sp-crack 0.4s steps(5) both;
+}
+@keyframes sp-crack { from { stroke-dashoffset: 1600; } to { stroke-dashoffset: 0; } }
+.quake-fx__dust {
+  position: absolute; left: 50%; top: 0; width: 8px; height: 8px; background: var(--paper);
+  box-shadow: 2px 2px 0 #0c0a14; opacity: 0; animation: sp-dust 0.7s steps(6) both;
+}
+@keyframes sp-dust { 0% { transform: none; opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
+
+/* agent: card slides in face-down, flips, shines and sparkles */
+.special-card--agent { animation: sp-slide 0.4s steps(5) both; }
+@keyframes sp-slide { from { transform: translateY(40px) scale(0.8); opacity: 0; } to { transform: none; opacity: 1; } }
+.special-card--agent .special-flip { animation: sp-flip 0.7s steps(8) 0.45s both; }
+@keyframes sp-flip { from { transform: rotateY(180deg); } to { transform: rotateY(0deg); } }
+.special-card--agent .special-face { border-color: var(--gold); }
+.special-card--agent .special-face--front { animation: sp-glow 1.6s steps(2) 1.3s infinite; }
+@keyframes sp-glow { 50% { box-shadow: var(--shadow), 0 0 0 5px rgba(217, 180, 90, 0.45); } }
+.special-card--agent .special-card__banner { background: var(--ink); color: var(--gold); }
+.special-card--agent .special-card__icon { background: var(--gold); color: var(--ink); }
+.special-face--back {
+  position: absolute; inset: 0; display: grid; place-items: center; transform: rotateY(180deg); color: var(--gold);
+  background-color: #2a2440; border-color: var(--gold);
+  background-image: linear-gradient(45deg, #3a3158 25%, transparent 25%, transparent 75%, #3a3158 75%),
+    linear-gradient(45deg, #3a3158 25%, transparent 25%, transparent 75%, #3a3158 75%);
+  background-size: 16px 16px; background-position: 0 0, 8px 8px;
+}
+.special-card__shine {
+  position: absolute; inset: 0; pointer-events: none; transform: translateX(-130%);
+  background: linear-gradient(115deg, transparent 36%, rgba(255, 246, 200, 0.8) 44%, rgba(255, 255, 255, 0.95) 50%, rgba(255, 246, 200, 0.8) 56%, transparent 64%);
+  animation: sp-shine 0.9s steps(12) 1.2s both;
+}
+@keyframes sp-shine { from { transform: translateX(-130%); } to { transform: translateX(130%); } }
+.agent-fx { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.agent-fx__spark {
+  position: absolute; width: 12px; height: 12px; background: var(--gold); opacity: 0;
+  clip-path: polygon(33% 0, 67% 0, 67% 33%, 100% 33%, 100% 67%, 67% 67%, 67% 100%, 33% 100%, 33% 67%, 0 67%, 0 33%, 33% 33%);
+  transform: translate(-50%, -50%); animation: sp-twinkle 1.2s steps(3) infinite both;
+}
+@keyframes sp-twinkle {
+  0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+/* reveal: stamp and a thud */
+.special-stamp {
+  position: absolute; right: 8px; top: -14px; z-index: 3; padding: 2px 10px; border: 4px solid currentColor;
+  font: 700 26px var(--f-pixel); text-transform: uppercase; background: rgba(239, 230, 207, 0.88);
+  transform: rotate(-10deg); animation: sp-stamp 0.35s steps(4) both; pointer-events: none;
+}
+.special-stamp--pass { color: var(--good-on-paper); }
+.special-stamp--fail { color: var(--stamp); }
+@keyframes sp-stamp { from { transform: rotate(-10deg) scale(2.4); opacity: 0; } to { transform: rotate(-10deg) scale(1); opacity: 1; } }
+.special-card.is-revealed .special-face--front { animation: sp-thud 0.25s steps(2) 0.1s; }
+@keyframes sp-thud { 50% { transform: translateY(4px); } }
+
+/* reduced motion: decorations that only make sense moving stay hidden; cards show their final state */
+[data-reduced-motion] .quake-fx__dust, [data-reduced-motion] .agent-fx { display: none; }
+
+@media (max-width: 760px) {
+  .special-card__title { font-size: 20px; }
+  .special-card__check strong { font-size: 18px; }
+  .special-stamp { font-size: 18px; top: -12px; }
+}

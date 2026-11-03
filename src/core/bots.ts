@@ -18,6 +18,7 @@ import type { Simulation } from './simulation';
 import type { GroupId, Range, ResourceId } from './types';
 import { GROUP_IDS, RESOURCE_IDS } from './types';
 import { availableNodes } from './upgrades';
+import { resolveSpecialForBot } from './specialCards';
 
 export type BotKind = 'random' | 'greedy' | 'firstCard';
 
@@ -325,6 +326,10 @@ export interface RunSummary {
 /** Drive a simulation to the end with a bot. */
 export function runToEnd(sim: Simulation, bot: Bot, maxSteps = 100000): RunSummary {
   for (let i = 0; i < maxSteps && !sim.isOver; i++) {
+    if (sim.state.phase === 'special') {
+      resolveSpecialForBot(sim);
+      continue;
+    }
     bot.act(sim);
     if (sim.isOver) break;
     if (sim.state.phase === 'running') sim.tick();

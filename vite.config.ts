@@ -9,6 +9,8 @@ const r = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 export default defineConfig({
   base: './',
   plugins: [react()],
+  // special.html: preview page of the special cards (catastrophes workspace, see CATASTROPHES.md)
+  build: { rolldownOptions: { input: { main: r('./index.html'), special: r('./special.html') } } },
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   resolve: {
     alias: {
