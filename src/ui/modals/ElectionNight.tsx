@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { config } from '@/config';
 import { fmt, t } from '@i18n/index';
-import { tint } from '../map/CzMap';
+import { LiquidDefs, LiquidRegion } from '../map/Liquid';
 import { MAP_HEIGHT, MAP_WIDTH, REGION_PATHS } from '../map/regionsPath';
 import { getStore } from '../store';
 
@@ -51,19 +51,15 @@ export function ElectionNight() {
         </header>
 
         <svg className="election__map" viewBox={`-6 -6 ${MAP_WIDTH + 12} ${MAP_HEIGHT + 12}`} aria-hidden="true">
+          <LiquidDefs prefix="night" color={sim.leaderDef.color} light={sim.leaderDef.colorLight} />
           {REGION_PATHS.map((r) => {
             const res = byCode.get(r.code);
             const on = revealed.has(r.code);
-            return (
-              <path
-                key={r.code}
-                d={r.d}
-                fillRule="evenodd"
-                className={`region${on ? ' is-revealed' : ' is-pending'}`}
-                fill={on && res ? tint(res.s_final, sim.leaderDef.color) : '#3a3350'}
-              />
-            );
+            return <LiquidRegion key={r.code} prefix="night" code={r.code} d={r.d} support={on && res ? res.s_final : 0} color={sim.leaderDef.color} />;
           })}
+          {REGION_PATHS.map((r) => (
+            <path key={r.code} d={r.d} fillRule="evenodd" fill="none" className={`region${revealed.has(r.code) ? ' is-revealed' : ' is-pending'}`} />
+          ))}
           {REGION_PATHS.map((r) => {
             const res = byCode.get(r.code);
             if (!res || !revealed.has(r.code)) return null;

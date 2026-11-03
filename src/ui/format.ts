@@ -49,11 +49,3 @@ export function download(filename: string, text: string): void {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-
-/** Mix two hex colours (t = 0..1). */
-export function mix(a: string, b: string, k: number): string {
-  const pa = parseInt(a.slice(1), 16);
-  const pb = parseInt(b.slice(1), 16);
-  const ch = (s: number) => Math.round(((pa >> s) & 255) * (1 - k) + ((pb >> s) & 255) * k);
-  return `rgb(${ch(16)},${ch(8)},${ch(0)})`;
-}

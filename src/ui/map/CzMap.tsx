@@ -1,34 +1,42 @@
 /**
- * Static SVG map of the 14 kraje (spec §12.4). Regions are tinted from stamp red (low) to the party
- * colour (high) by regional support s_r — which the core updates weekly, so the map re-renders weekly.
+ * Static SVG map of the 14 kraje (spec §12.4). Each region is a glass filled with party-coloured liquid
+ * up to its regional support s_r, with a pixel wave on the surface (Liquid.tsx). The core updates s_r
+ * weekly, so the level moves weekly. Outlines on top take the taps.
  * Opportunity pins are HTML buttons laid over the SVG so they stay >= 44 px at any map size.
  */
 import { memo } from 'react';
 import { fmt, t } from '@i18n/index';
-import { mix } from '../format';
 import { getStore, useStore } from '../store';
+import { LiquidDefs, LiquidRegion } from './Liquid';
 import { OpportunityPin } from './OpportunityPin';
 import { MAP_ATTRIBUTION, MAP_HEIGHT, MAP_SCHEMATIC, MAP_WIDTH, REGION_PATHS } from './regionsPath';
 
-const LOW = '#b8322b';
 const LABEL_BY_CODE = new Map(REGION_PATHS.map((r) => [r.code, r]));
 
-/** Support 20 -> fully red, 70 -> fully party colour (keeps the typical range visible). */
-export function tint(support: number, party: string): string {
-  const k = Math.min(1, Math.max(0, (support - 20) / 50));
-  return mix(LOW, party, k);
-}
-
-const Regions = memo(function Regions({ support, party, selected }: { support: Record<string, number>; party: string; selected: string | null }) {
+const Regions = memo(function Regions({
+  support,
+  party,
+  light,
+  selected,
+}: {
+  support: Record<string, number>;
+  party: string;
+  light: string;
+  selected: string | null;
+}) {
   const store = getStore();
   return (
     <>
+      <LiquidDefs prefix="game" color={party} light={light} />
+      {REGION_PATHS.map((r) => (
+        <LiquidRegion key={r.code} prefix="game" code={r.code} d={r.d} support={support[r.code] ?? 0} color={party} />
+      ))}
       {REGION_PATHS.map((r) => (
         <path
           key={r.code}
           d={r.d}
-          className={`region${selected === r.code ? ' is-selected' : ''}`}
-          fill={tint(support[r.code] ?? 0, party)}
+          className={`region region--outline${selected === r.code ? ' is-selected' : ''}`}
+          fill="transparent"
           fillRule="evenodd"
           onClick={() => store.setUi({ selectedRegion: store.ui.selectedRegion === r.code ? null : r.code })}
         >
@@ -79,12 +87,13 @@ function Pins() {
 export function CzMap() {
   const support = useStore((s) => s.sim?.state.projection.regionSupport ?? {});
   const party = useStore((s) => s.sim?.leaderDef.color ?? '#888888');
+  const light = useStore((s) => s.sim?.leaderDef.colorLight ?? '#cccccc');
   const selected = useStore((s) => s.ui.selectedRegion);
   return (
     <div className="map" data-tut-target="map">
       <div className="map__frame" style={{ aspectRatio: `${MAP_WIDTH} / ${MAP_HEIGHT}` }}>
         <svg viewBox={`-6 -6 ${MAP_WIDTH + 12} ${MAP_HEIGHT + 12}`} className="map__svg" role="img" aria-label={t('hud.projection')}>
-          <Regions support={support} party={party} selected={selected} />
+          <Regions support={support} party={party} light={light} selected={selected} />
         </svg>
         <Pins />
       </div>
