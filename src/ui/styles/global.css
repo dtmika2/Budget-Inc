@@ -198,6 +198,7 @@ h1, h2, h3 { margin: 0; }
 .projection b { font-family: var(--f-pixel); font-size: 22px; color: var(--text); margin-left: 4px; }
 .projection--bad b { color: var(--bad); }
 .projection--good b { color: var(--good); }
+.projection__short { display: none; }
 .mock-badge { font-family: var(--f-pixel); font-size: 12px; color: var(--ground); background: var(--gold); padding: 2px 6px; }
 
 /* map */
@@ -385,7 +386,7 @@ h1, h2, h3 { margin: 0; }
 .ranges { display: flex; flex-direction: column; gap: 6px; }
 .ranges ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .chip { display: inline-flex; gap: 6px; align-items: baseline; padding: 2px 7px; background: rgba(42, 34, 51, 0.07); font-size: 13px; }
-.chip__value { font-family: var(--f-pixel); font-size: 15px; }
+.chip__value { font-family: var(--f-pixel); font-size: 15px; white-space: nowrap; }
 .chip--good .chip__value { color: var(--good-on-paper); }
 .chip--bad .chip__value { color: var(--bad-on-paper); }
 .chip--neutral { opacity: 0.55; }
@@ -503,7 +504,7 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .res__value, .hud-pc b, .hud-date, .projection b, .meter__value, .mini-stat b, .chip__value, .delta, .floater,
 .node__cost, .popup__countdown, .vote-chance b, .final__score b, .final__list b, .seatbar__count b, .election__label,
 .history__when, .effects li em, .cost, .btn-response__cost, .leader-card__best, .popups__queued, .election__status,
-.coach__step { font-family: var(--f-num); font-weight: 400; }
+.coach__step, .final__score span { font-family: var(--f-num); font-weight: 400; }
 .final__score b { font-weight: 700; }
 
 /* debug */
@@ -532,6 +533,8 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
   .hud-date { font-size: 13px; }
   .projection { font-size: 12px; }
   .projection b { font-size: 18px; }
+  .projection__long { display: none; }
+  .projection__short { display: inline; }
   .speed .btn-icon { min-width: 44px; }
   .hud-pc { order: 0; }
   .hud-date { order: 1; }
@@ -564,12 +567,15 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
   }
   .carousel > * { flex: 0 0 86%; scroll-snap-align: center; }
   .carousel__hint { display: block; margin: 0; font-size: 13px; color: var(--text-dim); text-align: center; }
+  .ranges__res .chip { flex-basis: 100%; }
+  .ranges--compact .ranges__res .chip { flex-basis: auto; }
   .final__grid { grid-template-columns: 1fr; }
   .final__score { align-items: flex-start; }
   .final__list li { grid-template-columns: 8.5em 1fr 2.5em; }
   .menu__map { inset: 22% -30%; width: 160%; height: 56%; }
   .election__label { font-size: 34px; }
   .coach { bottom: 12px; }
+  .coach--draft { bottom: auto; left: 16px; right: 16px; width: auto; }
 }
 
 /* ------------------------------------------------------------ reduced motion */

@@ -57,6 +57,9 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 - §6.3 — Cards always list all 4 resources (unaffected ones shown as a muted 0); anger shown as ▲/▼ ranges; ongoing effects with ↻ icon, per-day value and duration.
 - §12.2 — Mobile: drawer opened by a "Panel" button; draft and budget-vote options in a scroll-snap carousel with a peek of the next card; pop-ups full width at the bottom.
 - dev — `?debug=1` shows the developer overlay (chapter codes, revPct/expPct, balance, finance terms, seed, phase, S/T/P) and exposes the store as `window.__budgetInc` for browser checks; the overlay ignores pointer events.
+- plan P10 mobile — Checked in headless Chrome mobile emulation at 375×667 and 390×844 (menu, leader select, draft + tutorial, scrolled carousel, running game, drawer, upgrade tree, pause menu): no horizontal scroll, no visible touch target under 44 px, drawer fully on screen, carousel scrollable. Fixes made: the projection label is shortened to "Projekce" on phones, range chips stack full width with no mid-number wrapping, and the draft coach mark no longer stretches full height.
+- plan P10 performance — Measured in headless Chrome (390×844, mobile emulation, CDP CPU throttling ×4, game at 4×): ~142 fps average, p95 frame 7 ms over 8 s. Headless rAF timing is only indicative; not yet measured on a physical mid-range phone. Rendering is slice-subscribed (`useStore(selector)` with shallow equality); ticks are batched into one notification per frame; the map re-tints only when the weekly projection changes.
+- plan P10 — Browser checks used `playwright-core` driving the locally installed Chrome from the session scratchpad (not a project dependency).
 
 ## Blockers
 _None._

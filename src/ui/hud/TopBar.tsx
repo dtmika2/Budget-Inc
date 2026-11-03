@@ -58,7 +58,8 @@ export function ProjectionBadge() {
   const pct = Math.round(p * 100);
   return (
     <span className={`projection${pct < 35 ? ' projection--bad' : pct >= 55 ? ' projection--good' : ''}`} data-tut-target="map">
-      {t('hud.projection')} <b>{pct} %</b>
+      <span className="projection__long">{t('hud.projection')}</span>
+      <span className="projection__short">{t('hud.projectionShort')}</span> <b>{pct} %</b>
     </span>
   );
 }
