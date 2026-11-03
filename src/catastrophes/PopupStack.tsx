@@ -6,9 +6,9 @@ import { memo } from 'react';
 import { config } from '@/config';
 import { t } from '@i18n/index';
 
-import { getStore, useStore, visiblePopups, type Popup } from '../store';
-import { DeltaList } from './DeltaList';
-import { RangeChips } from '../modals/RangeChips';
+import { getStore, useStore, visiblePopups, type Popup } from '@ui/store';
+import { DeltaList } from '@ui/popups/DeltaList';
+import { RangeChips } from '@ui/modals/RangeChips';
 
 function popupText(p: Popup): string {
   if (!p.textKey) return '';

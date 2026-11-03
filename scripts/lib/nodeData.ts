@@ -3,6 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { loadGameData, type LoadOptions, type LoadResult } from '../../src/data/loader';
 import type { GameData } from '../../src/core/types';
+import { LOCALE_FILES } from '../../src/i18n/files';
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {
@@ -19,11 +20,9 @@ export function readDataFiles(root = '.'): Record<string, unknown> {
   return out;
 }
 
-/** Czech locale: locales/cs.json merged with locales/skilltree.cs.json (see src/i18n/locale.ts). */
+/** Czech locale: every file in LOCALE_FILES merged (see src/i18n/locale.ts). */
 export function readLocale(root = '.'): Record<string, string> {
-  const main = JSON.parse(readFileSync(join(root, 'locales/cs.json'), 'utf8'));
-  const tree = JSON.parse(readFileSync(join(root, 'locales/skilltree.cs.json'), 'utf8'));
-  return { ...main, ...tree };
+  return Object.assign({}, ...LOCALE_FILES.map((f) => JSON.parse(readFileSync(join(root, f), 'utf8'))));
 }
 
 export function loadFromDisk(opts: LoadOptions = {}, root = '.'): LoadResult {

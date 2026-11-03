@@ -3,8 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { t } from '../src/i18n';
 import { CS as cs } from '../src/i18n/locale';
-import main from '../locales/cs.json';
-import skilltree from '../locales/skilltree.cs.json';
+import { LOCALE_PARTS } from '../src/i18n/locale';
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {
@@ -22,8 +21,15 @@ describe('i18n', () => {
     expect(t('no.such.key')).toBe('⟦no.such.key⟧');
   });
 
-  it('the skill tree locale and the main locale share no keys', () => {
-    const dup = Object.keys(skilltree).filter((k) => k in main);
+  it('no key lives in more than one locale file', () => {
+    const owner = new Map<string, string>();
+    const dup: string[] = [];
+    for (const [part, keys] of Object.entries(LOCALE_PARTS)) {
+      for (const k of Object.keys(keys)) {
+        if (owner.has(k)) dup.push(`${k} (${owner.get(k)}, ${part})`);
+        else owner.set(k, part);
+      }
+    }
     expect(dup).toEqual([]);
   });
 

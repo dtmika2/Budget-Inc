@@ -3,7 +3,7 @@
  * before real content exists (spec §11). Seeded and deterministic. All output is `devOnly: true`.
  *
  * Writes data/policies/_filler.json, data/events/_filler.json and the matching [FILLER] keys in
- * locales/cs.json. Turn filler off with `config.includeDevFiller = false`.
+ * locales/cs.json (event texts in locales/events.cs.json). Turn filler off with `config.includeDevFiller = false`.
  *
  * Usage: npm run gen:filler
  */
@@ -30,6 +30,7 @@ const rng = new Rng(F.seed);
 const budget: BudgetData = JSON.parse(readFileSync('data/budget.json', 'utf8'));
 const leaders: LeaderDef[] = JSON.parse(readFileSync('data/leaders.json', 'utf8'));
 const locale: Record<string, string> = JSON.parse(readFileSync('locales/cs.json', 'utf8'));
+const eventLocale: Record<string, string> = JSON.parse(readFileSync('locales/events.cs.json', 'utf8'));
 const regionsData: RegionsData = JSON.parse(readFileSync('data/regions.json', 'utf8'));
 
 const LEANING_CZ: Record<LeaningId, string> = {
@@ -107,7 +108,7 @@ function makeEvent(id: string, label: string): ChaosEventDef {
     responses: null,
     devOnly: true,
   };
-  locale[`event.${id}.text`] = `[FILLER] Událost ${label}`;
+  eventLocale[`event.${id}.text`] = `[FILLER] Událost ${label}`;
   if (respondable) {
     const options: ResponseOption[] = [
       {
@@ -126,9 +127,9 @@ function makeEvent(id: string, label: string): ChaosEventDef {
       { id: 'c', label: `event.${id}.resp.c`, cost: { pc: 0 } },
     ];
     ev.responses = { default: 'c', options };
-    locale[`event.${id}.resp.a`] = '[FILLER] Reakce A';
-    locale[`event.${id}.resp.b`] = '[FILLER] Reakce B';
-    locale[`event.${id}.resp.c`] = '[FILLER] Nereagovat';
+    eventLocale[`event.${id}.resp.a`] = '[FILLER] Reakce A';
+    eventLocale[`event.${id}.resp.b`] = '[FILLER] Reakce B';
+    eventLocale[`event.${id}.resp.c`] = '[FILLER] Nereagovat';
   }
   return ev;
 }
@@ -193,7 +194,8 @@ function makeCard(leader: LeaderDef, n: number, leaning: LeaningId): { card: Pol
 }
 
 // drop previously generated filler keys, then regenerate
-for (const k of Object.keys(locale)) if (/^(policy|event|compromise)\.filler_/.test(k)) delete locale[k];
+for (const k of Object.keys(locale)) if (/^(policy|compromise)\.filler_/.test(k)) delete locale[k];
+for (const k of Object.keys(eventLocale)) if (/^event\.filler_/.test(k)) delete eventLocale[k];
 
 const cards: PolicyCard[] = [];
 const events: ChaosEventDef[] = [];
@@ -255,6 +257,7 @@ writeFileSync('data/policies/_filler.json', JSON.stringify(cards, null, 2) + '\n
 writeFileSync('data/events/_filler.json', JSON.stringify(events, null, 2) + '\n');
 writeFileSync('data/compromises/_filler.json', JSON.stringify(compromises, null, 2) + '\n');
 writeFileSync('locales/cs.json', JSON.stringify(locale, null, 2) + '\n');
+writeFileSync('locales/events.cs.json', JSON.stringify(eventLocale, null, 2) + '\n');
 const respondable = events.filter((e) => e.responses).length;
 console.log(
   `Generated ${cards.length} [FILLER] cards (${F.cardsPerLeader} per leader x ${leaders.length}), ${events.length} events (${respondable} respondable) and ${compromises.length} compromises.`,

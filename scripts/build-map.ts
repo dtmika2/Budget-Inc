@@ -1,7 +1,7 @@
 /**
  * Build-time only: downloads the Eurostat GISCO NUTS3 boundaries once, keeps the 14 Czech kraje,
  * projects them (equirectangular, cos(49.8deg) scaling), quantises the coordinates and writes
- * `src/ui/map/regionsPath.ts`. The game itself never touches the network.
+ * `src/regions/regionsPath.ts`. The game itself never touches the network.
  *
  * If the download fails, a SCHEMATIC PLACEHOLDER map (14 rounded blobs placed roughly by
  * geography, with correct NUTS codes) is written instead.
@@ -18,7 +18,7 @@ const URL_TEMPLATE = (s: string) =>
   `https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_RG_${s}_2021_4326_LEVL_3.geojson`;
 const CACHE_DIR = '.map-cache';
 const CACHE_FILE = `${CACHE_DIR}/nuts3_${scale}_2021.geojson`;
-const OUT_FILE = 'src/ui/map/regionsPath.ts';
+const OUT_FILE = 'src/regions/regionsPath.ts';
 export const ATTRIBUTION = '(c) EuroGeographics for the administrative boundaries (Eurostat GISCO, NUTS 2021)';
 
 const VIEW_W = 1000;

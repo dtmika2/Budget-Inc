@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import type { Pin } from '@core/types';
 import { t } from '@i18n/index';
-import { getStore, useStore } from '../store';
+import { getStore, useStore } from '@ui/store';
 
 /** Tappable pin (>= 44 px). The ring drains as the pin's lifetime runs out (updates once per game day). */
 export const OpportunityPin = memo(function OpportunityPin({ pin, x, y }: { pin: Pin; x: number; y: number }) {

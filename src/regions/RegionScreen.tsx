@@ -9,8 +9,8 @@ import { traitFactors } from '@core/regions';
 import type { LogEntry } from '@core/types';
 import { DEMOGRAPHIC_FIELDS } from '@core/types';
 import { fmt, fmtSigned, t } from '@i18n/index';
-import { historyTitle } from '../panel/SidePanel';
-import { getStore, useStore } from '../store';
+import { historyTitle } from '@ui/panel/SidePanel';
+import { getStore, useStore } from '@ui/store';
 import { markerShape, RegionChart, type ChartMarker } from './RegionChart';
 import { RegionDemands } from './RegionDemands';
 

@@ -1,5 +1,5 @@
 import { t } from '@i18n/index';
-import { REGION_PATHS, MAP_HEIGHT, MAP_WIDTH } from '../map/regionsPath';
+import { REGION_PATHS, MAP_HEIGHT, MAP_WIDTH } from '@/regions';
 import { getStore } from '../store';
 
 export function MainMenu() {

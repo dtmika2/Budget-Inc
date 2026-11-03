@@ -6,11 +6,11 @@
  */
 import { memo, useState } from 'react';
 import { t } from '@i18n/index';
-import { getStore, useStore } from '../store';
+import { getStore, useStore } from '@ui/store';
 import { LiquidDefs, LiquidRegion } from './Liquid';
 import { MapLife } from './MapLife';
-import { ProjectionTicker } from '../charts/ProjectionTicker';
-import { Floaters } from '../popups/Floaters';
+import { ProjectionTicker } from '@ui/charts/ProjectionTicker';
+import { Floaters } from '@ui/popups/Floaters';
 import { DemandPin } from './DemandPin';
 import { OpportunityPin } from './OpportunityPin';
 import { MAP_ATTRIBUTION, MAP_HEIGHT, MAP_SCHEMATIC, MAP_WIDTH, REGION_PATHS } from './regionsPath';

@@ -5,9 +5,9 @@
 import { config } from '@/config';
 import { templateOf } from '@core/demands';
 import { t } from '@i18n/index';
-import { dateParts, requesterLabel } from '../demands/labels';
-import { RangeChips } from '../modals/RangeChips';
-import { getStore, useStore } from '../store';
+import { dateParts, requesterLabel } from '@ui/demands/labels';
+import { RangeChips } from '@ui/modals/RangeChips';
+import { getStore, useStore } from '@ui/store';
 
 export function RegionDemands({ code }: { code: string }) {
   const store = getStore();

@@ -7,7 +7,7 @@
 import { memo, type CSSProperties } from 'react';
 import { config } from '@/config';
 import type { GroupId } from '@core/types';
-import { useStore, type Actor } from '../store';
+import { useStore, type Actor } from '@ui/store';
 import { REGION_BOXES } from './Liquid';
 import { REGION_PATHS } from './regionsPath';
 import { SPRITES, SPX, spriteRects } from './sprites';

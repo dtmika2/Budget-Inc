@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { LOCALE_FILES } from '../src/i18n/files';
 
 const CZECH = /[áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]/;
 
@@ -27,9 +28,9 @@ describe('no Czech strings in src/', () => {
 describe('budget chapter names are never shown to the player', () => {
   it('no UI file reads chapter names; the debug overlay shows codes only', () => {
     const budget = JSON.parse(readFileSync('data/budget.json', 'utf8')) as { chapters: { name: string }[] };
-    const locale = readFileSync('locales/cs.json', 'utf8') + readFileSync('locales/skilltree.cs.json', 'utf8');
+    const locale = LOCALE_FILES.map((f) => readFileSync(f, 'utf8')).join('');
     for (const c of budget.chapters) expect(locale.includes(c.name)).toBe(false);
-    for (const file of walk('src/ui')) {
+    for (const file of ['src/ui', 'src/regions', 'src/catastrophes', 'src/skilltree'].flatMap(walk)) {
       const src = readFileSync(file, 'utf8');
       if (!src.includes('chapters')) continue;
       expect(src).not.toMatch(/\.name\b/);

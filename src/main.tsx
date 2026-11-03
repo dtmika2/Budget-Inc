@@ -11,10 +11,11 @@ import '@fontsource/atkinson-hyperlegible/latin-ext-400.css';
 import '@fontsource/atkinson-hyperlegible/latin-ext-700.css';
 import '@fontsource/atkinson-hyperlegible/latin-400.css';
 import '@fontsource/atkinson-hyperlegible/latin-700.css';
+// global.css first: workspace styles (src/skilltree, src/regions, src/catastrophes) load after it and win ties
+import './ui/styles/global.css';
 import { loadBundledData } from './data/browser';
 import { App } from './ui/App';
 import { initStore } from './ui/store';
-import './ui/styles/global.css';
 
 const store = initStore(loadBundledData());
 // Developer hook for browser checks: only with ?debug=1

@@ -24,7 +24,7 @@ npm run dev          # http://localhost:5173  (add ?debug=1 for the developer ov
 | `npm run simulate -- …` | headless simulator (see below) |
 | `npm run analyze -- …` | balance helper: average end-of-run state, with in-memory overrides |
 | `npm run gen:filler` | regenerate the `[FILLER]` cards/events/compromises |
-| `npm run build:map` | rebuild `src/ui/map/regionsPath.ts` from GISCO boundaries (build time only) |
+| `npm run build:map` | rebuild `src/regions/regionsPath.ts` from GISCO boundaries (build time only) |
 
 ## Deploy (static hosting)
 
@@ -52,7 +52,7 @@ tests/        Vitest suites
 - The UI owns real time only; it calls `sim.tick()` (one game day) and `sim.dispatch(input)` for every decision.
 - Every decision is logged with the tick count it happened at, so a run replays exactly from its seed + inputs (`src/core/replay.ts`). The final screen exports the log as JSON (`budget-inc-<runId>.json`).
 - One modifier pipeline (`src/core/modifiers.ts`) handles every value change: roll → global negative multiplier (if bad) → additive → multiplicative → clamp. Card / modal ranges are previewed through the same pipeline.
-- The living map (`src/ui/map/MapLife.tsx`, `lifeDirector.ts`, `sprites.ts`) is presentation only. A pure director turns state and new log entries into short-lived pixel actors (trucks, protest crowds, blackouts, fireworks or rain, the oligarch limo), alongside ambient cows. It uses its own RNG, so the simulation and replays are untouched. Tune it in `config.life`. To add a sprite, add a string grid to `sprites.ts`; each character is a palette colour.
+- The living map (`src/regions/MapLife.tsx`, `lifeDirector.ts`, `sprites.ts`) is presentation only. A pure director turns state and new log entries into short-lived pixel actors (trucks, protest crowds, blackouts, fireworks or rain, the oligarch limo), alongside ambient cows. It uses its own RNG, so the simulation and replays are untouched. Tune it in `config.life`. To add a sprite, add a string grid to `sprites.ts`; each character is a palette colour.
 
 ## Content: how to add …
 
@@ -265,7 +265,7 @@ targets. Leader-specific values are data (`data/leaders.json`).
 
 Region boundaries: © EuroGeographics for the administrative boundaries (Eurostat GISCO, NUTS 2021,
 1:3 million). Downloaded once at build time by `scripts/build-map.ts` (cached in `.map-cache/`),
-projected and quantised into `src/ui/map/regionsPath.ts`. The attribution is also shown under the map in
+projected and quantised into `src/regions/regionsPath.ts`. The attribution is also shown under the map in
 the game. If the download is unavailable, the script writes a schematic placeholder map instead.
 
 ## Satire guardrail

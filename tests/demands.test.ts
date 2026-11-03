@@ -98,8 +98,8 @@ describe('demand data', () => {
   });
 
   it('the PC bubble no longer shows "!"; the demand pin does', () => {
-    expect(readFileSync('src/ui/map/OpportunityPin.tsx', 'utf8')).not.toMatch(/>\s*!\s*</);
-    expect(readFileSync('src/ui/map/DemandPin.tsx', 'utf8')).toMatch(/>\s*!\s*</);
+    expect(readFileSync('src/regions/OpportunityPin.tsx', 'utf8')).not.toMatch(/>\s*!\s*</);
+    expect(readFileSync('src/regions/DemandPin.tsx', 'utf8')).toMatch(/>\s*!\s*</);
   });
 });
 

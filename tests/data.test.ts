@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { loadGameData } from '../src/data/loader';
 import { readDataFiles, readLocale } from '../scripts/lib/nodeData';
-import { REGION_PATHS } from '../src/ui/map/regionsPath';
+import { REGION_PATHS } from '../src/regions/regionsPath';
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 const base = () => ({ files: clone(readDataFiles()), locale: clone(readLocale()) });

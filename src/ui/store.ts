@@ -13,8 +13,8 @@ import { GROUP_IDS } from '@core/types';
 import { Rng } from '@core/rng';
 import { t } from '@i18n/index';
 import { Clock } from './clock';
-import { planLife, type ActorSpawn } from './map/lifeDirector';
-import { REGION_PATHS } from './map/regionsPath';
+import { planLife, type ActorSpawn } from '@/regions/lifeDirector';
+import { REGION_PATHS } from '@/regions/regionsPath';
 import { loadSettings, recordScore, saveSettings, setTutorialSeen, tutorialSeen, type Settings } from './persist';
 
 export type Screen = 'menu' | 'howto' | 'settings' | 'select' | 'game' | 'final' | 'dataError';

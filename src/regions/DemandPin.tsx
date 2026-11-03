@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import type { OpenDemand } from '@core/types';
 import { t } from '@i18n/index';
-import { getStore, useStore } from '../store';
+import { getStore, useStore } from '@ui/store';
 
 /** Regional demand pin: a red speech bubble with "!" (the PC bubble has its own icon). Opens the region. */
 export const DemandPin = memo(function DemandPin({ demand, x, y }: { demand: OpenDemand; x: number; y: number }) {

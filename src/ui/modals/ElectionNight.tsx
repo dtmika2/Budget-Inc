@@ -6,8 +6,7 @@
 import { useEffect, useState } from 'react';
 import { config } from '@/config';
 import { fmt, t } from '@i18n/index';
-import { LiquidDefs, LiquidRegion } from '../map/Liquid';
-import { MAP_HEIGHT, MAP_WIDTH, REGION_PATHS } from '../map/regionsPath';
+import { LiquidDefs, LiquidRegion, MAP_HEIGHT, MAP_WIDTH, REGION_PATHS } from '@/regions';
 import { getStore } from '../store';
 
 const REVEAL_MS = 1200;
