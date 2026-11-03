@@ -45,6 +45,7 @@ describe('chaos events', () => {
     s2.state.resources.coalition = 100;
     while (!s2.state.log.some((l) => l.type === 'chaos_fired' && l.eventId === 'dummy_evt_3') && !s2.isOver) {
       if (s2.state.phase === 'draft') s2.dispatch({ kind: 'pickPolicy', cardId: s2.state.draft!.hand[0] });
+      else if (s2.state.phase === 'compromise') s2.dispatch({ kind: 'makeCompromise', cardId: s2.state.compromiseOffer![0] });
       else s2.tick();
     }
     const fired = s2.state.log.find((l) => l.type === 'chaos_fired' && l.eventId === 'dummy_evt_3')!;
@@ -180,6 +181,7 @@ describe('budget vote', () => {
         expect(sim.state.day).toBe(75);
         sim.dispatch({ kind: 'voteBudget', optionId: 'budget_balanced' });
       } else if (sim.state.phase === 'draft') sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
+      else if (sim.state.phase === 'compromise') sim.dispatch({ kind: 'makeCompromise', cardId: sim.state.compromiseOffer![0] });
       else sim.tick();
     }
     expect(votes).toEqual([1, 5, 9, 13]);

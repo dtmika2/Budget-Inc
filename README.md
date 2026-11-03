@@ -88,10 +88,11 @@ Then add the Czech texts to `locales/cs.json`:
 - Content target: ≥ 20 cards per leader. The loader warns under 18 non-filler cards per leader and refuses to start under 3.
 
 ### A regional compromise ("Učinit kompromis")
-Compromises are offered in the quarterly draft next to policies (one slot, with chance
-`config.draft.compromiseChance`). They focus on regional politics: support rises in some kraje and falls
-in others, or regional support is traded for the Oligarchs' favour or for Finances. Add to any file in
-`data/compromises/`:
+Compromises are their own decision, never mixed with policy cards. In a quarter where it happens
+(`config.compromise.chance`), the game pauses on `config.compromise.day` and offers two compromise cards
+against each other; the player must make one. They focus on regional politics: support rises in some
+kraje and falls in others, or regional support is traded for the Oligarchs' favour or for Finances. Add
+to any file in `data/compromises/`:
 
 ```jsonc
 {

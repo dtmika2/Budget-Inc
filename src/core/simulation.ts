@@ -7,7 +7,8 @@ import { activateAbility, canUseAbility, rechargeIfYearStart } from './abilities
 import { computeFinances, initPct } from './budget';
 import { openBudgetVote, passChance, scheduleBudgetVotes, voteBudget } from './budgetVote';
 import { canRespond, fireChaos, respond, scheduleChaosForPick } from './chaos';
-import { drawCompromise, drawHand, rerollCost } from './draft';
+import { canMakeCompromise, makeCompromise, openCompromise, scheduleQuarterCompromise } from './compromise';
+import { drawHand, rerollCost } from './draft';
 import { applyBundle, applyDaily, previewBundle, type EffectHost, type PreviewRanges } from './effects';
 import { electionNight, projection } from './election';
 import { triggeredEnding } from './endings';
@@ -120,6 +121,7 @@ export class Simulation implements EffectHost {
       ongoing: [],
       zeroPenalties: { finances: false, support: false, prestige: false },
       draft: null,
+      compromiseOffer: null,
       picked: [],
       schedule: [],
       scheduleSeq: 0,
@@ -262,6 +264,7 @@ export class Simulation implements EffectHost {
     s.pc += gain;
     this.log('quarter_started', { pcGained: gain });
     scheduleQuarterPins(this);
+    scheduleQuarterCompromise(this);
     s.draft = { hand: [], shownThisQuarter: [], rerolls: 0 };
     s.phase = 'draft';
     this.deal();
@@ -270,13 +273,7 @@ export class Simulation implements EffectHost {
   private deal(): void {
     const s = this.state;
     const d = s.draft!;
-    // optional regional compromise in one slot (always one draft-stream roll when compromises exist)
-    let compromiseId: string | null = null;
-    const chance = this.cfg.draft.compromiseChance;
-    if (this.compromises.length && chance > 0 && this.rng.draft.next() < chance) {
-      compromiseId = drawCompromise(this.compromises, s.picked, d.shownThisQuarter, s.quarter, this.cfg.draft.compromiseCooldownQuarters, this.rng.draft);
-    }
-    const { hand: policies, relaxLevel } = drawHand(
+    const { hand, relaxLevel } = drawHand(
       {
         cards: this.cards,
         weights: this.leaderDef.leaningWeights,
@@ -284,12 +281,10 @@ export class Simulation implements EffectHost {
         shownThisQuarter: d.shownThisQuarter,
         quarter: s.quarter,
         repeatCooldownQuarters: this.cfg.draft.repeatCooldownQuarters,
-        handSize: this.cfg.draft.handSize - (compromiseId ? 1 : 0),
+        handSize: this.cfg.draft.handSize,
       },
       this.rng.draft,
     );
-    const hand = [...policies];
-    if (compromiseId) hand.splice(Math.floor(this.rng.draft.next() * (hand.length + 1)), 0, compromiseId);
     d.hand = hand;
     for (const id of hand) if (!d.shownThisQuarter.includes(id)) d.shownThisQuarter.push(id);
     if (relaxLevel > 0) this.log('pool_relaxed', { level: relaxLevel });
@@ -316,6 +311,13 @@ export class Simulation implements EffectHost {
         openBudgetVote(this);
         this.changed();
         return;
+      }
+      if (e.kind === 'compromise') {
+        if (openCompromise(this)) {
+          this.changed();
+          return;
+        }
+        continue;
       }
       if (e.kind === 'chaos') fireChaos(this, e);
       else if (e.kind === 'pinSpawn') spawnPin(this, e);
@@ -394,6 +396,7 @@ export class Simulation implements EffectHost {
     s.pins = [];
     s.pendingResponses = [];
     s.draft = null;
+    s.compromiseOffer = null;
   }
 
   private finishElection(snap: boolean): void {
@@ -441,6 +444,8 @@ export class Simulation implements EffectHost {
       case 'collectOpportunity':
         if (s.phase !== 'running') return 'not running';
         return s.pins.some((p) => p.id === input.pinId) ? null : 'no such pin';
+      case 'makeCompromise':
+        return canMakeCompromise(this, input.cardId);
       case 'voteBudget':
         if (s.phase !== 'budgetVote') return 'no vote open';
         return this.data.budgetVote.some((o) => o.id === input.optionId) ? null : 'no such option';
@@ -457,17 +462,10 @@ export class Simulation implements EffectHost {
     const s = this.state;
     s.inputs.push({ tick: s.tickCount, quarter: s.quarter, day: s.day, input });
     switch (input.kind) {
+      case 'makeCompromise':
+        makeCompromise(this, input.cardId);
+        break;
       case 'pickPolicy': {
-        const comp = this.compromiseById.get(input.cardId);
-        if (comp) {
-          const { rolled, deltas } = applyBundle(this, comp, 'compromise', `compromise:${comp.id}`, this.rng.effects);
-          s.picked.push({ cardId: comp.id, quarter: s.quarter });
-          s.draft = null;
-          s.phase = 'running';
-          this.log('compromise_made', { cardId: comp.id, rolled }, deltas);
-          scheduleChaosForPick(this, comp);
-          break;
-        }
         const card = this.cardById.get(input.cardId)!;
         const { rolled, deltas } = applyBundle(this, card, 'policy', `policy:${card.id}`, this.rng.effects);
         s.picked.push({ cardId: card.id, quarter: s.quarter });
@@ -512,7 +510,7 @@ export class Simulation implements EffectHost {
     return previewBundle(this, bundle, source);
   }
 
-  /** Preview a draft card: a policy or a regional compromise. */
+  /** Preview a policy card or a regional compromise card. */
   previewCard(cardId: string): PreviewRanges {
     const comp = this.compromiseById.get(cardId);
     if (comp) return this.preview(comp, 'compromise');

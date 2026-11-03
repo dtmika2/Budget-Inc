@@ -84,6 +84,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
       act(sim) {
         const s = sim.state;
         if (s.phase === 'draft' && s.draft) sim.dispatch({ kind: 'pickPolicy', cardId: s.draft.hand[0] });
+        else if (s.phase === 'compromise' && s.compromiseOffer) sim.dispatch({ kind: 'makeCompromise', cardId: s.compromiseOffer[0] });
         else if (s.phase === 'budgetVote') sim.dispatch({ kind: 'voteBudget', optionId: sim.data.budgetVote[0].id });
       },
     };
@@ -105,6 +106,10 @@ export function createBot(kind: BotKind, seed: string): Bot {
         }
         if (s.phase === 'budgetVote') {
           sim.dispatch({ kind: 'voteBudget', optionId: rng.pick(sim.data.budgetVote).id });
+          return;
+        }
+        if (s.phase === 'compromise' && s.compromiseOffer) {
+          sim.dispatch({ kind: 'makeCompromise', cardId: rng.pick(s.compromiseOffer) });
           return;
         }
         if (s.phase !== 'running') return;
@@ -142,6 +147,19 @@ export function createBot(kind: BotKind, seed: string): Bot {
           }
         }
         sim.dispatch({ kind: 'pickPolicy', cardId: best });
+        return;
+      }
+      if (s.phase === 'compromise' && s.compromiseOffer) {
+        let best = s.compromiseOffer[0];
+        let bestV = -Infinity;
+        for (const id of s.compromiseOffer) {
+          const v = valueAfter(sim, sim.previewCard(id));
+          if (v > bestV) {
+            bestV = v;
+            best = id;
+          }
+        }
+        sim.dispatch({ kind: 'makeCompromise', cardId: best });
         return;
       }
       if (s.phase === 'budgetVote') {
@@ -214,7 +232,7 @@ export function runToEnd(sim: Simulation, bot: Bot, maxSteps = 100000): RunSumma
     bot.act(sim);
     if (sim.isOver) break;
     if (sim.state.phase === 'running') sim.tick();
-    else if (sim.state.phase === 'draft' || sim.state.phase === 'budgetVote') {
+    else if (sim.state.phase === 'draft' || sim.state.phase === 'budgetVote' || sim.state.phase === 'compromise') {
       // the bot must resolve modal phases; guard against a stuck bot
       bot.act(sim);
       if ((sim.state.phase as string) !== 'running' && !sim.isOver) throw new Error(`Bot ${bot.kind} stuck in phase ${sim.state.phase}`);

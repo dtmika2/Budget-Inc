@@ -101,7 +101,8 @@ export interface PolicyCard extends EffectBundle {
 }
 
 /**
- * Regional compromise ("ucinit kompromis"): offered in the draft next to policies, no leaning.
+ * Regional compromise ("ucinit kompromis"): offered in its own decision, two compromises against each
+ * other (never mixed with policy cards); no leaning.
  * Usually raises support in some kraje and lowers it in others, or trades regional support for
  * oligarchs' favour or Finances.
  */
@@ -240,7 +241,7 @@ export interface GameData {
 
 // ---------------------------------------------------------------- runtime state
 
-export type Phase = 'running' | 'draft' | 'budgetVote' | 'ending' | 'election' | 'finished';
+export type Phase = 'running' | 'draft' | 'budgetVote' | 'compromise' | 'ending' | 'election' | 'finished';
 
 export type Input =
   | { kind: 'pickPolicy'; cardId: string }
@@ -248,6 +249,7 @@ export type Input =
   | { kind: 'respond'; eventInstanceId: string; responseId: string; timedOut: boolean }
   | { kind: 'collectOpportunity'; pinId: string }
   | { kind: 'voteBudget'; optionId: string }
+  | { kind: 'makeCompromise'; cardId: string }
   | { kind: 'buyUpgrade'; nodeId: string }
   | { kind: 'useAbility' };
 
@@ -269,7 +271,7 @@ export interface OngoingInstance {
   label?: string;
 }
 
-export type ScheduledKind = 'budgetVote' | 'chaos' | 'pinSpawn' | 'pinExpire';
+export type ScheduledKind = 'budgetVote' | 'compromise' | 'chaos' | 'pinSpawn' | 'pinExpire';
 
 export interface ScheduledEntry {
   seq: number;
@@ -375,6 +377,8 @@ export interface GameState {
   ongoing: OngoingInstance[];
   zeroPenalties: Record<ZeroPenaltyId, boolean>;
   draft: DraftState | null;
+  /** Open regional-compromise decision: the compromise card ids offered against each other. */
+  compromiseOffer: string[] | null;
   picked: { cardId: string; quarter: number }[];
   schedule: ScheduledEntry[];
   scheduleSeq: number;

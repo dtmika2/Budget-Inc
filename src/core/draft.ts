@@ -81,22 +81,28 @@ export function rerollCost(rerollsSoFar: number, base: number, factor: number): 
 }
 
 /**
- * One regional compromise for the hand: not shown earlier this quarter and not picked within the
- * cooldown; if none qualify, the "shown this quarter" rule is dropped. Uniform pick. Null if none.
+ * Up to `n` distinct regional compromises for a compromise decision. Preference order: not picked within
+ * the cooldown and never picked; then cooled-down earlier picks (oldest first); then anything left.
+ * Uniform within the never-picked tier.
  */
-export function drawCompromise(
+export function drawCompromises(
   cards: readonly CompromiseCard[],
   picked: readonly { cardId: string; quarter: number }[],
-  shownThisQuarter: readonly string[],
   quarter: number,
   cooldownQuarters: number,
+  n: number,
   rng: Rng,
-): string | null {
+): string[] {
   const last = new Map<string, number>();
   for (const p of picked) last.set(p.cardId, Math.max(last.get(p.cardId) ?? -Infinity, p.quarter));
-  const cooled = (c: CompromiseCard) => !last.has(c.id) || (last.get(c.id) as number) <= quarter - cooldownQuarters;
-  let pool = cards.filter((c) => cooled(c) && !shownThisQuarter.includes(c.id));
-  if (!pool.length) pool = cards.filter(cooled);
-  if (!pool.length) return null;
-  return pool[Math.floor(rng.next() * pool.length)].id;
+  const fresh = cards.filter((c) => !last.has(c.id));
+  const cooled = cards
+    .filter((c) => last.has(c.id) && (last.get(c.id) as number) <= quarter - cooldownQuarters)
+    .sort((a, b) => (last.get(a.id) as number) - (last.get(b.id) as number));
+  const rest = cards.filter((c) => !fresh.includes(c) && !cooled.includes(c));
+  const out: string[] = [];
+  const pool = [...fresh];
+  while (out.length < n && pool.length) out.push(pool.splice(Math.floor(rng.next() * pool.length), 1)[0].id);
+  for (const c of [...cooled, ...rest]) if (out.length < n && !out.includes(c.id)) out.push(c.id);
+  return out;
 }

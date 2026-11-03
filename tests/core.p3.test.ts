@@ -104,8 +104,7 @@ describe('draft', () => {
 
   it('logs pool_relaxed in a full run with a tiny pool', () => {
     const data = { ...gameData(), policies: gameData().policies.filter((c) => c.id.startsWith('dummy_')) };
-    // policy-pool test: no compromise slots, so every hand draws 3 policies
-    const sim = makeSim({ seed: 'tiny' }, cfgWith((c) => (c.draft.compromiseChance = 0)), data);
+    const sim = makeSim({ seed: 'tiny' }, config, data);
     // 6 cards: Q1-Q4 hands fit (6,5,4,3 unpicked); Q5 has 2 left and must relax
     sim.state.resources.coalition = 100;
     advanceQuiet(sim, 91 * 4 + 1);
@@ -135,6 +134,7 @@ describe('rerolls', () => {
     sim.state.resources.coalition = 100;
     while (sim.state.quarter === 1 && !sim.isOver) {
       if (sim.state.phase === 'budgetVote') sim.dispatch({ kind: 'voteBudget', optionId: 'budget_balanced' });
+      else if (sim.state.phase === 'compromise') sim.dispatch({ kind: 'makeCompromise', cardId: sim.state.compromiseOffer![0] });
       else sim.tick();
     }
     expect(sim.state.quarter).toBe(2);

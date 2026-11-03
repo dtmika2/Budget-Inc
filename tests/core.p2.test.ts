@@ -226,12 +226,14 @@ describe('headless simulation', () => {
     const cfg = cfgWith((c) => {
       c.drift = { finances: 0, support: 0, coalition: 0, prestige: 0 };
       c.budgetVote.enabled = false;
+      c.compromise.chance = 0; // like the budget vote, a decision re-runs its day's tick
     });
     const data = { ...gameData(), events: gameData().events.map((e) => ({ ...e, chance: 0 })) };
     const sim = makeSim({ seed: 'full-term' }, cfg, data);
     let ticks = 0;
     while (!sim.isOver) {
-      if (sim.state.phase === 'draft') sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
+      if (sim.state.phase === 'compromise') sim.dispatch({ kind: 'makeCompromise', cardId: sim.state.compromiseOffer![0] });
+      else if (sim.state.phase === 'draft') sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
       // keep the run alive: pin coalition and anger to safe values
       sim.state.resources.coalition = 50;
       for (const g of ['oligarchs', 'pensioners', 'media', 'eu', 'activists'] as const) sim.state.anger[g] = 40;

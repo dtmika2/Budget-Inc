@@ -4,6 +4,7 @@ import { LeaderDock } from '../hud/LeaderDock';
 import { TopBar } from '../hud/TopBar';
 import { CzMap } from '../map/CzMap';
 import { BudgetVoteModal } from '../modals/BudgetVoteModal';
+import { CompromiseModal } from '../modals/CompromiseModal';
 import { DraftModal } from '../modals/DraftModal';
 import { ElectionNight } from '../modals/ElectionNight';
 import { EndingCard } from '../modals/EndingCard';
@@ -58,6 +59,7 @@ export function Game() {
 
       {phase === 'draft' && <DraftModal />}
       {phase === 'budgetVote' && <BudgetVoteModal />}
+      {phase === 'compromise' && <CompromiseModal />}
       {phase === 'ending' && <EndingCard />}
       {phase === 'election' && <ElectionNight />}
       {modal === 'upgrades' && <UpgradeTree />}

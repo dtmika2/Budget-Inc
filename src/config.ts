@@ -84,6 +84,21 @@ export const config = {
     maxShift: 40,
   },
 
+  /**
+   * Regional compromise decision: separate from the policy draft. Mid-quarter the game pauses and offers
+   * `choices` compromise cards against each other; the player must pick one ("ucinit kompromis").
+   */
+  compromise: {
+    /** Chance per quarter that a compromise decision happens (rolled at quarter start; 0 disables). */
+    chance: 0.75,
+    /** Day of the quarter it opens on (the budget vote is on day 75). */
+    day: 45,
+    /** Number of compromise cards offered against each other. */
+    choices: 2,
+    /** Compromises picked within this many quarters are not offered again (unless too few are left). */
+    cooldownQuarters: 6,
+  },
+
   finances: {
     /** Finances points per 1 % of original expenditure of balance change (§9.3). */
     scale: 5,
@@ -107,10 +122,6 @@ export const config = {
     rerollCurrency: 'pc' as const,
     rerollBaseCost: 1,
     rerollCostFactor: 2,
-    /** Chance that a hand swaps one policy slot for a regional compromise card (0 disables). */
-    compromiseChance: 0.6,
-    /** Compromise cards picked within this many quarters are not offered again (unless none are left). */
-    compromiseCooldownQuarters: 6,
   },
 
   pc: {

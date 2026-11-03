@@ -15,8 +15,8 @@ const LEANING_GLYPH: Record<string, string> = {
 };
 
 /**
- * A draft card as an official memo. Policies are "prosazeny" (stamped PROSADIT); regional compromises
- * have no leaning and are "ucinit kompromis" (stamped KOMPROMIS).
+ * A card as an official memo. Policies (draft) are "prosazeny" (stamped PROSADIT); regional compromises
+ * (their own decision, two against each other) have no leaning and are "ucinit kompromis" (KOMPROMIS).
  */
 export const PolicyCard = memo(function PolicyCard({
   card,

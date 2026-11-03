@@ -5,6 +5,7 @@ import { exportRun } from '../src/core/log';
 import { comparableState, replay } from '../src/core/replay';
 import { loadGameData } from '../src/data/loader';
 import { readDataFiles, readLocale } from '../scripts/lib/nodeData';
+import type { Simulation } from '../src/core/simulation';
 import { cfgWith, gameData, makeSim } from './helpers';
 
 type AnyObj = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -45,43 +46,89 @@ describe('regional start jitter', () => {
   });
 });
 
-describe('compromises in the draft', () => {
-  it('with chance 1 every hand has exactly one compromise and two policies', () => {
-    const sim = makeSim({ seed: 'always' }, cfgWith((c) => (c.draft.compromiseChance = 1)));
-    for (let q = 0; q < 16 && !sim.isOver; q++) {
-      while (sim.state.phase !== 'draft' && !sim.isOver) {
-        if (sim.state.phase === 'budgetVote') sim.dispatch({ kind: 'voteBudget', optionId: 'budget_balanced' });
-        else sim.tick();
-        sim.state.resources.coalition = 60;
-        sim.state.anger.oligarchs = 30;
-      }
-      if (sim.isOver) break;
-      const hand = sim.state.draft!.hand;
-      expect(hand).toHaveLength(3);
-      expect(hand.filter((id) => sim.compromiseById.has(id))).toHaveLength(1);
-      expect(new Set(hand).size).toBe(3);
-      sim.dispatch({ kind: 'pickPolicy', cardId: hand.find((id) => !sim.compromiseById.has(id))! });
-    }
-  });
+/** Tick until a compromise decision opens (keeping the run alive), resolving other modal phases. */
+function untilCompromise(sim: Simulation, maxQuarters = 16): boolean {
+  while (!sim.isOver && sim.state.quarter <= maxQuarters) {
+    sim.state.resources.coalition = 60;
+    sim.state.anger.oligarchs = 30;
+    const ph = sim.state.phase;
+    if (ph === 'compromise') return true;
+    if (ph === 'draft') sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
+    else if (ph === 'budgetVote') sim.dispatch({ kind: 'voteBudget', optionId: 'budget_balanced' });
+    else sim.tick();
+  }
+  return false;
+}
 
-  it('with chance 0 no compromise is ever offered', () => {
-    const sim = makeSim({ seed: 'never' }, cfgWith((c) => (c.draft.compromiseChance = 0)));
-    runToEnd(sim, createBot('random', 'never'));
-    const shown = sim.state.log.filter((e) => e.type === 'draft_shown').flatMap((e) => e.cards as string[]);
+describe('compromise decision (two compromises against each other)', () => {
+  const always = () => cfgWith((c) => (c.compromise.chance = 1));
+
+  it('policy hands never contain compromise cards', () => {
+    const sim = makeSim({ seed: 'hands' }, always());
+    runToEnd(sim, createBot('random', 'hands'));
+    const draws = sim.state.log.filter((e) => e.type === 'draft_shown');
+    const shown = draws.flatMap((e) => e.cards as string[]);
+    expect(shown.length).toBeGreaterThan(0);
     expect(shown.some((id) => sim.compromiseById.has(id))).toBe(false);
+    expect(draws.every((e) => (e.cards as string[]).length === 3)).toBe(true);
   });
 
-  it('picking a compromise shifts regional support (not national), logs it, and moves S by the seat-weighted change', () => {
-    const sim = makeSim({ seed: 'pick' }, cfgWith((c) => (c.draft.compromiseChance = 1)));
-    const id = sim.state.draft!.hand.find((x) => sim.compromiseById.has(x))!;
+  it('with chance 1 a decision opens on the configured day of every quarter, offering two distinct compromises', () => {
+    const sim = makeSim({ seed: 'every' }, always());
+    const quarters: number[] = [];
+    for (let i = 0; i < 6 && untilCompromise(sim); i++) {
+      expect(sim.state.day).toBe(config.compromise.day);
+      const offer = sim.state.compromiseOffer!;
+      expect(offer).toHaveLength(config.compromise.choices);
+      expect(new Set(offer).size).toBe(offer.length);
+      expect(offer.every((id) => sim.compromiseById.has(id))).toBe(true);
+      quarters.push(sim.state.quarter);
+      sim.dispatch({ kind: 'makeCompromise', cardId: offer[1] });
+      expect(sim.state.phase).toBe('running');
+    }
+    expect(quarters).toEqual([1, 2, 3, 4, 5, 6]);
+  });
+
+  it('the decision pauses the run: ticks do nothing until a compromise is made', () => {
+    const sim = makeSim({ seed: 'pause' }, always());
+    untilCompromise(sim);
+    const day = sim.state.day;
+    const ticks = sim.state.tickCount;
+    sim.tick();
+    sim.tick();
+    expect(sim.state.day).toBe(day);
+    expect(sim.state.tickCount).toBe(ticks);
+  });
+
+  it('only an offered compromise can be made; policies cannot be picked in its place', () => {
+    const sim = makeSim({ seed: 'only' }, always());
+    untilCompromise(sim);
+    const notOffered = sim.compromises.find((c) => !sim.state.compromiseOffer!.includes(c.id))!.id;
+    expect(sim.dispatch({ kind: 'makeCompromise', cardId: notOffered }).ok).toBe(false);
+    expect(sim.dispatch({ kind: 'pickPolicy', cardId: 'dummy_revenue' }).ok).toBe(false);
+    expect(sim.dispatch({ kind: 'makeCompromise', cardId: sim.state.compromiseOffer![0] }).ok).toBe(true);
+    expect(sim.dispatch({ kind: 'makeCompromise', cardId: notOffered }).ok).toBe(false);
+  });
+
+  it('with chance 0 no decision ever opens', () => {
+    const sim = makeSim({ seed: 'never' }, cfgWith((c) => (c.compromise.chance = 0)));
+    runToEnd(sim, createBot('random', 'never'));
+    expect(sim.state.log.some((e) => e.type === 'compromise_offered')).toBe(false);
+  });
+
+  it('making a compromise shifts regional support (not national), logs the rejected one, and moves S by the seat-weighted change', () => {
+    const sim = makeSim({ seed: 'pick' }, always());
+    untilCompromise(sim);
+    const [id, other] = sim.state.compromiseOffer!;
     const comp = sim.compromiseById.get(id)!;
     const support0 = sim.state.resources.support;
     const shift0 = { ...sim.state.regionShift };
     const S0 = sim.computeProjection().S;
     const preview = sim.previewCard(id);
-    expect(sim.dispatch({ kind: 'pickPolicy', cardId: id }).ok).toBe(true);
+    expect(sim.dispatch({ kind: 'makeCompromise', cardId: id }).ok).toBe(true);
     const log = sim.state.log.find((e) => e.type === 'compromise_made')!;
     expect(log.cardId).toBe(id);
+    expect(log.rejected).toEqual([other]);
     expect(sim.state.picked.at(-1)!.cardId).toBe(id);
     for (const code of Object.keys(comp.regions!)) {
       const d = sim.state.regionShift[code] - shift0[code];
@@ -95,6 +142,20 @@ describe('compromises in the draft', () => {
     expect(sim.computeProjection().S - S0).toBeCloseTo(expectedDS + (sim.state.resources.support - support0), 6);
   });
 
+  it('does not offer a recently made compromise again within the cooldown', () => {
+    const sim = makeSim({ seed: 'cool' }, always());
+    const made: { id: string; q: number }[] = [];
+    for (let i = 0; i < 8 && untilCompromise(sim); i++) {
+      for (const m of made) {
+        if (sim.state.quarter - m.q < config.compromise.cooldownQuarters) expect(sim.state.compromiseOffer).not.toContain(m.id);
+      }
+      const id = sim.state.compromiseOffer![0];
+      made.push({ id, q: sim.state.quarter });
+      sim.dispatch({ kind: 'makeCompromise', cardId: id });
+    }
+    expect(made.length).toBe(8);
+  });
+
   it('regional losses get the difficulty negative multiplier in previews; gains do not', () => {
     const normal = makeSim({ seed: 'm', difficulty: 'normal' }).previewCard('dummy_comp_regions').regions;
     const hard = makeSim({ seed: 'm', difficulty: 'hard' }).previewCard('dummy_comp_regions').regions;
@@ -103,20 +164,27 @@ describe('compromises in the draft', () => {
   });
 
   it('caps a region shift at maxShift', () => {
-    const sim = makeSim({ seed: 'cap' }, cfgWith((c) => (c.regions.maxShift = 5)));
-    sim.state.draft!.hand = ['dummy_comp_regions'];
-    sim.dispatch({ kind: 'pickPolicy', cardId: 'dummy_comp_regions' });
+    const cfg = cfgWith((c) => {
+      c.regions.maxShift = 5;
+      c.compromise.chance = 1;
+    });
+    const sim = makeSim({ seed: 'cap' }, cfg);
+    untilCompromise(sim);
+    sim.state.compromiseOffer = ['dummy_comp_regions', sim.state.compromiseOffer![0]];
+    sim.dispatch({ kind: 'makeCompromise', cardId: 'dummy_comp_regions' });
     for (const code of ['CZ010', 'CZ080', 'CZ042']) expect(Math.abs(sim.state.regionShift[code])).toBeLessThanOrEqual(5);
   });
 
-  it('a run with compromises replays to the identical final state', () => {
-    const cfg = cfgWith((c) => (c.draft.compromiseChance = 1));
-    const sim = makeSim({ seed: 'replay-comp' }, cfg);
-    runToEnd(sim, createBot('random', 'replay-comp'));
-    expect(sim.state.log.some((e) => e.type === 'compromise_made')).toBe(true);
-    const again = replay(gameData(), cfg, JSON.parse(JSON.stringify(exportRun(sim.state))));
-    expect(comparableState(again.state)).toEqual(comparableState(sim.state));
-  });
+  for (const bot of ['random', 'greedy'] as const) {
+    it(`a ${bot}-bot run with compromise decisions replays to the identical final state`, () => {
+      const cfg = always();
+      const sim = makeSim({ seed: `replay-comp-${bot}` }, cfg);
+      runToEnd(sim, createBot(bot, `replay-comp-${bot}`));
+      expect(sim.state.log.some((e) => e.type === 'compromise_made')).toBe(true);
+      const again = replay(gameData(), cfg, JSON.parse(JSON.stringify(exportRun(sim.state))));
+      expect(comparableState(again.state)).toEqual(comparableState(sim.state));
+    });
+  }
 });
 
 describe('compromise data validation', () => {
