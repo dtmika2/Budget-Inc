@@ -1,7 +1,7 @@
 import { t } from '@i18n/index';
 import { getStore } from '../store';
 
-const KEYS = ['goal', 'resources', 'groups', 'draft', 'chaos', 'pins', 'budget', 'upgrades'];
+const KEYS = ['goal', 'resources', 'groups', 'draft', 'compromise', 'chaos', 'pins', 'budget', 'upgrades'];
 
 export function HowToPlay() {
   return (

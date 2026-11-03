@@ -7,7 +7,7 @@ import { activateAbility, canUseAbility, rechargeIfYearStart } from './abilities
 import { computeFinances, initPct } from './budget';
 import { openBudgetVote, passChance, scheduleBudgetVotes, voteBudget } from './budgetVote';
 import { canRespond, fireChaos, respond, scheduleChaosForPick } from './chaos';
-import { drawHand, rerollCost } from './draft';
+import { drawCompromise, drawHand, rerollCost } from './draft';
 import { applyBundle, applyDaily, previewBundle, type EffectHost, type PreviewRanges } from './effects';
 import { electionNight, projection } from './election';
 import { triggeredEnding } from './endings';
@@ -20,6 +20,7 @@ import { takeNextDue } from './scheduler';
 import { computeScore } from './score';
 import type {
   ChaosEventDef,
+  CompromiseCard,
   ChangeSource,
   Deltas,
   DifficultyId,
@@ -48,6 +49,18 @@ export interface SimOptions {
   now?: () => number;
 }
 
+/**
+ * Seeded start jitter of regional support: uniform +-jitter per kraj, re-centred so the seat-weighted
+ * mean is 0 — the national average (and so the starting projection) is unchanged, only its spread.
+ */
+export function initialRegionShift(data: GameData, jitter: number, rng: RngStreams): Record<string, number> {
+  const regions = data.regions.regions;
+  const raw = regions.map(() => (jitter > 0 ? rng.regions.uniform(-jitter, jitter) : 0));
+  const seats = regions.reduce((s, r) => s + r.seats, 0) || 1;
+  const mean = regions.reduce((s, r, i) => s + r.seats * raw[i], 0) / seats;
+  return Object.fromEntries(regions.map((r, i) => [r.code, raw[i] - mean]));
+}
+
 export type DispatchResult = { ok: true } | { ok: false; reason: string };
 
 const TREND_KEEP = 120;
@@ -61,6 +74,8 @@ export class Simulation implements EffectHost {
   readonly rng: RngStreams;
   readonly cards: PolicyCard[];
   readonly cardById: Map<string, PolicyCard>;
+  readonly compromises: CompromiseCard[];
+  readonly compromiseById: Map<string, CompromiseCard>;
   readonly eventById: Map<string, ChaosEventDef>;
   state: GameState;
 
@@ -81,6 +96,8 @@ export class Simulation implements EffectHost {
     this.now = opts.now ?? (() => 0);
     this.cards = data.policies.filter((c) => c.availableFor.includes(leader.id));
     this.cardById = new Map(data.policies.map((c) => [c.id, c]));
+    this.compromises = data.compromises.filter((c) => c.availableFor.includes(leader.id));
+    this.compromiseById = new Map(data.compromises.map((c) => [c.id, c]));
     this.eventById = new Map(data.events.map((e) => [e.id, e]));
 
     this.state = {
@@ -98,6 +115,7 @@ export class Simulation implements EffectHost {
       budget: initPct(data.budget),
       financesExtra: 0,
       financeModAccum: 0,
+      regionShift: initialRegionShift(data, cfg.regions.startJitter, this.rng),
       modifiers: [],
       ongoing: [],
       zeroPenalties: { finances: false, support: false, prestige: false },
@@ -134,6 +152,7 @@ export class Simulation implements EffectHost {
       appVersion: opts.appVersion ?? 'dev',
       budgetSource: data.budget.source,
       dataFiles: data.fileHashes,
+      regionShift: { ...this.state.regionShift },
     });
     this.log('leader_selected', { leader: leader.id });
     scheduleBudgetVotes(this);
@@ -181,8 +200,12 @@ export class Simulation implements EffectHost {
     return scalar(this.pipeline(), 'election.T_base', this.preset.T_base);
   }
 
-  computeProjection(support = this.state.resources.support, anger: Record<GroupId, number> = this.state.anger): Projection {
-    return projection(this.cfg, this.data.regions, this.state.leader, support, anger, this.effectiveTBase());
+  computeProjection(
+    support = this.state.resources.support,
+    anger: Record<GroupId, number> = this.state.anger,
+    shifts: Record<string, number> = this.state.regionShift,
+  ): Projection {
+    return projection(this.cfg, this.data.regions, this.state.leader, support, anger, this.effectiveTBase(), shifts);
   }
 
   log(type: string, extra: Record<string, unknown> = {}, deltas?: Deltas): LogEntry {
@@ -247,7 +270,13 @@ export class Simulation implements EffectHost {
   private deal(): void {
     const s = this.state;
     const d = s.draft!;
-    const { hand, relaxLevel } = drawHand(
+    // optional regional compromise in one slot (always one draft-stream roll when compromises exist)
+    let compromiseId: string | null = null;
+    const chance = this.cfg.draft.compromiseChance;
+    if (this.compromises.length && chance > 0 && this.rng.draft.next() < chance) {
+      compromiseId = drawCompromise(this.compromises, s.picked, d.shownThisQuarter, s.quarter, this.cfg.draft.compromiseCooldownQuarters, this.rng.draft);
+    }
+    const { hand: policies, relaxLevel } = drawHand(
       {
         cards: this.cards,
         weights: this.leaderDef.leaningWeights,
@@ -255,10 +284,12 @@ export class Simulation implements EffectHost {
         shownThisQuarter: d.shownThisQuarter,
         quarter: s.quarter,
         repeatCooldownQuarters: this.cfg.draft.repeatCooldownQuarters,
-        handSize: this.cfg.draft.handSize,
+        handSize: this.cfg.draft.handSize - (compromiseId ? 1 : 0),
       },
       this.rng.draft,
     );
+    const hand = [...policies];
+    if (compromiseId) hand.splice(Math.floor(this.rng.draft.next() * (hand.length + 1)), 0, compromiseId);
     d.hand = hand;
     for (const id of hand) if (!d.shownThisQuarter.includes(id)) d.shownThisQuarter.push(id);
     if (relaxLevel > 0) this.log('pool_relaxed', { level: relaxLevel });
@@ -427,6 +458,16 @@ export class Simulation implements EffectHost {
     s.inputs.push({ tick: s.tickCount, quarter: s.quarter, day: s.day, input });
     switch (input.kind) {
       case 'pickPolicy': {
+        const comp = this.compromiseById.get(input.cardId);
+        if (comp) {
+          const { rolled, deltas } = applyBundle(this, comp, 'compromise', `compromise:${comp.id}`, this.rng.effects);
+          s.picked.push({ cardId: comp.id, quarter: s.quarter });
+          s.draft = null;
+          s.phase = 'running';
+          this.log('compromise_made', { cardId: comp.id, rolled }, deltas);
+          scheduleChaosForPick(this, comp);
+          break;
+        }
         const card = this.cardById.get(input.cardId)!;
         const { rolled, deltas } = applyBundle(this, card, 'policy', `policy:${card.id}`, this.rng.effects);
         s.picked.push({ cardId: card.id, quarter: s.quarter });
@@ -471,7 +512,10 @@ export class Simulation implements EffectHost {
     return previewBundle(this, bundle, source);
   }
 
+  /** Preview a draft card: a policy or a regional compromise. */
   previewCard(cardId: string): PreviewRanges {
+    const comp = this.compromiseById.get(cardId);
+    if (comp) return this.preview(comp, 'compromise');
     return this.preview(this.cardById.get(cardId)!, 'policy');
   }
 

@@ -1,0 +1,406 @@
+[
+  {
+    "id": "filler_comp_01",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_01.title",
+    "description": "compromise.filler_comp_01.desc",
+    "drivenBy": "compromise.filler_comp_01.drivenBy",
+    "regions": {
+      "CZ051": {
+        "min": 5,
+        "max": 7
+      },
+      "CZ032": {
+        "min": -3,
+        "max": -2
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true
+  },
+  {
+    "id": "filler_comp_02",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_02.title",
+    "description": "compromise.filler_comp_02.desc",
+    "drivenBy": "compromise.filler_comp_02.drivenBy",
+    "regions": {
+      "CZ032": {
+        "min": 6,
+        "max": 8
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true,
+    "budgetChanges": [
+      {
+        "chapter": "307",
+        "type": "expenditure",
+        "changePct": 8.5
+      }
+    ]
+  },
+  {
+    "id": "filler_comp_03",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_03.title",
+    "description": "compromise.filler_comp_03.desc",
+    "drivenBy": "compromise.filler_comp_03.drivenBy",
+    "regions": {
+      "CZ051": {
+        "min": 5,
+        "max": 7
+      },
+      "CZ031": {
+        "min": -4,
+        "max": -3
+      },
+      "CZ064": {
+        "min": -6,
+        "max": -4
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true
+  },
+  {
+    "id": "filler_comp_04",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_04.title",
+    "description": "compromise.filler_comp_04.desc",
+    "drivenBy": "compromise.filler_comp_04.drivenBy",
+    "regions": {
+      "CZ041": {
+        "min": 5,
+        "max": 6
+      },
+      "CZ053": {
+        "min": 4,
+        "max": 5
+      },
+      "CZ032": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true
+  },
+  {
+    "id": "filler_comp_05",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_05.title",
+    "description": "compromise.filler_comp_05.desc",
+    "drivenBy": "compromise.filler_comp_05.drivenBy",
+    "regions": {
+      "CZ072": {
+        "min": 3,
+        "max": 5
+      },
+      "CZ032": {
+        "min": -3,
+        "max": -2
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true
+  },
+  {
+    "id": "filler_comp_06",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_06.title",
+    "description": "compromise.filler_comp_06.desc",
+    "drivenBy": "compromise.filler_comp_06.drivenBy",
+    "regions": {
+      "CZ042": {
+        "min": 3,
+        "max": 5
+      },
+      "CZ041": {
+        "min": 3,
+        "max": 5
+      },
+      "CZ032": {
+        "min": -5,
+        "max": -4
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true
+  },
+  {
+    "id": "filler_comp_07",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_07.title",
+    "description": "compromise.filler_comp_07.desc",
+    "drivenBy": "compromise.filler_comp_07.drivenBy",
+    "regions": {
+      "CZ072": {
+        "min": 5,
+        "max": 6
+      },
+      "CZ041": {
+        "min": -4,
+        "max": -2
+      },
+      "CZ031": {
+        "min": -4,
+        "max": -3
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true
+  },
+  {
+    "id": "filler_comp_08",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_08.title",
+    "description": "compromise.filler_comp_08.desc",
+    "drivenBy": "compromise.filler_comp_08.drivenBy",
+    "regions": {
+      "CZ053": {
+        "min": 3,
+        "max": 4
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true,
+    "budgetChanges": [
+      {
+        "chapter": "335",
+        "type": "expenditure",
+        "changePct": 20
+      }
+    ]
+  },
+  {
+    "id": "filler_comp_09",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_09.title",
+    "description": "compromise.filler_comp_09.desc",
+    "drivenBy": "compromise.filler_comp_09.drivenBy",
+    "regions": {
+      "CZ032": {
+        "min": 7,
+        "max": 8
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true,
+    "budgetChanges": [
+      {
+        "chapter": "314",
+        "type": "revenue",
+        "changePct": -20
+      }
+    ]
+  },
+  {
+    "id": "filler_comp_10",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_10.title",
+    "description": "compromise.filler_comp_10.desc",
+    "drivenBy": "compromise.filler_comp_10.drivenBy",
+    "regions": {
+      "CZ042": {
+        "min": 4,
+        "max": 6
+      },
+      "CZ063": {
+        "min": -5,
+        "max": -4
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true
+  },
+  {
+    "id": "filler_comp_11",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_11.title",
+    "description": "compromise.filler_comp_11.desc",
+    "drivenBy": "compromise.filler_comp_11.drivenBy",
+    "regions": {
+      "CZ052": {
+        "min": 2,
+        "max": 4
+      },
+      "CZ020": {
+        "min": -5,
+        "max": -3
+      },
+      "CZ063": {
+        "min": -7,
+        "max": -5
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true
+  },
+  {
+    "id": "filler_comp_12",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_12.title",
+    "description": "compromise.filler_comp_12.desc",
+    "drivenBy": "compromise.filler_comp_12.drivenBy",
+    "regions": {
+      "CZ032": {
+        "min": 6,
+        "max": 8
+      },
+      "CZ020": {
+        "min": -5,
+        "max": -3
+      },
+      "CZ010": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true
+  },
+  {
+    "id": "filler_comp_13",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_13.title",
+    "description": "compromise.filler_comp_13.desc",
+    "drivenBy": "compromise.filler_comp_13.drivenBy",
+    "regions": {
+      "CZ010": {
+        "min": 3,
+        "max": 4
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true,
+    "budgetChanges": [
+      {
+        "chapter": "312",
+        "type": "expenditure",
+        "changePct": 20
+      }
+    ]
+  },
+  {
+    "id": "filler_comp_14",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_14.title",
+    "description": "compromise.filler_comp_14.desc",
+    "drivenBy": "compromise.filler_comp_14.drivenBy",
+    "regions": {
+      "CZ064": {
+        "min": 5,
+        "max": 7
+      },
+      "CZ051": {
+        "min": 6,
+        "max": 8
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true,
+    "budgetChanges": [
+      {
+        "chapter": "398",
+        "type": "expenditure",
+        "changePct": 2
+      }
+    ]
+  },
+  {
+    "id": "filler_comp_15",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_15.title",
+    "description": "compromise.filler_comp_15.desc",
+    "drivenBy": "compromise.filler_comp_15.drivenBy",
+    "regions": {
+      "CZ041": {
+        "min": 7,
+        "max": 8
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true,
+    "budgetChanges": [
+      {
+        "chapter": "398",
+        "type": "expenditure",
+        "changePct": 1
+      }
+    ]
+  },
+  {
+    "id": "filler_comp_16",
+    "availableFor": [
+      "mupka",
+      "abis"
+    ],
+    "title": "compromise.filler_comp_16.title",
+    "description": "compromise.filler_comp_16.desc",
+    "drivenBy": "compromise.filler_comp_16.drivenBy",
+    "regions": {
+      "CZ071": {
+        "min": -4,
+        "max": -2
+      },
+      "CZ072": {
+        "min": -6,
+        "max": -4
+      }
+    },
+    "chaosEvents": [],
+    "devOnly": true,
+    "anger": {
+      "oligarchs": {
+        "min": -6,
+        "max": -4
+      }
+    }
+  }
+]

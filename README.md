@@ -23,7 +23,7 @@ npm run dev          # http://localhost:5173  (add ?debug=1 for the developer ov
 | `npm run typecheck` · `npm run lint` · `npm test` | `tsc --noEmit` · ESLint · Vitest (core, data, UI store, guards) |
 | `npm run simulate -- …` | headless simulator (see below) |
 | `npm run analyze -- …` | balance helper: average end-of-run state, with in-memory overrides |
-| `npm run gen:filler` | regenerate the `[FILLER]` cards/events |
+| `npm run gen:filler` | regenerate the `[FILLER]` cards/events/compromises |
 | `npm run build:map` | rebuild `src/ui/map/regionsPath.ts` from GISCO boundaries (build time only) |
 
 ## Deploy (static hosting)
@@ -86,6 +86,36 @@ Then add the Czech texts to `locales/cs.json`:
 - Finances are normally **not** in `effects`: they come from `budgetChanges` (`changePct` is % of the original value; changes add up, they never compound; `"chapter": "*"` = every chapter). An optional `"financesExtra": {min,max}` adds a non-budget finance effect.
 - `ongoing.target` is a resource (`support`, `coalition`, `prestige`, `finances`) or an anger meter (`anger.media`).
 - Content target: ≥ 20 cards per leader. The loader warns under 18 non-filler cards per leader and refuses to start under 3.
+
+### A regional compromise ("Učinit kompromis")
+Compromises are offered in the quarterly draft next to policies (one slot, with chance
+`config.draft.compromiseChance`). They focus on regional politics: support rises in some kraje and falls
+in others, or regional support is traded for the Oligarchs' favour or for Finances. Add to any file in
+`data/compromises/`:
+
+```jsonc
+{
+  "id": "rail_hub_brno",                        // unique across policies AND compromises
+  "availableFor": ["mupka", "abis"],
+  "title": "compromise.rail_hub_brno.title",
+  "description": "compromise.rail_hub_brno.desc",
+  "drivenBy": "compromise.rail_hub_brno.drivenBy",
+  "regions": {                                  // required: support shift per kraj (NUTS3 code)
+    "CZ064": { "min": 5, "max": 8 },
+    "CZ080": { "min": -4, "max": -2 }
+  },
+  "anger": { "oligarchs": { "min": -6, "max": -3 } },                    // optional, like cards
+  "budgetChanges": [{ "chapter": "327", "type": "expenditure", "changePct": 6 }],  // optional
+  "chaosEvents": [],
+  "devOnly": false
+}
+```
+No `leaning`: compromises are not weighted by the leader's leanings. Every effect block that cards use
+(`effects`, `anger`, `ongoing`, `budgetChanges`) also works here, and any other bundle (cards, events,
+responses, opportunities, budget options) may also use `regions`.
+
+Regional support is `national support + offset + shift`. Each run starts with a small seeded jitter per
+kraj (`config.regions.startJitter`, re-centred so the national average is unchanged).
 
 ### A chaos event (and responses)
 Add to any file in `data/events/`:

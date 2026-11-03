@@ -1,0 +1,54 @@
+[
+  {
+    "id": "dummy_comp_regions",
+    "availableFor": ["mupka", "abis"],
+    "title": "compromise.dummy_comp_regions.title",
+    "description": "compromise.dummy_comp_regions.desc",
+    "drivenBy": "compromise.dummy_comp_regions.drivenBy",
+    "regions": {
+      "CZ010": { "min": 6, "max": 9 },
+      "CZ080": { "min": -5, "max": -3 },
+      "CZ042": { "min": -4, "max": -2 }
+    },
+    "devOnly": false
+  },
+  {
+    "id": "dummy_comp_oligarchs",
+    "availableFor": ["mupka", "abis"],
+    "title": "compromise.dummy_comp_oligarchs.title",
+    "description": "compromise.dummy_comp_oligarchs.desc",
+    "drivenBy": "compromise.dummy_comp_oligarchs.drivenBy",
+    "regions": {
+      "CZ071": { "min": -5, "max": -3 },
+      "CZ072": { "min": -4, "max": -2 }
+    },
+    "anger": { "oligarchs": { "min": -9, "max": -6 } },
+    "devOnly": false
+  },
+  {
+    "id": "dummy_comp_finance",
+    "availableFor": ["mupka", "abis"],
+    "title": "compromise.dummy_comp_finance.title",
+    "description": "compromise.dummy_comp_finance.desc",
+    "drivenBy": "compromise.dummy_comp_finance.drivenBy",
+    "regions": {
+      "CZ064": { "min": 5, "max": 8 },
+      "CZ072": { "min": 3, "max": 5 }
+    },
+    "budgetChanges": [{ "chapter": "327", "type": "expenditure", "changePct": 10 }],
+    "devOnly": false
+  },
+  {
+    "id": "dummy_comp_oligarchs_reverse",
+    "availableFor": ["mupka", "abis"],
+    "title": "compromise.dummy_comp_oligarchs_reverse.title",
+    "description": "compromise.dummy_comp_oligarchs_reverse.desc",
+    "drivenBy": "compromise.dummy_comp_oligarchs_reverse.drivenBy",
+    "regions": {
+      "CZ031": { "min": 5, "max": 7 },
+      "CZ032": { "min": 3, "max": 5 }
+    },
+    "anger": { "oligarchs": { "min": 6, "max": 9 } },
+    "devOnly": false
+  }
+]

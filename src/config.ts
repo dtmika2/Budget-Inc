@@ -73,6 +73,17 @@ export const config = {
     projectionEveryDays: 7,
   },
 
+  /** Regional politics: per-kraj support shifts on top of national support. */
+  regions: {
+    /**
+     * Seeded per-run jitter of regional support at the start (uniform +-startJitter, then re-centred so
+     * the seat-weighted national average is unchanged). 0 = every kraj starts equal.
+     */
+    startJitter: 6,
+    /** Cap on a region's accumulated shift (+-). */
+    maxShift: 40,
+  },
+
   finances: {
     /** Finances points per 1 % of original expenditure of balance change (§9.3). */
     scale: 5,
@@ -96,6 +107,10 @@ export const config = {
     rerollCurrency: 'pc' as const,
     rerollBaseCost: 1,
     rerollCostFactor: 2,
+    /** Chance that a hand swaps one policy slot for a regional compromise card (0 disables). */
+    compromiseChance: 0.6,
+    /** Compromise cards picked within this many quarters are not offered again (unless none are left). */
+    compromiseCooldownQuarters: 6,
   },
 
   pc: {
@@ -168,6 +183,12 @@ export const config = {
     eventLoss: { min: 2, max: 6 },
     eventAnger: { min: 2, max: 6 },
     respondableShare: 1 / 3,
+    /** Generated [FILLER] compromises (available to both leaders). */
+    compromises: 16,
+    regionGain: { min: 3, max: 8 },
+    regionLoss: { min: 2, max: 6 },
+    compromiseFinanceCost: { min: 1, max: 4 },
+    compromiseOligarchs: { min: 5, max: 9 },
   },
 
   /** Simulator targets on Normal (§13). */

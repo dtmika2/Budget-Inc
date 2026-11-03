@@ -95,6 +95,20 @@ export function applyBundle(
     rolled[`budget:${bc.chapter}:${bc.type}`] = (rolled[`budget:${bc.chapter}:${bc.type}`] ?? 0) + pct;
     applyPct(host.data.budget, state.budget, bc.chapter, bc.type, pct);
   }
+  // regional support shifts (data order of regions for determinism); a loss is bad like a support loss
+  if (bundle.regions) {
+    const cap = host.cfg.regions.maxShift;
+    for (const r of host.data.regions.regions) {
+      const range = bundle.regions[r.code];
+      if (!range) continue;
+      const v = resourceChange(ctx, 'support', roll(range), source);
+      rolled[`region.${r.code}`] = v;
+      const before = state.regionShift[r.code] ?? 0;
+      state.regionShift[r.code] = Math.min(cap, Math.max(-cap, before + v));
+      const d = state.regionShift[r.code] - before;
+      if (d !== 0) (deltas.regions ??= {})[r.code] = d;
+    }
+  }
   registerOngoing(state, bundle.ongoing ?? [], source, origin);
   if (bundle.pc) {
     state.pc += bundle.pc;
@@ -148,6 +162,8 @@ export function applyDaily(host: EffectHost, target: string, perDay: number, sou
 export interface PreviewRanges {
   resources: Partial<Record<ResourceId, Range>>;
   anger: Partial<Record<GroupId, Range>>;
+  /** Regional support shift ranges per kraj code. */
+  regions: Partial<Record<string, Range>>;
   ongoing: OngoingDef[];
   pc: number;
 }
@@ -157,7 +173,11 @@ const ordered = (a: number, b: number): Range => ({ min: Math.min(a, b), max: Ma
 /** Ranges after modifiers. The Finances range = exact budget delta + financesExtra range. */
 export function previewBundle(host: EffectHost, bundle: EffectBundle, source: ChangeSource): PreviewRanges {
   const ctx = host.pipeline();
-  const out: PreviewRanges = { resources: {}, anger: {}, ongoing: bundle.ongoing ?? [], pc: bundle.pc ?? 0 };
+  const out: PreviewRanges = { resources: {}, anger: {}, regions: {}, ongoing: bundle.ongoing ?? [], pc: bundle.pc ?? 0 };
+  for (const r of host.data.regions.regions) {
+    const range = bundle.regions?.[r.code];
+    if (range) out.regions[r.code] = ordered(resourceChange(ctx, 'support', range.min, source), resourceChange(ctx, 'support', range.max, source));
+  }
   for (const res of NON_FINANCE_RESOURCES) {
     const r = bundle.effects?.[res];
     if (r) out.resources[res] = ordered(resourceChange(ctx, res, r.min, source), resourceChange(ctx, res, r.max, source));

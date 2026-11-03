@@ -7,6 +7,7 @@ import type { z } from 'zod';
 import { config } from '../config';
 import { shortHash } from '../core/rng';
 import type {
+  CompromiseCard,
   BudgetVoteOption,
   ChaosEventDef,
   EffectBundle,
@@ -22,6 +23,7 @@ import { GROUP_IDS, RESOURCE_IDS } from '../core/types';
 import {
   budgetSchema,
   budgetVoteOptionSchema,
+  compromiseSchema,
   endingSchema,
   eventSchema,
   leaderSchema,
@@ -142,6 +144,7 @@ export function loadGameData(
   const endingsRaw = single(endingSchema.array(), 'data/endings.json');
   const voteRaw = single(budgetVoteOptionSchema.array().min(1), 'data/annual/budget_vote.json');
   const policies = many(policySchema, 'data/policies');
+  const compromises = many(compromiseSchema, 'data/compromises');
   const events = many(eventSchema, 'data/events');
   const opportunities = many(opportunitySchema, 'data/opportunities');
   const trees = many(upgradeTreeSchema, 'data/upgrades');
@@ -171,9 +174,13 @@ export function loadGameData(
   };
 
   const chapterCodes = new Set(budget?.chapters.map((c) => c.code) ?? []);
+  const regionCodes = new Set(regions?.regions.map((r) => r.code) ?? []);
   const leaderIds = new Set(leadersRaw?.map((l) => l.id) ?? []);
 
   const checkBundle = (b: EffectBundle, file: string, path: string) => {
+    for (const code of Object.keys(b.regions ?? {})) {
+      if (regions && !regionCodes.has(code)) err('unknownRegion', file, `${path}.regions.${code}`, code);
+    }
     b.budgetChanges?.forEach((bc, i) => {
       if (budget && bc.chapter !== '*' && !chapterCodes.has(bc.chapter))
         err('unknownChapter', file, `${path}.budgetChanges[${i}].chapter`, bc.chapter);
@@ -261,7 +268,22 @@ export function loadGameData(
     }
   }
 
-  dupCheck(policies.map((c) => ({ id: c.item.id, file: c.file, path: `[${c.idx}]` })));
+  // policies and compromises share the draft hand, so ids must be unique across both
+  dupCheck([
+    ...policies.map((c) => ({ id: c.item.id, file: c.file, path: `[${c.idx}]` })),
+    ...compromises.map((c) => ({ id: c.item.id, file: c.file, path: `[${c.idx}]` })),
+  ]);
+  for (const { item: card, file, idx } of compromises) {
+    const p = `[${idx}]`;
+    for (const k of ['title', 'description', 'drivenBy'] as const) locKey(card[k], file, `${p}.${k}`);
+    checkBundle(card, file, p);
+    card.chaosEvents.forEach((id: string, i: number) => {
+      if (!eventIds.has(id)) err('unknownEvent', file, `${p}.chaosEvents[${i}]`, id);
+    });
+    card.availableFor.forEach((lid: string, i: number) => {
+      if (leadersRaw && !leaderIds.has(lid)) err('unknownLeader', file, `${p}.availableFor[${i}]`, lid);
+    });
+  }
   for (const { item: card, file, idx } of policies) {
     const p = `[${idx}]`;
     for (const k of ['title', 'description', 'drivenBy'] as const) locKey(card[k], file, `${p}.${k}`);
@@ -346,6 +368,7 @@ export function loadGameData(
     },
     leaders: leadersRaw.map((l) => ({ ...l, ability: { ...l.ability, bundle: normalise(l.ability.bundle) } })) as LeaderDef[],
     policies: policies.map((c) => normalise(c.item)) as PolicyCard[],
+    compromises: compromises.map((c) => normalise(c.item)) as CompromiseCard[],
     events: events.map((e) => {
       const ev = normalise(e.item);
       return ev.responses

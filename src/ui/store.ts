@@ -282,6 +282,7 @@ export class Store {
     const out: Floater[] = [];
     for (const [k, v] of Object.entries(d.resources)) if (v && Math.abs(v) >= 0.05) out.push({ id: ++this.floaterSeq, key: `res.${k}`, value: v, born: now });
     for (const [k, v] of Object.entries(d.anger)) if (v && Math.abs(v) >= 0.05) out.push({ id: ++this.floaterSeq, key: `anger.${k}`, value: v, born: now });
+    for (const [k, v] of Object.entries(d.regions ?? {})) if (v && Math.abs(v) >= 0.05) out.push({ id: ++this.floaterSeq, key: `region.${k}`, value: v, born: now });
     return out;
   }
 

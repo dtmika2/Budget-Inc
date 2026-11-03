@@ -389,6 +389,17 @@ h1, h2, h3 { margin: 0; }
 .memo.is-stamped { animation: thud 0.28s steps(2); }
 @keyframes thud { 50% { transform: translateY(3px); } }
 .btn--reroll { align-self: center; }
+/* regional compromise cards: wine edge (the map's liquid), mustard action, wine stamp */
+.memo--compromise { border-top-color: #6b1430; }
+.btn--compromise { background: #d6bc6c; border-color: #8f7740; color: var(--ink); }
+.btn--compromise:hover:not(:disabled) { border-color: var(--ink); }
+.memo--compromise .memo__stamp { color: #6b1430; border-color: #6b1430; font-size: 34px; }
+.ranges__regions .chip { background: rgba(214, 188, 108, 0.35); }
+/* floating numbers over map regions */
+.region-floaters { position: absolute; inset: 0; pointer-events: none; }
+.region-floater { position: absolute; width: 0; height: 0; }
+.region-floater .floaters { right: auto; left: 0; top: -10px; }
+.region-floater .floater { right: auto; left: -14px; font-size: 18px; }
 .vote-chance { margin: 0; font-size: 15px; }
 .vote-chance b { font-family: var(--f-pixel); font-size: 20px; }
 

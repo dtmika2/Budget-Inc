@@ -8,6 +8,7 @@ import { memo, useState } from 'react';
 import { fmt, t } from '@i18n/index';
 import { getStore, useStore } from '../store';
 import { LiquidDefs, LiquidRegion } from './Liquid';
+import { Floaters } from '../popups/Floaters';
 import { OpportunityPin } from './OpportunityPin';
 import { MAP_ATTRIBUTION, MAP_HEIGHT, MAP_SCHEMATIC, MAP_WIDTH, REGION_PATHS } from './regionsPath';
 
@@ -89,6 +90,19 @@ function Pins() {
   );
 }
 
+/** Floating +/- numbers over regions whose support shifted (the level itself updates weekly). */
+function RegionFloaters() {
+  return (
+    <div className="region-floaters" aria-hidden="true">
+      {REGION_PATHS.map((r) => (
+        <span key={r.code} className="region-floater" style={{ left: `${(r.labelX / MAP_WIDTH) * 100}%`, top: `${(r.labelY / MAP_HEIGHT) * 100}%` }}>
+          <Floaters k={`region.${r.code}`} />
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export function CzMap() {
   const support = useStore((s) => s.sim?.state.projection.regionSupport ?? {});
   const selected = useStore((s) => s.ui.selectedRegion);
@@ -98,6 +112,7 @@ export function CzMap() {
         <svg viewBox={`-6 -6 ${MAP_WIDTH + 12} ${MAP_HEIGHT + 12}`} className="map__svg" role="img" aria-label={t('hud.projection')}>
           <Regions support={support} selected={selected} />
         </svg>
+        <RegionFloaters />
         <Pins />
       </div>
       <RegionInfo />

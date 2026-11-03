@@ -42,6 +42,7 @@ function originLabel(origin: string): string {
   const sim = getStore().sim!;
   const [kind, id] = origin.split(':');
   if (kind === 'policy') return t(sim.cardById.get(id)?.title ?? id);
+  if (kind === 'compromise') return t(sim.compromiseById.get(id)?.title ?? id);
   if (kind === 'chaos') return t(sim.eventById.get(id)?.text ?? id);
   if (kind === 'ability') return t(sim.leaderDef.ability.name);
   if (kind === 'upgrade') return t(`upgrade.${id}.name`);
@@ -124,13 +125,15 @@ function ActiveEffects() {
   );
 }
 
-const HISTORY_TYPES = new Set(['policy_picked', 'chaos_fired', 'event_response', 'budget_vote', 'ability_used', 'upgrade_bought', 'opportunity_collected']);
+const HISTORY_TYPES = new Set(['policy_picked', 'compromise_made', 'chaos_fired', 'event_response', 'budget_vote', 'ability_used', 'upgrade_bought', 'opportunity_collected']);
 
 export function historyTitle(e: LogEntry): { kind: string; name: string } {
   const sim = getStore().sim!;
   switch (e.type) {
     case 'policy_picked':
       return { kind: t('history.policy'), name: t(sim.cardById.get(String(e.cardId))?.title ?? '') };
+    case 'compromise_made':
+      return { kind: t('history.compromise'), name: t(sim.compromiseById.get(String(e.cardId))?.title ?? '') };
     case 'chaos_fired':
       return { kind: t('history.chaos'), name: t(sim.eventById.get(String(e.eventId))?.text ?? '') };
     case 'event_response': {

@@ -12,6 +12,8 @@ import { config } from '../src/config';
 import { Rng } from '../src/core/rng';
 import type {
   BudgetData,
+  CompromiseCard,
+  RegionsData,
   ChaosEventDef,
   GroupId,
   LeaderDef,
@@ -28,6 +30,7 @@ const rng = new Rng(F.seed);
 const budget: BudgetData = JSON.parse(readFileSync('data/budget.json', 'utf8'));
 const leaders: LeaderDef[] = JSON.parse(readFileSync('data/leaders.json', 'utf8'));
 const locale: Record<string, string> = JSON.parse(readFileSync('locales/cs.json', 'utf8'));
+const regionsData: RegionsData = JSON.parse(readFileSync('data/regions.json', 'utf8'));
 
 const LEANING_CZ: Record<LeaningId, string> = {
   libertarianism: 'libertarianismus',
@@ -190,7 +193,7 @@ function makeCard(leader: LeaderDef, n: number, leaning: LeaningId): { card: Pol
 }
 
 // drop previously generated filler keys, then regenerate
-for (const k of Object.keys(locale)) if (/^(policy|event)\.filler_/.test(k)) delete locale[k];
+for (const k of Object.keys(locale)) if (/^(policy|event|compromise)\.filler_/.test(k)) delete locale[k];
 
 const cards: PolicyCard[] = [];
 const events: ChaosEventDef[] = [];
@@ -203,10 +206,56 @@ for (const leader of leaders) {
   });
 }
 
+// ---- regional compromises (generated after cards/events so their output stays unchanged)
+// Variants: A region vs region, B regional support vs oligarchs (either way), C regions bought with Finances.
+const regionCodes = regionsData.regions.map((r) => r.code);
+const compromises: CompromiseCard[] = [];
+for (let n = 1; n <= F.compromises; n++) {
+  const id = `filler_comp_${String(n).padStart(2, '0')}`;
+  const tag = `K${String(n).padStart(2, '0')}`;
+  const shuffled = [...regionCodes].sort(() => rng.next() - 0.5);
+  const roll = rng.next();
+  const variant = roll < 0.5 ? 'A' : roll < 0.75 ? 'B' : 'C';
+  const regions: Record<string, Range> = {};
+  const card: CompromiseCard = {
+    id,
+    availableFor: leaders.map((l) => l.id),
+    title: `compromise.${id}.title`,
+    description: `compromise.${id}.desc`,
+    drivenBy: `compromise.${id}.drivenBy`,
+    regions,
+    chaosEvents: [],
+    devOnly: true,
+  };
+  if (variant === 'A') {
+    const ups = rng.int(1, 2);
+    const downs = rng.int(1, 2);
+    shuffled.slice(0, ups).forEach((c) => (regions[c] = rangeAround(between(F.regionGain))));
+    shuffled.slice(ups, ups + downs).forEach((c) => (regions[c] = rangeAround(-between(F.regionLoss))));
+  } else if (variant === 'B') {
+    // favour the oligarchs (their anger falls) at the cost of regional support, or the reverse
+    const favourOligarchs = rng.next() < 0.5;
+    shuffled
+      .slice(0, rng.int(1, 2))
+      .forEach((c) => (regions[c] = rangeAround(favourOligarchs ? -between(F.regionLoss) : between(F.regionGain))));
+    card.anger = { oligarchs: rangeAround(favourOligarchs ? -between(F.compromiseOligarchs) : between(F.compromiseOligarchs)) };
+  } else {
+    shuffled.slice(0, rng.int(1, 2)).forEach((c) => (regions[c] = rangeAround(between(F.regionGain))));
+    const bc = budgetChangeFor(-between(F.compromiseFinanceCost));
+    card.budgetChanges = [{ ...bc, changePct: round1(bc.changePct) }];
+  }
+  const kind = { A: 'kraj proti kraji', B: 'kraje a oligarchové', C: 'kraje za peníze' }[variant];
+  locale[`compromise.${id}.title`] = `[FILLER] Kompromis ${tag} (${kind})`;
+  locale[`compromise.${id}.desc`] = '[FILLER] Generovaný regionální kompromis pro testování mechanik.';
+  locale[`compromise.${id}.drivenBy`] = '[FILLER]';
+  compromises.push(card);
+}
+
 writeFileSync('data/policies/_filler.json', JSON.stringify(cards, null, 2) + '\n');
 writeFileSync('data/events/_filler.json', JSON.stringify(events, null, 2) + '\n');
+writeFileSync('data/compromises/_filler.json', JSON.stringify(compromises, null, 2) + '\n');
 writeFileSync('locales/cs.json', JSON.stringify(locale, null, 2) + '\n');
 const respondable = events.filter((e) => e.responses).length;
 console.log(
-  `Generated ${cards.length} [FILLER] cards (${F.cardsPerLeader} per leader x ${leaders.length}) and ${events.length} events (${respondable} respondable).`,
+  `Generated ${cards.length} [FILLER] cards (${F.cardsPerLeader} per leader x ${leaders.length}), ${events.length} events (${respondable} respondable) and ${compromises.length} compromises.`,
 );

@@ -4,8 +4,10 @@ import { schedule } from './scheduler';
 import type { Simulation } from './simulation';
 import type { PolicyCard, ScheduledEntry } from './types';
 
+type PickedCard = Pick<PolicyCard, 'id' | 'chaosEvents'>;
+
 /** On pick: each referenced event rolls `chance * chaosMultiplier` once; if it passes it is scheduled. */
-export function scheduleChaosForPick(sim: Simulation, card: PolicyCard): void {
+export function scheduleChaosForPick(sim: Simulation, card: PickedCard): void {
   const { state, cfg } = sim;
   const rng = sim.rng.chaos;
   for (const eventId of card.chaosEvents) {

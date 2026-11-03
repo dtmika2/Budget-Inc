@@ -6,9 +6,15 @@ import { GROUP_IDS } from './types';
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
-export function regionalSupport(regions: RegionsData, leader: LeaderId, support: number): Record<string, number> {
+/** s_r = clamp(support + offset_r[leader] + shift_r, 0, 100). Shifts come from regional politics. */
+export function regionalSupport(
+  regions: RegionsData,
+  leader: LeaderId,
+  support: number,
+  shifts: Record<string, number> = {},
+): Record<string, number> {
   const out: Record<string, number> = {};
-  for (const r of regions.regions) out[r.code] = clamp(support + (r.offsets[leader] ?? 0), 0, 100);
+  for (const r of regions.regions) out[r.code] = clamp(support + (r.offsets[leader] ?? 0) + (shifts[r.code] ?? 0), 0, 100);
   return out;
 }
 
@@ -26,9 +32,10 @@ export function projection(
   support: number,
   anger: Record<GroupId, number>,
   T_base: number,
+  shifts: Record<string, number> = {},
 ): Projection {
   const total = regions.regions.reduce((s, r) => s + r.seats, 0) || 1;
-  const regionSupport = regionalSupport(regions, leader, support);
+  const regionSupport = regionalSupport(regions, leader, support, shifts);
   let S = 0;
   for (const r of regions.regions) S += (r.seats / total) * regionSupport[r.code];
   const T = threshold(cfg, T_base, anger);

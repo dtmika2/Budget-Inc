@@ -42,10 +42,16 @@ export function RangeChips({ preview, all = false, compact = false }: Props) {
   });
   const anger = GROUP_IDS.map((g) => chip(`a-${g}`, t(`group.${g}`), preview.anger[g], true, compact));
   const hasAnger = GROUP_IDS.some((g) => preview.anger[g]);
+  const regionCodes = Object.keys(preview.regions ?? {});
   return (
     <div className={`ranges${compact ? ' ranges--compact' : ''}`}>
       <ul className="ranges__res">{res}</ul>
       {hasAnger && <ul className="ranges__anger">{anger}</ul>}
+      {regionCodes.length > 0 && (
+        <ul className="ranges__regions" aria-label={t('draft.regions')}>
+          {regionCodes.map((code) => chip(`r-${code}`, t(`region.short.${code}`), preview.regions[code], false, compact))}
+        </ul>
+      )}
       {preview.pc > 0 && <p className="ranges__pc">+{t('common.pc', { n: preview.pc })}</p>}
       {preview.ongoing.map((o, i) => (
         <p key={i} className="ranges__ongoing">

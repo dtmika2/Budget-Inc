@@ -14,6 +14,9 @@ export function DeltaList({ deltas }: { deltas: Deltas }) {
     const v = deltas.anger[g as GroupId];
     if (v && Math.abs(v) >= 0.05) items.push({ key: g, label: t(`group.${g}`), v, anger: true });
   }
+  for (const [code, v] of Object.entries(deltas.regions ?? {})) {
+    if (v && Math.abs(v) >= 0.05) items.push({ key: `r-${code}`, label: t(`region.short.${code}`), v, anger: false });
+  }
   if (deltas.pc) items.push({ key: 'pc', label: t('hud.pc'), v: deltas.pc, anger: false });
   if (!items.length) return null;
   return (

@@ -19,7 +19,9 @@ export function FinalScreen() {
   const s = sim.state;
   const best = bestScore(s.leader, s.difficulty);
   const outcome = s.outcome ?? 'loss';
-  const decisions = keyDecisions(s.log, config);
+  const seats = sim.data.regions.regions.reduce((n, r) => n + r.seats, 0) || 1;
+  const seatShare = Object.fromEntries(sim.data.regions.regions.map((r) => [r.code, r.seats / seats]));
+  const decisions = keyDecisions(s.log, config, seatShare);
   return (
     <main className={`screen final final--${outcome}`}>
       <section className="final__hero">

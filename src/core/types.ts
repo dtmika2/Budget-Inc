@@ -51,6 +51,8 @@ export interface EffectBundle {
   ongoing?: OngoingDef[];
   budgetChanges?: BudgetChange[];
   pc?: number;
+  /** Regional support shifts per kraj code (added to national support for that region only). */
+  regions?: Partial<Record<string, Range>>;
 }
 
 export type ModifierSource =
@@ -63,6 +65,7 @@ export type ModifierSource =
   | 'drift'
   | 'penalty'
   | 'ability'
+  | 'compromise'
   | 'any';
 
 /** Where a value change comes from (a modifier `source` other than `any`). */
@@ -89,6 +92,21 @@ export interface Modifier extends ModifierDef {
 export interface PolicyCard extends EffectBundle {
   id: string;
   leaning: LeaningId;
+  availableFor: LeaderId[];
+  title: string;
+  description: string;
+  drivenBy: string;
+  chaosEvents: string[];
+  devOnly: boolean;
+}
+
+/**
+ * Regional compromise ("ucinit kompromis"): offered in the draft next to policies, no leaning.
+ * Usually raises support in some kraje and lowers it in others, or trades regional support for
+ * oligarchs' favour or Finances.
+ */
+export interface CompromiseCard extends EffectBundle {
+  id: string;
   availableFor: LeaderId[];
   title: string;
   description: string;
@@ -210,6 +228,7 @@ export interface GameData {
   regions: RegionsData;
   leaders: LeaderDef[];
   policies: PolicyCard[];
+  compromises: CompromiseCard[];
   events: ChaosEventDef[];
   opportunities: OpportunityDef[];
   budgetVote: BudgetVoteOption[];
@@ -314,6 +333,8 @@ export interface Deltas {
   resources: Partial<Record<ResourceId, number>>;
   anger: Partial<Record<GroupId, number>>;
   pc?: number;
+  /** Regional support shift changes per kraj code. */
+  regions?: Partial<Record<string, number>>;
 }
 
 export interface LogEntry {
@@ -348,6 +369,8 @@ export interface GameState {
   financesExtra: number;
   /** Accumulated Isolation finance damage (<= 0, capped). */
   financeModAccum: number;
+  /** Per-region support shift (seeded start jitter + regional effects); s_r = support + offset + shift. */
+  regionShift: Record<string, number>;
   modifiers: Modifier[];
   ongoing: OngoingInstance[];
   zeroPenalties: Record<ZeroPenaltyId, boolean>;

@@ -32,6 +32,11 @@ export function makeEntry(
     for (const [k, v] of Object.entries(deltas.resources)) if (v) clean.resources[k as keyof Deltas['resources']] = r2(v);
     for (const [k, v] of Object.entries(deltas.anger)) if (v) clean.anger[k as keyof Deltas['anger']] = r2(v);
     if (deltas.pc) clean.pc = deltas.pc;
+    if (deltas.regions) {
+      const regions: Record<string, number> = {};
+      for (const [k, v] of Object.entries(deltas.regions)) if (v) regions[k] = r2(v);
+      if (Object.keys(regions).length) clean.regions = regions;
+    }
     entry.deltas = clean;
   }
   return entry;

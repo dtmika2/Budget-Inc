@@ -1,6 +1,6 @@
 /** Quarterly draft (spec §5.3): weighted leaning -> uniform card, with 3 relaxation levels. */
 import type { Rng } from './rng';
-import type { LeaningId, PolicyCard } from './types';
+import type { CompromiseCard, LeaningId, PolicyCard } from './types';
 
 export interface DraftInput {
   /** Cards available to the current leader. */
@@ -78,4 +78,25 @@ export function drawHand(input: DraftInput, rng: Rng): DraftResult {
 
 export function rerollCost(rerollsSoFar: number, base: number, factor: number): number {
   return base * Math.pow(factor, rerollsSoFar);
+}
+
+/**
+ * One regional compromise for the hand: not shown earlier this quarter and not picked within the
+ * cooldown; if none qualify, the "shown this quarter" rule is dropped. Uniform pick. Null if none.
+ */
+export function drawCompromise(
+  cards: readonly CompromiseCard[],
+  picked: readonly { cardId: string; quarter: number }[],
+  shownThisQuarter: readonly string[],
+  quarter: number,
+  cooldownQuarters: number,
+  rng: Rng,
+): string | null {
+  const last = new Map<string, number>();
+  for (const p of picked) last.set(p.cardId, Math.max(last.get(p.cardId) ?? -Infinity, p.quarter));
+  const cooled = (c: CompromiseCard) => !last.has(c.id) || (last.get(c.id) as number) <= quarter - cooldownQuarters;
+  let pool = cards.filter((c) => cooled(c) && !shownThisQuarter.includes(c.id));
+  if (!pool.length) pool = cards.filter(cooled);
+  if (!pool.length) return null;
+  return pool[Math.floor(rng.next() * pool.length)].id;
 }

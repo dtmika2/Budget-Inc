@@ -38,7 +38,7 @@ export const budgetChangeSchema = z
   .strict();
 
 const modifierSourceSchema = z.enum([
-  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'any',
+  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'any',
 ]);
 
 export const modifierSchema = z
@@ -57,6 +57,8 @@ const bundleShape = {
   ongoing: z.array(ongoingSchema).optional(),
   budgetChanges: z.array(budgetChangeSchema).optional(),
   pc: z.number().optional(),
+  /** Regional support shifts keyed by kraj code (validated against data/regions.json). */
+  regions: z.record(z.string(), rangeSchema).optional(),
 };
 
 export const bundleSchema = z.object(bundleShape).strict();
@@ -74,6 +76,20 @@ export const policySchema = z
     devOnly: z.boolean().default(false),
   })
   .strict();
+
+export const compromiseSchema = z
+  .object({
+    ...bundleShape,
+    id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),
+    availableFor: z.array(z.string()).min(1),
+    title: z.string(),
+    description: z.string(),
+    drivenBy: z.string(),
+    chaosEvents: z.array(z.string()).max(3).default([]),
+    devOnly: z.boolean().default(false),
+  })
+  .strict()
+  .refine((c) => c.regions && Object.keys(c.regions).length > 0, { message: 'a compromise needs at least one regional effect' });
 
 export const responseOptionSchema = z
   .object({

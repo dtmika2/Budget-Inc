@@ -28,8 +28,13 @@ const mid = (r?: Range) => (r ? (r.min + r.max) / 2 : 0);
 const clamp = (v: number) => Math.min(100, Math.max(0, v));
 
 /** Expected value of a state: P plus penalties for danger zones. */
-export function stateValue(sim: Simulation, res: Record<ResourceId, number>, anger: Record<GroupId, number>): number {
-  const P = sim.computeProjection(res.support, anger).P;
+export function stateValue(
+  sim: Simulation,
+  res: Record<ResourceId, number>,
+  anger: Record<GroupId, number>,
+  shifts: Record<string, number> = sim.state.regionShift,
+): number {
+  const P = sim.computeProjection(res.support, anger, shifts).P;
   let v = P;
   const danger = (x: number, lim: number, w: number) => (x < lim ? (lim - x) * w : 0);
   v -= danger(res.coalition, 20, 0.02); // snap election
@@ -50,6 +55,8 @@ export function valueAfter(sim: Simulation, p: PreviewRanges, scale = 1): number
   const anger = { ...s.anger };
   for (const r of RESOURCE_IDS) res[r] = clamp(res[r] + scale * mid(p.resources[r]));
   for (const g of GROUP_IDS) anger[g] = clamp(anger[g] + scale * mid(p.anger[g]));
+  const shifts = { ...s.regionShift };
+  for (const [code, r] of Object.entries(p.regions)) shifts[code] = (shifts[code] ?? 0) + scale * mid(r);
   for (const o of p.ongoing) {
     const total = o.perDay * o.days * 0.5 * scale;
     if (o.target.startsWith('anger.')) {
@@ -57,7 +64,7 @@ export function valueAfter(sim: Simulation, p: PreviewRanges, scale = 1): number
       anger[g] = clamp(anger[g] + total);
     } else res[o.target as ResourceId] = clamp(res[o.target as ResourceId] + total);
   }
-  return stateValue(sim, res, anger);
+  return stateValue(sim, res, anger, shifts);
 }
 
 function respondAll(sim: Simulation, choose: (instanceId: string, eventId: string) => string): void {

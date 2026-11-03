@@ -104,7 +104,8 @@ describe('draft', () => {
 
   it('logs pool_relaxed in a full run with a tiny pool', () => {
     const data = { ...gameData(), policies: gameData().policies.filter((c) => c.id.startsWith('dummy_')) };
-    const sim = makeSim({ seed: 'tiny' }, config, data);
+    // policy-pool test: no compromise slots, so every hand draws 3 policies
+    const sim = makeSim({ seed: 'tiny' }, cfgWith((c) => (c.draft.compromiseChance = 0)), data);
     // 6 cards: Q1-Q4 hands fit (6,5,4,3 unpicked); Q5 has 2 left and must relax
     sim.state.resources.coalition = 100;
     advanceQuiet(sim, 91 * 4 + 1);

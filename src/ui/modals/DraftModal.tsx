@@ -45,7 +45,7 @@ export function DraftModal() {
         </header>
         <div className="carousel">
           {hand.map((id) => (
-            <PolicyCard key={id} card={sim.cardById.get(id)!} stamped={stamped === id} onPick={() => pick(id)} />
+            <PolicyCard key={id} card={(sim.cardById.get(id) ?? sim.compromiseById.get(id))!} stamped={stamped === id} onPick={() => pick(id)} />
           ))}
         </div>
         <p className="carousel__hint">{t('draft.swipeHint')}</p>
