@@ -7,7 +7,7 @@
  *
  * Usage: npm run gen:filler
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { config } from '../src/config';
 import { Rng } from '../src/core/rng';
 import type {
@@ -193,6 +193,12 @@ function makeCard(leader: LeaderDef, n: number, leaning: LeaningId): { card: Pol
   return { card, event: makeEvent(eventId, tag) };
 }
 
+// Cards already written by the team (they have a topic; source: content/policies/_filler.docx, imported
+// with scripts/policy_docx.py) are kept as they are, texts included. Everything else is regenerated.
+const previous: PolicyCard[] = existsSync('data/policies/_filler.json') ? JSON.parse(readFileSync('data/policies/_filler.json', 'utf8')) : [];
+const written = new Map(previous.filter((c) => c.topic).map((c) => [c.id, c]));
+const writtenTexts = Object.fromEntries(Object.entries(locale).filter(([k]) => [...written.keys()].some((id) => k.startsWith(`policy.${id}.`))));
+
 // drop previously generated filler keys, then regenerate
 for (const k of Object.keys(locale)) if (/^(policy|compromise)\.filler_/.test(k)) delete locale[k];
 for (const k of Object.keys(eventLocale)) if (/^event\.filler_/.test(k)) delete eventLocale[k];
@@ -203,7 +209,7 @@ for (const leader of leaders) {
   const slots = leaningSlots(leader.leaningWeights, F.cardsPerLeader);
   slots.forEach((leaning, i) => {
     const { card, event } = makeCard(leader, i + 1, leaning);
-    cards.push(card);
+    cards.push(written.get(card.id) ?? card);
     events.push(event);
   });
 }
@@ -253,6 +259,7 @@ for (let n = 1; n <= F.compromises; n++) {
   compromises.push(card);
 }
 
+Object.assign(locale, writtenTexts);
 writeFileSync('data/policies/_filler.json', JSON.stringify(cards, null, 2) + '\n');
 writeFileSync('data/events/_filler.json', JSON.stringify(events, null, 2) + '\n');
 writeFileSync('data/compromises/_filler.json', JSON.stringify(compromises, null, 2) + '\n');

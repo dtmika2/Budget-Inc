@@ -94,6 +94,7 @@ describe('endings', () => {
 
   it('an ending wins over a snap election on the same day', () => {
     const sim = quietSim({ seed: 'both' });
+    sim.state.ongoing = []; // the drafted card's ongoing effects must not move the meter
     sim.state.anger.oligarchs = 100;
     sim.state.resources.coalition = 0;
     sim.tick();

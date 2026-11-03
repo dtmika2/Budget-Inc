@@ -71,6 +71,8 @@ export const policySchema = z
     id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),
     leaning: z.enum(LEANING_IDS),
     availableFor: z.array(z.string()).min(1),
+    /** Small topic label above the name (locale key). */
+    topic: z.string().optional(),
     title: z.string(),
     description: z.string(),
     drivenBy: z.string(),

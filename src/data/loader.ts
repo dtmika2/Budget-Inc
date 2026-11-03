@@ -394,7 +394,7 @@ export function loadGameData(
   }
   for (const { item: card, file, idx } of policies) {
     const p = `[${idx}]`;
-    for (const k of ['title', 'description', 'drivenBy'] as const) locKey(card[k], file, `${p}.${k}`);
+    for (const k of ['topic', 'title', 'description', 'drivenBy'] as const) locKey(card[k], file, `${p}.${k}`);
     checkBundle(card, file, p);
     card.chaosEvents.forEach((id: string, i: number) => {
       if (!eventIds.has(id)) err('unknownEvent', file, `${p}.chaosEvents[${i}]`, id);

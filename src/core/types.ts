@@ -100,6 +100,8 @@ export interface PolicyCard extends EffectBundle {
   id: string;
   leaning: LeaningId;
   availableFor: LeaderId[];
+  /** Small topic label above the name (locale key), e.g. the issue the card is about. */
+  topic?: string;
   title: string;
   description: string;
   drivenBy: string;
