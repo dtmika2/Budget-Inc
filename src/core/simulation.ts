@@ -218,7 +218,7 @@ export class Simulation implements EffectHost {
 
   private pushTrend(): void {
     const s = this.state;
-    s.trend.push({ absDay: this.absDay, resources: { ...s.resources }, anger: { ...s.anger } });
+    s.trend.push({ absDay: this.absDay, resources: { ...s.resources }, anger: { ...s.anger }, P: s.projection.P });
     if (s.trend.length > TREND_KEEP) s.trend.splice(0, s.trend.length - TREND_KEEP);
   }
 

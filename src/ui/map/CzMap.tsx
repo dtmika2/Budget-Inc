@@ -8,6 +8,8 @@ import { memo, useState } from 'react';
 import { fmt, t } from '@i18n/index';
 import { getStore, useStore } from '../store';
 import { LiquidDefs, LiquidRegion } from './Liquid';
+import { MapLife } from './MapLife';
+import { ProjectionTicker } from '../charts/ProjectionTicker';
 import { Floaters } from '../popups/Floaters';
 import { OpportunityPin } from './OpportunityPin';
 import { MAP_ATTRIBUTION, MAP_HEIGHT, MAP_SCHEMATIC, MAP_WIDTH, REGION_PATHS } from './regionsPath';
@@ -40,6 +42,7 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
           <title>{t(`region.${r.code}`)}</title>
         </path>
       ))}
+      <MapLife />
       {highlights.map((code) => (
         <path
           key={`hl-${code}`}
@@ -103,6 +106,18 @@ function RegionFloaters() {
   );
 }
 
+/** A pixel banner sweeps across the map when a new quarter starts (remounts per quarter). */
+function QuarterBanner() {
+  const q = useStore((s) => s.sim?.state.quarter ?? 0);
+  const reduced = useStore((s) => s.ui.settings.reducedMotion);
+  if (!q || reduced) return null;
+  return (
+    <div key={q} className="quarter-banner" aria-hidden="true">
+      <span>{t('map.quarterBanner', { q, y: Math.ceil(q / 4) })}</span>
+    </div>
+  );
+}
+
 export function CzMap() {
   const support = useStore((s) => s.sim?.state.projection.regionSupport ?? {});
   const selected = useStore((s) => s.ui.selectedRegion);
@@ -113,8 +128,10 @@ export function CzMap() {
           <Regions support={support} selected={selected} />
         </svg>
         <RegionFloaters />
+        <QuarterBanner />
         <Pins />
       </div>
+      <ProjectionTicker />
       <RegionInfo />
       <p className="map__credit">{MAP_SCHEMATIC ? t('map.schematic') : MAP_ATTRIBUTION ? t('map.attribution') : ''}</p>
     </div>

@@ -13,6 +13,11 @@ const ResourceBar = memo(function ResourceBar({ id }: { id: ResourceId }) {
   const value = useStore((s) => Math.round((s.sim?.state.resources[id] ?? 0) * 10) / 10);
   const zero = useStore((s) => id !== 'coalition' && !!s.sim?.state.zeroPenalties[id]);
   const [showValue, setShowValue] = useState(false);
+  // flash the bar when a bundle changed it (keyed by the floater, so each change replays the flash)
+  const flash = useStore((s) => {
+    const f = s.ui.floaters.filter((x) => x.key === `res.${id}` && Math.abs(x.value) >= config.life.flashMinDelta).at(-1);
+    return f ? `${f.id}-${f.value > 0 ? 'up' : 'down'}` : '';
+  });
   const filled = Math.ceil(value / (100 / SEGMENTS));
   const low = value < 20;
   return (
@@ -33,6 +38,7 @@ const ResourceBar = memo(function ResourceBar({ id }: { id: ResourceId }) {
           <span key={i} className={i < filled ? 'on' : ''} />
         ))}
       </span>
+      {flash && <span key={flash} className={`res__flash res__flash--${flash.endsWith('up') ? 'up' : 'down'}`} aria-hidden="true" />}
       <Floaters k={`res.${id}`} />
     </button>
   );
@@ -59,7 +65,10 @@ export function ProjectionBadge() {
   return (
     <span className={`projection${pct < 35 ? ' projection--bad' : pct >= 55 ? ' projection--good' : ''}`} data-tut-target="map">
       <span className="projection__long">{t('hud.projection')}</span>
-      <span className="projection__short">{t('hud.projectionShort')}</span> <b>{pct} %</b>
+      <span className="projection__short">{t('hud.projectionShort')}</span>{' '}
+      <b key={pct} className="flash-num">
+        {pct} %
+      </b>
     </span>
   );
 }

@@ -202,6 +202,65 @@ export const config = {
     compromiseOligarchs: { min: 5, max: 9 },
   },
 
+  /**
+   * "Living map" (presentation only, never affects the simulation): small pixel actors on the map that
+   * read the game state. Spawn chances are per elapsed game day; lifetimes are real milliseconds.
+   */
+  life: {
+    maxActors: 16,
+    maxActorsMobile: 8,
+    /** Sprites are drawn this much larger on phones (the whole map is much smaller there). */
+    mobileSpriteScale: 1.6,
+    /** Ambient cows grazing in rural kraje: [region, count]. */
+    cows: [
+      ['CZ031', 2],
+      ['CZ063', 2],
+      ['CZ053', 1],
+      ['CZ064', 1],
+      ['CZ041', 1],
+      ['CZ052', 1],
+      ['CZ071', 1],
+      ['CZ032', 1],
+    ] as [string, number][],
+    /** Trucks: chance/day = truckPerDay * (truckBase + finances / 100). Under truckEmptyBelow they drive empty. */
+    truckPerDay: 0.1,
+    truckBase: 0.3,
+    truckEmptyBelow: 20,
+    /** Map units per real second. */
+    truckSpeed: 70,
+    limoSpeed: 110,
+    /** A passed budget vote sends a convoy of this many trucks out of the capital. */
+    convoy: 3,
+    convoyStaggerMs: 700,
+    capital: 'CZ010',
+    /** Protest crowds where regional support is below crowdBelow (chance/day per region). */
+    crowdBelow: 30,
+    crowdPerDay: 0.05,
+    /** Extra crowds (placards in the group's colour) for each group with anger >= anger.pulseAt. */
+    angerCrowdPerDay: 0.06,
+    crowdSize: { min: 3, max: 5 },
+    crowdMs: 7000,
+    /** Blackouts: on chaos events, and periodically while finances < blackoutBelow (or at the zero penalty). */
+    blackoutBelow: 25,
+    blackoutPerDay: 0.04,
+    blackoutMs: 4200,
+    /** Oligarch limo to the capital when oligarch anger drops by >= limoOnDrop, or ambient while anger < limoCalmBelow. */
+    limoOnDrop: 2,
+    limoCalmBelow: 30,
+    limoPerDay: 0.015,
+    /** Regional shift of at least this size shows a firework (gain) or a rain cloud (loss) over the kraj. */
+    regionFxMin: 1,
+    fireworkMs: 2400,
+    rainMs: 4600,
+    /** Anger meter shake / resource flash threshold (absolute change). */
+    flashMinDelta: 1,
+  },
+
+  /** Trend charts (side panel + map ticker). Trend points are weekly. */
+  charts: {
+    tickerWeeks: 26,
+  },
+
   /** Simulator targets on Normal (§13). */
   simulatorTargets: {
     randomMaxWinRate: 0.15,

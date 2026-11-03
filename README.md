@@ -52,6 +52,7 @@ tests/        Vitest suites
 - The UI owns real time only; it calls `sim.tick()` (one game day) and `sim.dispatch(input)` for every decision.
 - Every decision is logged with the tick count it happened at, so a run replays exactly from its seed + inputs (`src/core/replay.ts`). The final screen exports the log as JSON (`budget-inc-<runId>.json`).
 - One modifier pipeline (`src/core/modifiers.ts`) handles every value change: roll → global negative multiplier (if bad) → additive → multiplicative → clamp. Card / modal ranges are previewed through the same pipeline.
+- The living map (`src/ui/map/MapLife.tsx`, `lifeDirector.ts`, `sprites.ts`) is presentation only. A pure director turns state and new log entries into short-lived pixel actors (trucks, protest crowds, blackouts, fireworks or rain, the oligarch limo), alongside ambient cows. It uses its own RNG, so the simulation and replays are untouched. Tune it in `config.life`. To add a sprite, add a string grid to `sprites.ts`; each character is a palette colour.
 
 ## Content: how to add …
 

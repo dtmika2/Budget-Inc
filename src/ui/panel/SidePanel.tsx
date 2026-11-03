@@ -1,8 +1,9 @@
 /** Left panel / mobile drawer (spec §10.4): anger meters, active effects, decision history. */
 import { memo, useEffect, useRef, useState } from 'react';
 import { config } from '@/config';
-import type { GroupId, LogEntry } from '@core/types';
-import { GROUP_IDS } from '@core/types';
+import type { GroupId, LogEntry, TrendPoint } from '@core/types';
+import { GROUP_IDS, RESOURCE_IDS } from '@core/types';
+import { SERIES_COLORS, TrendChart, quarterOf, type Series } from '../charts/TrendChart';
 import { fmt, fmtSigned, t } from '@i18n/index';
 import { Floaters } from '../popups/Floaters';
 import { getStore, useStore } from '../store';
@@ -17,12 +18,13 @@ const AngerMeter = memo(function AngerMeter({ g }: { g: GroupId }) {
     const d = tr[tr.length - 1].anger[g] - tr[tr.length - 2].anger[g];
     return Math.abs(d) >= config.anger.trendThreshold ? Math.sign(d) : 0;
   });
+  const shake = useStore((s) => s.ui.floaters.filter((x) => x.key === `anger.${g}` && Math.abs(x.value) >= config.life.flashMinDelta).at(-1)?.id ?? 0);
   const hot = value >= config.anger.pulseAt;
   const critical = value >= config.anger.warnAt;
   return (
     <li className={`meter${hot ? ' meter--hot' : ''}${critical ? ' meter--critical' : ''}`}>
       <span className="meter__name">{t(`group.${g}`)}</span>
-      <span className="meter__bar" aria-hidden="true">
+      <span key={shake} className={`meter__bar${shake ? ' is-shaking' : ''}`} aria-hidden="true">
         <span style={{ width: `${value}%` }} />
       </span>
       <span className="meter__value">{fmt(value)}</span>
@@ -180,10 +182,39 @@ function History() {
   );
 }
 
+const RESOURCE_SERIES: Series[] = RESOURCE_IDS.map((id, i) => ({ id, label: '', color: SERIES_COLORS[i], get: (p: TrendPoint) => p.resources[id] }));
+const ANGER_SERIES: Series[] = GROUP_IDS.map((g, i) => ({ id: g, label: '', color: SERIES_COLORS[i], get: (p: TrendPoint) => p.anger[g] }));
+
+function Trends() {
+  const [view, setView] = useState<'resources' | 'anger'>('resources');
+  const points = useStore((s) => (s.sim ? s.sim.state.trend.slice() : []));
+  const sim = getStore().sim!;
+  const series = (view === 'resources' ? RESOURCE_SERIES : ANGER_SERIES).map((x) => ({
+    ...x,
+    label: view === 'resources' ? t(`resource.short.${x.id}`) : t(`group.${x.id}`),
+  }));
+  const labelOf = (p: TrendPoint) => {
+    const [, m, d] = sim.dateOf(p.absDay).split('-').map(Number);
+    return t('chart.date', { q: quarterOf(p.absDay), d, m });
+  };
+  return (
+    <div className="trends">
+      <div className="seg" role="group">
+        {(['resources', 'anger'] as const).map((v) => (
+          <button key={v} className={view === v ? 'is-on' : ''} aria-pressed={view === v} onClick={() => setView(v)}>
+            {t(`chart.${v}`)}
+          </button>
+        ))}
+      </div>
+      <TrendChart points={points} series={series} title={t(`chart.${view}Title`)} labelOf={labelOf} />
+    </div>
+  );
+}
+
 export function SidePanel() {
   const store = getStore();
   const open = useStore((s) => s.ui.drawerOpen);
-  const [tab, setTab] = useState<'effects' | 'history'>('effects');
+  const [tab, setTab] = useState<'trend' | 'effects' | 'history'>('trend');
   const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     if (open) ref.current?.focus();
@@ -202,6 +233,9 @@ export function SidePanel() {
           ))}
         </ul>
         <div className="tabs" role="tablist">
+          <button role="tab" aria-selected={tab === 'trend'} className={tab === 'trend' ? 'is-on' : ''} onClick={() => setTab('trend')}>
+            {t('panel.trend')}
+          </button>
           <button role="tab" aria-selected={tab === 'effects'} className={tab === 'effects' ? 'is-on' : ''} onClick={() => setTab('effects')}>
             {t('panel.effects')}
           </button>
@@ -209,7 +243,7 @@ export function SidePanel() {
             {t('panel.history')}
           </button>
         </div>
-        <div className="panel__scroll">{tab === 'effects' ? <ActiveEffects /> : <History />}</div>
+        <div className="panel__scroll">{tab === 'trend' ? <Trends /> : tab === 'effects' ? <ActiveEffects /> : <History />}</div>
       </aside>
     </>
   );

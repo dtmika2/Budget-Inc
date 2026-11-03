@@ -611,3 +611,107 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
 }
+
+/* ------------------------------------------------------------ living map (MapLife.tsx) */
+.life { pointer-events: none; }
+.life-fa { animation: life-fa var(--fr, 0.4s) step-end infinite; }
+.life-fb { opacity: 0; animation: life-fb var(--fr, 0.4s) step-end infinite; }
+@keyframes life-fa { 0% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes life-fb { 0% { opacity: 0; } 50% { opacity: 1; } }
+/* movers: translate by --dx/--dy in whole sprite pixels (steps set inline) */
+.life-move { animation-name: life-move; animation-fill-mode: both; }
+@keyframes life-move { from { transform: translate(0, 0); } to { transform: translate(var(--dx), var(--dy)); } }
+.life-fade { animation-name: life-fade; animation-fill-mode: both; animation-timing-function: steps(1, end); }
+@keyframes life-fade { 0% { opacity: 0; } 4% { opacity: 0.5; } 8% { opacity: 1; } 92% { opacity: 1; } 96% { opacity: 0.5; } 100% { opacity: 0; } }
+/* cows: walk right, graze, turn, walk back, graze */
+.life-walk { animation-name: life-walk; animation-iteration-count: infinite; }
+@keyframes life-walk { 0% { transform: translateX(0); } 40% { transform: translateX(var(--dx)); } 50% { transform: translateX(var(--dx)); } 90% { transform: translateX(0); } 100% { transform: translateX(0); } }
+.life-face-r { animation: life-face-r 1s step-end infinite; }
+.life-face-l { opacity: 0; animation: life-face-l 1s step-end infinite; }
+@keyframes life-face-r { 0% { opacity: 1; } 45% { opacity: 0; } 95% { opacity: 1; } }
+@keyframes life-face-l { 0% { opacity: 0; } 45% { opacity: 1; } 95% { opacity: 0; } }
+/* blackout: the kraj flickers dark, bolts zap */
+.life-dark { fill: #0c0a14; opacity: 0; animation-name: life-dark; animation-fill-mode: both; animation-timing-function: step-end; }
+@keyframes life-dark { 0% { opacity: 0; } 6% { opacity: 0.55; } 10% { opacity: 0.1; } 14% { opacity: 0.6; } 70% { opacity: 0.6; } 76% { opacity: 0.15; } 80% { opacity: 0.5; } 92% { opacity: 0.5; } 100% { opacity: 0; } }
+.life-zap { animation: life-zap 0.5s step-end infinite; }
+.life-zap--late { animation-delay: 0.25s; }
+@keyframes life-zap { 0% { opacity: 1; } 40% { opacity: 0; } }
+.life-blink { animation: life-zap 0.8s step-end infinite; }
+
+/* ------------------------------------------------------------ charts */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.trends { display: flex; flex-direction: column; gap: 10px; padding-top: 8px; }
+.seg { display: flex; border: 2px solid var(--line); align-self: flex-start; }
+.seg button { min-height: 36px; padding: 4px 12px; background: none; border: 0; font-family: var(--f-pixel); font-size: 14px; color: var(--text-dim); }
+.seg button.is-on { background: var(--gold); color: var(--ground); }
+.chart { margin: 0; position: relative; }
+.chart__title { font-size: 13px; color: var(--text-dim); margin-bottom: 6px; }
+.chart__legend { list-style: none; margin: 0 0 6px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; font-size: 13px; }
+.chart__legend li { display: flex; align-items: center; gap: 6px; }
+.chart__swatch { width: 10px; height: 10px; flex: none; }
+.chart__name { flex: 1; color: var(--text-dim); }
+.chart__legend b { font-family: var(--f-num); font-weight: 400; color: var(--text); }
+.chart__plot { position: relative; }
+.chart__plot svg { display: block; touch-action: pan-y; }
+.chart__grid { stroke: #3a3352; stroke-width: 1; shape-rendering: crispEdges; }
+.chart__axis { stroke: var(--line); stroke-width: 2; shape-rendering: crispEdges; }
+.chart__tick { fill: var(--text-dim); font-family: var(--f-num); font-size: 10px; }
+.chart__line { fill: none; stroke-width: 2; shape-rendering: crispEdges; }
+.chart__dot { stroke: var(--ground-2); stroke-width: 2; shape-rendering: crispEdges; }
+.chart__cross { stroke: var(--text-dim); stroke-width: 1; stroke-dasharray: 2 2; shape-rendering: crispEdges; }
+.chart__tip {
+  position: absolute; top: -4px; padding: 2px 6px; background: var(--paper); color: var(--ink);
+  font-family: var(--f-num); font-size: 11px; white-space: nowrap; box-shadow: var(--shadow-sm); pointer-events: none;
+}
+/* map corner projection ticker */
+.ticker {
+  position: absolute; top: 0; left: 0; z-index: 2; padding: 6px 8px 4px; background: rgba(27, 23, 41, 0.86);
+  border: 2px solid var(--line); box-shadow: var(--shadow-sm); pointer-events: none;
+}
+.ticker__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; color: var(--text-dim); }
+.ticker__head b { font-family: var(--f-num); font-weight: 400; font-size: 14px; color: var(--text); }
+.ticker__head i { font-style: normal; font-size: 10px; margin-left: 3px; }
+.ticker__head i.up { color: var(--good); }
+.ticker__head i.down { color: var(--bad); }
+.ticker svg { display: block; margin-top: 2px; }
+.ticker__mid { stroke: var(--gold-dim); stroke-width: 1; stroke-dasharray: 3 3; shape-rendering: crispEdges; }
+.ticker__line { fill: none; stroke: var(--text); stroke-width: 2; shape-rendering: crispEdges; }
+.ticker--good .ticker__line, .ticker--good .ticker__dot { stroke: var(--good); fill: var(--good); }
+.ticker--bad .ticker__line, .ticker--bad .ticker__dot { stroke: var(--bad); fill: var(--bad); }
+.ticker--good .ticker__line, .ticker--bad .ticker__line { fill: none; }
+
+/* ------------------------------------------------------------ flashes */
+/* resource bar: one pixel flash over the bar per applied change */
+.res__flash { position: absolute; left: 0; right: 0; bottom: 2px; height: 18px; pointer-events: none; animation: res-flash 0.9s steps(6) forwards; }
+.res__flash--up { background: var(--good); box-shadow: 0 0 0 2px #e9ffe9; }
+.res__flash--down { background: var(--bad); box-shadow: 0 0 0 2px #ffe3df; }
+@keyframes res-flash { 0% { opacity: 0.75; } 30% { opacity: 0.2; } 50% { opacity: 0.6; } 100% { opacity: 0; } }
+/* projection number pops when the weekly projection changes */
+.flash-num { display: inline-block; animation: flash-num 0.6s steps(4); }
+@keyframes flash-num { 0% { transform: translateY(-4px); color: var(--gold); } 100% { transform: none; } }
+/* anger meter shakes on a jump */
+.meter__bar.is-shaking { animation: shake 0.42s steps(6); }
+@keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-3px); } 40% { transform: translateX(3px); } 60% { transform: translateX(-2px); } 80% { transform: translateX(2px); } }
+/* glint sweeping over buttons that want attention */
+.btn--upgrades, .btn--ability { position: relative; overflow: hidden; }
+.btn--upgrades.is-affordable { border-color: var(--gold); }
+.btn--upgrades.is-affordable::after, .btn--ability.is-ready::after {
+  content: ''; position: absolute; top: -4px; bottom: -4px; left: 0; width: 14px; pointer-events: none;
+  background: rgba(255, 246, 200, 0.55); transform: translateX(-30px) skewX(-20deg); animation: glint 3.2s steps(16) infinite;
+}
+.btn--ability.is-ready::after { animation-delay: 1.4s; }
+@keyframes glint { 0% { transform: translateX(-30px) skewX(-20deg); } 30%, 100% { transform: translateX(260px) skewX(-20deg); } }
+/* new opportunity pin pings once */
+.pin::before { content: ''; position: absolute; inset: 0; border: 3px solid var(--gold); border-radius: 50%; animation: ping 1.2s steps(6) 2 forwards; pointer-events: none; }
+@keyframes ping { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(1.9); opacity: 0; } }
+/* quarter banner sweeps across the map */
+.quarter-banner { position: absolute; left: 0; right: 0; top: 42%; display: flex; justify-content: center; pointer-events: none; overflow: hidden; z-index: 2; }
+.quarter-banner span {
+  font-family: var(--f-num); font-size: 26px; color: var(--ground); background: var(--gold); padding: 6px 22px;
+  box-shadow: var(--shadow); animation: banner 2.6s steps(26) forwards;
+}
+@keyframes banner { 0% { transform: translateX(-120vw); } 25%, 75% { transform: none; opacity: 1; } 99% { transform: translateX(120vw); opacity: 1; } 100% { transform: translateX(120vw); opacity: 0; } }
+@media (max-width: 760px) {
+  .quarter-banner span { font-size: 18px; padding: 4px 14px; }
+  .ticker { position: relative; align-self: flex-start; margin-bottom: 8px; }
+}

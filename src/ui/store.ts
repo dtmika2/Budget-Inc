@@ -10,7 +10,10 @@ import type { LoadResult } from '@data/loader';
 import { Simulation } from '@core/simulation';
 import type { Deltas, DifficultyId, GameData, GroupId, Input, LeaderId, LogEntry } from '@core/types';
 import { GROUP_IDS } from '@core/types';
+import { Rng } from '@core/rng';
 import { Clock } from './clock';
+import { planLife, type ActorSpawn } from './map/lifeDirector';
+import { REGION_PATHS } from './map/regionsPath';
 import { loadSettings, recordScore, saveSettings, setTutorialSeen, tutorialSeen, type Settings } from './persist';
 
 export type Screen = 'menu' | 'howto' | 'settings' | 'select' | 'game' | 'final' | 'dataError';
@@ -43,6 +46,21 @@ export interface Floater {
   born: number;
 }
 
+/** A living-map actor on screen (presentation only). */
+export interface Actor extends ActorSpawn {
+  id: number;
+  /** performance.now() at spawn. */
+  born: number;
+}
+
+const REGION_CODES = REGION_PATHS.map((r) => r.code);
+const LABELS = new Map(REGION_PATHS.map((r) => [r.code, r]));
+function regionDistance(a: string, b: string): number {
+  const p = LABELS.get(a);
+  const q = LABELS.get(b);
+  return p && q ? Math.hypot(p.labelX - q.labelX, p.labelY - q.labelY) : 0;
+}
+
 export interface UiState {
   screen: Screen;
   speed: number;
@@ -52,6 +70,8 @@ export interface UiState {
   drawerOpen: boolean;
   popups: Popup[];
   floaters: Floater[];
+  /** Living-map actors (trucks, crowds, blackouts, ...). */
+  actors: Actor[];
   tutorial: TutorialStep | null;
   /** Pending tutorial steps still to show this run. */
   tutorialQueue: TutorialStep[];
@@ -80,6 +100,10 @@ export class Store {
   private logCursor = 0;
   private popupSeq = 0;
   private floaterSeq = 0;
+  private actorSeq = 0;
+  /** Presentation-only RNG for the living map (never one of the simulation's streams). */
+  private lifeRng: Rng | null = null;
+  private lifeDay = 0;
   private angerArmed: Record<GroupId, boolean> = { oligarchs: true, pensioners: true, media: true, eu: true, activists: true };
   readonly clock: Clock;
 
@@ -96,6 +120,7 @@ export class Store {
       drawerOpen: false,
       popups: [],
       floaters: [],
+      actors: [],
       tutorial: null,
       tutorialQueue: [],
       settings,
@@ -145,6 +170,8 @@ export class Store {
       now: () => Date.now(),
     });
     this.logCursor = 0;
+    this.lifeRng = new Rng(`${seed}|life`);
+    this.lifeDay = this.sim.absDay;
     this.angerArmed = { oligarchs: true, pensioners: true, media: true, eu: true, activists: true };
     this.unsubSim = this.sim.subscribe(() => this.onSimChange());
     const tut = !tutorialSeen();
@@ -158,6 +185,7 @@ export class Store {
       drawerOpen: false,
       popups: [],
       floaters: [],
+      actors: [],
       tutorialQueue: tut ? [...TUTORIAL_STEPS] : [],
       tutorial: null,
       selectedRegion: null,
@@ -273,9 +301,39 @@ export class Store {
     // drop response pop-ups whose event is no longer pending (cancelled at run end)
     const pending = new Set(sim.state.pendingResponses.map((p) => p.instanceId));
     popups = popups.filter((p) => p.kind !== 'response' || pending.has(p.instanceId!));
-    this.ui = { ...this.ui, popups, floaters: floaters.slice(-40) };
+    const actors = this.planActors(newEntries, now);
+    this.ui = { ...this.ui, popups, floaters: floaters.slice(-40), actors };
     this.advanceTutorial();
     this.emit();
+  }
+
+  /** Living map: spawn actors for new log entries and elapsed game days. */
+  private planActors(entries: readonly LogEntry[], now: number): Actor[] {
+    const sim = this.sim!;
+    const days = Math.max(0, sim.absDay - this.lifeDay);
+    this.lifeDay = sim.absDay;
+    const actors = this.ui.actors;
+    if (!this.lifeRng || this.ui.settings.reducedMotion || sim.isOver) return actors;
+    const s = sim.state;
+    const spawns = planLife(
+      {
+        resources: s.resources,
+        anger: s.anger,
+        regionSupport: s.projection.regionSupport,
+        zeroFinances: s.zeroPenalties.finances,
+        entries,
+        days: s.phase === 'running' ? days : 0,
+        active: actors,
+        regions: REGION_CODES,
+        distance: regionDistance,
+        maxActors: this.ui.isMobile ? config.life.maxActorsMobile : config.life.maxActors,
+      },
+      this.lifeRng,
+      config.life,
+      config.anger.pulseAt,
+    );
+    if (!spawns.length) return actors;
+    return [...actors, ...spawns.map((a) => ({ ...a, id: ++this.actorSeq, born: now }))];
   }
 
   private floatersFor(d: Deltas, now: number): Floater[] {
@@ -358,7 +416,9 @@ export class Store {
     const now = performance.now();
     const floaters = this.ui.floaters.filter((f) => now - f.born < 1400);
     if (floaters.length !== this.ui.floaters.length) changed = true;
-    if (changed) this.ui = { ...this.ui, popups, floaters };
+    const actors = this.ui.actors.filter((a) => now - a.born < a.delayMs + a.ttlMs);
+    if (actors.length !== this.ui.actors.length) changed = true;
+    if (changed) this.ui = { ...this.ui, popups, floaters, actors };
     for (const p of timedOut) {
       const ev = this.sim?.eventById.get(p.eventId!);
       this.ui = { ...this.ui, popups: this.ui.popups.filter((x) => x.id !== p.id) };

@@ -312,6 +312,8 @@ export interface TrendPoint {
   absDay: number;
   resources: Record<ResourceId, number>;
   anger: Record<GroupId, number>;
+  /** Election projection P (0..1) at that week. */
+  P: number;
 }
 
 export type ZeroPenaltyId = 'finances' | 'support' | 'prestige';
