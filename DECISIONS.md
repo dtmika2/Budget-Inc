@@ -17,6 +17,22 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 - §11 — Dummy budget-vote labels are `[DUMMY] Úsporný/Vyrovnaný/Štědrý rozpočet` with numbers following the spec's design intent (tight −3 % all expenditure, balanced −1 %, generous +2 %).
 - §12.3 — "Jak hrát" rules summary is written as UI chrome in `cs.json` (it explains mechanics, it is not game content); tutorial bodies stay `[TODO]` as the spec says.
 - plan P1.7 — Filler generator: 22 cards per leader (one per leaning, the rest by leader weights), each with 2–3 resource ranges (one primary gain), 1–3 anger ranges (a trade-off), 1–2 budget changes sized to move Finances by 1–5 points, ~30 % ongoing, 1 filler event each (~1/3 respondable; option `c` = do nothing is the default).
+- plan §3.4 — Tick order adopted exactly as plan §3.4: (1) scheduled entries for the day in the order budget vote → chaos → pin spawns → pin expiries; the budget vote stops the tick and the same day is re-processed (remaining entries) on the next tick; (2) drift → ongoing → zero penalties → stand-in penalties → anger decay, then durations; (3) Finances; (4) zero-penalty transitions; (5) built ending, then snap election; (6) every 7th absolute day projection + trend; (7) end of quarter.
+- §4.1 — `tick()` processes the current day, then advances; day 1 of a quarter is processed after the draft pick, so a chaos window starting on day 1 still fires.
+- §10.2 — Replay anchor is the count of effective ticks (`tickCount`) at the moment of each input, not the game day — several inputs can happen on the same day before/after its tick; the count is unambiguous.
+- §10.1 — Log `timestamp`: each entry has the in-game `date` plus `wallTime` from a host-injected clock (`0` headless); replay comparison ignores `wallTime`. `runId` is derived from the seed (the UI generates the seed randomly).
+- §4.8 — Drift skips the global negative multiplier (difficulty already has a drift multiplier) but matches `<res>.drift` and, with source filter `drift`, `<res>.loss/gain` modifiers.
+- §4.8 — Anger decay (memory fades) is a system mechanic and bypasses the pipeline (no negative multiplier, no modifiers).
+- §4.8 / §9.3 — A worsening budget change (revenue down / expenditure up) is "bad for Finances": its changePct gets the global negative multiplier and every `finances.negative`/`finances.loss` multiplier; additive modifiers are ignored for percentages. Mandatory growth goes through the same path (so Austerity Freeze halves it).
+- §4.8 — A zero raw value is not changed by additive modifiers (a missing effect stays missing).
+- §4.5 / §4.4 — Endings and the snap election are also checked right after every dispatch (not only in the tick), so a card that pushes Oligarchs to 100 ends the run immediately.
+- §4.4 — "Reaches 0" is tested with a 1e-9 tolerance (values are clamped, so they hit 0 exactly in practice).
+- §4.9 — `quartersCompleted` counts fully finished quarters: 16 after a normal term, `q − 1` after a snap election or ending in quarter q.
+- §5.2 — New modifier source `ability` (spec's list has no source for abilities); `any` modifiers still apply.
+- §8.1 — Starting PC is 0 (`config.pc.start`); Q1 grants +2 like every other quarter. PC income rounds to whole points.
+- §3.1 — `Phase` keeps `finished` in the type for future use; the core ends in `ending` or `election` with the result and score already computed, and the UI presents election night / final screen.
+- §10.1 — Extra log types beyond the spec table: `quarter_started` (PC gained), `opportunity_spawned`, `mandatory_growth`, `budget_vote_opened`, `ability_recharged` — useful for analytics, cheap.
+- plan §2 — Core modules P2–P5 were written together because `simulation.ts` wires all of them; each phase commit adds that phase's tests and fixes.
 
 ## Blockers
 _None._
