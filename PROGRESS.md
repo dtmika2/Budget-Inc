@@ -6,7 +6,7 @@
 - [x] P2 — Core simulation
 - [x] P3 — Leaders, abilities, draft, PC
 - [x] P4 — Chaos, responses, opportunities, budget vote, upgrades
-- [ ] P5 — Endings, election, score, replay, simulator
+- [x] P5 — Endings, election, score, replay, simulator
 - [ ] P6 — UI shell and HUD
 - [ ] P7 — Modals and pop-ups
 - [ ] P8 — Endings, election night, final screen, meta

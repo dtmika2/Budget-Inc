@@ -42,6 +42,10 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 - §7.4 — Pin day, region (weighted by seats = w_r) and reward (weighted by `weight`) are all drawn at quarter start from the `opportunities` stream; the reward is revealed on tap. A pin's lifetime is counted in absolute days, so a pin spawned on day 85 can live into the next quarter.
 - §4.7 — The budget-vote roll uses its own `budgetVote` stream; the fail branch is applied as a fixed bundle through the same pipeline (so difficulty and modifiers affect it like any other loss).
 - §8 — Upgrades can be bought in any non-terminal phase (the tree pauses the clock and is reachable at any time).
+- §4.6 — Election-night noise uses `rng.nextOpen()` (never exactly 0 or 1) so `ln(u/(1−u))` is finite; D'Hondt ties go to the region listed first in `data/regions.json`.
+- §4.9 — For an ending, `P_final` is the projection recomputed at the moment of the ending (not the weekly displayed value); same for elections (S, T, P are fresh at election time).
+- §13 — Greedy bot value = re-election probability P after the midpoints of the previewed ranges, minus small safety terms when Coalition/Support/Finances/Prestige approach 0 or anger approaches 100 (Oligarchs weighted most) — pure P ignores Finances and Coalition, which made the bot walk into snap elections and endings. Ongoing effects count at half their total. Austerity Freeze is timed to cover the budget vote's mandatory growth; Campaign Mode is used when it raises the value by > 0.03 (or late in the year if it helps at all).
+- §13 — The random bot also rerolls (15 % per draft), buys a random affordable upgrade (1 % per day) and uses its ability (0.5 % per day) so replay tests exercise every input kind.
 
 ## Blockers
 _None._
