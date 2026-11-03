@@ -38,7 +38,7 @@ export const budgetChangeSchema = z
   .strict();
 
 const modifierSourceSchema = z.enum([
-  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'demand', 'any',
+  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'demand', 'special', 'any',
 ]);
 
 export const modifierSchema = z

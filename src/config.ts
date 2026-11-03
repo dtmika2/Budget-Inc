@@ -338,6 +338,20 @@ export const config = {
     draftBoost: 2,
   },
 
+  /** Catastrophes and special agents (catastrophes workspace, core/specialCards.ts). */
+  specials: {
+    /** Cards drawn per game year (days and cards drawn at the year's first quarter, `specials` stream). */
+    catastrophesPerYear: 2,
+    agentsPerYear: 2,
+    /** The warning banner shows this many days before a card fires. */
+    warnDays: 7,
+    /** Spawn window inside the year (days from the year's start / before its end). */
+    spawnFromDay: 15,
+    spawnBeforeYearEnd: 20,
+    /** Minimum days between two special cards of the same year. */
+    minGapDays: 20,
+  },
+
   /** Compromise mini-games (UI only; the core only sees the final score). */
   minigames: {
     countdownSec: 3,

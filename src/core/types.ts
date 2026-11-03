@@ -1,5 +1,7 @@
 /** Core domain types. Pure data; no DOM, no React. */
 
+import type { SpecialCardDef, SpecialsState } from './specialCards';
+
 export const RESOURCE_IDS = ['finances', 'support', 'coalition', 'prestige'] as const;
 export type ResourceId = (typeof RESOURCE_IDS)[number];
 
@@ -69,6 +71,7 @@ export type ModifierSource =
   | 'ability'
   | 'compromise'
   | 'demand'
+  | 'special'
   | 'any';
 
 /** Where a value change comes from (a modifier `source` other than `any`). */
@@ -376,6 +379,8 @@ export interface GameData {
   parties: PartyDef[];
   demands: DemandTemplate[];
   upgrades: UpgradeTree[];
+  /** Catastrophes and special agents (catastrophes workspace, core/specialCards.ts). */
+  specialCards: SpecialCardDef[];
   endings: EndingDef[];
   /** File path -> short content hash, logged in run_started. */
   fileHashes: Record<string, string>;
@@ -383,7 +388,7 @@ export interface GameData {
 
 // ---------------------------------------------------------------- runtime state
 
-export type Phase = 'running' | 'draft' | 'budgetVote' | 'compromise' | 'ending' | 'election' | 'finished';
+export type Phase = 'running' | 'draft' | 'budgetVote' | 'compromise' | 'special' | 'ending' | 'election' | 'finished';
 
 export type Input =
   | { kind: 'pickPolicy'; cardId: string }
@@ -395,7 +400,9 @@ export type Input =
   | { kind: 'buyUpgrade'; nodeId: string }
   | { kind: 'useAbility' }
   | { kind: 'acceptDemand'; demandId: string }
-  | { kind: 'rejectDemand'; demandId: string };
+  | { kind: 'rejectDemand'; demandId: string }
+  | { kind: 'acceptSpecial' }
+  | { kind: 'closeSpecial' };
 
 export interface RecordedInput {
   /** Number of effective ticks executed before this input (replay anchor). */
@@ -415,7 +422,7 @@ export interface OngoingInstance {
   label?: string;
 }
 
-export type ScheduledKind = 'budgetVote' | 'compromise' | 'chaos' | 'pinSpawn' | 'pinExpire' | 'demandSpawn' | 'demandExpire';
+export type ScheduledKind = 'budgetVote' | 'compromise' | 'special' | 'chaos' | 'pinSpawn' | 'pinExpire' | 'demandSpawn' | 'demandExpire';
 
 export interface ScheduledEntry {
   seq: number;
@@ -544,6 +551,8 @@ export interface GameState {
   eventSeq: number;
   abilityCharges: number;
   ownedUpgrades: string[];
+  /** Catastrophes and special agents: drawn cards, the open card (core/specialCards.ts). */
+  specials: SpecialsState;
   projection: Projection;
   trend: TrendPoint[];
   endingId: string | null;
