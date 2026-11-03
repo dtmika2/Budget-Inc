@@ -46,6 +46,17 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 - §4.9 — For an ending, `P_final` is the projection recomputed at the moment of the ending (not the weekly displayed value); same for elections (S, T, P are fresh at election time).
 - §13 — Greedy bot value = re-election probability P after the midpoints of the previewed ranges, minus small safety terms when Coalition/Support/Finances/Prestige approach 0 or anger approaches 100 (Oligarchs weighted most) — pure P ignores Finances and Coalition, which made the bot walk into snap elections and endings. Ongoing effects count at half their total. Austerity Freeze is timed to cover the budget vote's mandatory growth; Campaign Mode is used when it raises the value by > 0.03 (or late in the year if it helps at all).
 - §13 — The random bot also rerolls (15 % per draft), buys a random affordable upgrade (1 % per day) and uses its ability (0.5 % per day) so replay tests exercise every input kind.
+- plan §0.1.7 — UI phases P6–P8 were built in one pass and committed together: every screen shares the store and `Game.tsx` mounts all modals, so P6 alone would not build without stubs. The gate ran on the combined result, followed by browser screenshot checks at 1366×768 and 390×844.
+- visual direction — Night-violet ground (#1b1729), gold region borders (#d9b45a, from the `Mapa.png` mood), policy cards as paper memos (#efe6cf) with a stamp-red (#c8352e) "Prosadit" stamp animation as the one signature motion; hard pixel offset shadows, segmented resource bars. Fonts are bundled via npm (`@fontsource/*`), never fetched at runtime: Pixelify Sans (headings), Silkscreen (numerals; Pixelify's 5 reads as S), Atkinson Hyperlegible (body).
+- §5.3 art — Placeholder leader sprites are original 16×18 pixel caricatures drawn in code (`LeaderSprite.tsx`), coloured by party, with initials and a 2-frame idle bob; no likeness of real people.
+- §4.6 map tint — Regions go from stamp red to the party colour over s_r 20…70 (not 0…100), so typical support values stay distinguishable; `tint()` in `CzMap.tsx`.
+- §4.3 trend arrows — Compare the two latest weekly trend snapshots (7 days apart), so arrows update weekly together with the projection.
+- §7.2 — The news pop-up auto-dismiss timer runs in real time (also while paused); the response countdown runs only while the game is running and unpaused. Tapping a news pop-up dismisses it.
+- §4.3 — The ≥90 anger warning is presentation logic in the UI store (once per crossing, re-armed below 80); it is not a core log entry.
+- §12.3 tutorial — Coach-mark order: draft (shown on the Q1 draft), top bar, map + projection, side panel, first opportunity pin (waits for a pin), upgrade tree. The target is highlighted with a pulsing outline; the clock is paused while a mark is open.
+- §6.3 — Cards always list all 4 resources (unaffected ones shown as a muted 0); anger shown as ▲/▼ ranges; ongoing effects with ↻ icon, per-day value and duration.
+- §12.2 — Mobile: drawer opened by a "Panel" button; draft and budget-vote options in a scroll-snap carousel with a peek of the next card; pop-ups full width at the bottom.
+- dev — `?debug=1` shows the developer overlay (chapter codes, revPct/expPct, balance, finance terms, seed, phase, S/T/P) and exposes the store as `window.__budgetInc` for browser checks; the overlay ignores pointer events.
 
 ## Blockers
 _None._

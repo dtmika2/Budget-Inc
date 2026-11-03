@@ -23,3 +23,16 @@ describe('no Czech strings in src/', () => {
     expect(offenders).toEqual([]);
   });
 });
+
+describe('budget chapter names are never shown to the player', () => {
+  it('no UI file reads chapter names; the debug overlay shows codes only', () => {
+    const budget = JSON.parse(readFileSync('data/budget.json', 'utf8')) as { chapters: { name: string }[] };
+    const locale = readFileSync('locales/cs.json', 'utf8');
+    for (const c of budget.chapters) expect(locale.includes(c.name)).toBe(false);
+    for (const file of walk('src/ui')) {
+      const src = readFileSync(file, 'utf8');
+      if (!src.includes('chapters')) continue;
+      expect(src).not.toMatch(/\.name\b/);
+    }
+  });
+});
