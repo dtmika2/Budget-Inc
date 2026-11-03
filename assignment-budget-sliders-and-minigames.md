@@ -75,7 +75,9 @@ New file `data/budget_items.json`, validated in `src/data/schemas.ts`:
 - Effects scale **linearly** with slider steps, so the preview ranges are exact and honest, like cards.
 - The validator checks that every referenced chapter exists in `budget.json` (same rule as for cards).
 
-**Item list (draft, confirm with Daniel):** Důchody, Neziskovky, Obrana, Školství, Doprava, Zdravotnictví, Zemědělství, Životní prostředí, Státní správa. Labels go to `cs.json`. Numbers in the dummy file are `[DUMMY]`.
+**Which items get a slider (decided by Daniel):** only categories that are among the **biggest expenses** or the **most controversial** ones. Chapter names and codes stay hidden; the player sees only these categories.
+
+Draft list to start from (final list and chapter mapping with Daniel): Důchody, Neziskovky, Obrana, Školství, Doprava, Zdravotnictví, Zemědělství, Životní prostředí, Státní správa. Labels go to `cs.json`. Numbers in the dummy file are `[DUMMY]`.
 
 ### A4. Core changes
 
@@ -109,7 +111,7 @@ New file `data/budget_items.json`, validated in `src/data/schemas.ts`:
 |---|---|---|---|
 | Tisková zpráva | A: Word catch | Safe, narrow result range | free |
 | TV debata | B: Sound-bite timing | Risky, wide range | free |
-| Objezd regionů | C: Handshakes | Strongest regional effect | 1 PC |
+| Objezd regionů | C: Handshakes | High stakes: positive **or negative** outcome (see B1a) | free, **once per game year** |
 
 3. **Play the mini-game** (10–15 s), which returns a **score from 0 to 1**.
 4. **The score scales the deal:**
@@ -120,6 +122,16 @@ lossMult = lerp(channel.lossMax, channel.lossMin, score)   // e.g. 1.4 … 0.6
 ```
 
 Gains (positive regional shifts, anger reductions) are multiplied by `gainMult`; losses by `lossMult`. All channel numbers live in `config.compromise.channels`.
+
+#### B1a. Regional tour rules (decided by Daniel)
+
+- **Objezd regionů** can be used **once per game year** (game years = Q1–4, Q5–8, Q9–12, Q13–16). Once used, the channel shows as locked with the quarter it unlocks again. No PC cost.
+- Its outcome can be **positive or negative**, depending only on mini-game performance:
+  - High score: the deal's regional gains are boosted well above the other channels.
+  - Low score: the tour backfires, and the regions in the deal **lose** support (gains turn into losses, losses get bigger).
+  - Use a separate config block, e.g. `config.compromise.tour = { gainMin: -0.5, gainMax: 1.8, lossMin: 0.5, lossMax: 1.8, neutralScore: 0.5 }`, so a score around `neutralScore` gives roughly the plain deal. All numbers are tunable.
+- The result splash must state clearly whether the tour helped or hurt.
+- Track usage in state (`state.tourUsedInYear`) so it is deterministic and replayable.
 
 - There is a **Skip mini-game** option (accessibility and impatient players): it counts as `score = config.compromise.skipScore` (default `0.4`).
 - The clock stays paused for the whole flow.
@@ -166,7 +178,8 @@ Build the mini-game layer so a new mini-game is one component plus one config en
 - The mini-games run **only in the UI** (`src/ui/minigames/`). They may use real-time timers and their own UI randomness; the core never sees them. The core receives only the final `score`, clamped to [0, 1] and rounded to 2 decimals.
 - `makeCompromise` applies the card's bundle with the gain and loss multipliers through the existing pipeline; channel PC cost goes through the pipeline as well.
 - Log entry `compromise_made` gains `channelId` and `score`. Replay uses the logged score, so runs stay deterministic.
-- `canMakeCompromise` also rejects an unaffordable channel.
+- `canMakeCompromise` also rejects Objezd regionů when it was already used this game year.
+- Skip is not allowed for Objezd regionů (otherwise players would skip the risk); hide the Skip button there.
 
 ### B5. Bots
 
@@ -183,7 +196,8 @@ Build the mini-game layer so a new mini-game is one component plus one config en
 - Red lines: deterministic for a seed; each violation lowers the pass chance by the configured amount.
 - Unknown item or chapter in `budget_items.json` → readable load error.
 - Compromise multipliers: `score = 1` → gainMax/lossMin, `score = 0` → gainMin/lossMax.
-- Objezd regionů rejected without enough PC.
+- Objezd regionů: allowed once per game year, rejected a second time in the same year, unlocked again in the next year.
+- Objezd regionů with a low score produces a net regional **loss**; with a high score a gain larger than the other channels.
 - Replay with sliders and mini-game scores → deep-equal final state.
 - Guard tests still pass (no Czech in `src/`, no chapter **names or codes** in the UI).
 
@@ -199,9 +213,12 @@ Build the mini-game layer so a new mini-game is one component plus one config en
 
 ---
 
-## Open points (confirm with Daniel before starting)
+## Decisions by Daniel
 
-1. **Rule change:** `CLAUDE.md` rule 7 says budget chapter names are never shown. This feature shows **player-facing items** (Důchody, Neziskovky…), but the real chapter names and codes stay hidden. Confirm, then update the rule wording in `CLAUDE.md` and `DECISIONS.md`.
-2. **Final list of budget items** and their mapping to chapters (A3).
-3. **Real texts** for mini-games (spin and gaffe words, debate questions): `[DUMMY]` until Daniel writes them.
-4. Whether **Objezd regionů** should cost PC or something else.
+1. **Budget categories are shown, chapters stay hidden.** The player sees only categories (the biggest and the most controversial expenses). Chapter names and codes are never shown. Update the wording of `CLAUDE.md` rule 7 accordingly and log it in `DECISIONS.md`.
+2. **Mini-game texts are placeholders.** Spin words, gaffe words and debate questions ship as `[DUMMY]`.
+3. **Objezd regionů happens once per game year**, costs nothing, and can end positively or negatively depending on mini-game performance (B1a).
+
+## Still open
+
+- Final list of budget categories and their mapping to chapters (A3). Start with the draft list and `[DUMMY]` numbers.
