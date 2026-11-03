@@ -1,0 +1,21 @@
+/* Special-card preview page (special.html, catastrophes workspace). Sits above the card overlay. */
+.special-preview {
+  position: fixed; left: 12px; bottom: 12px; z-index: 80; width: min(280px, calc(100% - 24px));
+  display: flex; flex-direction: column; gap: 8px; padding: 10px; color: var(--text);
+  background: rgba(27, 23, 41, 0.95); border: 2px solid var(--gold-dim); box-shadow: var(--shadow-sm);
+}
+.special-preview__title { margin: 0; font: 700 16px var(--f-pixel); color: var(--gold); }
+.special-preview__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; max-height: 40vh; overflow: auto; }
+.special-preview__card {
+  width: 100%; display: flex; align-items: center; gap: 8px; padding: 6px 8px; cursor: pointer; text-align: left;
+  font: 14px var(--f-body, inherit); color: var(--text); background: var(--panel-2); border: 2px solid var(--line);
+}
+.special-preview__card span { flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px; font: 700 14px var(--f-pixel); color: var(--ground); }
+.special-preview__card--catastrophe span { background: var(--stamp); }
+.special-preview__card--agent span { background: var(--gold); }
+.special-preview__card.is-on { border-color: var(--gold); }
+.special-preview__replay { align-self: stretch; }
+@media (max-width: 760px) {
+  .special-preview { top: 8px; bottom: auto; }
+  .special-preview__list { max-height: 22vh; }
+}

@@ -29,6 +29,8 @@
   "special.in.one": "za {n} den",
   "special.in.few": "za {n} dny",
   "special.in.many": "za {n} dní",
+  "special.preview.title": "Náhled zvláštních karet",
+  "special.preview.replay": "Přehrát znovu",
   "special.dummy_cat_finances.title": "[DUMMY] Finanční krize",
   "special.dummy_cat_finances.text": "[DUMMY] Trhy zkoušejí, jestli rozpočet vydrží.",
   "special.dummy_cat_media.title": "[DUMMY] Mediální bouře",

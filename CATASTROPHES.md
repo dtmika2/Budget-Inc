@@ -18,6 +18,7 @@ not edit them.
 | `src/data/specialCards.ts` | special-card schema and data checks (called from the loader) |
 | `src/catastrophes/Layer.tsx` | the workspace's mount point: `PopupStack` = news pop-ups + special-card warnings + the special card |
 | `src/catastrophes/SpecialCard.tsx`, `CatastropheFx.tsx`, `AgentFx.tsx`, `SpecialWarnings.tsx`, `specialText.ts` | the special card (drop + earthquake / flip + shine), the warning banner, condition texts |
+| `special.html`, `src/catastrophes/preview/` | preview page: the game screen, paused, with a panel that opens any special card (`forceOpenSpecial`) |
 | `tests/specialCards.test.ts` | special-card tests |
 
 Special-card texts (`special.*`) also live in `locales/events.cs.json`.
@@ -81,7 +82,8 @@ those changes small and tell the other side:
   `src/core/scheduler.ts` (`KIND_PRIORITY.special`); `src/core/rng.ts` (stream `specials`);
   `src/core/bots.ts` (`runToEnd` resolves the card); `src/data/loader.ts` + `src/data/schemas.ts`
   (`data/catastrophes`, source `special`); `config.specials` in `src/config.ts`; `tests/helpers.ts`
-  (`gameData()` without special cards, `resolveModal`).
+  (`gameData()` without special cards, `resolveModal`); `vite.config.ts` builds `special.html` next to
+  `index.html`.
 
 Open a pull request into `main` when a version is ready, and merge `main` into your branch now and then to
 pick up the other work.
@@ -93,6 +95,11 @@ npm run dev
 ```
 Pick cards with chaos events and let the quarter run; pop-ups appear at the bottom right. Special cards
 come on their own a few times a year (the banner at the top right warns a week ahead).
+
+To watch a card open without waiting for it, use the preview page:
+`http://localhost:5173/special.html?card=dummy_cat_finances` (any card id; `&leader=abis` for the other
+leader). The panel at the bottom left opens any card again and replays its animation. The page is also
+part of the build (`dist/special.html`).
 
 ```bash
 npm test

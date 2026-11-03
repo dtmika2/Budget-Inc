@@ -193,6 +193,23 @@ export function closeSpecial(sim: Simulation): void {
   sim.log('special_closed', { id: open.id, cardId: open.cardId });
 }
 
+/**
+ * Preview page (special.html): open `cardId` right now, replacing a card that is already open. Not used by
+ * the game itself; false if the game is in another modal phase or the card does not exist.
+ */
+export function forceOpenSpecial(sim: Simulation, cardId: string): boolean {
+  const { state } = sim;
+  if (!specialCard(sim, cardId)) return false;
+  if (state.phase === 'special') {
+    state.specials.open = null;
+    state.phase = 'running';
+  }
+  if (state.phase !== 'running') return false;
+  const id = `preview${state.specials.seq++}`;
+  state.specials.upcoming.push({ id, cardId, fireAbsDay: sim.absDay });
+  return openSpecial(sim, { seq: -1, kind: 'special', absDay: sim.absDay, payload: { id } });
+}
+
 /** Headless bots and tests: accept and close. */
 export function resolveSpecialForBot(sim: Simulation): void {
   if (!canAcceptSpecial(sim)) sim.dispatch({ kind: 'acceptSpecial' });
