@@ -311,7 +311,21 @@ export function loadGameData(
       it.chapters.forEach((c, j) => {
         if (budget && !chapterCodes.has(c.chapter)) err('unknownChapter', f, `[${i}].chapters[${j}].chapter`, c.chapter);
       });
+      const { minSteps, maxSteps } = config.budgetVote.sliders;
+      if (it.band.min < minSteps || it.band.max > maxSteps) err('schema', f, `[${i}].band`, `band must be within ${minSteps}..${maxSteps}`);
+      if (it.advisor) {
+        locKey(it.advisor.cut, f, `[${i}].advisor.cut`);
+        locKey(it.advisor.overspend, f, `[${i}].advisor.overspend`);
+      }
+      const traits = new Set(Object.values(config.regions.traits).flat());
+      for (const side of ['onCut', 'onOverspend'] as const) {
+        checkBundle(it[side], f, `[${i}].${side}`);
+        for (const tr of Object.keys(it[side].regionTraits ?? {})) if (!traits.has(tr)) err('unknownTrait', f, `[${i}].${side}.regionTraits.${tr}`, tr);
+      }
     });
+    const { core, extra } = config.budgetVote.hand;
+    if (itemsRaw.filter((it) => it.core).length < core) warnings.push({ code: 'schema', file: 'data/budget_items.json', path: 'core', detail: `fewer than ${core} core categories` });
+    if (itemsRaw.filter((it) => !it.core).length < extra) warnings.push({ code: 'schema', file: 'data/budget_items.json', path: 'core', detail: `fewer than ${extra} extra categories` });
   }
 
   if (voteRaw) {
@@ -527,7 +541,7 @@ export function loadGameData(
     }) as ChaosEventDef[],
     opportunities: opportunities.map((o) => ({ ...o.item, reward: normalise(o.item.reward) })) as OpportunityDef[],
     budgetVote: voteRaw.map(normalise) as BudgetVoteOption[],
-    budgetItems: itemsRaw as BudgetItem[],
+    budgetItems: itemsRaw.map((it) => ({ ...it, onCut: normalise(it.onCut), onOverspend: normalise(it.onOverspend) })) as BudgetItem[],
     minigames: minigamesRaw as MinigameTexts,
     regionProfiles: profilesRaw as RegionProfiles,
     parties: partiesRaw as PartyDef[],

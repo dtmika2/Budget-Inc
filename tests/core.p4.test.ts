@@ -3,7 +3,7 @@ import { presetVote } from '../src/core/bots';
 import { config } from '../src/config';
 import { scheduleChaosForPick } from '../src/core/chaos';
 import { registerOngoing } from '../src/core/effects';
-import { passChance, presetSliders } from '../src/core/budgetVote';
+import { itemZone, passChance, presetSliders, shownItems } from '../src/core/budgetVote';
 import { nodeStatus } from '../src/core/upgrades';
 import { advanceQuiet, cfgWith, gameData, makeSim, quietSim } from './helpers';
 import { withSupportTree } from './fixtures/trees';
@@ -194,6 +194,7 @@ describe('budget vote', () => {
     const N = 800;
     let p = 0;
     let stepMod = 0;
+    let sumP = 0;
     for (let i = 0; i < N; i++) {
       const sim = quietSim({ seed: `bv${i}` });
       sim.state.day = 74;
@@ -201,12 +202,15 @@ describe('budget vote', () => {
       while (sim.state.phase === 'running') sim.tick();
       sim.state.budgetVoteRedLines = [];
       p = passChance(sim, presetSliders(sim, 'budget_tight'), 'budget_tight');
-      stepMod = sim.data.budgetItems.reduce((acc, it) => acc + it.passPerStep * presetSliders(sim, 'budget_tight')[it.id], 0);
+      sumP += p;
+      const sl = presetSliders(sim, 'budget_tight');
+      stepMod = shownItems(sim).reduce((acc, it) => acc + it.passPerStep * config.budgetVote.impact * sl[it.id] + (itemZone(it, sl[it.id])?.pass ?? 0), 0);
       sim.dispatch(presetVote(sim, 'budget_tight'));
       if (sim.state.log.at(-1)!.passed) passed++;
     }
-    expect(p).toBeCloseTo(0.75 + (sim0Coalition() - 50) / 100 - 0.1 + stepMod, 1);
-    expect(Math.abs(passed / N - p)).toBeLessThan(0.05);
+    expect(p).toBeCloseTo(Math.max(config.budgetVote.passMin, 0.75 + (sim0Coalition() - 50) / 100 - 0.1 + stepMod), 1);
+    // the hand differs per seed, so compare with the mean chance
+    expect(Math.abs(passed / N - sumP / N)).toBeLessThan(0.05);
     function sim0Coalition() {
       return 40 + config.drift.coalition; // one day of drift before the vote opens
     }
@@ -237,11 +241,12 @@ describe('budget vote', () => {
     sim.state.day = 74;
     while (sim.state.phase === 'running') sim.tick();
     const exp = { ...sim.state.budget.expPct };
+    const sl = presetSliders(sim, 'budget_tight');
+    const shown = shownItems(sim);
     sim.dispatch(presetVote(sim, 'budget_tight'));
     expect(sim.state.log.find((l) => l.type === 'budget_vote')!.passed).toBe(true);
     const want = { ...exp };
-    const sl = presetSliders(sim, 'budget_tight');
-    for (const it of sim.data.budgetItems)
+    for (const it of shown)
       for (const c of it.chapters) want[c.chapter] += sl[it.id] * config.budgetVote.sliders.stepPct * c.weight;
     for (const code of Object.keys(exp)) expect(sim.state.budget.expPct[code]).toBeCloseTo(want[code]);
   });

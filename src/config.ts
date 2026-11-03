@@ -185,7 +185,13 @@ export const config = {
     passMax: 0.98,
     failEffects: { coalition: -8, prestige: -3, support: -2 } as Partial<Record<ResourceId, number>>,
     /** Budget sliders (phase 11): one step changes a category's spending by stepPct %. */
-    sliders: { minSteps: -3, maxSteps: 3, stepPct: 5 },
+    sliders: { minSteps: -3, maxSteps: 3, stepPct: 10 },
+    /** Categories shown per vote: `core` drawn from the core ones, `extra` from the rest (pledged ones forced in). */
+    hand: { core: 2, extra: 4 },
+    /** Re-roll of the shown categories: costs baseCost x factor^rerolls PC (like the policy draft). */
+    reroll: { baseCost: 1, factor: 2 },
+    /** Multiplier on every category's supportPerStep, angerPerStep and passPerStep. */
+    impact: 1.5,
     /**
      * Coalition red lines: at vote open, min..max categories (with canBeRedLine) are drawn from the
      * budgetVote stream. Cutting one by more than maxCutSteps steps is a violation; each violation lowers

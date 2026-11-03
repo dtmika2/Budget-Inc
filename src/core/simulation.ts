@@ -5,7 +5,19 @@
 import type { Config, DifficultyPreset } from '../config';
 import { activateAbility, canUseAbility, rechargeIfYearStart } from './abilities';
 import { computeFinances, initPct } from './budget';
-import { openBudgetVote, passChance, scheduleBudgetVotes, validateVote, violations, voteBudget, voteBundle, type Sliders } from './budgetVote';
+import {
+  canRerollBudget,
+  openBudgetVote,
+  passChance,
+  rerollBudget,
+  scheduleBudgetVotes,
+  validateVote,
+  violations,
+  voteBudget,
+  voteBundle,
+  zoneBundle,
+  type Sliders,
+} from './budgetVote';
 import { canRespond, fireChaos, respond, scheduleChaosForPick } from './chaos';
 import { canMakeCompromise, makeCompromise, openCompromise, scaleBundle, scheduleQuarterCompromise, soldBundle } from './compromise';
 import {
@@ -145,6 +157,8 @@ export class Simulation implements EffectHost {
       draft: null,
       compromiseOffer: null,
       budgetVoteRedLines: null,
+      budgetVoteItems: null,
+      budgetVoteRerolls: 0,
       tourUsedInYear: null,
       regionHistory: [],
       demands: [],
@@ -452,6 +466,7 @@ export class Simulation implements EffectHost {
     s.draft = null;
     s.compromiseOffer = null;
     s.budgetVoteRedLines = null;
+    s.budgetVoteItems = null;
   }
 
   private finishElection(snap: boolean): void {
@@ -494,6 +509,8 @@ export class Simulation implements EffectHost {
       case 'reroll':
         if (s.phase !== 'draft' || !s.draft) return 'no draft open';
         return s.pc >= this.currentRerollCost() ? null : 'cannot afford reroll';
+      case 'rerollBudget':
+        return canRerollBudget(this);
       case 'respond':
         return canRespond(this, input.eventInstanceId, input.responseId, input.timedOut);
       case 'collectOpportunity':
@@ -537,6 +554,9 @@ export class Simulation implements EffectHost {
         scheduleChaosForPick(this, card);
         break;
       }
+      case 'rerollBudget':
+        rerollBudget(this);
+        break;
       case 'reroll': {
         const cost = this.currentRerollCost();
         s.pc -= cost;
@@ -622,6 +642,13 @@ export class Simulation implements EffectHost {
       reject: p(tpl.onReject),
       ignore: p(scaleBundle(tpl.onReject, f, f)),
     };
+  }
+
+  /** Ranges of a budget category's cut and overspend zones (the advisors' hints). */
+  previewBudgetZones(itemId: string): Record<'cut' | 'overspend', PreviewRanges & { pass: number }> {
+    const it = this.data.budgetItems.find((i) => i.id === itemId)!;
+    const z = (zone: typeof it.onCut) => ({ ...this.preview(zoneBundle(this, zone), 'budget_vote'), pass: zone.pass ?? 0 });
+    return { cut: z(it.onCut), overspend: z(it.onOverspend) };
   }
 
   /** Ranges of a region event's two outcomes in its kraj. */

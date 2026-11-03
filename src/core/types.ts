@@ -164,6 +164,22 @@ export interface BudgetItem {
   /** Pass-chance change per +1 step (e.g. partners like more spending on this). */
   passPerStep: number;
   canBeRedLine: boolean;
+  /** Core categories (the big ones): at most config.budgetVote.hand.core of them are shown per vote. */
+  core: boolean;
+  /** Safe slider range; a passed vote with the slider below / above it applies onCut / onOverspend. */
+  band: { min: number; max: number };
+  onCut: BudgetZone;
+  onOverspend: BudgetZone;
+  /** Advisor hint texts shown before the vote (what happens past each side of the band). */
+  advisor: { cut: string; overspend: string } | null;
+}
+
+/** One-off effects of a budget category outside its safe band (applied only when the vote passes). */
+export interface BudgetZone extends EffectBundle {
+  /** Regional support per kraj trait: every kraj with the trait gets this range (summed over its traits). */
+  regionTraits?: Record<string, Range>;
+  /** Pass-chance change while the slider is in this zone. */
+  pass?: number;
 }
 
 export interface RedLine {
@@ -428,6 +444,7 @@ export type Input =
   | { kind: 'useAbility' }
   | { kind: 'acceptDemand'; demandId: string }
   | { kind: 'rejectDemand'; demandId: string }
+  | { kind: 'rerollBudget' }
   | { kind: 'interveneRegionEvent'; eventId: string }
   | { kind: 'ignoreRegionEvent'; eventId: string };
 
@@ -561,6 +578,10 @@ export interface GameState {
   compromiseOffer: string[] | null;
   /** Coalition red lines of the open budget vote (drawn at vote open). */
   budgetVoteRedLines: RedLine[] | null;
+  /** Budget categories shown in the open vote (2 core + 4 extra, pledged ones forced in); null = all. */
+  budgetVoteItems: string[] | null;
+  /** Re-rolls of the shown categories in the open vote (each costs more PC). */
+  budgetVoteRerolls: number;
   /** Open regional demands ("!" pins) and accepted pledges (phase 14). */
   demands: OpenDemand[];
   pledges: Pledge[];

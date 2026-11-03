@@ -142,6 +142,10 @@ export const budgetVoteOptionSchema = z
   })
   .strict();
 
+const budgetZoneSchema = z
+  .object({ ...bundleShape, regionTraits: z.record(z.string(), rangeSchema).optional(), pass: z.number().optional() })
+  .strict();
+
 export const budgetItemSchema = z
   .object({
     id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),
@@ -157,6 +161,14 @@ export const budgetItemSchema = z
     supportPerStep: z.number().default(0),
     passPerStep: z.number().default(0),
     canBeRedLine: z.boolean().default(true),
+    core: z.boolean().default(false),
+    band: z
+      .object({ min: z.number().int().max(0), max: z.number().int().min(0) })
+      .strict()
+      .default({ min: -1, max: 1 }),
+    onCut: budgetZoneSchema.default({}),
+    onOverspend: budgetZoneSchema.default({}),
+    advisor: z.object({ cut: z.string(), overspend: z.string() }).strict().nullable().default(null),
   })
   .strict();
 
