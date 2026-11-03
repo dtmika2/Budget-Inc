@@ -69,6 +69,7 @@ export type ModifierSource =
   | 'ability'
   | 'compromise'
   | 'demand'
+  | 'region_event'
   | 'any';
 
 /** Where a value change comes from (a modifier `source` other than `any`). */
@@ -352,6 +353,36 @@ export interface OpenDemand {
   expireAbsDay: number;
 }
 
+/** Animation drawn over the whole kraj while a region event is open. */
+export type RegionEventAnimation = 'flood' | 'blackout' | 'protest' | 'factory' | 'duo';
+
+/**
+ * Regional event template (regions workspace): once a year per kraj, a whole-region animation with a
+ * "!" pin. Intervene -> onIntervene; ignore or timeout -> onIgnore. Bundles may use the region key "self".
+ */
+export interface RegionEventTemplate {
+  id: string;
+  status: 'DUMMY' | 'DRAFT' | 'APPROVED';
+  animation: RegionEventAnimation;
+  /** Weight multiplier per region trait (missing = 1). */
+  regionWeights: Record<string, number>;
+  title: string;
+  text: string;
+  /** Optional variants (e.g. who of the Ikonicke duo comes); each has its own text. */
+  variants: { id: string; text: string }[];
+  onIntervene: EffectBundle;
+  onIgnore: EffectBundle;
+}
+
+export interface OpenRegionEvent {
+  id: string;
+  templateId: string;
+  region: string;
+  variant: string | null;
+  spawnAbsDay: number;
+  expireAbsDay: number;
+}
+
 export interface Pledge {
   id: string;
   templateId: string;
@@ -375,6 +406,7 @@ export interface GameData {
   regionProfiles: RegionProfiles;
   parties: PartyDef[];
   demands: DemandTemplate[];
+  regionEvents: RegionEventTemplate[];
   upgrades: UpgradeTree[];
   endings: EndingDef[];
   /** File path -> short content hash, logged in run_started. */
@@ -395,7 +427,9 @@ export type Input =
   | { kind: 'buyUpgrade'; nodeId: string }
   | { kind: 'useAbility' }
   | { kind: 'acceptDemand'; demandId: string }
-  | { kind: 'rejectDemand'; demandId: string };
+  | { kind: 'rejectDemand'; demandId: string }
+  | { kind: 'interveneRegionEvent'; eventId: string }
+  | { kind: 'ignoreRegionEvent'; eventId: string };
 
 export interface RecordedInput {
   /** Number of effective ticks executed before this input (replay anchor). */
@@ -415,7 +449,7 @@ export interface OngoingInstance {
   label?: string;
 }
 
-export type ScheduledKind = 'budgetVote' | 'compromise' | 'chaos' | 'pinSpawn' | 'pinExpire' | 'demandSpawn' | 'demandExpire';
+export type ScheduledKind = 'budgetVote' | 'compromise' | 'chaos' | 'pinSpawn' | 'pinExpire' | 'demandSpawn' | 'demandExpire' | 'regionEventSpawn' | 'regionEventExpire';
 
 export interface ScheduledEntry {
   seq: number;
@@ -531,6 +565,9 @@ export interface GameState {
   demands: OpenDemand[];
   pledges: Pledge[];
   demandSeq: number;
+  /** Open regional events (regions workspace), at most one per kraj. */
+  regionEvents: OpenRegionEvent[];
+  regionEventSeq: number;
   /** Weekly regional support s_r (phase 13 history), first point at the run start. */
   regionHistory: { absDay: number; s: Record<string, number>; national: number }[];
   /** Game year (1-4) in which a once-per-year compromise channel (the regional tour) was last used. */

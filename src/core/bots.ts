@@ -12,6 +12,7 @@ import { failBundle, presetSliders, sameSliders, type Sliders } from './budgetVo
 import { channelBlocked } from './compromise';
 import { budgetConditionMet, pledgesForCard, pledgesForCompromise, templateOf } from './demands';
 import type { PreviewRanges } from './effects';
+import { canAnswerRegionEvent } from './regionEvents';
 import { Rng } from './rng';
 import type { Simulation } from './simulation';
 import type { GroupId, Range, ResourceId } from './types';
@@ -97,6 +98,14 @@ export function greedyAccepts(sim: Simulation, templateId: string, region: strin
   const q = sim.cfg.bots.pledgeFulfilEstimate;
   const accept = gain(sim, pr.accept) + q * gain(sim, pr.fulfil) + (1 - q) * gain(sim, pr.fail);
   return accept > gain(sim, pr.reject);
+}
+
+/** Greedy answer to a region event: intervene when it is affordable and beats ignoring. */
+export function greedyIntervenes(sim: Simulation, eventId: string): boolean {
+  if (canAnswerRegionEvent(sim, eventId, true)) return false;
+  const ev = sim.state.regionEvents.find((e) => e.id === eventId)!;
+  const pr = sim.previewRegionEvent(ev.templateId, ev.region);
+  return gain(sim, pr.intervene) > gain(sim, pr.ignore);
 }
 
 /** Compromise channels usable right now (config order). */
@@ -207,6 +216,10 @@ export function createBot(kind: BotKind, seed: string): Bot {
           return rng.pick(opts).id;
         });
         for (const d of [...s.demands]) sim.dispatch({ kind: rng.next() < 0.5 ? 'acceptDemand' : 'rejectDemand', demandId: d.id });
+        for (const e of [...s.regionEvents]) {
+          const intervene = rng.next() < 0.5 && !canAnswerRegionEvent(sim, e.id, true);
+          sim.dispatch({ kind: intervene ? 'interveneRegionEvent' : 'ignoreRegionEvent', eventId: e.id });
+        }
         for (const pin of [...s.pins]) {
           if (pinDecided.has(pin.id)) continue;
           pinDecided.add(pin.id);
@@ -276,6 +289,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
       for (const pin of [...s.pins]) sim.dispatch({ kind: 'collectOpportunity', pinId: pin.id });
       for (const d of [...s.demands])
         sim.dispatch({ kind: greedyAccepts(sim, d.templateId, d.region) ? 'acceptDemand' : 'rejectDemand', demandId: d.id });
+      for (const e of [...s.regionEvents]) sim.dispatch({ kind: greedyIntervenes(sim, e.id) ? 'interveneRegionEvent' : 'ignoreRegionEvent', eventId: e.id });
       // cheapest available upgrade
       const avail = availableNodes(sim).sort((a, b) => a.cost - b.cost);
       if (avail.length && avail[0].cost <= s.pc) sim.dispatch({ kind: 'buyUpgrade', nodeId: avail[0].id });

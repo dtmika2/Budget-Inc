@@ -16,6 +16,7 @@
 - [x] P12 — Compromise channels and mini-games
 - [x] P13 — Region screen, traits and history
 - [x] P14 — Regional demands ("!") and pledges
+- [x] P15 — Region events (second map layer) and the tabbed region screen
 
 Every phase gate passed (`typecheck`, `lint`, `test` — 98 tests, `build`, and from P5 on `simulate --runs 200 --bot random`).
 

@@ -12,6 +12,7 @@ import type {
   BudgetVoteOption,
   ChaosEventDef,
   DemandTemplate,
+  RegionEventTemplate,
   EffectBundle,
   EndingDef,
   GameData,
@@ -27,6 +28,7 @@ import type {
 import { GROUP_IDS, RESOURCE_IDS } from '../core/types';
 import {
   demandSchema,
+  regionEventSchema,
   budgetItemSchema,
   budgetSchema,
   budgetVoteOptionSchema,
@@ -169,6 +171,8 @@ export function loadGameData(
   const opportunities = many(opportunitySchema, 'data/opportunities');
   const trees = many(upgradeTreeSchema, 'data/upgrades');
   const demandsAll = many(demandSchema, 'data/demands');
+  const regionEventsAll = many(regionEventSchema, 'data/region_events');
+  const regionEvents = regionEventsAll.filter((e) => e.item.status !== 'DRAFT' || includeFiller);
   // DRAFT demands (drafted from programmes, not yet approved) only load with includeDevFiller
   const demands = demandsAll.filter((d) => d.item.status !== 'DRAFT' || includeFiller);
 
@@ -407,6 +411,18 @@ export function loadGameData(
     });
   }
 
+  // region events (regions workspace)
+  dupCheck(regionEventsAll.map((e) => ({ id: e.item.id, file: e.file, path: `[${e.idx}]` })));
+  const knownTraits = new Set(Object.values(config.regions.traits).flat());
+  for (const { item: e, file, idx } of regionEventsAll) {
+    const p = `[${idx}]`;
+    locKey(e.title, file, `${p}.title`);
+    locKey(e.text, file, `${p}.text`);
+    e.variants.forEach((v, i: number) => locKey(v.text, file, `${p}.variants[${i}].text`));
+    for (const k of ['onIntervene', 'onIgnore'] as const) checkBundle(e[k], file, `${p}.${k}`);
+    for (const tr of Object.keys(e.regionWeights)) if (!knownTraits.has(tr)) err('unknownTrait', file, `${p}.regionWeights.${tr}`, tr);
+  }
+
   dupCheck(opportunities.map((o) => ({ id: o.item.id, file: o.file, path: `[${o.idx}]` })));
   for (const { item: o, file, idx } of opportunities) {
     locKey(o.text, file, `[${idx}].text`);
@@ -516,6 +532,7 @@ export function loadGameData(
     regionProfiles: profilesRaw as RegionProfiles,
     parties: partiesRaw as PartyDef[],
     demands: demands.map((d) => d.item) as DemandTemplate[],
+    regionEvents: regionEvents.map((e) => ({ ...e.item, onIntervene: normalise(e.item.onIntervene), onIgnore: normalise(e.item.onIgnore) })) as RegionEventTemplate[],
     upgrades: trees.map((t) => t.item) as UpgradeTree[],
     endings: endingsRaw as EndingDef[],
     fileHashes,

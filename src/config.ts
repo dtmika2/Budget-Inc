@@ -118,6 +118,27 @@ export const config = {
       border: { border: 1.4, tourism: 1.1 },
       university: { education: 1.4 },
     } as Record<string, Record<string, number>>,
+    /**
+     * Region screen cohorts (regions workspace, display only): how much of each interest group in a kraj is
+     * angry = national anger x the product of these per-trait multipliers (missing = 1); the rest splits
+     * into supporters and neutral by the kraj's regional support.
+     */
+    groupAffinity: {
+      urban: { media: 1.2, activists: 1.2, pensioners: 0.9 },
+      mixed: {},
+      rural: { pensioners: 1.2, activists: 0.8, eu: 1.1 },
+      industry: { oligarchs: 1.2 },
+      services: { media: 1.1 },
+      agriculture: { eu: 1.2 },
+      tourism: {},
+      coal: { oligarchs: 1.3, activists: 1.2 },
+      border: { eu: 1.2 },
+      university: { activists: 1.4 },
+    } as Record<string, Partial<Record<GroupId, number>>>,
+    /** Cap on the angry share of a group (%). */
+    maxAngryShare: 95,
+    /** Region screen: how many entries the "biggest impact" list shows. */
+    topEffects: 5,
   },
 
   /**
@@ -336,6 +357,16 @@ export const config = {
     ignoreFactor: 0.5,
     /** Draft / compromise-offer weight multiplier for cards that would fulfil an active pledge. */
     draftBoost: 2,
+  },
+
+  /** Regional events (regions workspace): one per kraj per year, whole-kraj animation + "!" pin. */
+  regionEvents: {
+    enabled: true,
+    /** Spawn window inside the year (days from the year's start / before its end). */
+    spawnFromDay: 5,
+    spawnBeforeYearEnd: 20,
+    /** Days the event (and its animation) stays open before it counts as ignored. */
+    responseDays: 30,
   },
 
   /** Compromise mini-games (UI only; the core only sees the final score). */

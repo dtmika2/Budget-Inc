@@ -29,6 +29,15 @@ import { makeEntry } from './log';
 import { scalar, tickModifiers, type PipelineCtx } from './modifiers';
 import { collectPin, expirePin, scheduleQuarterPins, spawnPin } from './opportunities';
 import { applyStandInPenalties, applyZeroPenalties, updateZeroPenalties } from './penalties';
+import {
+  canAnswerRegionEvent,
+  expireRegionEvent,
+  ignoreRegionEvent,
+  interveneRegionEvent,
+  regionEventTemplate,
+  scheduleYearRegionEvents,
+  spawnRegionEvent,
+} from './regionEvents';
 import { createStreams, shortHash, type RngStreams } from './rng';
 import { takeNextDue } from './scheduler';
 import { computeScore } from './score';
@@ -141,6 +150,8 @@ export class Simulation implements EffectHost {
       demands: [],
       pledges: [],
       demandSeq: 0,
+      regionEvents: [],
+      regionEventSeq: 0,
       picked: [],
       schedule: [],
       scheduleSeq: 0,
@@ -294,6 +305,7 @@ export class Simulation implements EffectHost {
     scheduleQuarterPins(this);
     scheduleQuarterCompromise(this);
     scheduleYearDemands(this);
+    scheduleYearRegionEvents(this);
     s.draft = { hand: [], shownThisQuarter: [], rerolls: 0 };
     s.phase = 'draft';
     this.deal();
@@ -354,6 +366,8 @@ export class Simulation implements EffectHost {
       else if (e.kind === 'pinExpire') expirePin(this, e);
       else if (e.kind === 'demandSpawn') spawnDemand(this);
       else if (e.kind === 'demandExpire') expireDemand(this, e);
+      else if (e.kind === 'regionEventSpawn') spawnRegionEvent(this, e);
+      else if (e.kind === 'regionEventExpire') expireRegionEvent(this, e);
     }
 
     // 2. daily changes: drift -> ongoing -> zero penalties (+ stand-ins) -> anger decay; then durations
@@ -427,8 +441,10 @@ export class Simulation implements EffectHost {
     for (const p of s.pendingResponses) this.log('scheduled_cancelled', { what: 'response', eventId: p.eventId, reason });
     for (const d of s.demands) this.log('scheduled_cancelled', { what: 'demand', demandId: d.id, reason });
     for (const p of s.pledges) this.log('scheduled_cancelled', { what: 'pledge', pledgeId: p.id, reason });
+    for (const e of s.regionEvents) this.log('scheduled_cancelled', { what: 'region_event', eventId: e.id, reason });
     s.demands = [];
     s.pledges = [];
+    s.regionEvents = [];
     s.schedule = [];
     s.ongoing = [];
     s.pins = [];
@@ -495,6 +511,9 @@ export class Simulation implements EffectHost {
       case 'acceptDemand':
       case 'rejectDemand':
         return canAnswerDemand(this, input.demandId);
+      case 'interveneRegionEvent':
+      case 'ignoreRegionEvent':
+        return canAnswerRegionEvent(this, input.eventId, input.kind === 'interveneRegionEvent');
     }
   }
 
@@ -547,6 +566,12 @@ export class Simulation implements EffectHost {
       case 'rejectDemand':
         rejectDemand(this, input.demandId);
         break;
+      case 'interveneRegionEvent':
+        interveneRegionEvent(this, input.eventId);
+        break;
+      case 'ignoreRegionEvent':
+        ignoreRegionEvent(this, input.eventId);
+        break;
     }
     this.checkTerminal();
     this.changed();
@@ -597,6 +622,13 @@ export class Simulation implements EffectHost {
       reject: p(tpl.onReject),
       ignore: p(scaleBundle(tpl.onReject, f, f)),
     };
+  }
+
+  /** Ranges of a region event's two outcomes in its kraj. */
+  previewRegionEvent(templateId: string, region: string): Record<'intervene' | 'ignore', PreviewRanges> {
+    const tpl = regionEventTemplate(this, templateId);
+    const p = (b: EffectBundle) => this.preview(resolveSelf(b, region), 'region_event');
+    return { intervene: p(tpl.onIntervene), ignore: p(tpl.onIgnore) };
   }
 
   /** Random stream of the demand system. */
