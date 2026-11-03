@@ -53,6 +53,8 @@ export interface EffectBundle {
   pc?: number;
   /** Regional support shifts per kraj code (added to national support for that region only). */
   regions?: Partial<Record<string, Range>>;
+  /** Hidden tags (agriculture, transport, ...) that region traits react to (phase 13). */
+  tags?: string[];
 }
 
 export type ModifierSource =
@@ -253,6 +255,40 @@ export interface MinigameTexts {
   debateQuestions: string[];
 }
 
+/** A displayed statistic with its source; value null until filled from the official source. */
+export interface StatValue {
+  value: number | null;
+  year: number | null;
+  source: string;
+  status: 'TODO' | 'OK';
+}
+
+export const DEMOGRAPHIC_FIELDS = ['population', 'avgWage', 'medianWage', 'employmentRate', 'unemploymentRate', 'gdpPerCapita', 'povertyRate'] as const;
+export type DemographicField = (typeof DEMOGRAPHIC_FIELDS)[number];
+
+export interface RegionProfile {
+  traits: string[];
+  demographics: Record<DemographicField, StatValue>;
+  coalition: {
+    /** 'kraj' = regional council; 'city' = Prague city council. */
+    council: 'kraj' | 'city';
+    parties: string[];
+    source: string;
+    asOf: string | null;
+    status: 'TODO' | 'OK';
+  };
+}
+
+export interface RegionProfiles {
+  traitsSource: string;
+  regions: Record<string, RegionProfile>;
+}
+
+export interface PartyDef {
+  id: string;
+  label: string;
+}
+
 export interface GameData {
   budget: BudgetData;
   regions: RegionsData;
@@ -264,6 +300,8 @@ export interface GameData {
   budgetVote: BudgetVoteOption[];
   budgetItems: BudgetItem[];
   minigames: MinigameTexts;
+  regionProfiles: RegionProfiles;
+  parties: PartyDef[];
   upgrades: UpgradeTree[];
   endings: EndingDef[];
   /** File path -> short content hash, logged in run_started. */
@@ -414,6 +452,8 @@ export interface GameState {
   compromiseOffer: string[] | null;
   /** Coalition red lines of the open budget vote (drawn at vote open). */
   budgetVoteRedLines: RedLine[] | null;
+  /** Weekly regional support s_r (phase 13 history), first point at the run start. */
+  regionHistory: { absDay: number; s: Record<string, number>; national: number }[];
   /** Game year (1-4) in which a once-per-year compromise channel (the regional tour) was last used. */
   tourUsedInYear: number | null;
   picked: { cardId: string; quarter: number }[];

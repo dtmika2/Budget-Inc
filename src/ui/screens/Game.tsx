@@ -14,6 +14,7 @@ import { UpgradeTree } from '../modals/UpgradeTree';
 import { SidePanel } from '../panel/SidePanel';
 import { PopupStack } from '../popups/PopupStack';
 import { nodeStatus } from '@core/upgrades';
+import { RegionScreen } from '../region/RegionScreen';
 import { getStore, useStore } from '../store';
 import { Tutorial } from '../tutorial/Tutorial';
 
@@ -64,6 +65,7 @@ export function Game() {
         </main>
       </div>
 
+      <RegionScreen />
       {phase === 'draft' && <DraftModal />}
       {phase === 'budgetVote' && <BudgetVoteModal />}
       {phase === 'compromise' && <CompromiseModal />}

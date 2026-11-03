@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ano",
+    "label": "party.ano"
+  },
+  {
+    "id": "ods",
+    "label": "party.ods"
+  },
+  {
+    "id": "stan",
+    "label": "party.stan"
+  },
+  {
+    "id": "pirati",
+    "label": "party.pirati"
+  },
+  {
+    "id": "kdu_csl",
+    "label": "party.kdu_csl"
+  },
+  {
+    "id": "top09",
+    "label": "party.top09"
+  },
+  {
+    "id": "spd",
+    "label": "party.spd"
+  },
+  {
+    "id": "socdem",
+    "label": "party.socdem"
+  },
+  {
+    "id": "kscm",
+    "label": "party.kscm"
+  },
+  {
+    "id": "zeleni",
+    "label": "party.zeleni"
+  },
+  {
+    "id": "prisaha",
+    "label": "party.prisaha"
+  },
+  {
+    "id": "motoriste",
+    "label": "party.motoriste"
+  }
+]

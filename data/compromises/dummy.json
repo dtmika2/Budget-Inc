@@ -27,6 +27,7 @@
   },
   {
     "id": "dummy_comp_finance",
+    "tags": ["transport"],
     "availableFor": ["mupka", "abis"],
     "title": "compromise.dummy_comp_finance.title",
     "description": "compromise.dummy_comp_finance.desc",

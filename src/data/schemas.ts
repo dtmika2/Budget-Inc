@@ -1,6 +1,6 @@
 /** Zod schemas for every data file in spec §13. */
 import { z } from 'zod';
-import { GROUP_IDS, LEANING_IDS, RESOURCE_IDS } from '../core/types';
+import { DEMOGRAPHIC_FIELDS, GROUP_IDS, LEANING_IDS, RESOURCE_IDS } from '../core/types';
 
 export const rangeSchema = z
   .object({ min: z.number(), max: z.number() })
@@ -59,6 +59,8 @@ const bundleShape = {
   pc: z.number().optional(),
   /** Regional support shifts keyed by kraj code (validated against data/regions.json). */
   regions: z.record(z.string(), rangeSchema).optional(),
+  /** Hidden tags that region traits react to (validated against config.regions.tags). */
+  tags: z.array(z.string()).optional(),
 };
 
 export const bundleSchema = z.object(bundleShape).strict();
@@ -263,3 +265,39 @@ export const minigameTextsSchema = z
     debateQuestions: z.array(z.string()).min(5),
   })
   .strict();
+
+const statValueSchema = z
+  .object({
+    value: z.number().nullable(),
+    year: z.number().int().nullable(),
+    source: z.string(),
+    status: z.enum(['TODO', 'OK']),
+  })
+  .strict()
+  .refine((v) => v.status === 'TODO' || (v.value !== null && v.year !== null), { message: 'status OK needs a value and a year' });
+
+export const regionProfilesSchema = z
+  .object({
+    traitsSource: z.string(),
+    regions: z.record(
+      z.string(),
+      z
+        .object({
+          traits: z.array(z.string()).min(2).max(3),
+          demographics: z.object(Object.fromEntries(DEMOGRAPHIC_FIELDS.map((f) => [f, statValueSchema]))).strict(),
+          coalition: z
+            .object({
+              council: z.enum(['kraj', 'city']),
+              parties: z.array(z.string()),
+              source: z.string(),
+              asOf: z.string().nullable(),
+              status: z.enum(['TODO', 'OK']),
+            })
+            .strict(),
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+
+export const partySchema = z.object({ id: z.string().regex(/^[a-z0-9_]+$/), label: z.string() }).strict();

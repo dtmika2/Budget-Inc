@@ -93,6 +93,31 @@ export const config = {
     startJitter: 6,
     /** Cap on a region's accumulated shift (+-). */
     maxShift: 40,
+    /** Phase 13: region traits. Every region has one settlement trait, one economy trait, optionally one special. */
+    traits: {
+      settlement: ['urban', 'mixed', 'rural'],
+      economy: ['industry', 'services', 'agriculture', 'tourism'],
+      special: ['coal', 'border', 'university'],
+    } as Record<'settlement' | 'economy' | 'special', string[]>,
+    /** Hidden card tags that traits react to. */
+    tags: ['agriculture', 'industry', 'transport', 'services', 'tourism', 'environment', 'education', 'social', 'coal', 'border'] as string[],
+    /**
+     * How strongly a region reacts to a tagged card: multiplier per trait and tag (missing = 1). The product
+     * over the region's traits and the card's tags scales the card's regional effects and adds
+     * support x (mult - 1) to the region's shift (national support itself is unchanged).
+     */
+    traitResponse: {
+      urban: { agriculture: 0.7, transport: 1.2, services: 1.2, environment: 1.2, education: 1.1 },
+      mixed: {},
+      rural: { agriculture: 1.3, services: 0.8, social: 1.2, environment: 0.9 },
+      industry: { industry: 1.4, environment: 0.8 },
+      services: { services: 1.3 },
+      agriculture: { agriculture: 1.5 },
+      tourism: { tourism: 1.5, transport: 1.1 },
+      coal: { coal: 1.6, environment: 0.6, industry: 1.2 },
+      border: { border: 1.4, tourism: 1.1 },
+      university: { education: 1.4 },
+    } as Record<string, Record<string, number>>,
   },
 
   /**

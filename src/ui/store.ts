@@ -219,7 +219,7 @@ export class Store {
 
   get effectivePaused(): boolean {
     const u = this.ui;
-    return u.userPaused || u.blurred || u.modal !== null || u.tutorial !== null || this.sim?.state.phase !== 'running';
+    return u.userPaused || u.blurred || u.modal !== null || u.tutorial !== null || u.selectedRegion !== null || this.sim?.state.phase !== 'running';
   }
 
   setSpeed(speed: number): void {

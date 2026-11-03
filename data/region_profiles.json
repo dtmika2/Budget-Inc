@@ -1,0 +1,812 @@
+{
+  "traitsSource": "DRAFT – traits proposed by the developer, to be confirmed by Daniel",
+  "regions": {
+    "CZ010": {
+      "traits": [
+        "urban",
+        "services",
+        "university"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "city",
+        "parties": [],
+        "source": "volby.cz (komunální volby), praha.eu",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ020": {
+      "traits": [
+        "mixed",
+        "industry"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ031": {
+      "traits": [
+        "rural",
+        "agriculture",
+        "border"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ032": {
+      "traits": [
+        "mixed",
+        "industry",
+        "border"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ041": {
+      "traits": [
+        "mixed",
+        "tourism",
+        "border"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ042": {
+      "traits": [
+        "mixed",
+        "industry",
+        "coal"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ051": {
+      "traits": [
+        "mixed",
+        "industry",
+        "border"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ052": {
+      "traits": [
+        "mixed",
+        "industry"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ053": {
+      "traits": [
+        "mixed",
+        "industry"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ063": {
+      "traits": [
+        "rural",
+        "agriculture"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ064": {
+      "traits": [
+        "mixed",
+        "services",
+        "university"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ071": {
+      "traits": [
+        "mixed",
+        "agriculture",
+        "university"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ072": {
+      "traits": [
+        "mixed",
+        "industry"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    },
+    "CZ080": {
+      "traits": [
+        "mixed",
+        "industry",
+        "coal"
+      ],
+      "demographics": {
+        "population": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – počet obyvatel krajů",
+          "status": "TODO"
+        },
+        "avgWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – průměrná hrubá měsíční mzda podle krajů",
+          "status": "TODO"
+        },
+        "medianWage": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ / ISPV – medián hrubé měsíční mzdy",
+          "status": "TODO"
+        },
+        "employmentRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – výběrové šetření pracovních sil (VŠPS)",
+          "status": "TODO"
+        },
+        "unemploymentRate": {
+          "value": null,
+          "year": null,
+          "source": "MPSV – podíl nezaměstnaných osob",
+          "status": "TODO"
+        },
+        "gdpPerCapita": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – regionální účty (HDP na obyvatele)",
+          "status": "TODO"
+        },
+        "povertyRate": {
+          "value": null,
+          "year": null,
+          "source": "ČSÚ – EU-SILC (míra ohrožení příjmovou chudobou)",
+          "status": "TODO"
+        }
+      },
+      "coalition": {
+        "council": "kraj",
+        "parties": [],
+        "source": "volby.cz (krajské volby 2024), web kraje",
+        "asOf": null,
+        "status": "TODO"
+      }
+    }
+  }
+}

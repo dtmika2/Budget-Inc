@@ -124,6 +124,7 @@ export class Simulation implements EffectHost {
       compromiseOffer: null,
       budgetVoteRedLines: null,
       tourUsedInYear: null,
+      regionHistory: [],
       picked: [],
       schedule: [],
       scheduleSeq: 0,
@@ -147,6 +148,7 @@ export class Simulation implements EffectHost {
     this.recomputeFinances();
     this.state.projection = this.computeProjection();
     this.pushTrend();
+    this.pushRegionHistory();
 
     this.log('run_started', {
       runId: this.state.runId,
@@ -216,6 +218,13 @@ export class Simulation implements EffectHost {
     const entry = makeEntry(this.state, type, this.absDay, this.dateOf(this.absDay), this.now(), extra, deltas);
     this.state.log.push(entry);
     return entry;
+  }
+
+  /** Weekly snapshot of every region's support s_r (region screen history, phase 13). */
+  private pushRegionHistory(): void {
+    const s: Record<string, number> = {};
+    for (const [code, v] of Object.entries(this.state.projection.regionSupport)) s[code] = Math.round(v * 100) / 100;
+    this.state.regionHistory.push({ absDay: this.absDay, s, national: Math.round(this.state.resources.support * 100) / 100 });
   }
 
   private pushTrend(): void {
@@ -360,6 +369,7 @@ export class Simulation implements EffectHost {
     if (abs % this.cfg.election.projectionEveryDays === 0) {
       s.projection = this.computeProjection();
       this.pushTrend();
+      this.pushRegionHistory();
     }
     // 7. end of quarter
     if (s.day >= this.cfg.time.daysPerQuarter) {

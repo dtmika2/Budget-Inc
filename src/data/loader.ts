@@ -18,7 +18,9 @@ import type {
   MinigameTexts,
   ModifierDef,
   OpportunityDef,
+  PartyDef,
   PolicyCard,
+  RegionProfiles,
   UpgradeTree,
 } from '../core/types';
 import { GROUP_IDS, RESOURCE_IDS } from '../core/types';
@@ -32,7 +34,9 @@ import {
   leaderSchema,
   minigameTextsSchema,
   opportunitySchema,
+  partySchema,
   policySchema,
+  regionProfilesSchema,
   regionsSchema,
   upgradeTreeSchema,
 } from './schemas';
@@ -58,7 +62,10 @@ export type DataErrorCode =
   | 'tooFewCards'
   | 'badResponse'
   | 'badTarget'
-  | 'unknownItem';
+  | 'unknownItem'
+  | 'unknownTrait'
+  | 'unknownTag'
+  | 'unknownParty';
 
 export interface DataIssue {
   code: DataErrorCode;
@@ -150,6 +157,8 @@ export function loadGameData(
   const voteRaw = single(budgetVoteOptionSchema.array().min(1), 'data/annual/budget_vote.json');
   const itemsRaw = single(budgetItemSchema.array().min(1), 'data/budget_items.json');
   const minigamesRaw = single(minigameTextsSchema, 'data/minigames/texts.json');
+  const profilesRaw = single(regionProfilesSchema, 'data/region_profiles.json');
+  const partiesRaw = single(partySchema.array().min(1), 'data/parties.json');
   const policies = many(policySchema, 'data/policies');
   const compromises = many(compromiseSchema, 'data/compromises');
   const events = many(eventSchema, 'data/events');
@@ -184,7 +193,11 @@ export function loadGameData(
   const regionCodes = new Set(regions?.regions.map((r) => r.code) ?? []);
   const leaderIds = new Set(leadersRaw?.map((l) => l.id) ?? []);
 
+  const knownTags = new Set(config.regions.tags);
   const checkBundle = (b: EffectBundle, file: string, path: string) => {
+    b.tags?.forEach((tag, i) => {
+      if (!knownTags.has(tag)) err('unknownTag', file, `${path}.tags[${i}]`, tag);
+    });
     for (const code of Object.keys(b.regions ?? {})) {
       if (regions && !regionCodes.has(code)) err('unknownRegion', file, `${path}.regions.${code}`, code);
     }
@@ -244,6 +257,31 @@ export function loadGameData(
       locKey(e.text, f, `[${i}].text`);
       if (!isValidOngoingTarget(e.standInPenalty.target)) err('badTarget', f, `[${i}].standInPenalty.target`, e.standInPenalty.target);
     });
+  }
+
+  const partyIds = new Set(partiesRaw?.map((p) => p.id) ?? []);
+  if (partiesRaw) {
+    const f = 'data/parties.json';
+    dupCheck(partiesRaw.map((p, i) => ({ id: p.id, file: f, path: `[${i}]` })));
+    partiesRaw.forEach((p, i) => locKey(p.label, f, `[${i}].label`));
+  }
+
+  if (profilesRaw) {
+    const f = 'data/region_profiles.json';
+    const axes = config.regions.traits;
+    for (const c of EXPECTED_REGION_CODES) if (!(c in profilesRaw.regions)) err('unknownRegion', f, 'regions', `missing ${c}`);
+    for (const [code, p] of Object.entries(profilesRaw.regions)) {
+      if (!EXPECTED_REGION_CODES.includes(code)) err('unknownRegion', f, `regions.${code}`, `unexpected ${code}`);
+      p.traits.forEach((tr, i) => {
+        if (![...axes.settlement, ...axes.economy, ...axes.special].includes(tr)) err('unknownTrait', f, `regions.${code}.traits[${i}]`, tr);
+      });
+      const count = (list: string[]) => p.traits.filter((tr) => list.includes(tr)).length;
+      if (count(axes.settlement) !== 1 || count(axes.economy) !== 1 || count(axes.special) > 1)
+        err('unknownTrait', f, `regions.${code}.traits`, 'needs exactly one settlement trait, one economy trait and at most one special trait');
+      p.coalition.parties.forEach((pid, i) => {
+        if (partiesRaw && !partyIds.has(pid)) err('unknownParty', f, `regions.${code}.coalition.parties[${i}]`, pid);
+      });
+    }
   }
 
   if (minigamesRaw) {
@@ -380,7 +418,7 @@ export function loadGameData(
     }
   }
 
-  if (errors.length > 0 || !budget || !regions || !leadersRaw || !endingsRaw || !voteRaw || !itemsRaw || !minigamesRaw) {
+  if (errors.length > 0 || !budget || !regions || !leadersRaw || !endingsRaw || !voteRaw || !itemsRaw || !minigamesRaw || !profilesRaw || !partiesRaw) {
     return { ok: false, errors, warnings };
   }
 
@@ -409,6 +447,8 @@ export function loadGameData(
     budgetVote: voteRaw.map(normalise) as BudgetVoteOption[],
     budgetItems: itemsRaw as BudgetItem[],
     minigames: minigamesRaw as MinigameTexts,
+    regionProfiles: profilesRaw as RegionProfiles,
+    parties: partiesRaw as PartyDef[],
     upgrades: trees.map((t) => t.item) as UpgradeTree[],
     endings: endingsRaw as EndingDef[],
     fileHashes,

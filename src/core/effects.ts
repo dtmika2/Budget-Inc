@@ -7,6 +7,7 @@
 import type { Config } from '../config';
 import { applyPct, budgetTerm, clonePct } from './budget';
 import { angerChange, budgetChangePct, resourceChange, type PipelineCtx } from './modifiers';
+import { traitMult } from './regions';
 import type { Rng } from './rng';
 import type {
   ChangeSource,
@@ -68,6 +69,14 @@ export function applyBundle(
   const financesBefore = state.resources.finances;
   const angerBefore = { ...state.anger };
 
+  const cap = host.cfg.regions.maxShift;
+  const addShift = (code: string, v: number) => {
+    const before = state.regionShift[code] ?? 0;
+    state.regionShift[code] = Math.min(cap, Math.max(-cap, before + v));
+    const d = state.regionShift[code] - before;
+    if (d !== 0) (deltas.regions ??= {})[code] = (deltas.regions?.[code] ?? 0) + d;
+  };
+  const tags = bundle.tags;
   // resources (fixed key order for determinism)
   for (const res of NON_FINANCE_RESOURCES) {
     const r = bundle.effects?.[res];
@@ -76,6 +85,13 @@ export function applyBundle(
     rolled[res] = v;
     const d = addResource(state, res as Exclude<ResourceId, 'finances'>, v);
     deltas.resources[res] = (deltas.resources[res] ?? 0) + d;
+    // region traits: a tagged support change lands harder or softer per region (national support unchanged)
+    if (res === 'support' && tags?.length && v !== 0) {
+      for (const reg of host.data.regions.regions) {
+        const m = traitMult(host.data, host.cfg, reg.code, tags);
+        if (m !== 1) addShift(reg.code, v * (m - 1));
+      }
+    }
   }
   const fx = bundle.effects?.financesExtra;
   if (fx) {
@@ -97,16 +113,12 @@ export function applyBundle(
   }
   // regional support shifts (data order of regions for determinism); a loss is bad like a support loss
   if (bundle.regions) {
-    const cap = host.cfg.regions.maxShift;
     for (const r of host.data.regions.regions) {
       const range = bundle.regions[r.code];
       if (!range) continue;
-      const v = resourceChange(ctx, 'support', roll(range), source);
+      const v = resourceChange(ctx, 'support', roll(range), source) * traitMult(host.data, host.cfg, r.code, tags);
       rolled[`region.${r.code}`] = v;
-      const before = state.regionShift[r.code] ?? 0;
-      state.regionShift[r.code] = Math.min(cap, Math.max(-cap, before + v));
-      const d = state.regionShift[r.code] - before;
-      if (d !== 0) (deltas.regions ??= {})[r.code] = d;
+      addShift(r.code, v);
     }
   }
   registerOngoing(state, bundle.ongoing ?? [], source, origin);
@@ -174,13 +186,25 @@ const ordered = (a: number, b: number): Range => ({ min: Math.min(a, b), max: Ma
 export function previewBundle(host: EffectHost, bundle: EffectBundle, source: ChangeSource): PreviewRanges {
   const ctx = host.pipeline();
   const out: PreviewRanges = { resources: {}, anger: {}, regions: {}, ongoing: bundle.ongoing ?? [], pc: bundle.pc ?? 0 };
-  for (const r of host.data.regions.regions) {
-    const range = bundle.regions?.[r.code];
-    if (range) out.regions[r.code] = ordered(resourceChange(ctx, 'support', range.min, source), resourceChange(ctx, 'support', range.max, source));
-  }
   for (const res of NON_FINANCE_RESOURCES) {
     const r = bundle.effects?.[res];
     if (r) out.resources[res] = ordered(resourceChange(ctx, res, r.min, source), resourceChange(ctx, res, r.max, source));
+  }
+  const sup = out.resources.support;
+  for (const r of host.data.regions.regions) {
+    const m = traitMult(host.data, host.cfg, r.code, bundle.tags);
+    const range = bundle.regions?.[r.code];
+    let lo = 0;
+    let hi = 0;
+    if (range) {
+      lo = resourceChange(ctx, 'support', range.min, source) * m;
+      hi = resourceChange(ctx, 'support', range.max, source) * m;
+    }
+    if (sup && m !== 1) {
+      lo += sup.min * (m - 1);
+      hi += sup.max * (m - 1);
+    }
+    if (range || (sup && m !== 1 && (Math.abs(lo) > 1e-9 || Math.abs(hi) > 1e-9))) out.regions[r.code] = ordered(lo, hi);
   }
   let budgetDelta = 0;
   if (bundle.budgetChanges?.length) {
