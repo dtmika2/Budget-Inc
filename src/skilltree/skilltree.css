@@ -10,13 +10,7 @@
 }
 
 /* upgrade tree */
-.modal--tree { width: min(1180px, 100%); --tree-chrome: 330px; }
-.tree-body { display: flex; flex-direction: column; gap: 14px; }
-@media (min-width: 1000px) {
-  .modal--tree { --tree-chrome: 230px; }
-  .tree-body { display: grid; grid-template-columns: minmax(0, 1fr) 280px; align-items: start; }
-  .tree-body .tree__detail { position: sticky; top: 0; }
-}
+.modal--tree { width: min(1400px, 100%); }
 .tree-scroll { overflow-x: auto; margin: 0 -4px; padding: 0 4px; }
 .tree-frame { display: grid; grid-template-columns: 1fr; gap: 6px; align-items: center; }
 .tree-frame.has-axes { grid-template-columns: auto 1fr auto; grid-template-areas: '. top .' 'left tree right' '. bottom .'; }
@@ -26,7 +20,8 @@
 .tree-axis--bottom { grid-area: bottom; }
 .tree-axis--left { grid-area: left; writing-mode: vertical-rl; transform: rotate(180deg); }
 .tree-axis--right { grid-area: right; writing-mode: vertical-rl; }
-.tree { position: relative; width: 100%; margin: 0 auto; }
+/* the tree fills the modal: full width, the height left after the header and the detail strip */
+.tree { position: relative; width: 100%; height: calc(100dvh - 250px); container-type: size; }
 .tree__links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .tree__links line { stroke: var(--line); stroke-width: 4px; vector-effect: non-scaling-stroke; }
 .tree__links line.is-open { stroke: var(--gold-dim); }
@@ -41,7 +36,8 @@
 .tree__lock.is-on { color: var(--gold); border-color: var(--gold); }
 .tree__lock.is-cut { color: var(--bad); border-color: var(--bad); opacity: 0.8; }
 .node {
-  position: absolute; z-index: 2; transform: translate(-50%, -50%); width: calc(100% / var(--cols) * 0.8); aspect-ratio: 1;
+  position: absolute; z-index: 2; transform: translate(-50%, -50%);
+  height: calc(78cqh / var(--rows)); width: min(84cqw / var(--cols), calc(78cqh / var(--rows) * 2));
   padding: 3px; border: 3px solid var(--line); background: var(--ground-2); cursor: pointer;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   font-size: 11px; line-height: 1.1; text-align: center; box-shadow: var(--shadow-sm); overflow: hidden;
@@ -62,10 +58,16 @@
   .node__cost { font-size: 13px; }
   .tree-axis { font-size: 14px; }
 }
-.tree__detail { background: var(--paper); color: var(--ink); padding: 12px 14px; min-height: 92px; box-shadow: var(--shadow-sm); }
-.tree__detail h3 { font-family: var(--f-pixel); }
-.tree__detail p { margin: 4px 0 8px; }
-.tree__meta { font-size: 14px; color: var(--ink-soft); }
+/* detail: one thin line above the tree */
+.tree__detail {
+  display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 6px 4px 12px; overflow: hidden;
+  background: var(--paper); color: var(--ink); box-shadow: var(--shadow-sm); white-space: nowrap;
+}
+.tree__detail h3 { font-family: var(--f-pixel); font-size: 16px; margin: 0; flex: none; }
+.tree__detail p { margin: 0; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.tree__detail p:not(.tree__meta) { flex: 0 1 auto; }
+.tree__meta { flex: 1 1 0; font-size: 14px; color: var(--ink-soft); }
+.tree__detail .btn { flex: none; margin-left: auto; min-height: 32px; padding: 2px 12px; }
 
 /* upgrade tree tabs (shared tree + leader tree) */
 .tree-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
