@@ -64,11 +64,14 @@ export function worsensBalance(bc: Pick<BudgetChange, 'type' | 'changePct'>): bo
 /**
  * Effective changePct of a budget change. A worsening change is bad for Finances: it gets the global
  * negative multiplier and every `finances.negative` / `finances.loss` multiplier (e.g. Austerity Freeze).
+ * Every change, either way, also gets the `budget.change` multipliers (Dotace doubles them).
  * Additive modifiers are not meaningful for percentages and are ignored here.
  */
 export function budgetChangePct(ctx: PipelineCtx, bc: Pick<BudgetChange, 'type' | 'changePct'>, source: ChangeSource): number {
-  if (!worsensBalance(bc)) return bc.changePct;
-  let mul = ctx.negativeMultiplier;
+  let both = 1;
+  for (const m of matching(ctx, ['budget.change'], source)) if (m.type === 'multiplier') both *= m.value;
+  if (!worsensBalance(bc)) return bc.changePct * both;
+  let mul = ctx.negativeMultiplier * both;
   for (const m of matching(ctx, ['finances.negative', 'finances.loss'], source)) if (m.type === 'multiplier') mul *= m.value;
   return bc.changePct * mul;
 }

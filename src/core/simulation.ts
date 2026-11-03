@@ -3,7 +3,7 @@
  * every player decision goes through dispatch(input) and is recorded for replay (spec §10.2).
  */
 import type { Config, DifficultyPreset } from '../config';
-import { activateAbility, canUseAbility, rechargeIfYearStart } from './abilities';
+import { abilityOf, activateAbility, canUseAbility, firePulse } from './abilities';
 import { computeFinances, initPct } from './budget';
 import {
   canRerollBudget,
@@ -28,6 +28,7 @@ import {
   expireDemand,
   pledgesForCard,
   rejectDemand,
+  forRequester,
   resolveSelf,
   scheduleYearDemands,
   spawnDemand,
@@ -64,6 +65,7 @@ import type {
   GameData,
   GameState,
   GroupId,
+  Requester,
   Input,
   LeaderDef,
   LeaderId,
@@ -174,7 +176,7 @@ export class Simulation implements EffectHost {
       pinSeq: 0,
       pendingResponses: [],
       eventSeq: 0,
-      abilityCharges: cfg.abilities.chargesPerYear,
+      abilitiesUsed: [],
       ownedUpgrades: [],
       specials: initialSpecials(),
       projection: { S: 0, T: 0, P: 0, regionSupport: {} },
@@ -312,7 +314,6 @@ export class Simulation implements EffectHost {
     const s = this.state;
     s.quarter = q;
     s.day = 1;
-    if (q > 1) rechargeIfYearStart(this);
     const base = Math.max(0, scalar(this.pipeline(), 'pc.perQuarter', this.cfg.pc.perQuarter));
     const bonus = s.resources.support >= this.cfg.pc.supportBonusThreshold ? this.cfg.pc.supportBonus : 0;
     const gain = Math.round(base + bonus);
@@ -392,6 +393,7 @@ export class Simulation implements EffectHost {
       else if (e.kind === 'demandExpire') expireDemand(this, e);
       else if (e.kind === 'regionEventSpawn') spawnRegionEvent(this, e);
       else if (e.kind === 'regionEventExpire') expireRegionEvent(this, e);
+      else if (e.kind === 'abilityPulse') firePulse(this, e);
     }
 
     // 2. daily changes: drift -> ongoing -> zero penalties (+ stand-ins) -> anger decay; then durations
@@ -534,7 +536,7 @@ export class Simulation implements EffectHost {
       case 'buyUpgrade':
         return canBuy(this, input.nodeId);
       case 'useAbility':
-        return canUseAbility(this);
+        return canUseAbility(this, input.abilityId, input.target);
       case 'acceptDemand':
       case 'rejectDemand':
         return canAnswerDemand(this, input.demandId);
@@ -592,7 +594,7 @@ export class Simulation implements EffectHost {
         buyUpgrade(this, input.nodeId);
         break;
       case 'useAbility':
-        activateAbility(this);
+        activateAbility(this, input.abilityId, input.target);
         break;
       case 'acceptDemand':
         acceptDemand(this, input.demandId);
@@ -651,10 +653,10 @@ export class Simulation implements EffectHost {
   }
 
   /** Ranges of a demand's four outcomes in its region. */
-  previewDemand(templateId: string, region: string): Record<'accept' | 'fulfil' | 'fail' | 'reject' | 'ignore', PreviewRanges> {
+  previewDemand(templateId: string, region: string, requester?: Requester): Record<'accept' | 'fulfil' | 'fail' | 'reject' | 'ignore', PreviewRanges> {
     const tpl = templateOf(this, templateId);
     const f = this.cfg.demands.ignoreFactor;
-    const p = (b: EffectBundle) => this.preview(resolveSelf(b, region), 'demand');
+    const p = (b: EffectBundle) => this.preview(forRequester(this, resolveSelf(b, region), requester), 'demand');
     return {
       accept: p(tpl.onAccept),
       fulfil: p(tpl.onFulfil),
@@ -683,8 +685,17 @@ export class Simulation implements EffectHost {
     return this.rng.demands;
   }
 
-  previewAbility(): PreviewRanges {
-    return this.preview(this.leaderDef.ability.bundle, 'ability');
+  /** Instant effect of an ability (STB adds halving the chosen group's anger). */
+  previewAbility(abilityId: string, target?: string): PreviewRanges {
+    const a = abilityOf(this, abilityId)!;
+    const p = this.preview(a.bundle, 'ability');
+    if (a.action === 'halveAnger' && target && target in this.state.anger) {
+      const g = target as GroupId;
+      const cut = -this.state.anger[g] / 2;
+      const r = p.anger[g];
+      p.anger[g] = { min: (r?.min ?? 0) + cut, max: (r?.max ?? 0) + cut };
+    }
+    return p;
   }
 
   // ------------------------------------------------------------ misc for UI / bots

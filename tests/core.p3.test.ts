@@ -168,53 +168,7 @@ describe('political capital', () => {
   });
 });
 
-describe('abilities', () => {
-  it('Campaign Mode: support +10, media +5, one charge per year, recharges at Q5', () => {
-    const sim = quietSim({ leader: 'abis' });
-    const s0 = sim.state.resources.support;
-    const m0 = sim.state.anger.media;
-    expect(sim.dispatch({ kind: 'useAbility' }).ok).toBe(true);
-    expect(sim.state.resources.support - s0).toBeCloseTo(10);
-    expect(sim.state.anger.media - m0).toBeCloseTo(5);
-    expect(sim.dispatch({ kind: 'useAbility' }).ok).toBe(false);
-    advanceQuiet(sim, 91 * 3);
-    expect(sim.state.quarter).toBe(4);
-    expect(sim.state.abilityCharges).toBe(0);
-    advanceQuiet(sim, 91);
-    expect(sim.state.quarter).toBe(5);
-    expect(sim.state.abilityCharges).toBe(1);
-  });
-
-  it('charges do not stack', () => {
-    const sim = quietSim({ leader: 'abis' });
-    advanceQuiet(sim, 91 * 4);
-    expect(sim.state.quarter).toBe(5);
-    expect(sim.state.abilityCharges).toBe(1);
-  });
-
-  it('Austerity Freeze halves worsening budget changes for 30 days, already-applied changes stay', () => {
-    const sim = quietSim({ leader: 'mupka' });
-    expect(sim.dispatch({ kind: 'useAbility' }).ok).toBe(true);
-    const fin = sim.previewCard('dummy_expenditure').resources.finances!;
-    const cfgNoFreeze = quietSim({ leader: 'mupka', seed: 'other' });
-    const finNoFreeze = cfgNoFreeze.previewCard('dummy_expenditure').resources.finances!;
-    expect(fin.min).toBeCloseTo(finNoFreeze.min / 2, 6);
-    advanceQuiet(sim, 30);
-    expect(sim.state.modifiers.some((m) => m.origin === 'ability:austerity_freeze')).toBe(false);
-    expect(sim.previewCard('dummy_expenditure').resources.finances!.min).toBeCloseTo(finNoFreeze.min, 6);
-  });
-
-  it('Austerity Freeze halves mandatory growth at the vote', () => {
-    const a = quietSim({ seed: 'af' });
-    const b = quietSim({ seed: 'af' });
-    a.state.day = 70;
-    b.state.day = 70;
-    a.dispatch({ kind: 'useAbility' });
-    while (a.state.phase === 'running') a.tick();
-    while (b.state.phase === 'running') b.tick();
-    expect(a.state.budget.expPct['313']).toBeCloseTo(b.state.budget.expPct['313'] / 2);
-  });
-});
+// leader abilities: tests/abilities.test.ts
 
 describe('card preview', () => {
   it('Finances range is the exact budget delta and matches the applied change', () => {

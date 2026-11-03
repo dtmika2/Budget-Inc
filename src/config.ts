@@ -216,9 +216,10 @@ export const config = {
     supportBonus: 1,
   },
 
+  /** Leader abilities (phase 17): three per leader, each usable once per game (data/leaders.json). */
   abilities: {
-    chargesPerYear: 1,
-    rechargeQuarters: [5, 9, 13] as number[],
+    /** Game days per "month" of an ability (12 months = 360 days). */
+    monthDays: 30,
   },
 
   chaos: {

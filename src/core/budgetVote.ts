@@ -11,7 +11,7 @@ import { applyPct, budgetTerm, clonePct } from './budget';
 import { checkPledgesBudget, pledgesForBudget } from './demands';
 import { rerollCost } from './draft';
 import { applyBundle } from './effects';
-import { budgetChangePct } from './modifiers';
+import { budgetChangePct, scalar } from './modifiers';
 import { schedule } from './scheduler';
 import type { Simulation } from './simulation';
 import type { BudgetChange, BudgetItem, BudgetZone, EffectBundle, GroupId, Range, RedLine, ResourceId } from './types';
@@ -194,7 +194,8 @@ export function passChance(sim: Simulation, sliders: Sliders, presetId: string |
     const s = sliders[it.id] ?? 0;
     p += it.passPerStep * b.impact * s + (itemZone(it, s)?.pass ?? 0);
   }
-  p -= b.redLines.passPenalty * violations(sim, sliders).length;
+  // Microbossing: the coalition forgives red lines (budgetVote.redLinePenalty x0)
+  p -= scalar(sim.pipeline(), 'budgetVote.redLinePenalty', b.redLines.passPenalty) * violations(sim, sliders).length;
   return Math.min(b.passMax, Math.max(b.passMin, p));
 }
 

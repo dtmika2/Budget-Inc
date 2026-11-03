@@ -6,9 +6,10 @@
  */
 import { scaleBundle } from './compromise';
 import { applyBundle } from './effects';
+import { scalar, worsensBalance } from './modifiers';
 import { removeWhere, schedule } from './scheduler';
 import type { Simulation } from './simulation';
-import type { DemandTemplate, Deltas, EffectBundle, FulfilCondition, OpenDemand, Pledge, Requester, ScheduledEntry } from './types';
+import type { DemandTemplate, Deltas, EffectBundle, FulfilCondition, OpenDemand, Pledge, Range, Requester, ScheduledEntry } from './types';
 import { GROUP_IDS } from './types';
 
 const yearDays = (sim: Simulation) => 4 * sim.cfg.time.daysPerQuarter;
@@ -35,6 +36,34 @@ export function resolveSelf(b: EffectBundle, region: string): EffectBundle {
   delete regions.self;
   regions[region] = self;
   return { ...b, regions };
+}
+
+/** Only the good parts of a bundle: gains, calmer groups, balance-improving budget changes, +PC. */
+export function positiveOnly(b: EffectBundle): EffectBundle {
+  const up = (r: Range): Range | null => (r.max > 0 ? { min: Math.max(0, r.min), max: r.max } : null);
+  const down = (r: Range): Range | null => (r.min < 0 ? { min: r.min, max: Math.min(0, r.max) } : null);
+  const keep = <K extends string>(o: Partial<Record<K, Range>> | undefined, f: (r: Range) => Range | null) => {
+    const out: Partial<Record<K, Range>> = {};
+    for (const [k, r] of Object.entries(o ?? {}) as [K, Range][]) {
+      const v = f(r);
+      if (v) out[k] = v;
+    }
+    return out;
+  };
+  return {
+    ...b,
+    effects: keep(b.effects, up),
+    anger: keep(b.anger, down),
+    regions: keep(b.regions, up) as Record<string, Range>,
+    budgetChanges: b.budgetChanges?.filter((bc) => !worsensBalance(bc)),
+    ongoing: b.ongoing?.filter((o) => (o.target.startsWith('anger.') ? o.perDay < 0 : o.perDay > 0)),
+    pc: b.pc && b.pc > 0 ? b.pc : undefined,
+  };
+}
+
+/** A demand outcome for its requester: party proposals only help while Microbossing runs (party.positiveOnly). */
+export function forRequester(sim: Simulation, b: EffectBundle, requester: Requester | undefined): EffectBundle {
+  return requester?.type === 'party' && scalar(sim.pipeline(), 'party.positiveOnly', 0) > 0 ? positiveOnly(b) : b;
 }
 
 const busyRegions = (sim: Simulation) => new Set([...sim.state.demands.map((d) => d.region), ...sim.state.pledges.map((p) => p.region)]);
@@ -137,7 +166,7 @@ const base = (d: OpenDemand | Pledge) => ({ region: d.region, templateId: d.temp
 export function acceptDemand(sim: Simulation, demandId: string): void {
   const demand = takeDemand(sim, demandId);
   const tpl = templateOf(sim, demand.templateId);
-  const { deltas } = applyBundle(sim, resolveSelf(tpl.onAccept, demand.region), 'demand', `demand:${tpl.id}`, sim.rng.effects);
+  const { deltas } = applyBundle(sim, forRequester(sim, resolveSelf(tpl.onAccept, demand.region), demand.requester), 'demand', `demand:${tpl.id}`, sim.rng.effects);
   const pledge: Pledge = {
     id: `pl${demand.id.slice(3)}`,
     templateId: tpl.id,
@@ -153,7 +182,7 @@ export function acceptDemand(sim: Simulation, demandId: string): void {
 export function rejectDemand(sim: Simulation, demandId: string): void {
   const demand = takeDemand(sim, demandId);
   const tpl = templateOf(sim, demand.templateId);
-  const { deltas } = applyBundle(sim, resolveSelf(tpl.onReject, demand.region), 'demand', `demand:${tpl.id}`, sim.rng.effects);
+  const { deltas } = applyBundle(sim, forRequester(sim, resolveSelf(tpl.onReject, demand.region), demand.requester), 'demand', `demand:${tpl.id}`, sim.rng.effects);
   sim.log('demand_rejected', { demandId, ...base(demand) }, deltas);
 }
 
@@ -164,14 +193,14 @@ export function expireDemand(sim: Simulation, entry: ScheduledEntry): void {
   const [demand] = state.demands.splice(i, 1);
   const tpl = templateOf(sim, demand.templateId);
   const f = cfg.demands.ignoreFactor;
-  const { deltas } = applyBundle(sim, scaleBundle(resolveSelf(tpl.onReject, demand.region), f, f), 'demand', `demand:${tpl.id}`, sim.rng.effects);
+  const { deltas } = applyBundle(sim, scaleBundle(forRequester(sim, resolveSelf(tpl.onReject, demand.region), demand.requester), f, f), 'demand', `demand:${tpl.id}`, sim.rng.effects);
   sim.log('demand_ignored', { demandId: demand.id, ...base(demand) }, deltas);
 }
 
 function fulfil(sim: Simulation, pledge: Pledge, by: Record<string, unknown>): void {
   const tpl = templateOf(sim, pledge.templateId);
   sim.state.pledges = sim.state.pledges.filter((p) => p.id !== pledge.id);
-  const { deltas } = applyBundle(sim, resolveSelf(tpl.onFulfil, pledge.region), 'demand', `pledge:${tpl.id}`, sim.rng.effects);
+  const { deltas } = applyBundle(sim, forRequester(sim, resolveSelf(tpl.onFulfil, pledge.region), pledge.requester), 'demand', `pledge:${tpl.id}`, sim.rng.effects);
   sim.log('pledge_fulfilled', { pledgeId: pledge.id, ...base(pledge), by }, deltas);
 }
 
@@ -216,7 +245,7 @@ export function checkPledgeDeadlines(sim: Simulation): void {
     if (now <= p.deadlineAbsDay) continue;
     const tpl = templateOf(sim, p.templateId);
     sim.state.pledges = sim.state.pledges.filter((x) => x.id !== p.id);
-    const { deltas } = applyBundle(sim, resolveSelf(tpl.onFail, p.region), 'demand', `pledge:${tpl.id}`, sim.rng.effects);
+    const { deltas } = applyBundle(sim, forRequester(sim, resolveSelf(tpl.onFail, p.region), p.requester), 'demand', `pledge:${tpl.id}`, sim.rng.effects);
     sim.log('pledge_failed', { pledgeId: p.id, ...base(p) }, deltas);
   }
 }
