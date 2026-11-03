@@ -365,6 +365,30 @@ export const config = {
     draftBoost: 2,
   },
 
+  /** Catastrophes and special agents (catastrophes workspace, core/specialCards.ts). */
+  specials: {
+    /** Special cards per game year (day and card drawn at the year's first quarter, `specials` stream). */
+    perYear: 1,
+    /** Chance that a drawn card is a special agent; otherwise it is a catastrophe. */
+    agentChance: 0.5,
+    /** Spawn window inside the year (days from the year's start / before its end). */
+    spawnFromDay: 15,
+    spawnBeforeYearEnd: 20,
+    /** Minimum days between two special cards of the same year. */
+    minGapDays: 20,
+  },
+
+  /** Event timeline in the top right (catastrophes workspace, core/timeline.ts). */
+  timeline: {
+    /** Visible span around today. */
+    quartersBack: 1,
+    quartersAhead: 3,
+    /** Catastrophes, agents and chaos events show as '?' until this many days before they happen. */
+    revealDays: 91,
+    /** How long the "now revealed" notification stays (real seconds). */
+    toastSeconds: 7,
+  },
+
   /** Regional events (regions workspace): one per kraj per year, whole-kraj animation + "!" pin. */
   regionEvents: {
     enabled: true,

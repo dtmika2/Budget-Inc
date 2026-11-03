@@ -3,10 +3,23 @@ import { Simulation, type SimOptions } from '../src/core/simulation';
 import type { GameData } from '../src/core/types';
 import { mustLoad } from '../scripts/lib/nodeData';
 import { presetVote } from '../src/core/bots';
+import { resolveSpecialForBot } from '../src/core/specialCards';
 
+let full: GameData | null = null;
 let cached: GameData | null = null;
+
+/** All game data, special cards included (tests/specialCards.test.ts). */
+export function fullGameData(): GameData {
+  if (!full) full = mustLoad();
+  return full;
+}
+
+/**
+ * Game data for the mechanic tests: without special cards (catastrophes / agents), which would stop the
+ * clock at random days and get in the way of tick loops. Special cards have their own tests.
+ */
 export function gameData(): GameData {
-  if (!cached) cached = mustLoad();
+  if (!cached) cached = { ...fullGameData(), specialCards: [] };
   return cached;
 }
 
@@ -26,6 +39,7 @@ export function resolveModal(sim: Simulation): void {
   if (s.phase === 'draft' && s.draft) sim.dispatch({ kind: 'pickPolicy', cardId: s.draft.hand[0] });
   else if (s.phase === 'budgetVote') sim.dispatch(presetVote(sim, sim.data.budgetVote[1].id));
   else if (s.phase === 'compromise' && s.compromiseOffer) sim.dispatch({ kind: 'makeCompromise', cardId: s.compromiseOffer[0], channelId: 'press', score: 0.5 });
+  else if (s.phase === 'special') resolveSpecialForBot(sim);
 }
 
 /** A sim in phase running with no chaos/pins scheduled (budget votes kept). */

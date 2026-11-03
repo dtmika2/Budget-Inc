@@ -44,6 +44,8 @@ import {
   regionsSchema,
   upgradeTreeSchema,
 } from './schemas';
+import { specialCardSchema, validateSpecialCards } from './specialCards';
+import type { SpecialCardDef } from '../core/specialCards';
 
 export const EXPECTED_REGION_CODES = [
   'CZ010', 'CZ020', 'CZ031', 'CZ032', 'CZ041', 'CZ042', 'CZ051',
@@ -173,6 +175,7 @@ export function loadGameData(
   const demandsAll = many(demandSchema, 'data/demands');
   const regionEventsAll = many(regionEventSchema, 'data/region_events');
   const regionEvents = regionEventsAll.filter((e) => e.item.status !== 'DRAFT' || includeFiller);
+  const specialsAll = many(specialCardSchema, 'data/catastrophes');
   // DRAFT demands (drafted from programmes, not yet approved) only load with includeDevFiller
   const demands = demandsAll.filter((d) => d.item.status !== 'DRAFT' || includeFiller);
 
@@ -392,6 +395,15 @@ export function loadGameData(
 
   // demands (phase 14)
   dupCheck(demandsAll.map((d) => ({ id: d.item.id, file: d.file, path: `[${d.idx}]` })));
+  // special cards (catastrophes workspace)
+  dupCheck(specialsAll.map((d) => ({ id: d.item.id, file: d.file, path: `[${d.idx}]` })));
+  validateSpecialCards(specialsAll as { item: SpecialCardDef; file: string; idx: number }[], {
+    err,
+    locKey,
+    checkBundle,
+    regionCodes: regions ? regionCodes : null,
+    leaderIds: leadersRaw ? leaderIds : null,
+  });
   const policyTags = new Set(policies.flatMap((c) => c.item.tags ?? []));
   const policyIds = new Set(policies.map((c) => c.item.id));
   for (const { item: d, file, idx } of demandsAll) {
@@ -548,6 +560,10 @@ export function loadGameData(
     demands: demands.map((d) => d.item) as DemandTemplate[],
     regionEvents: regionEvents.map((e) => ({ ...e.item, onIntervene: normalise(e.item.onIntervene), onIgnore: normalise(e.item.onIgnore) })) as RegionEventTemplate[],
     upgrades: trees.map((t) => t.item) as UpgradeTree[],
+    specialCards: specialsAll.map((d) => {
+      const c = d.item as SpecialCardDef;
+      return { ...c, onFail: c.onFail && normalise(c.onFail), onPass: c.onPass && normalise(c.onPass) };
+    }),
     endings: endingsRaw as EndingDef[],
     fileHashes,
   };
