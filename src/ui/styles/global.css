@@ -714,6 +714,7 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 @media (max-width: 760px) {
   .quarter-banner span { font-size: 18px; padding: 4px 14px; }
   .ticker { position: relative; align-self: flex-start; margin-bottom: 8px; }
+}
 
 /* ------------------------------------------------------------ budget vote sliders (phase 11) */
 .modal--vote { width: min(1080px, 100%); }
