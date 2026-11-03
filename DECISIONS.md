@@ -91,6 +91,7 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 - §7 demand balance — Coalition penalties in demands were moved to regional penalties: coalition losses trigger snap elections, which are easy wins at high support, so harsher coalition penalties *raised* greedy win rates. Accepting is only a token gesture (±1); fulfilling pays modestly.
 
 - §8 skill tree workspace — Skill trees are separated from the main code so Daniel can design them in parallel (`SKILLTREE.md`): tree texts moved from `locales/cs.json` to `locales/skilltree.cs.json` (merged at load in `src/i18n/locale.ts`; a key may live in only one file, tested). Trees may be leader-specific (`"leader"` in `data/upgrades/*.json`); `treesFor(sim)` filters them for the engine, bots and UI, and the tree screen shows tabs when a leader has more than one tree. A starter `data/upgrades/abis.json` uses only existing modifier targets with `[DUMMY]` texts; it raises greedy Abis from ~58 % to ~72 % on Normal, to be balanced by Daniel's design.
+- §8.3 — skill-tree UI moved to `src/skilltree/` (modal, HUD button, own CSS) and its UI chrome to `locales/skilltree.cs.json`; the HUD button glints only for the leader's own trees — skill tree is developed on its own branch, so it must not share files with the rest
 
 ## Blockers
 _None._

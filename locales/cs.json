@@ -83,7 +83,6 @@
   "hud.play": "Spustit",
   "hud.speed": "Rychlost {n}×",
   "hud.menu": "Menu",
-  "hud.upgrades": "Vylepšení",
   "hud.panel": "Panel",
   "hud.paused": "POZASTAVENO",
   "panel.groups": "Zájmové skupiny",
@@ -154,14 +153,6 @@
   "budgetVote.budget_balanced.desc": "[DUMMY] Drobné přesuny.",
   "budgetVote.budget_generous.label": "[DUMMY] Štědrý rozpočet",
   "budgetVote.budget_generous.desc": "[DUMMY] Víc peněz na důchody, zdravotnictví, školství a dopravu.",
-  "upgrades.title": "Strom vylepšení",
-  "upgrades.buy": "Koupit",
-  "upgrades.owned": "Vlastněno",
-  "upgrades.locked": "Zamčeno",
-  "upgrades.available": "Dostupné",
-  "upgrades.requires": "Vyžaduje: {list}",
-  "upgrades.cost": "Cena: {n} PK",
-  "upgrades.selectHint": "Klepni na uzel pro detail.",
   "pause.title": "Pauza",
   "pause.resume": "Pokračovat",
   "pause.restart": "Restartovat",
@@ -805,6 +796,5 @@
   "history.demandRejected": "odmítnut",
   "history.demandIgnored": "bez odpovědi",
   "history.pledgeFulfilled": "slib splněn",
-  "history.pledgeFailed": "slib nesplněn",
-  "upgrades.tabsLabel": "Stromy vylepšení"
+  "history.pledgeFailed": "slib nesplněn"
 }

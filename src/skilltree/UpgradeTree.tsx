@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { nodeStatus, treesFor } from '@core/upgrades';
 import { t } from '@i18n/index';
-import { getStore, useStore } from '../store';
+import { getStore, useStore } from '@ui/store';
+import './skilltree.css';
 
 const COL_W = 120;
 const ROW_H = 96;

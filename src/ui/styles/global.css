@@ -256,7 +256,6 @@ h1, h2, h3 { margin: 0; }
 .btn--ability small { font-family: var(--f-body); font-size: 12px; color: var(--text-dim); }
 .btn--ability.is-ready { background: var(--party); color: #fff; }
 .btn--ability.is-ready small { color: rgba(255, 255, 255, 0.85); }
-.btn--upgrades .cost::before { content: ''; display: inline-block; width: 10px; height: 10px; background: var(--gold); margin-right: 4px; }
 .paused-badge {
   position: absolute; top: 16px; right: var(--gutter); font-family: var(--f-pixel); color: var(--ground);
   background: var(--gold); padding: 2px 10px; box-shadow: var(--shadow-sm); z-index: 2;
@@ -423,29 +422,6 @@ h1, h2, h3 { margin: 0; }
 .ongoing-icon { font-family: var(--f-pixel); background: var(--ink); color: var(--paper); width: 18px; height: 18px; display: inline-grid; place-items: center; }
 .ranges--compact .ranges__res .chip { flex: 0 0 auto; }
 .ranges--compact .chip { font-size: 12px; padding: 0 5px; }
-
-/* upgrade tree */
-.modal--tree { width: min(560px, 100%); }
-.tree { position: relative; margin: 0 auto; max-width: 100%; }
-.tree__links { position: absolute; inset: 0; }
-.tree__links line { stroke: var(--line); stroke-width: 4; }
-.tree__links line.is-on { stroke: var(--gold); }
-.node {
-  position: absolute; padding: 4px; border: 3px solid var(--line); background: var(--ground-2);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  font-size: 11px; line-height: 1.1; text-align: center; box-shadow: var(--shadow-sm);
-}
-.node__cost { font-family: var(--f-pixel); font-size: 16px; color: var(--gold); }
-.node--locked { opacity: 0.5; }
-.node--available { border-color: var(--gold-dim); }
-.node--affordable { border-color: var(--gold); background: var(--panel-2); }
-.node--owned { background: var(--gold); color: var(--ground); border-color: var(--gold); }
-.node--owned .node__cost { color: var(--ground); }
-.node.is-selected { outline: 3px solid #fff2c8; outline-offset: 2px; }
-.tree__detail { background: var(--paper); color: var(--ink); padding: 12px 14px; min-height: 92px; box-shadow: var(--shadow-sm); }
-.tree__detail h3 { font-family: var(--f-pixel); }
-.tree__detail p { margin: 4px 0 8px; }
-.tree__meta { font-size: 14px; color: var(--ink-soft); }
 
 /* settings */
 .settings { display: flex; flex-direction: column; gap: 10px; }
@@ -693,9 +669,8 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .meter__bar.is-shaking { animation: shake 0.42s steps(6); }
 @keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-3px); } 40% { transform: translateX(3px); } 60% { transform: translateX(-2px); } 80% { transform: translateX(2px); } }
 /* glint sweeping over buttons that want attention */
-.btn--upgrades, .btn--ability { position: relative; overflow: hidden; }
-.btn--upgrades.is-affordable { border-color: var(--gold); }
-.btn--upgrades.is-affordable::after, .btn--ability.is-ready::after {
+.btn--ability { position: relative; overflow: hidden; }
+.btn--ability.is-ready::after {
   content: ''; position: absolute; top: -4px; bottom: -4px; left: 0; width: 14px; pointer-events: none;
   background: rgba(255, 246, 200, 0.55); transform: translateX(-30px) skewX(-20deg); animation: glint 3.2s steps(16) infinite;
 }
@@ -1003,11 +978,3 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
   .demand__grid { grid-template-columns: 1fr; }
 }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-
-/* upgrade tree tabs (shared tree + leader tree) */
-.tree-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
-.tree-tab {
-  min-height: 44px; padding: 4px 14px; cursor: pointer; background: var(--panel-2); color: var(--text-dim);
-  border: 2px solid var(--line); font: 16px var(--f-pixel);
-}
-.tree-tab.is-on { color: var(--gold); border-color: var(--gold); }
