@@ -1,5 +1,7 @@
 # Budget Inc. — Proof of Concept
 
+**Play:** https://dtmika2.github.io/Budget-Inc/ (deployed by `.github/workflows/deploy.yml` on every push to `main`)
+
 A satirical browser strategy game: you are the Czech prime minister and have to survive a 4-year term
 (16 quarters) and win the next election. Plague Inc.-style layout (static map of the 14 kraje, resource
 bars, news pop-ups) with chunky pixel-art leaders. All player-facing text is Czech; code and docs are
