@@ -7,7 +7,7 @@ import { activateAbility, canUseAbility, rechargeIfYearStart } from './abilities
 import { computeFinances, initPct } from './budget';
 import { openBudgetVote, passChance, scheduleBudgetVotes, validateVote, violations, voteBudget, voteBundle, type Sliders } from './budgetVote';
 import { canRespond, fireChaos, respond, scheduleChaosForPick } from './chaos';
-import { canMakeCompromise, makeCompromise, openCompromise, scheduleQuarterCompromise } from './compromise';
+import { canMakeCompromise, makeCompromise, openCompromise, scheduleQuarterCompromise, soldBundle } from './compromise';
 import { drawHand, rerollCost } from './draft';
 import { applyBundle, applyDaily, previewBundle, type EffectHost, type PreviewRanges } from './effects';
 import { electionNight, projection } from './election';
@@ -123,6 +123,7 @@ export class Simulation implements EffectHost {
       draft: null,
       compromiseOffer: null,
       budgetVoteRedLines: null,
+      tourUsedInYear: null,
       picked: [],
       schedule: [],
       scheduleSeq: 0,
@@ -447,7 +448,7 @@ export class Simulation implements EffectHost {
         if (s.phase !== 'running') return 'not running';
         return s.pins.some((p) => p.id === input.pinId) ? null : 'no such pin';
       case 'makeCompromise':
-        return canMakeCompromise(this, input.cardId);
+        return canMakeCompromise(this, input.cardId, input.channelId, input.score);
       case 'voteBudget':
         if (s.phase !== 'budgetVote') return 'no vote open';
         return validateVote(this, input.sliders, input.presetId);
@@ -465,7 +466,7 @@ export class Simulation implements EffectHost {
     s.inputs.push({ tick: s.tickCount, quarter: s.quarter, day: s.day, input });
     switch (input.kind) {
       case 'makeCompromise':
-        makeCompromise(this, input.cardId);
+        makeCompromise(this, input.cardId, input.channelId, input.score);
         break;
       case 'pickPolicy': {
         const card = this.cardById.get(input.cardId)!;
@@ -517,6 +518,11 @@ export class Simulation implements EffectHost {
     const comp = this.compromiseById.get(cardId);
     if (comp) return this.preview(comp, 'compromise');
     return this.preview(this.cardById.get(cardId)!, 'policy');
+  }
+
+  /** Preview of a compromise sold through a channel with a given mini-game score. */
+  previewCompromise(cardId: string, channelId: string, score: number): PreviewRanges {
+    return this.preview(soldBundle(this, cardId, channelId, score), 'compromise');
   }
 
   previewResponse(eventId: string, responseId: string): PreviewRanges {

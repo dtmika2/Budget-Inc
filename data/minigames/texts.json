@@ -1,0 +1,28 @@
+{
+  "pressSpin": [
+    "minigame.press.spin.01",
+    "minigame.press.spin.02",
+    "minigame.press.spin.03",
+    "minigame.press.spin.04",
+    "minigame.press.spin.05",
+    "minigame.press.spin.06",
+    "minigame.press.spin.07",
+    "minigame.press.spin.08"
+  ],
+  "pressGaffe": [
+    "minigame.press.gaffe.01",
+    "minigame.press.gaffe.02",
+    "minigame.press.gaffe.03",
+    "minigame.press.gaffe.04",
+    "minigame.press.gaffe.05"
+  ],
+  "debateQuestions": [
+    "minigame.debate.q.01",
+    "minigame.debate.q.02",
+    "minigame.debate.q.03",
+    "minigame.debate.q.04",
+    "minigame.debate.q.05",
+    "minigame.debate.q.06",
+    "minigame.debate.q.07"
+  ]
+}

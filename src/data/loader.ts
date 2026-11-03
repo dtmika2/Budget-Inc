@@ -15,6 +15,7 @@ import type {
   EndingDef,
   GameData,
   LeaderDef,
+  MinigameTexts,
   ModifierDef,
   OpportunityDef,
   PolicyCard,
@@ -29,6 +30,7 @@ import {
   endingSchema,
   eventSchema,
   leaderSchema,
+  minigameTextsSchema,
   opportunitySchema,
   policySchema,
   regionsSchema,
@@ -147,6 +149,7 @@ export function loadGameData(
   const endingsRaw = single(endingSchema.array(), 'data/endings.json');
   const voteRaw = single(budgetVoteOptionSchema.array().min(1), 'data/annual/budget_vote.json');
   const itemsRaw = single(budgetItemSchema.array().min(1), 'data/budget_items.json');
+  const minigamesRaw = single(minigameTextsSchema, 'data/minigames/texts.json');
   const policies = many(policySchema, 'data/policies');
   const compromises = many(compromiseSchema, 'data/compromises');
   const events = many(eventSchema, 'data/events');
@@ -241,6 +244,12 @@ export function loadGameData(
       locKey(e.text, f, `[${i}].text`);
       if (!isValidOngoingTarget(e.standInPenalty.target)) err('badTarget', f, `[${i}].standInPenalty.target`, e.standInPenalty.target);
     });
+  }
+
+  if (minigamesRaw) {
+    const f = 'data/minigames/texts.json';
+    for (const k of ['pressSpin', 'pressGaffe', 'debateQuestions'] as const)
+      minigamesRaw[k].forEach((key, i) => locKey(key, f, `${k}[${i}]`));
   }
 
   const itemIds = new Set(itemsRaw?.map((it) => it.id) ?? []);
@@ -371,7 +380,7 @@ export function loadGameData(
     }
   }
 
-  if (errors.length > 0 || !budget || !regions || !leadersRaw || !endingsRaw || !voteRaw || !itemsRaw) {
+  if (errors.length > 0 || !budget || !regions || !leadersRaw || !endingsRaw || !voteRaw || !itemsRaw || !minigamesRaw) {
     return { ok: false, errors, warnings };
   }
 
@@ -399,6 +408,7 @@ export function loadGameData(
     opportunities: opportunities.map((o) => ({ ...o.item, reward: normalise(o.item.reward) })) as OpportunityDef[],
     budgetVote: voteRaw.map(normalise) as BudgetVoteOption[],
     budgetItems: itemsRaw as BudgetItem[],
+    minigames: minigamesRaw as MinigameTexts,
     upgrades: trees.map((t) => t.item) as UpgradeTree[],
     endings: endingsRaw as EndingDef[],
     fileHashes,

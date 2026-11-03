@@ -246,6 +246,13 @@ export interface RegionsData {
   revealOrder: string[];
 }
 
+/** Texts for the compromise mini-games (locale keys). */
+export interface MinigameTexts {
+  pressSpin: string[];
+  pressGaffe: string[];
+  debateQuestions: string[];
+}
+
 export interface GameData {
   budget: BudgetData;
   regions: RegionsData;
@@ -256,6 +263,7 @@ export interface GameData {
   opportunities: OpportunityDef[];
   budgetVote: BudgetVoteOption[];
   budgetItems: BudgetItem[];
+  minigames: MinigameTexts;
   upgrades: UpgradeTree[];
   endings: EndingDef[];
   /** File path -> short content hash, logged in run_started. */
@@ -272,7 +280,7 @@ export type Input =
   | { kind: 'respond'; eventInstanceId: string; responseId: string; timedOut: boolean }
   | { kind: 'collectOpportunity'; pinId: string }
   | { kind: 'voteBudget'; sliders: Record<string, number>; presetId: string | null }
-  | { kind: 'makeCompromise'; cardId: string }
+  | { kind: 'makeCompromise'; cardId: string; channelId: string; score: number }
   | { kind: 'buyUpgrade'; nodeId: string }
   | { kind: 'useAbility' };
 
@@ -406,6 +414,8 @@ export interface GameState {
   compromiseOffer: string[] | null;
   /** Coalition red lines of the open budget vote (drawn at vote open). */
   budgetVoteRedLines: RedLine[] | null;
+  /** Game year (1-4) in which a once-per-year compromise channel (the regional tour) was last used. */
+  tourUsedInYear: number | null;
   picked: { cardId: string; quarter: number }[];
   schedule: ScheduledEntry[];
   scheduleSeq: number;

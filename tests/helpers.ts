@@ -25,7 +25,7 @@ export function resolveModal(sim: Simulation): void {
   const s = sim.state;
   if (s.phase === 'draft' && s.draft) sim.dispatch({ kind: 'pickPolicy', cardId: s.draft.hand[0] });
   else if (s.phase === 'budgetVote') sim.dispatch(presetVote(sim, sim.data.budgetVote[1].id));
-  else if (s.phase === 'compromise' && s.compromiseOffer) sim.dispatch({ kind: 'makeCompromise', cardId: s.compromiseOffer[0] });
+  else if (s.phase === 'compromise' && s.compromiseOffer) sim.dispatch({ kind: 'makeCompromise', cardId: s.compromiseOffer[0], channelId: 'press', score: 0.5 });
 }
 
 /** A sim in phase running with no chaos/pins scheduled (budget votes kept). */

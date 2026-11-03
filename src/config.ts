@@ -11,6 +11,17 @@ export interface DifficultyPreset {
   driftMultiplier: number;
 }
 
+export interface CompromiseChannel {
+  gainAtZero: number;
+  gainAtOne: number;
+  lossAtZero: number;
+  lossAtOne: number;
+  /** Usable once per game year (Q1-4, Q5-8, ...). */
+  oncePerYear: boolean;
+  /** The UI offers a Skip button (scored as compromise.skipScore). */
+  skippable: boolean;
+}
+
 export const config = {
   /** Load generated `[FILLER]` content (files starting with `_`). Turn off once real content meets §5.3. */
   includeDevFiller: true,
@@ -97,6 +108,20 @@ export const config = {
     choices: 2,
     /** Compromises picked within this many quarters are not offered again (unless too few are left). */
     cooldownQuarters: 6,
+    /**
+     * Phase 12: after picking a deal the player sells it through a channel (a mini-game scoring 0..1).
+     * The score scales the deal: gains x gainMult, losses x lossMult. Each multiplier is piecewise linear
+     * through (0, atZero), (neutralScore, 1), (1, atOne), so a score of neutralScore gives the plain deal.
+     * A negative gain multiplier turns gains into losses (the regional tour can backfire).
+     */
+    neutralScore: 0.5,
+    /** Score used when the player skips a skippable mini-game. */
+    skipScore: 0.4,
+    channels: {
+      press: { gainAtZero: 0.8, gainAtOne: 1.2, lossAtZero: 1.2, lossAtOne: 0.8, oncePerYear: false, skippable: true },
+      debate: { gainAtZero: 0.4, gainAtOne: 1.3, lossAtZero: 1.6, lossAtOne: 0.5, oncePerYear: false, skippable: true },
+      tour: { gainAtZero: -0.5, gainAtOne: 1.5, lossAtZero: 1.8, lossAtOne: 0.5, oncePerYear: true, skippable: false },
+    } as Record<string, CompromiseChannel>,
   },
 
   finances: {
@@ -267,6 +292,21 @@ export const config = {
   /** Trend charts (side panel + map ticker). Trend points are weekly. */
   charts: {
     tickerWeeks: 26,
+  },
+
+  /** Compromise mini-games (UI only; the core only sees the final score). */
+  minigames: {
+    countdownSec: 3,
+    /** Result splash: score >= great -> "Skvele", >= ok -> "Ujde to", else "Prusvih". */
+    tiers: { great: 0.7, ok: 0.4 },
+    press: { durationMs: 12000, spawnMs: 650, fallMsStart: 3200, fallMsEnd: 2100, spinShare: 0.6, gaffePenalty: 2 },
+    debate: { questions: 5, zoneStart: 0.26, zoneShrink: 0.035, edge: 0.07, periodMsStart: 1500, periodMsShrink: 130, timeoutMs: 3500, feedbackMs: 550 },
+    tour: { durationMs: 12000, spawnMs: 520, lifeMsStart: 1000, lifeMsEnd: 650, handShare: 0.75, hitPenalty: 2 },
+  },
+
+  /** Headless bots: assumed mini-game score of the greedy bot (random draws uniform 0..1). */
+  bots: {
+    greedyMinigameScore: 0.75,
   },
 
   /** Simulator targets on Normal (§13). */

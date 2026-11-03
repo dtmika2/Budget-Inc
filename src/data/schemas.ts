@@ -255,3 +255,11 @@ export const regionsSchema = z
   .strict();
 
 export const localeSchema = z.record(z.string(), z.string());
+
+export const minigameTextsSchema = z
+  .object({
+    pressSpin: z.array(z.string()).min(3),
+    pressGaffe: z.array(z.string()).min(2),
+    debateQuestions: z.array(z.string()).min(5),
+  })
+  .strict();

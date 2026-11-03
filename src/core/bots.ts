@@ -9,6 +9,7 @@
  *   the cheapest available upgrade, collects all pins, uses the ability when it is useful.
  */
 import { failBundle, presetSliders, sameSliders, type Sliders } from './budgetVote';
+import { channelBlocked } from './compromise';
 import type { PreviewRanges } from './effects';
 import { Rng } from './rng';
 import type { Simulation } from './simulation';
@@ -74,6 +75,11 @@ function respondAll(sim: Simulation, choose: (instanceId: string, eventId: strin
   }
 }
 
+/** Compromise channels usable right now (config order). */
+export function availableChannels(sim: Simulation): string[] {
+  return Object.keys(sim.cfg.compromise.channels).filter((id) => !channelBlocked(sim, id));
+}
+
 /** Vote input for a preset as-is. */
 export function presetVote(sim: Simulation, presetId: string): { kind: 'voteBudget'; sliders: Sliders; presetId: string } {
   return { kind: 'voteBudget', sliders: presetSliders(sim, presetId), presetId };
@@ -131,7 +137,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
       act(sim) {
         const s = sim.state;
         if (s.phase === 'draft' && s.draft) sim.dispatch({ kind: 'pickPolicy', cardId: s.draft.hand[0] });
-        else if (s.phase === 'compromise' && s.compromiseOffer) sim.dispatch({ kind: 'makeCompromise', cardId: s.compromiseOffer[0] });
+        else if (s.phase === 'compromise' && s.compromiseOffer) sim.dispatch({ kind: 'makeCompromise', cardId: s.compromiseOffer[0], channelId: 'press', score: 0.5 });
         else if (s.phase === 'budgetVote') sim.dispatch(presetVote(sim, sim.data.budgetVote[0].id));
       },
     };
@@ -164,7 +170,8 @@ export function createBot(kind: BotKind, seed: string): Bot {
           return;
         }
         if (s.phase === 'compromise' && s.compromiseOffer) {
-          sim.dispatch({ kind: 'makeCompromise', cardId: rng.pick(s.compromiseOffer) });
+          const channels = availableChannels(sim);
+          sim.dispatch({ kind: 'makeCompromise', cardId: rng.pick(s.compromiseOffer), channelId: rng.pick(channels), score: Math.round(rng.next() * 100) / 100 });
           return;
         }
         if (s.phase !== 'running') return;
@@ -205,16 +212,19 @@ export function createBot(kind: BotKind, seed: string): Bot {
         return;
       }
       if (s.phase === 'compromise' && s.compromiseOffer) {
-        let best = s.compromiseOffer[0];
+        const score = sim.cfg.bots.greedyMinigameScore;
+        let best = { cardId: s.compromiseOffer[0], channelId: 'press' };
         let bestV = -Infinity;
         for (const id of s.compromiseOffer) {
-          const v = valueAfter(sim, sim.previewCard(id));
-          if (v > bestV) {
-            bestV = v;
-            best = id;
+          for (const ch of availableChannels(sim)) {
+            const v = valueAfter(sim, sim.previewCompromise(id, ch, score));
+            if (v > bestV) {
+              bestV = v;
+              best = { cardId: id, channelId: ch };
+            }
           }
         }
-        sim.dispatch({ kind: 'makeCompromise', cardId: best });
+        sim.dispatch({ kind: 'makeCompromise', ...best, score });
         return;
       }
       if (s.phase === 'budgetVote') {

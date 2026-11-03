@@ -13,6 +13,7 @@
 - [x] P9 — Balance pass
 - [x] P10 — Mobile, performance, README, final check
 - [x] P11 — Budget sliders, presets and coalition red lines
+- [x] P12 — Compromise channels and mini-games
 
 Every phase gate passed (`typecheck`, `lint`, `test` — 98 tests, `build`, and from P5 on `simulate --runs 200 --bot random`).
 

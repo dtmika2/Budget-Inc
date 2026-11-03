@@ -232,7 +232,7 @@ describe('headless simulation', () => {
     const sim = makeSim({ seed: 'full-term' }, cfg, data);
     let ticks = 0;
     while (!sim.isOver) {
-      if (sim.state.phase === 'compromise') sim.dispatch({ kind: 'makeCompromise', cardId: sim.state.compromiseOffer![0] });
+      if (sim.state.phase === 'compromise') sim.dispatch({ kind: 'makeCompromise', cardId: sim.state.compromiseOffer![0], channelId: 'press', score: 0.5 });
       else if (sim.state.phase === 'draft') sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
       // keep the run alive: pin coalition and anger to safe values
       sim.state.resources.coalition = 50;
