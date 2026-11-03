@@ -4,7 +4,7 @@
  * weekly, so the level moves weekly. Outlines on top take the taps.
  * Opportunity pins are HTML buttons laid over the SVG so they stay >= 44 px at any map size.
  */
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { fmt, t } from '@i18n/index';
 import { getStore, useStore } from '../store';
 import { LiquidDefs, LiquidRegion } from './Liquid';
@@ -15,6 +15,10 @@ const LABEL_BY_CODE = new Map(REGION_PATHS.map((r) => [r.code, r]));
 
 const Regions = memo(function Regions({ support, selected }: { support: Record<string, number>; selected: string | null }) {
   const store = getStore();
+  const [hovered, setHovered] = useState<string | null>(null);
+  // SVG has no z-index: a highlighted outline drawn in list order is covered by later neighbours'
+  // borders. So highlights are separate paths painted after all outlines (hover below selection).
+  const highlights = [hovered !== selected ? hovered : null, selected].filter((c): c is string => !!c);
   return (
     <>
       <LiquidDefs prefix="game" />
@@ -25,13 +29,24 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
         <path
           key={r.code}
           d={r.d}
-          className={`region region--outline${selected === r.code ? ' is-selected' : ''}`}
+          className="region region--outline"
           fill="transparent"
           fillRule="evenodd"
           onClick={() => store.setUi({ selectedRegion: store.ui.selectedRegion === r.code ? null : r.code })}
+          onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(r.code)}
+          onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered((h) => (h === r.code ? null : h))}
         >
           <title>{t(`region.${r.code}`)}</title>
         </path>
+      ))}
+      {highlights.map((code) => (
+        <path
+          key={`hl-${code}`}
+          d={LABEL_BY_CODE.get(code)!.d}
+          fillRule="evenodd"
+          className={`region-highlight${code === selected ? ' is-selected' : ''}`}
+          aria-hidden="true"
+        />
       ))}
     </>
   );

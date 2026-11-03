@@ -214,7 +214,9 @@ h1, h2, h3 { margin: 0; }
 /* one wave period per cycle, one 6-unit pixel column per step (front 48 cols = 288, back 40 cols = 240; see Liquid.tsx) */
 @keyframes wave-front { from { transform: translateX(0); } to { transform: translateX(288px); } }
 @keyframes wave-back { from { transform: translateX(0); } to { transform: translateX(-240px); } }
-.region:hover, .region.is-selected { stroke: #fff2c8; stroke-width: 4; }
+/* highlight outlines are painted on top of every other border (see CzMap.tsx) */
+.region-highlight { fill: none; stroke: #fff2c8; stroke-width: 4; stroke-linejoin: round; pointer-events: none; opacity: 0.75; }
+.region-highlight.is-selected { stroke-width: 5; opacity: 1; }
 .map__credit { margin: 4px 0 0; font-size: 11px; color: var(--text-dim); text-align: center; }
 .region-info {
   position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
