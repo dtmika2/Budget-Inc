@@ -8,7 +8,7 @@ files below; other work does not edit them.
 
 | File | What it holds |
 |---|---|
-| `data/upgrades/compass.json` | the Political Compass tree every leader has (28 boxes, `[DUMMY]` texts and effects) |
+| `data/upgrades/compass.json` | the Political Compass tree every leader has (28 boxes: written names and quotes, placeholder effect sizes) |
 | `locales/skilltree.cs.json` | Czech texts: tree and node names/descriptions and the tree screen's UI chrome (`upgrades.*`, `hud.upgrades`) |
 | `src/skilltree/` | tree screen (`UpgradeTree.tsx`), HUD button (`UpgradeButton.tsx`), styles (`skilltree.css`) |
 | `src/core/upgrades.ts` | buying rules: node status, which trees a leader has, `buyUpgrade` |
@@ -66,6 +66,13 @@ Rules:
   ]
 }
 ```
+
+Texts (`locales/skilltree.cs.json`): each box has a short name (it must fit the box, about 20
+characters) and a description of the form „quote“ + the effect, e.g. „Kdo není na TikToku, ten nevolí.“
+Zisky Podpory o 10 % vyšší. The lore follows the compass: Pravice · Progrese = efficient state, Brussels,
+diplomacy, startups; Pravice · Tradice = business, thrift, party discipline, donors; Levice · Progrese =
+social media, influencers, activists, own media; Levice · Tradice = pensions, unions, brass bands, party
+cells. When an effect changes, change its sentence too.
 
 Box ids: `c_prog` / `c_trad` in the middle; `c_r…` on the Pravice side and `c_l…` on Levice; then the step
 outwards (1–4), `p` / `t` for the Progrese / Tradice half, and `a` / `b` / `1` / `2` / `m` for the boxes of a
