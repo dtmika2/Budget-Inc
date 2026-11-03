@@ -6,6 +6,7 @@ import { Rng } from '../src/core/rng';
 import type { LeaningId, PolicyCard } from '../src/core/types';
 import { LEANING_IDS } from '../src/core/types';
 import { advanceQuiet, cfgWith, gameData, makeSim, quietSim } from './helpers';
+import { withSupportTree } from './fixtures/trees';
 
 const mupkaCards = () => gameData().policies.filter((c) => c.availableFor.includes('mupka'));
 const weights = () => gameData().leaders.find((l) => l.id === 'mupka')!.leaningWeights;
@@ -152,7 +153,7 @@ describe('rerolls', () => {
 
 describe('political capital', () => {
   it('+2 per quarter, +1 with support >= 60, +1 with Regional Tours', () => {
-    const sim = quietSim();
+    const sim = quietSim({}, config, withSupportTree());
     expect(sim.state.pc).toBe(2); // Q1 grant
     sim.state.pc = 0;
     sim.state.resources.support = 70;

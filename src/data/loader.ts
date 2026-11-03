@@ -56,6 +56,7 @@ export type DataErrorCode =
   | 'unknownEvent'
   | 'unknownLeader'
   | 'unknownUpgrade'
+  | 'missingStart'
   | 'cycle'
   | 'missingLocale'
   | 'seats'
@@ -417,8 +418,28 @@ export function loadGameData(
   dupCheck(allNodes.map((n) => ({ id: n.node.id, file: n.file, path: n.path })));
   const nodeIds = new Set(allNodes.map((n) => n.node.id));
   for (const t of trees) {
-    locKey(t.item.name, t.file, 'name');
-    if (t.item.leader && leadersRaw && !leaderIds.has(t.item.leader)) err('unknownLeader', t.file, 'leader', t.item.leader);
+    const tree = t.item;
+    locKey(tree.name, t.file, 'name');
+    if (tree.leader && leadersRaw && !leaderIds.has(tree.leader)) err('unknownLeader', t.file, 'leader', tree.leader);
+    if (tree.axes) for (const side of ['top', 'bottom', 'left', 'right'] as const) locKey(tree.axes[side], t.file, `axes.${side}`);
+    const own = new Set(tree.nodes.map((n) => n.id));
+    tree.nodes.forEach((n, i) =>
+      n.links.forEach((l: string, j: number) => {
+        if (!own.has(l)) err('unknownUpgrade', t.file, `nodes[${i}].links[${j}]`, l);
+      }),
+    );
+    tree.exclusive.forEach((g: string[], i: number) =>
+      g.forEach((id, j) => {
+        if (!own.has(id)) err('unknownUpgrade', t.file, `exclusive[${i}][${j}]`, id);
+      }),
+    );
+    for (const [lid, nid] of Object.entries(tree.start) as [string, string][]) {
+      if (leadersRaw && !leaderIds.has(lid)) err('unknownLeader', t.file, `start.${lid}`, lid);
+      if (!own.has(nid)) err('unknownUpgrade', t.file, `start.${lid}`, nid);
+    }
+    // a tree with start nodes needs one for every leader who has the tree
+    if (Object.keys(tree.start).length > 0 && leadersRaw)
+      for (const l of leadersRaw) if ((!tree.leader || tree.leader === l.id) && !(l.id in tree.start)) err('missingStart', t.file, 'start', l.id);
   }
   for (const { node, file, path } of allNodes) {
     locKey(node.name, file, `${path}.name`);

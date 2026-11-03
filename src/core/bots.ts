@@ -16,7 +16,7 @@ import { Rng } from './rng';
 import type { Simulation } from './simulation';
 import type { GroupId, Range, ResourceId } from './types';
 import { GROUP_IDS, RESOURCE_IDS } from './types';
-import { nodeStatus, treesFor } from './upgrades';
+import { availableNodes } from './upgrades';
 
 export type BotKind = 'random' | 'greedy' | 'firstCard';
 
@@ -213,7 +213,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
           if (rng.next() < 0.5) sim.dispatch({ kind: 'collectOpportunity', pinId: pin.id });
         }
         if (rng.next() < 0.01) {
-          const nodes = treesFor(sim).flatMap((t) => t.nodes).filter((n) => nodeStatus(s.ownedUpgrades, n) === 'available' && n.cost <= s.pc);
+          const nodes = availableNodes(sim).filter((n) => n.cost <= s.pc);
           if (nodes.length) sim.dispatch({ kind: 'buyUpgrade', nodeId: rng.pick(nodes).id });
         }
         if (s.abilityCharges > 0 && rng.next() < 0.005) sim.dispatch({ kind: 'useAbility' });
@@ -277,10 +277,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
       for (const d of [...s.demands])
         sim.dispatch({ kind: greedyAccepts(sim, d.templateId, d.region) ? 'acceptDemand' : 'rejectDemand', demandId: d.id });
       // cheapest available upgrade
-      const avail = treesFor(sim)
-        .flatMap((t) => t.nodes)
-        .filter((n) => nodeStatus(s.ownedUpgrades, n) === 'available')
-        .sort((a, b) => a.cost - b.cost);
+      const avail = availableNodes(sim).sort((a, b) => a.cost - b.cost);
       if (avail.length && avail[0].cost <= s.pc) sim.dispatch({ kind: 'buyUpgrade', nodeId: avail[0].id });
       // ability when useful
       if (s.abilityCharges > 0) {

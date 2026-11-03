@@ -52,7 +52,7 @@ import type {
   ResourceId,
 } from './types';
 import { GROUP_IDS, RESOURCE_IDS } from './types';
-import { buyUpgrade, canBuy } from './upgrades';
+import { buyUpgrade, canBuy, grantStartNodes } from './upgrades';
 
 export interface SimOptions {
   seed: string;
@@ -161,6 +161,7 @@ export class Simulation implements EffectHost {
       inputs: [],
       version: 0,
     };
+    grantStartNodes(this);
     this.recomputeFinances();
     this.state.projection = this.computeProjection();
     this.pushTrend();

@@ -63,13 +63,15 @@ describe('data loader', () => {
 
   it('rejects a broken upgrade DAG (cycle)', () => {
     const { files, locale } = base();
-    (files['data/upgrades/support.json'] as AnyObj).nodes[0].requires = ['sup_permanent_campaign'];
+    const nodes = (files['data/upgrades/compass.json'] as AnyObj).nodes;
+    nodes[0].requires = [nodes[1].id];
+    nodes[1].requires = [nodes[0].id];
     expect(codes(files, locale)).toContain('cycle');
   });
 
   it('rejects an unknown upgrade prerequisite', () => {
     const { files, locale } = base();
-    (files['data/upgrades/support.json'] as AnyObj).nodes[1].requires = ['nope'];
+    (files['data/upgrades/compass.json'] as AnyObj).nodes[1].requires = ['nope'];
     expect(codes(files, locale)).toContain('unknownUpgrade');
   });
 

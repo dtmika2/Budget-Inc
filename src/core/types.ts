@@ -174,7 +174,10 @@ export interface RedLine {
 export interface UpgradeNode {
   id: string;
   cost: number;
+  /** Prerequisites: all must be owned. */
   requires: string[];
+  /** Undirected path links: with any neighbour, at least one neighbour must be owned. */
+  links: string[];
   modifiers: ModifierDef[];
   name: string;
   description: string;
@@ -187,6 +190,12 @@ export interface UpgradeTree {
   name: string;
   /** Leader tree: only this leader has it. */
   leader?: LeaderId;
+  /** Start node per leader: owned for free at run start. */
+  start: Partial<Record<LeaderId, string>>;
+  /** Fork groups: owning one node locks the others out. */
+  exclusive: string[][];
+  /** Axis labels drawn around the tree view (locale keys). */
+  axes?: { top: string; bottom: string; left: string; right: string };
   nodes: UpgradeNode[];
 }
 

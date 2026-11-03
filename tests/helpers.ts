@@ -29,8 +29,8 @@ export function resolveModal(sim: Simulation): void {
 }
 
 /** A sim in phase running with no chaos/pins scheduled (budget votes kept). */
-export function quietSim(opts: Partial<SimOptions> = {}, cfg: Config = config): Simulation {
-  const sim = makeSim(opts, cfg);
+export function quietSim(opts: Partial<SimOptions> = {}, cfg: Config = config, data: GameData = gameData()): Simulation {
+  const sim = makeSim(opts, cfg, data);
   resolveModal(sim);
   sim.state.schedule = sim.state.schedule.filter((e) => e.kind === 'budgetVote');
   return sim;
