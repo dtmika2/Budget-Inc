@@ -1,5 +1,5 @@
 /**
- * Static SVG map of the 14 kraje (spec §12.4). Each region is a glass filled with party-coloured liquid
+ * Static SVG map of the 14 kraje (spec §12.4). Each region is a mustard glass filled with wine-red liquid
  * up to its regional support s_r, with a pixel wave on the surface (Liquid.tsx). The core updates s_r
  * weekly, so the level moves weekly. Outlines on top take the taps.
  * Opportunity pins are HTML buttons laid over the SVG so they stay >= 44 px at any map size.
@@ -13,23 +13,13 @@ import { MAP_ATTRIBUTION, MAP_HEIGHT, MAP_SCHEMATIC, MAP_WIDTH, REGION_PATHS } f
 
 const LABEL_BY_CODE = new Map(REGION_PATHS.map((r) => [r.code, r]));
 
-const Regions = memo(function Regions({
-  support,
-  party,
-  light,
-  selected,
-}: {
-  support: Record<string, number>;
-  party: string;
-  light: string;
-  selected: string | null;
-}) {
+const Regions = memo(function Regions({ support, selected }: { support: Record<string, number>; selected: string | null }) {
   const store = getStore();
   return (
     <>
-      <LiquidDefs prefix="game" color={party} light={light} />
+      <LiquidDefs prefix="game" />
       {REGION_PATHS.map((r) => (
-        <LiquidRegion key={r.code} prefix="game" code={r.code} d={r.d} support={support[r.code] ?? 0} color={party} />
+        <LiquidRegion key={r.code} prefix="game" code={r.code} d={r.d} support={support[r.code] ?? 0} />
       ))}
       {REGION_PATHS.map((r) => (
         <path
@@ -86,14 +76,12 @@ function Pins() {
 
 export function CzMap() {
   const support = useStore((s) => s.sim?.state.projection.regionSupport ?? {});
-  const party = useStore((s) => s.sim?.leaderDef.color ?? '#888888');
-  const light = useStore((s) => s.sim?.leaderDef.colorLight ?? '#cccccc');
   const selected = useStore((s) => s.ui.selectedRegion);
   return (
     <div className="map" data-tut-target="map">
       <div className="map__frame" style={{ aspectRatio: `${MAP_WIDTH} / ${MAP_HEIGHT}` }}>
         <svg viewBox={`-6 -6 ${MAP_WIDTH + 12} ${MAP_HEIGHT + 12}`} className="map__svg" role="img" aria-label={t('hud.projection')}>
-          <Regions support={support} party={party} light={light} selected={selected} />
+          <Regions support={support} selected={selected} />
         </svg>
         <Pins />
       </div>

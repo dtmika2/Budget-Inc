@@ -51,11 +51,11 @@ export function ElectionNight() {
         </header>
 
         <svg className="election__map" viewBox={`-6 -6 ${MAP_WIDTH + 12} ${MAP_HEIGHT + 12}`} aria-hidden="true">
-          <LiquidDefs prefix="night" color={sim.leaderDef.color} light={sim.leaderDef.colorLight} />
+          <LiquidDefs prefix="night" />
           {REGION_PATHS.map((r) => {
             const res = byCode.get(r.code);
             const on = revealed.has(r.code);
-            return <LiquidRegion key={r.code} prefix="night" code={r.code} d={r.d} support={on && res ? res.s_final : 0} color={sim.leaderDef.color} />;
+            return <LiquidRegion key={r.code} prefix="night" code={r.code} d={r.d} support={on && res ? res.s_final : 0} />;
           })}
           {REGION_PATHS.map((r) => (
             <path key={r.code} d={r.d} fillRule="evenodd" fill="none" className={`region${revealed.has(r.code) ? ' is-revealed' : ' is-pending'}`} />

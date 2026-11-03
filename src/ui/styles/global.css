@@ -205,15 +205,15 @@ h1, h2, h3 { margin: 0; }
 .map { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 .map__frame { position: relative; width: 100%; max-height: 100%; max-width: calc((100vh - 220px) * 1.7); }
 .map__svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.region { stroke: var(--gold); stroke-width: 2.5; stroke-linejoin: round; cursor: pointer; }
+.region { stroke: #2e1a12; stroke-width: 3; stroke-linejoin: round; cursor: pointer; }
 /* liquid regions: glass + party-coloured liquid with a stepped pixel wave */
-.glass { fill: #241f37; }
+.glass { fill: #d6bc6c; } /* mustard-beige glass */
 .liquid { transition: transform 1.2s steps(12); }
-.wave--front { animation: wave-front 2.4s steps(16) infinite; }
-.wave--back { animation: wave-back 3.6s steps(16) infinite; }
-/* one wave period (16 pixel columns x 6 units = 96, see Liquid.tsx) per cycle, one column per step */
-@keyframes wave-front { from { transform: translateX(0); } to { transform: translateX(96px); } }
-@keyframes wave-back { from { transform: translateX(0); } to { transform: translateX(-96px); } }
+.wave--front { animation: wave-front 4.6s steps(48) infinite; }
+.wave--back { animation: wave-back 7s steps(40) infinite; }
+/* one wave period per cycle, one 6-unit pixel column per step (front 48 cols = 288, back 40 cols = 240; see Liquid.tsx) */
+@keyframes wave-front { from { transform: translateX(0); } to { transform: translateX(288px); } }
+@keyframes wave-back { from { transform: translateX(0); } to { transform: translateX(-240px); } }
 .region:hover, .region.is-selected { stroke: #fff2c8; stroke-width: 4; }
 .map__credit { margin: 4px 0 0; font-size: 11px; color: var(--text-dim); text-align: center; }
 .region-info {
@@ -449,7 +449,7 @@ h1, h2, h3 { margin: 0; }
 .election__snap { color: var(--bad); font-family: var(--f-pixel); }
 .election__map { width: 100%; max-height: 52vh; }
 .election__map .region { cursor: default; }
-.election__map .region.is-pending { stroke: var(--line); }
+.election__map .region.is-pending { stroke: #2e1a12; }
 .election__label { font-family: var(--f-pixel); font-size: 26px; fill: #fff; paint-order: stroke; stroke: #0c0a14; stroke-width: 5px; }
 .election__status { min-height: 24px; font-family: var(--f-pixel); text-align: center; }
 .seatbar { position: relative; height: 40px; margin-top: 22px; background: #15121f; border: 2px solid var(--line); }
