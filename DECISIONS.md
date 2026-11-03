@@ -148,3 +148,7 @@ Difficulty direction (1000 runs/row): greedy Mupka easy 89.4 % → normal 29.7 %
 **After the political compass tree** (1000 runs/row, Normal, `[DUMMY]` effects): random Mupka 0.5 %, random Abis 22.7 %, greedy Mupka 29.8 %, greedy Abis 73.8 %. Greedy Mupka is back inside the target (it no longer gets the support tree's −3 threshold node cheaply). Random Abis is still above 15 % and greedy Abis well above 40 %: the leader gap, not the tree, is the open balance issue. Re-measure once the real compass effects exist.
 
 **After special cards** (1000 runs/row, Normal, 5 `[DUMMY]` cards, 2 catastrophes + 2 agents a year): random Mupka 0.5 %, random Abis 20.0 %, greedy Mupka 14.9 % (was 29.8 %), greedy Abis 79.5 % (was 73.8 %). The dummy catastrophes hurt Mupka more than Abis, so the gap between the leaders grows. Re-measure once the real cards exist; levers: `config.specials` counts, thresholds and sanction sizes.
+
+**After one special card a year** (1000 runs/row, Normal, agent or catastrophe at 50/50): random Mupka 0.5 %, random Abis 21.8 %, greedy Mupka 21.5 % (back inside the target; was 14.9 % with 2 + 2 a year), greedy Abis 74.2 %. The open issue stays the gap between the leaders, not the special cards.
+
+**After merging phases 15-16 (region events, budget hand) with special cards and the timeline** (1000 runs/row, Normal): random Mupka 0.5 %, random Abis 18.1 %, greedy Mupka 22.7 %, greedy Abis 82.6 %. Mupka inside the targets; Abis well above them on both bots.

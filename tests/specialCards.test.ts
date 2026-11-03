@@ -32,20 +32,23 @@ function card(s: Simulation, id: string): SpecialCardDef {
 }
 
 describe('special cards: scheduling', () => {
-  it('draws the configured catastrophes and agents for the year, spaced and inside the window', () => {
-    const s = makeSim({ seed: 'year' }, config, fullGameData());
+  it('draws perYear cards for the year, inside the window, spaced, of both kinds over many seeds', () => {
     const sp = config.specials;
-    const up = s.state.specials.upcoming;
-    const kinds = up.map((u) => card(s, u.cardId).kind);
-    expect(kinds.filter((k) => k === 'catastrophe')).toHaveLength(sp.catastrophesPerYear);
-    expect(kinds.filter((k) => k === 'agent')).toHaveLength(sp.agentsPerYear);
-    const days = up.map((u) => u.fireAbsDay).sort((a, b) => a - b);
-    for (const d of days) {
-      expect(d).toBeGreaterThanOrEqual(1 + sp.spawnFromDay);
-      expect(d).toBeLessThanOrEqual(4 * config.time.daysPerQuarter - sp.spawnBeforeYearEnd + 1);
+    const kinds = new Set<string>();
+    for (let i = 0; i < 20; i++) {
+      const s = makeSim({ seed: `year${i}` }, config, fullGameData());
+      const up = s.state.specials.upcoming;
+      expect(up).toHaveLength(sp.perYear);
+      for (const u of up) {
+        kinds.add(card(s, u.cardId).kind);
+        expect(u.fireAbsDay).toBeGreaterThanOrEqual(1 + sp.spawnFromDay);
+        expect(u.fireAbsDay).toBeLessThanOrEqual(4 * config.time.daysPerQuarter - sp.spawnBeforeYearEnd + 1);
+      }
+      const days = up.map((u) => u.fireAbsDay).sort((a, b) => a - b);
+      for (let j = 1; j < days.length; j++) expect(days[j] - days[j - 1]).toBeGreaterThanOrEqual(sp.minGapDays);
+      expect(s.state.schedule.filter((e) => e.kind === 'special')).toHaveLength(up.length);
     }
-    for (let i = 1; i < days.length; i++) expect(days[i] - days[i - 1]).toBeGreaterThanOrEqual(sp.minGapDays);
-    expect(s.state.schedule.filter((e) => e.kind === 'special')).toHaveLength(up.length);
+    expect([...kinds].sort()).toEqual(['agent', 'catastrophe']);
   });
 
   it('is deterministic per seed', () => {
