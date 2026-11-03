@@ -71,6 +71,7 @@ export type ModifierSource =
   | 'ability'
   | 'compromise'
   | 'demand'
+  | 'region_event'
   | 'special'
   | 'any';
 
@@ -166,6 +167,22 @@ export interface BudgetItem {
   /** Pass-chance change per +1 step (e.g. partners like more spending on this). */
   passPerStep: number;
   canBeRedLine: boolean;
+  /** Core categories (the big ones): at most config.budgetVote.hand.core of them are shown per vote. */
+  core: boolean;
+  /** Safe slider range; a passed vote with the slider below / above it applies onCut / onOverspend. */
+  band: { min: number; max: number };
+  onCut: BudgetZone;
+  onOverspend: BudgetZone;
+  /** Advisor hint texts shown before the vote (what happens past each side of the band). */
+  advisor: { cut: string; overspend: string } | null;
+}
+
+/** One-off effects of a budget category outside its safe band (applied only when the vote passes). */
+export interface BudgetZone extends EffectBundle {
+  /** Regional support per kraj trait: every kraj with the trait gets this range (summed over its traits). */
+  regionTraits?: Record<string, Range>;
+  /** Pass-chance change while the slider is in this zone. */
+  pass?: number;
 }
 
 export interface RedLine {
@@ -355,6 +372,36 @@ export interface OpenDemand {
   expireAbsDay: number;
 }
 
+/** Animation drawn over the whole kraj while a region event is open. */
+export type RegionEventAnimation = 'flood' | 'blackout' | 'protest' | 'factory' | 'duo';
+
+/**
+ * Regional event template (regions workspace): once a year per kraj, a whole-region animation with a
+ * "!" pin. Intervene -> onIntervene; ignore or timeout -> onIgnore. Bundles may use the region key "self".
+ */
+export interface RegionEventTemplate {
+  id: string;
+  status: 'DUMMY' | 'DRAFT' | 'APPROVED';
+  animation: RegionEventAnimation;
+  /** Weight multiplier per region trait (missing = 1). */
+  regionWeights: Record<string, number>;
+  title: string;
+  text: string;
+  /** Optional variants (e.g. who of the Ikonicke duo comes); each has its own text. */
+  variants: { id: string; text: string }[];
+  onIntervene: EffectBundle;
+  onIgnore: EffectBundle;
+}
+
+export interface OpenRegionEvent {
+  id: string;
+  templateId: string;
+  region: string;
+  variant: string | null;
+  spawnAbsDay: number;
+  expireAbsDay: number;
+}
+
 export interface Pledge {
   id: string;
   templateId: string;
@@ -378,6 +425,7 @@ export interface GameData {
   regionProfiles: RegionProfiles;
   parties: PartyDef[];
   demands: DemandTemplate[];
+  regionEvents: RegionEventTemplate[];
   upgrades: UpgradeTree[];
   /** Catastrophes and special agents (catastrophes workspace, core/specialCards.ts). */
   specialCards: SpecialCardDef[];
@@ -402,7 +450,10 @@ export type Input =
   | { kind: 'acceptDemand'; demandId: string }
   | { kind: 'rejectDemand'; demandId: string }
   | { kind: 'acceptSpecial' }
-  | { kind: 'closeSpecial' };
+  | { kind: 'closeSpecial' }
+  | { kind: 'rerollBudget' }
+  | { kind: 'interveneRegionEvent'; eventId: string }
+  | { kind: 'ignoreRegionEvent'; eventId: string };
 
 export interface RecordedInput {
   /** Number of effective ticks executed before this input (replay anchor). */
@@ -422,7 +473,17 @@ export interface OngoingInstance {
   label?: string;
 }
 
-export type ScheduledKind = 'budgetVote' | 'compromise' | 'special' | 'chaos' | 'pinSpawn' | 'pinExpire' | 'demandSpawn' | 'demandExpire';
+export type ScheduledKind =
+  | 'budgetVote'
+  | 'compromise'
+  | 'special'
+  | 'chaos'
+  | 'pinSpawn'
+  | 'pinExpire'
+  | 'demandSpawn'
+  | 'demandExpire'
+  | 'regionEventSpawn'
+  | 'regionEventExpire';
 
 export interface ScheduledEntry {
   seq: number;
@@ -534,10 +595,17 @@ export interface GameState {
   compromiseOffer: string[] | null;
   /** Coalition red lines of the open budget vote (drawn at vote open). */
   budgetVoteRedLines: RedLine[] | null;
+  /** Budget categories shown in the open vote (2 core + 4 extra, pledged ones forced in); null = all. */
+  budgetVoteItems: string[] | null;
+  /** Re-rolls of the shown categories in the open vote (each costs more PC). */
+  budgetVoteRerolls: number;
   /** Open regional demands ("!" pins) and accepted pledges (phase 14). */
   demands: OpenDemand[];
   pledges: Pledge[];
   demandSeq: number;
+  /** Open regional events (regions workspace), at most one per kraj. */
+  regionEvents: OpenRegionEvent[];
+  regionEventSeq: number;
   /** Weekly regional support s_r (phase 13 history), first point at the run start. */
   regionHistory: { absDay: number; s: Record<string, number>; national: number }[];
   /** Game year (1-4) in which a once-per-year compromise channel (the regional tour) was last used. */

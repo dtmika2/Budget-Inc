@@ -118,6 +118,27 @@ export const config = {
       border: { border: 1.4, tourism: 1.1 },
       university: { education: 1.4 },
     } as Record<string, Record<string, number>>,
+    /**
+     * Region screen cohorts (regions workspace, display only): how much of each interest group in a kraj is
+     * angry = national anger x the product of these per-trait multipliers (missing = 1); the rest splits
+     * into supporters and neutral by the kraj's regional support.
+     */
+    groupAffinity: {
+      urban: { media: 1.2, activists: 1.2, pensioners: 0.9 },
+      mixed: {},
+      rural: { pensioners: 1.2, activists: 0.8, eu: 1.1 },
+      industry: { oligarchs: 1.2 },
+      services: { media: 1.1 },
+      agriculture: { eu: 1.2 },
+      tourism: {},
+      coal: { oligarchs: 1.3, activists: 1.2 },
+      border: { eu: 1.2 },
+      university: { activists: 1.4 },
+    } as Record<string, Partial<Record<GroupId, number>>>,
+    /** Cap on the angry share of a group (%). */
+    maxAngryShare: 95,
+    /** Region screen: how many entries the "biggest impact" list shows. */
+    topEffects: 5,
   },
 
   /**
@@ -164,7 +185,13 @@ export const config = {
     passMax: 0.98,
     failEffects: { coalition: -8, prestige: -3, support: -2 } as Partial<Record<ResourceId, number>>,
     /** Budget sliders (phase 11): one step changes a category's spending by stepPct %. */
-    sliders: { minSteps: -3, maxSteps: 3, stepPct: 5 },
+    sliders: { minSteps: -3, maxSteps: 3, stepPct: 10 },
+    /** Categories shown per vote: `core` drawn from the core ones, `extra` from the rest (pledged ones forced in). */
+    hand: { core: 2, extra: 4 },
+    /** Re-roll of the shown categories: costs baseCost x factor^rerolls PC (like the policy draft). */
+    reroll: { baseCost: 1, factor: 2 },
+    /** Multiplier on every category's supportPerStep, angerPerStep and passPerStep. */
+    impact: 1.5,
     /**
      * Coalition red lines: at vote open, min..max categories (with canBeRedLine) are drawn from the
      * budgetVote stream. Cutting one by more than maxCutSteps steps is a violation; each violation lowers
@@ -360,6 +387,16 @@ export const config = {
     revealDays: 91,
     /** How long the "now revealed" notification stays (real seconds). */
     toastSeconds: 7,
+  },
+
+  /** Regional events (regions workspace): one per kraj per year, whole-kraj animation + "!" pin. */
+  regionEvents: {
+    enabled: true,
+    /** Spawn window inside the year (days from the year's start / before its end). */
+    spawnFromDay: 5,
+    spawnBeforeYearEnd: 20,
+    /** Days the event (and its animation) stays open before it counts as ignored. */
+    responseDays: 30,
   },
 
   /** Compromise mini-games (UI only; the core only sees the final score). */

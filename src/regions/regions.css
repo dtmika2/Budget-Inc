@@ -103,11 +103,45 @@
 .rs-head__paused { font-family: var(--f-pixel); color: var(--gold); }
 .rs-head__nav { min-width: 44px; min-height: 44px; padding: 0 10px; }
 .rs-head__close { min-width: 48px; min-height: 48px; font-size: 20px; }
-.rs-tabs { display: none; }
+.rs-tabs { display: flex; gap: 4px; padding: 0 var(--gutter); background: var(--panel); border-bottom: 2px solid var(--line); }
+.rs-tab {
+  min-height: 44px; padding: 0 18px; background: none; border: 0; border-bottom: 3px solid transparent;
+  color: var(--text-dim); font: 17px var(--f-pixel); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+}
+.rs-tab:hover { color: var(--text); }
+.rs-tab.is-on { color: var(--gold); border-bottom-color: var(--gold); }
+.rs-tab__badge { min-width: 20px; height: 20px; padding: 0 5px; display: inline-grid; place-items: center; background: #e0952c; color: var(--ground); font: 700 13px/1 var(--f-pixel); }
 .rs-body {
   flex: 1 1 auto; overflow-y: auto; padding: var(--gutter);
   display: grid; grid-template-columns: minmax(260px, 1fr) minmax(0, 2fr); gap: 16px; align-content: start;
 }
+.rs-body--events { grid-template-columns: minmax(0, 3fr) minmax(240px, 2fr); }
+.rs-charts { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.rs-top { grid-column: 1 / -1; }
+.rs-top .rs-effects { max-height: none; }
+.rs-top .deltas { font-size: 12px; }
+
+/* interest-group cohorts: supporters / neutral / angry, one stacked bar per group */
+.cohorts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.cohort { display: grid; grid-template-columns: 6.5em 1fr auto; align-items: center; gap: 8px; }
+.cohort__name { font-family: var(--f-pixel); font-size: 15px; }
+.cohort__bar { display: flex; height: 16px; background: var(--panel-2); box-shadow: 0 0 0 2px #0c0a14; }
+.cohort__seg { display: block; height: 100%; }
+.cohort__seg--support { background: var(--good); }
+.cohort__seg--neutral { background: #8d879e; }
+.cohort__seg--anger { background: var(--bad); }
+.cohort__nums { font-family: var(--f-num); font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+.cohort__v--support { color: var(--good); font-weight: 400; }
+.cohort__v--anger { color: var(--bad); font-weight: 400; }
+.cohorts__legend { margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--text-dim); }
+.cohort__key::before { content: ''; display: inline-block; width: 10px; height: 10px; margin-right: 6px; }
+.cohort__key--support::before { background: var(--good); }
+.cohort__key--neutral::before { background: #8d879e; }
+.cohort__key--anger::before { background: var(--bad); }
+
+/* region event card on the events tab: amber like its map pin */
+.demand.rs-event { border-color: #e0952c; }
+.rs-event .rs-event__bang { background: #e0952c; color: var(--ground); }
 .rs-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .rs-data { grid-column: 1 / -1; }
 .rs-card { background: var(--panel); border: 2px solid var(--line); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
@@ -180,13 +214,9 @@
   .rs-head__main .h-display { font-size: 22px; }
   .rs-head__close { order: -1; }
   .rs-head__nav { flex: 1; }
-  .rs-tabs { display: flex; background: var(--panel); border-bottom: 2px solid var(--line); }
-  .rs-tab { flex: 1; min-height: 44px; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--text-dim); font: 16px var(--f-pixel); cursor: pointer; }
-  .rs-tab.is-on { color: var(--gold); border-bottom-color: var(--gold); }
-  .rs-body { grid-template-columns: 1fr; padding: 12px; }
-  .region-screen:not([data-tab='overview']) [data-section='overview'],
-  .region-screen:not([data-tab='history']) [data-section='history'],
-  .region-screen:not([data-tab='data']) [data-section='data'] { display: none; }
+  .rs-tabs { padding: 0; }
+  .rs-tab { flex: 1; justify-content: center; padding: 0 6px; font-size: 16px; }
+  .rs-body, .rs-body--events { grid-template-columns: 1fr; padding: 12px; }
   .rs-effects { max-height: none; }
 }
 
@@ -240,3 +270,27 @@
   .quarter-banner span { font-size: 18px; padding: 4px 14px; }
   .demand__grid { grid-template-columns: 1fr; }
 }
+
+/* ------------------------------------------------------------ region events: second map layer (RegionEventLayer.tsx) */
+.rev-layer { pointer-events: none; }
+.rev-fill { pointer-events: none; }
+.rev-fill--flood { fill: #3d7fd1; animation: rev-tide 2.4s steps(4) infinite; }
+.rev-fill--dark { fill: #0c0a14; animation: rev-flicker 3.2s step-end infinite; }
+.rev-fill--protest { fill: #c8352e; animation: rev-pulse 1.6s steps(2) infinite; }
+.rev-fill--factory { fill: #2b2540; opacity: 0.45; }
+.rev-fill--duo { fill: #d9b45a; animation: rev-pulse 2s steps(2) infinite; }
+@keyframes rev-tide { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.6; } }
+@keyframes rev-flicker { 0% { opacity: 0.55; } 8% { opacity: 0.15; } 12% { opacity: 0.6; } 60% { opacity: 0.6; } 66% { opacity: 0.2; } 70% { opacity: 0.55; } }
+@keyframes rev-pulse { 0%, 100% { opacity: 0.18; } 50% { opacity: 0.32; } }
+.rev-bob { animation: rev-bob 1.4s steps(2) infinite; }
+@keyframes rev-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.rev-march { animation: rev-march 2.4s steps(4) infinite; }
+@keyframes rev-march { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+.rev-rise { animation: rev-rise 1.8s steps(3) infinite; }
+@keyframes rev-rise { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-9px); opacity: 0.2; } }
+.rev-wave-hand { animation: rev-bob 1.2s steps(2) infinite; }
+
+/* region event pin: amber, so it reads apart from the red demand bubble */
+.dpin--event .dpin__bubble { background: #e0952c; color: var(--ground); }
+.dpin--event:hover .dpin__bubble { background: #f2ac46; }
+.dpin--event .dpin__bubble::after { border-top-color: var(--paper); border-left-color: var(--paper); }

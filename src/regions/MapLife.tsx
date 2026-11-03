@@ -14,14 +14,14 @@ import { SPRITES, SPX, spriteRects } from './sprites';
 
 const LABELS = new Map(REGION_PATHS.map((r) => [r.code, r]));
 
-type Vars = CSSProperties & Record<`--${string}`, string>;
+export type Vars = CSSProperties & Record<`--${string}`, string>;
 
 const CARGO: Record<string, Vars> = {
   full: { '--cargo': '#efe6cf', '--cargo-dot': '#8f7740' },
   gold: { '--cargo': '#d9b45a', '--cargo-dot': '#fff2a8' },
   empty: { '--cargo': '#6d6577', '--cargo-dot': '#4a4560' },
 };
-const PLACARD: Record<GroupId | 'chaos', string> = {
+export const PLACARD: Record<GroupId | 'chaos', string> = {
   chaos: '#efe6cf',
   oligarchs: '#d9b45a',
   pensioners: '#c9a0dc',
@@ -29,17 +29,17 @@ const PLACARD: Record<GroupId | 'chaos', string> = {
   eu: '#3f6fd8',
   activists: '#6fc27f',
 };
-const JACKETS = ['#4a6fa5', '#8f3b4a', '#3f7a52', '#6b5a8e', '#a0703a'];
+export const JACKETS = ['#4a6fa5', '#8f3b4a', '#3f7a52', '#6b5a8e', '#a0703a'];
 
 /** Small deterministic hash (positions / phases that must not change between renders). */
-function hash(s: string): number {
+export function hash(s: string): number {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
   return h >>> 0;
 }
 
 /** Point inside a kraj: its label point plus jitter (u, v in [-1, 1]) scaled by the kraj's size. */
-function spot(code: string, u: number, v: number, spread = 0.18): { x: number; y: number } {
+export function spot(code: string, u: number, v: number, spread = 0.18): { x: number; y: number } {
   const r = LABELS.get(code)!;
   const b = REGION_BOXES[code];
   return { x: Math.round(r.labelX + u * b.w * spread), y: Math.round(r.labelY + 14 + v * b.h * spread) };
@@ -48,7 +48,7 @@ function spot(code: string, u: number, v: number, spread = 0.18): { x: number; y
 const snap = (n: number) => Math.round(n / SPX) * SPX;
 
 /** Sprite frames (two frames alternate via CSS; --fr sets the frame period). */
-function Sprite({ name, style }: { name: string; style?: Vars }) {
+export function Sprite({ name, style }: { name: string; style?: Vars }) {
   const frames = SPRITES[name].length;
   if (frames === 1) return <use href={`#life-${name}-0`} style={style} />;
   return (

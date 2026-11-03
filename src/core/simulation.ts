@@ -5,7 +5,19 @@
 import type { Config, DifficultyPreset } from '../config';
 import { activateAbility, canUseAbility, rechargeIfYearStart } from './abilities';
 import { computeFinances, initPct } from './budget';
-import { openBudgetVote, passChance, scheduleBudgetVotes, validateVote, violations, voteBudget, voteBundle, type Sliders } from './budgetVote';
+import {
+  canRerollBudget,
+  openBudgetVote,
+  passChance,
+  rerollBudget,
+  scheduleBudgetVotes,
+  validateVote,
+  violations,
+  voteBudget,
+  voteBundle,
+  zoneBundle,
+  type Sliders,
+} from './budgetVote';
 import { canRespond, fireChaos, respond, scheduleChaosForPick } from './chaos';
 import { canMakeCompromise, makeCompromise, openCompromise, scaleBundle, scheduleQuarterCompromise, soldBundle } from './compromise';
 import {
@@ -29,6 +41,15 @@ import { makeEntry } from './log';
 import { scalar, tickModifiers, type PipelineCtx } from './modifiers';
 import { collectPin, expirePin, scheduleQuarterPins, spawnPin } from './opportunities';
 import { applyStandInPenalties, applyZeroPenalties, updateZeroPenalties } from './penalties';
+import {
+  canAnswerRegionEvent,
+  expireRegionEvent,
+  ignoreRegionEvent,
+  interveneRegionEvent,
+  regionEventTemplate,
+  scheduleYearRegionEvents,
+  spawnRegionEvent,
+} from './regionEvents';
 import { createStreams, shortHash, type RngStreams } from './rng';
 import { takeNextDue } from './scheduler';
 import { computeScore } from './score';
@@ -137,11 +158,15 @@ export class Simulation implements EffectHost {
       draft: null,
       compromiseOffer: null,
       budgetVoteRedLines: null,
+      budgetVoteItems: null,
+      budgetVoteRerolls: 0,
       tourUsedInYear: null,
       regionHistory: [],
       demands: [],
       pledges: [],
       demandSeq: 0,
+      regionEvents: [],
+      regionEventSeq: 0,
       picked: [],
       schedule: [],
       scheduleSeq: 0,
@@ -296,6 +321,7 @@ export class Simulation implements EffectHost {
     scheduleQuarterPins(this);
     scheduleQuarterCompromise(this);
     scheduleYearDemands(this);
+    scheduleYearRegionEvents(this);
     scheduleYearSpecials(this);
     s.draft = { hand: [], shownThisQuarter: [], rerolls: 0 };
     s.phase = 'draft';
@@ -364,6 +390,8 @@ export class Simulation implements EffectHost {
       else if (e.kind === 'pinExpire') expirePin(this, e);
       else if (e.kind === 'demandSpawn') spawnDemand(this);
       else if (e.kind === 'demandExpire') expireDemand(this, e);
+      else if (e.kind === 'regionEventSpawn') spawnRegionEvent(this, e);
+      else if (e.kind === 'regionEventExpire') expireRegionEvent(this, e);
     }
 
     // 2. daily changes: drift -> ongoing -> zero penalties (+ stand-ins) -> anger decay; then durations
@@ -437,8 +465,10 @@ export class Simulation implements EffectHost {
     for (const p of s.pendingResponses) this.log('scheduled_cancelled', { what: 'response', eventId: p.eventId, reason });
     for (const d of s.demands) this.log('scheduled_cancelled', { what: 'demand', demandId: d.id, reason });
     for (const p of s.pledges) this.log('scheduled_cancelled', { what: 'pledge', pledgeId: p.id, reason });
+    for (const e of s.regionEvents) this.log('scheduled_cancelled', { what: 'region_event', eventId: e.id, reason });
     s.demands = [];
     s.pledges = [];
+    s.regionEvents = [];
     s.schedule = [];
     s.ongoing = [];
     s.pins = [];
@@ -446,6 +476,7 @@ export class Simulation implements EffectHost {
     s.draft = null;
     s.compromiseOffer = null;
     s.budgetVoteRedLines = null;
+    s.budgetVoteItems = null;
   }
 
   private finishElection(snap: boolean): void {
@@ -488,6 +519,8 @@ export class Simulation implements EffectHost {
       case 'reroll':
         if (s.phase !== 'draft' || !s.draft) return 'no draft open';
         return s.pc >= this.currentRerollCost() ? null : 'cannot afford reroll';
+      case 'rerollBudget':
+        return canRerollBudget(this);
       case 'respond':
         return canRespond(this, input.eventInstanceId, input.responseId, input.timedOut);
       case 'collectOpportunity':
@@ -509,6 +542,9 @@ export class Simulation implements EffectHost {
         return canAcceptSpecial(this);
       case 'closeSpecial':
         return canCloseSpecial(this);
+      case 'interveneRegionEvent':
+      case 'ignoreRegionEvent':
+        return canAnswerRegionEvent(this, input.eventId, input.kind === 'interveneRegionEvent');
     }
   }
 
@@ -532,6 +568,9 @@ export class Simulation implements EffectHost {
         scheduleChaosForPick(this, card);
         break;
       }
+      case 'rerollBudget':
+        rerollBudget(this);
+        break;
       case 'reroll': {
         const cost = this.currentRerollCost();
         s.pc -= cost;
@@ -566,6 +605,12 @@ export class Simulation implements EffectHost {
         break;
       case 'closeSpecial':
         closeSpecial(this);
+        break;
+      case 'interveneRegionEvent':
+        interveneRegionEvent(this, input.eventId);
+        break;
+      case 'ignoreRegionEvent':
+        ignoreRegionEvent(this, input.eventId);
         break;
     }
     this.checkTerminal();
@@ -617,6 +662,20 @@ export class Simulation implements EffectHost {
       reject: p(tpl.onReject),
       ignore: p(scaleBundle(tpl.onReject, f, f)),
     };
+  }
+
+  /** Ranges of a budget category's cut and overspend zones (the advisors' hints). */
+  previewBudgetZones(itemId: string): Record<'cut' | 'overspend', PreviewRanges & { pass: number }> {
+    const it = this.data.budgetItems.find((i) => i.id === itemId)!;
+    const z = (zone: typeof it.onCut) => ({ ...this.preview(zoneBundle(this, zone), 'budget_vote'), pass: zone.pass ?? 0 });
+    return { cut: z(it.onCut), overspend: z(it.onOverspend) };
+  }
+
+  /** Ranges of a region event's two outcomes in its kraj. */
+  previewRegionEvent(templateId: string, region: string): Record<'intervene' | 'ignore', PreviewRanges> {
+    const tpl = regionEventTemplate(this, templateId);
+    const p = (b: EffectBundle) => this.preview(resolveSelf(b, region), 'region_event');
+    return { intervene: p(tpl.onIntervene), ignore: p(tpl.onIgnore) };
   }
 
   /** Random stream of the demand system. */

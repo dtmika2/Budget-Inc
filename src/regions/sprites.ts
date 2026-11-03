@@ -64,6 +64,21 @@ export const SPRITES: Record<string, string[][]> = {
     [...CLOUD, '..............', '.b...b...b..b.', '...b...b...b..', '..............'],
     [...CLOUD, '..............', '..............', '.b...b...b..b.', '...b...b...b..'],
   ],
+  // region events (RegionEventLayer.tsx)
+  wave: [
+    ['.b...b...b..', 'bwb.bwb.bwb.', '..bb..bb..bb'],
+    ['..b...b...b.', '.bwb.bwb.bwb', 'bb..bb..bb..'],
+  ],
+  factory: [['.......XX...', '.......XX...', '.......XX...', 'KKKK...XX...', 'KccK..KXXK..', 'KccKKKKccKKK', 'KccccccccccK', 'KcLcLcLcLccK', 'KccccccccccK', 'KcLcLcLcLccK', 'KKKKKKKKKKKK']],
+  smoke: [
+    ['..ll..', '.llll.', 'llllll', '.llll.', '..l...'],
+    ['...ll.', '.lllll', 'llll..', '.lll..', '...l..'],
+  ],
+  vip: [
+    ['..SS..', '.SSSS.', '..SS..', '.JJJJ.', 'JJWWJJ', 'JJJRJJ', 'JJJRJJ', '.JJJJ.', '.D..D.', '.D..D.', 'KK..KK'],
+    ['..SS..', '.SSSS.', '..SS..', '.JJJJ.', 'JJWWJJ', 'SJJRJJ', 'JJJRJS', '.JJJJ.', '.D..D.', '.D..D.', 'KK..KK'],
+  ],
+  carpet: [['RRRRRRRRRRRRRRRRRRRRRRRR', 'rRRRRRRRRRRRRRRRRRRRRRRr']],
   firework: [
     ['...........', '...........', '...........', '.....F.....', '....rFr....', '...FFwFF...', '....rFr....', '.....F.....', '...........', '...........', '...........'],
     ['F....F....F', '.F...r...F.', '..r.....r..', '...........', '...........', 'Fr...w...rF', '...........', '...........', '..r.....r..', '.F...r...F.', 'F....F....F'],

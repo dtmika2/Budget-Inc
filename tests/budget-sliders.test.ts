@@ -8,16 +8,19 @@ import { readDataFiles, readLocale } from '../scripts/lib/nodeData';
 import { cfgWith, gameData, makeSim, quietSim } from './helpers';
 import type { Simulation } from '../src/core/simulation';
 
-function openVote(sim: Simulation): void {
+/** Open the vote; with `all`, every category is shown (the slider tests below use fixed categories). */
+function openVote(sim: Simulation, all = true): void {
   sim.state.day = 74;
   while (sim.state.phase === 'running') sim.tick();
   expect(sim.state.phase).toBe('budgetVote');
+  if (all) sim.state.budgetVoteItems = sim.data.budgetItems.map((i) => i.id);
 }
 
 describe('budget sliders', () => {
   it('the Finances preview equals the applied change', () => {
     const cfg = cfgWith((c) => (c.budgetVote.passMin = 1));
-    for (const sliders of [{ pensions: -2, defence: 3 }, { ngos: -3, administration: -3, health: 2 }, presetSliders(quietSim(), 'budget_generous')]) {
+    const cases: Record<string, number>[] = [{ pensions: -2, defence: 3 }, { ngos: -3, administration: -3, health: 2 }, { pensions: 1, health: 1, education: 1, transport: 1 }];
+    for (const sliders of cases) {
       const sim = quietSim({ seed: `prev-${JSON.stringify(sliders)}` }, cfg);
       openVote(sim);
       const full = { ...presetSliders(sim, null), ...sliders };
@@ -27,11 +30,13 @@ describe('budget sliders', () => {
       expect(sim.state.log.find((l) => l.type === 'budget_vote')!.passed).toBe(true);
       const applied = sim.state.resources.finances - before;
       expect(p.resources.finances?.min ?? 0).toBeCloseTo(applied, 6);
-      expect(sliderBudgetDelta(quietSim({ seed: 'x' }), full)).toBeCloseTo(p.resources.finances?.min ?? 0, 6);
+      const other = quietSim({ seed: 'x' });
+      other.state.budgetVoteItems = other.data.budgetItems.map((i) => i.id);
+      expect(sliderBudgetDelta(other, full)).toBeCloseTo(p.resources.finances?.min ?? 0, 6);
     }
   });
 
-  it('slider effects are linear and exact (no random range)', () => {
+  it('slider effects are linear and exact (no random range); overspending adds only its zone groups', () => {
     const sim = quietSim();
     openVote(sim);
     const one = sim.previewVote({ ...presetSliders(sim, null), pensions: 1 }, null);
@@ -53,7 +58,7 @@ describe('budget sliders', () => {
     openVote(sim);
     const tight = presetSliders(sim, 'budget_tight');
     expect(tight.pensions).toBe(-1);
-    expect(Object.keys(tight).sort()).toEqual(sim.data.budgetItems.map((i) => i.id).sort());
+    expect(Object.keys(tight).sort()).toEqual(sim.state.budgetVoteItems!.slice().sort());
     expect(sim.validate({ kind: 'voteBudget', sliders: { ...tight, pensions: 0 }, presetId: 'budget_tight' })).toMatch(/differ/);
     expect(sim.validate({ kind: 'voteBudget', sliders: tight, presetId: 'budget_tight' })).toBeNull();
   });
@@ -105,12 +110,14 @@ describe('coalition red lines', () => {
       { item: 'defence', maxCutSteps: 1 },
     ];
     const base = { ...presetSliders(sim, null) };
-    const p0 = passChance(sim, { ...base, pensions: -1, defence: -1 }, null); // allowed cuts
+    const p0 = passChance(sim, { ...base, pensions: -1, defence: -1 }, null); // allowed cuts, inside the band
     const p1 = passChance(sim, { ...base, pensions: -2, defence: -1 }, null);
     const p2 = passChance(sim, { ...base, pensions: -2, defence: -2 }, null);
-    const perStep = (id: string) => sim.data.budgetItems.find((i) => i.id === id)!.passPerStep;
-    expect(p0 - p1).toBeCloseTo(config.budgetVote.redLines.passPenalty + perStep('pensions'));
-    expect(p1 - p2).toBeCloseTo(config.budgetVote.redLines.passPenalty + perStep('defence'));
+    const item = (id: string) => sim.data.budgetItems.find((i) => i.id === id)!;
+    // one step further: red line penalty + the step's pass change + entering the cut zone
+    const extra = (id: string) => item(id).passPerStep * config.budgetVote.impact - (item(id).onCut.pass ?? 0);
+    expect(p0 - p1).toBeCloseTo(config.budgetVote.redLines.passPenalty + extra('pensions'));
+    expect(p1 - p2).toBeCloseTo(config.budgetVote.redLines.passPenalty + extra('defence'));
     expect(sim.previewVote({ ...base, pensions: -2, defence: -2 }, null).violations.sort()).toEqual(['defence', 'pensions']);
   });
 
@@ -172,5 +179,113 @@ describe('bots and replay with sliders', () => {
       const again = replay(gameData(), config, { seed: sim.state.seed, leader: sim.state.leader, difficulty: sim.state.difficulty, inputs: sim.state.inputs });
       expect(comparableState(again.state)).toEqual(comparableState(sim.state));
     }
+  });
+});
+
+describe('the hand of categories (phase 16)', () => {
+  it('shows hand.core core + hand.extra other categories, deterministic per seed', () => {
+    const hand = (seed: string) => {
+      const sim = quietSim({ seed });
+      openVote(sim, false);
+      return sim.state.budgetVoteItems!;
+    };
+    expect(hand('h-a')).toEqual(hand('h-a'));
+    for (let i = 0; i < 20; i++) {
+      const ids = hand(`h-${i}`);
+      const items = ids.map((id) => gameData().budgetItems.find((it) => it.id === id)!);
+      expect(items.filter((it) => it.core).length).toBe(config.budgetVote.hand.core);
+      expect(items.filter((it) => !it.core).length).toBe(config.budgetVote.hand.extra);
+    }
+  });
+
+  it('red lines and presets only use shown categories; hidden ones cannot be moved', () => {
+    const sim = quietSim({ seed: 'h-shown' });
+    openVote(sim, false);
+    const shown = sim.state.budgetVoteItems!;
+    for (const r of sim.state.budgetVoteRedLines!) expect(shown).toContain(r.item);
+    expect(Object.keys(presetSliders(sim, 'budget_tight')).sort()).toEqual([...shown].sort());
+    const hidden = sim.data.budgetItems.find((it) => !shown.includes(it.id))!.id;
+    expect(sim.validate({ kind: 'voteBudget', sliders: { [hidden]: 1 }, presetId: null })).toMatch(/not in this vote/);
+  });
+
+  it('a category named by an open budget pledge is always shown', () => {
+    for (let i = 0; i < 10; i++) {
+      const sim = quietSim({ seed: `h-pl-${i}` });
+      const tpl = sim.data.demands.find((d) => d.fulfil.some((c) => c.type === 'budget'))!;
+      const item = (tpl.fulfil.find((c) => c.type === 'budget') as { item: string }).item;
+      sim.state.pledges.push({ id: 'plT', templateId: tpl.id, region: 'CZ041', requester: { type: 'interestGroup', id: 'pensioners' }, acceptedAbsDay: 1, deadlineAbsDay: 999 });
+      openVote(sim, false);
+      expect(sim.state.budgetVoteItems).toContain(item);
+    }
+  });
+
+  it('a re-roll costs rerollCost PC, redraws the hand and only uses the budgetVote stream', () => {
+    const sim = quietSim({ seed: 'h-reroll' });
+    openVote(sim, false);
+    sim.state.pc = 3;
+    const draft = sim.rng.draft.getState();
+    const first = [...sim.state.budgetVoteItems!];
+    expect(sim.dispatch({ kind: 'rerollBudget' }).ok).toBe(true);
+    expect(sim.state.pc).toBe(2);
+    expect(sim.dispatch({ kind: 'rerollBudget' }).ok).toBe(true);
+    expect(sim.state.pc).toBe(0);
+    expect(sim.dispatch({ kind: 'rerollBudget' }).ok).toBe(false); // the third costs 4
+    expect(sim.state.log.filter((l) => l.type === 'budget_reroll').map((l) => l.cost)).toEqual([1, 2]);
+    expect(sim.rng.draft.getState()).toEqual(draft);
+    expect(sim.state.budgetVoteItems!.length).toBe(first.length);
+  });
+});
+
+describe('safe bands and zones (phase 16)', () => {
+  const passing = () => cfgWith((c) => (c.budgetVote.passMin = 1));
+
+  it('a slider outside its band adds that side\'s zone bundle; inside the band nothing extra', () => {
+    const sim = quietSim({ seed: 'z' }, passing());
+    openVote(sim);
+    const it = sim.data.budgetItems.find((i) => i.id === 'pensions')!;
+    const base = presetSliders(sim, null);
+    const inside = sim.previewVote({ ...base, pensions: it.band.min }, null);
+    const cut = sim.previewVote({ ...base, pensions: it.band.min - 1 }, null);
+    const zone = sim.previewBudgetZones('pensions').cut;
+    // the extra step changes pensioners by angerPerStep x impact; the zone adds its own range on top
+    const step = -(it.angerPerStep.pensioners ?? 0) * config.budgetVote.impact;
+    expect(cut.anger.pensioners!.min - inside.anger.pensioners!.min).toBeCloseTo(step + zone.anger.pensioners!.min);
+    expect(cut.anger.pensioners!.max - inside.anger.pensioners!.max).toBeCloseTo(step + zone.anger.pensioners!.max);
+  });
+
+  it('regionTraits reach every kraj with the trait and no other', () => {
+    const sim = quietSim({ seed: 'z-rt' });
+    const it = sim.data.budgetItems.find((i) => i.id === 'education')!;
+    const traits = Object.keys(it.onCut.regionTraits!);
+    const zone = sim.previewBudgetZones('education').cut;
+    for (const r of sim.data.regions.regions) {
+      const has = sim.data.regionProfiles.regions[r.code].traits.some((t) => traits.includes(t));
+      expect(r.code in zone.regions).toBe(has);
+    }
+  });
+
+  it('zones apply only when the vote passes, and the log records them', () => {
+    for (const pass of [true, false]) {
+      const cfg = cfgWith((c) => {
+        c.budgetVote.passMin = pass ? 1 : 0;
+        c.budgetVote.passMax = pass ? 1 : 0;
+      });
+      const sim = quietSim({ seed: `z-${pass}` }, cfg);
+      openVote(sim);
+      const before = sim.state.anger.pensioners;
+      sim.dispatch({ kind: 'voteBudget', sliders: { ...presetSliders(sim, null), pensions: -3 }, presetId: null });
+      const e = sim.state.log.find((l) => l.type === 'budget_vote')!;
+      expect((e.zones as Record<string, string>).pensions).toBe('cut');
+      expect(sim.state.anger.pensioners > before).toBe(pass);
+    }
+  });
+
+  it('every category has a band inside the slider range and advisor texts', () => {
+    for (const it of gameData().budgetItems) {
+      expect(it.band.min).toBeGreaterThanOrEqual(config.budgetVote.sliders.minSteps);
+      expect(it.band.max).toBeLessThanOrEqual(config.budgetVote.sliders.maxSteps);
+      expect(it.advisor).not.toBeNull();
+    }
+    expect(gameData().budgetItems.filter((i) => i.core).map((i) => i.id).sort()).toEqual(['administration', 'defence', 'education', 'health', 'pensions', 'transport']);
   });
 });

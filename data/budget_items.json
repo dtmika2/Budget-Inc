@@ -2,93 +2,1670 @@
   {
     "id": "pensions",
     "label": "budgetItem.pensions",
-    "chapters": [{ "chapter": "313", "type": "expenditure", "weight": 0.6 }],
-    "angerPerStep": { "pensioners": -3 },
+    "chapters": [
+      {
+        "chapter": "313",
+        "type": "expenditure",
+        "weight": 0.6
+      }
+    ],
+    "angerPerStep": {
+      "pensioners": -3
+    },
     "supportPerStep": 0.6,
     "passPerStep": 0.02,
-    "canBeRedLine": true
+    "canBeRedLine": true,
+    "core": true,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "pensioners": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "rural": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "mixed": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "eu": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "rural": {
+          "min": 0.5,
+          "max": 1
+        },
+        "mixed": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.pensions.advisor.cut",
+      "overspend": "budgetItem.pensions.advisor.overspend"
+    }
   },
   {
     "id": "ngos",
     "label": "budgetItem.ngos",
     "chapters": [
-      { "chapter": "313", "type": "expenditure", "weight": 0.02 },
-      { "chapter": "333", "type": "expenditure", "weight": 0.03 },
-      { "chapter": "315", "type": "expenditure", "weight": 0.1 },
-      { "chapter": "314", "type": "expenditure", "weight": 0.03 }
+      {
+        "chapter": "313",
+        "type": "expenditure",
+        "weight": 0.02
+      },
+      {
+        "chapter": "333",
+        "type": "expenditure",
+        "weight": 0.03
+      },
+      {
+        "chapter": "315",
+        "type": "expenditure",
+        "weight": 0.1
+      },
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "weight": 0.03
+      }
     ],
-    "angerPerStep": { "activists": -2.5, "eu": -0.5 },
+    "angerPerStep": {
+      "activists": -2.5,
+      "eu": -0.5
+    },
     "supportPerStep": -0.2,
     "passPerStep": 0,
-    "canBeRedLine": true
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "activists": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "university": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "media": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": 0.5,
+          "max": 1
+        },
+        "university": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.ngos.advisor.cut",
+      "overspend": "budgetItem.ngos.advisor.overspend"
+    }
   },
   {
     "id": "defence",
     "label": "budgetItem.defence",
-    "chapters": [{ "chapter": "307", "type": "expenditure", "weight": 1 }],
-    "angerPerStep": { "eu": -1.5, "activists": 0.5 },
+    "chapters": [
+      {
+        "chapter": "307",
+        "type": "expenditure",
+        "weight": 1
+      }
+    ],
+    "angerPerStep": {
+      "eu": -1.5,
+      "activists": 0.5
+    },
     "supportPerStep": 0,
     "passPerStep": 0.01,
-    "canBeRedLine": true
+    "canBeRedLine": true,
+    "core": true,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "eu": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "border": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "industry": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "activists": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "border": {
+          "min": 0.5,
+          "max": 1
+        },
+        "industry": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.defence.advisor.cut",
+      "overspend": "budgetItem.defence.advisor.overspend"
+    }
   },
   {
     "id": "education",
     "label": "budgetItem.education",
-    "chapters": [{ "chapter": "333", "type": "expenditure", "weight": 0.9 }],
-    "angerPerStep": { "activists": -1 },
+    "chapters": [
+      {
+        "chapter": "333",
+        "type": "expenditure",
+        "weight": 0.9
+      }
+    ],
+    "angerPerStep": {
+      "activists": -1
+    },
     "supportPerStep": 0.4,
     "passPerStep": 0.01,
-    "canBeRedLine": true
+    "canBeRedLine": true,
+    "core": true,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "activists": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "university": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "urban": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "oligarchs": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "university": {
+          "min": 0.5,
+          "max": 1
+        },
+        "urban": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.education.advisor.cut",
+      "overspend": "budgetItem.education.advisor.overspend"
+    }
   },
   {
     "id": "transport",
     "label": "budgetItem.transport",
-    "chapters": [{ "chapter": "327", "type": "expenditure", "weight": 1 }],
-    "angerPerStep": { "oligarchs": -1.5 },
+    "chapters": [
+      {
+        "chapter": "327",
+        "type": "expenditure",
+        "weight": 1
+      }
+    ],
+    "angerPerStep": {
+      "oligarchs": -1.5
+    },
     "supportPerStep": 0.3,
     "passPerStep": 0,
-    "canBeRedLine": true
+    "canBeRedLine": true,
+    "core": true,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "oligarchs": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "rural": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "tourism": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "eu": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "rural": {
+          "min": 0.5,
+          "max": 1
+        },
+        "tourism": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.transport.advisor.cut",
+      "overspend": "budgetItem.transport.advisor.overspend"
+    }
   },
   {
     "id": "health",
     "label": "budgetItem.health",
     "chapters": [
-      { "chapter": "335", "type": "expenditure", "weight": 1 },
-      { "chapter": "313", "type": "expenditure", "weight": 0.05 }
+      {
+        "chapter": "335",
+        "type": "expenditure",
+        "weight": 1
+      },
+      {
+        "chapter": "313",
+        "type": "expenditure",
+        "weight": 0.05
+      }
     ],
-    "angerPerStep": { "pensioners": -1 },
+    "angerPerStep": {
+      "pensioners": -1
+    },
     "supportPerStep": 0.5,
     "passPerStep": 0.01,
-    "canBeRedLine": true
+    "canBeRedLine": true,
+    "core": true,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "pensioners": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "mixed": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "rural": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "eu": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "mixed": {
+          "min": 0.5,
+          "max": 1
+        },
+        "rural": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.health.advisor.cut",
+      "overspend": "budgetItem.health.advisor.overspend"
+    }
   },
   {
     "id": "agriculture",
     "label": "budgetItem.agriculture",
-    "chapters": [{ "chapter": "329", "type": "expenditure", "weight": 1 }],
-    "angerPerStep": { "oligarchs": -1 },
+    "chapters": [
+      {
+        "chapter": "329",
+        "type": "expenditure",
+        "weight": 1
+      }
+    ],
+    "angerPerStep": {
+      "oligarchs": -1
+    },
     "supportPerStep": 0.2,
     "passPerStep": 0.01,
-    "canBeRedLine": true
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "oligarchs": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "agriculture": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "rural": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "eu": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "agriculture": {
+          "min": 0.5,
+          "max": 1
+        },
+        "rural": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.agriculture.advisor.cut",
+      "overspend": "budgetItem.agriculture.advisor.overspend"
+    }
   },
   {
     "id": "environment",
     "label": "budgetItem.environment",
-    "chapters": [{ "chapter": "315", "type": "expenditure", "weight": 0.9 }],
-    "angerPerStep": { "activists": -1.5, "eu": -1, "oligarchs": 0.5 },
+    "chapters": [
+      {
+        "chapter": "315",
+        "type": "expenditure",
+        "weight": 0.9
+      }
+    ],
+    "angerPerStep": {
+      "activists": -1.5,
+      "eu": -1,
+      "oligarchs": 0.5
+    },
     "supportPerStep": 0,
     "passPerStep": 0,
-    "canBeRedLine": true
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "activists": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "coal": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "university": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "oligarchs": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "coal": {
+          "min": 0.5,
+          "max": 1
+        },
+        "university": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.environment.advisor.cut",
+      "overspend": "budgetItem.environment.advisor.overspend"
+    }
   },
   {
     "id": "administration",
     "label": "budgetItem.administration",
     "chapters": [
-      { "chapter": "314", "type": "expenditure", "weight": 0.3 },
-      { "chapter": "312", "type": "expenditure", "weight": 0.5 }
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "weight": 0.3
+      },
+      {
+        "chapter": "312",
+        "type": "expenditure",
+        "weight": 0.5
+      }
     ],
-    "angerPerStep": { "media": 0.5 },
+    "angerPerStep": {
+      "media": 0.5
+    },
     "supportPerStep": -0.3,
     "passPerStep": 0,
-    "canBeRedLine": false
+    "canBeRedLine": false,
+    "core": true,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "media": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "media": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.administration.advisor.cut",
+      "overspend": "budgetItem.administration.advisor.overspend"
+    }
+  },
+  {
+    "id": "culture",
+    "label": "budgetItem.culture",
+    "chapters": [
+      {
+        "chapter": "333",
+        "type": "expenditure",
+        "weight": 0.05
+      }
+    ],
+    "angerPerStep": {
+      "media": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "media": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "tourism": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "oligarchs": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": 0.5,
+          "max": 1
+        },
+        "tourism": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.culture.advisor.cut",
+      "overspend": "budgetItem.culture.advisor.overspend"
+    }
+  },
+  {
+    "id": "sport",
+    "label": "budgetItem.sport",
+    "chapters": [
+      {
+        "chapter": "333",
+        "type": "expenditure",
+        "weight": 0.05
+      }
+    ],
+    "angerPerStep": {
+      "media": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "media": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "mixed": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "eu": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": 0.5,
+          "max": 1
+        },
+        "mixed": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.sport.advisor.cut",
+      "overspend": "budgetItem.sport.advisor.overspend"
+    }
+  },
+  {
+    "id": "police",
+    "label": "budgetItem.police",
+    "chapters": [
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "weight": 0.5
+      }
+    ],
+    "angerPerStep": {
+      "pensioners": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "pensioners": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "border": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "urban": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "activists": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "border": {
+          "min": 0.5,
+          "max": 1
+        },
+        "urban": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.police.advisor.cut",
+      "overspend": "budgetItem.police.advisor.overspend"
+    }
+  },
+  {
+    "id": "justice",
+    "label": "budgetItem.justice",
+    "chapters": [
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "weight": 0.2
+      }
+    ],
+    "angerPerStep": {
+      "media": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "media": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "oligarchs": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.justice.advisor.cut",
+      "overspend": "budgetItem.justice.advisor.overspend"
+    }
+  },
+  {
+    "id": "science",
+    "label": "budgetItem.science",
+    "chapters": [
+      {
+        "chapter": "333",
+        "type": "expenditure",
+        "weight": 0.1
+      }
+    ],
+    "angerPerStep": {
+      "activists": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "activists": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "university": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "oligarchs": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "university": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.science.advisor.cut",
+      "overspend": "budgetItem.science.advisor.overspend"
+    }
+  },
+  {
+    "id": "digital",
+    "label": "budgetItem.digital",
+    "chapters": [
+      {
+        "chapter": "312",
+        "type": "expenditure",
+        "weight": 0.5
+      }
+    ],
+    "angerPerStep": {
+      "eu": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "eu": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "services": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "media": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": 0.5,
+          "max": 1
+        },
+        "services": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.digital.advisor.cut",
+      "overspend": "budgetItem.digital.advisor.overspend"
+    }
+  },
+  {
+    "id": "housing",
+    "label": "budgetItem.housing",
+    "chapters": [
+      {
+        "chapter": "313",
+        "type": "expenditure",
+        "weight": 0.05
+      }
+    ],
+    "angerPerStep": {
+      "activists": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "activists": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "oligarchs": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "urban": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.housing.advisor.cut",
+      "overspend": "budgetItem.housing.advisor.overspend"
+    }
+  },
+  {
+    "id": "social_care",
+    "label": "budgetItem.social_care",
+    "chapters": [
+      {
+        "chapter": "313",
+        "type": "expenditure",
+        "weight": 0.1
+      }
+    ],
+    "angerPerStep": {
+      "pensioners": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "pensioners": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "rural": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "mixed": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "eu": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "rural": {
+          "min": 0.5,
+          "max": 1
+        },
+        "mixed": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.social_care.advisor.cut",
+      "overspend": "budgetItem.social_care.advisor.overspend"
+    }
+  },
+  {
+    "id": "regional_dev",
+    "label": "budgetItem.regional_dev",
+    "chapters": [
+      {
+        "chapter": "327",
+        "type": "expenditure",
+        "weight": 0.2
+      }
+    ],
+    "angerPerStep": {
+      "oligarchs": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "oligarchs": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "rural": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "coal": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "border": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "eu": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "rural": {
+          "min": 0.5,
+          "max": 1
+        },
+        "coal": {
+          "min": 0.5,
+          "max": 1
+        },
+        "border": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.regional_dev.advisor.cut",
+      "overspend": "budgetItem.regional_dev.advisor.overspend"
+    }
+  },
+  {
+    "id": "energy",
+    "label": "budgetItem.energy",
+    "chapters": [
+      {
+        "chapter": "315",
+        "type": "expenditure",
+        "weight": 0.3
+      }
+    ],
+    "angerPerStep": {
+      "oligarchs": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "oligarchs": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "industry": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "coal": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "activists": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "industry": {
+          "min": 0.5,
+          "max": 1
+        },
+        "coal": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.energy.advisor.cut",
+      "overspend": "budgetItem.energy.advisor.overspend"
+    }
+  },
+  {
+    "id": "water",
+    "label": "budgetItem.water",
+    "chapters": [
+      {
+        "chapter": "329",
+        "type": "expenditure",
+        "weight": 0.2
+      }
+    ],
+    "angerPerStep": {
+      "pensioners": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "pensioners": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "agriculture": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "rural": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "eu": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "agriculture": {
+          "min": 0.5,
+          "max": 1
+        },
+        "rural": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.water.advisor.cut",
+      "overspend": "budgetItem.water.advisor.overspend"
+    }
+  },
+  {
+    "id": "foreign_aid",
+    "label": "budgetItem.foreign_aid",
+    "chapters": [
+      {
+        "chapter": "312",
+        "type": "expenditure",
+        "weight": 0.2
+      }
+    ],
+    "angerPerStep": {
+      "eu": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "eu": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "university": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "pensioners": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "university": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.foreign_aid.advisor.cut",
+      "overspend": "budgetItem.foreign_aid.advisor.overspend"
+    }
+  },
+  {
+    "id": "firefighters",
+    "label": "budgetItem.firefighters",
+    "chapters": [
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "weight": 0.2
+      }
+    ],
+    "angerPerStep": {
+      "pensioners": -1.5
+    },
+    "supportPerStep": 0.2,
+    "passPerStep": 0.005,
+    "canBeRedLine": true,
+    "core": false,
+    "band": {
+      "min": -1,
+      "max": 1
+    },
+    "onCut": {
+      "anger": {
+        "pensioners": {
+          "min": 4,
+          "max": 6
+        }
+      },
+      "effects": {
+        "support": {
+          "min": -1.5,
+          "max": -1
+        }
+      },
+      "regionTraits": {
+        "rural": {
+          "min": -2.5,
+          "max": -1.5
+        },
+        "border": {
+          "min": -2.5,
+          "max": -1.5
+        }
+      },
+      "pass": -0.08
+    },
+    "onOverspend": {
+      "anger": {
+        "oligarchs": {
+          "min": 1.5,
+          "max": 2.5
+        }
+      },
+      "effects": {
+        "prestige": {
+          "min": -2,
+          "max": -1.5
+        }
+      },
+      "regionTraits": {
+        "rural": {
+          "min": 0.5,
+          "max": 1
+        },
+        "border": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "pass": -0.04
+    },
+    "advisor": {
+      "cut": "budgetItem.firefighters.advisor.cut",
+      "overspend": "budgetItem.firefighters.advisor.overspend"
+    }
   }
 ]

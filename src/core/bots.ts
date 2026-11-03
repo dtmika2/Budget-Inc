@@ -8,10 +8,11 @@
  *   effects (re-election probability P plus safety terms for resources near 0 and anger near 100), buys
  *   the cheapest available upgrade, collects all pins, uses the ability when it is useful.
  */
-import { failBundle, presetSliders, sameSliders, type Sliders } from './budgetVote';
+import { canRerollBudget, failBundle, presetSliders, sameSliders, shownItems, type Sliders } from './budgetVote';
 import { channelBlocked } from './compromise';
 import { budgetConditionMet, pledgesForCard, pledgesForCompromise, templateOf } from './demands';
 import type { PreviewRanges } from './effects';
+import { canAnswerRegionEvent } from './regionEvents';
 import { Rng } from './rng';
 import type { Simulation } from './simulation';
 import type { GroupId, Range, ResourceId } from './types';
@@ -100,6 +101,14 @@ export function greedyAccepts(sim: Simulation, templateId: string, region: strin
   return accept > gain(sim, pr.reject);
 }
 
+/** Greedy answer to a region event: intervene when it is affordable and beats ignoring. */
+export function greedyIntervenes(sim: Simulation, eventId: string): boolean {
+  if (canAnswerRegionEvent(sim, eventId, true)) return false;
+  const ev = sim.state.regionEvents.find((e) => e.id === eventId)!;
+  const pr = sim.previewRegionEvent(ev.templateId, ev.region);
+  return gain(sim, pr.intervene) > gain(sim, pr.ignore);
+}
+
 /** Compromise channels usable right now (config order). */
 export function availableChannels(sim: Simulation): string[] {
   return Object.keys(sim.cfg.compromise.channels).filter((id) => !channelBlocked(sim, id));
@@ -136,7 +145,7 @@ export function greedyVote(sim: Simulation, maxPasses = 2): { kind: 'voteBudget'
   const { minSteps, maxSteps } = sim.cfg.budgetVote.sliders;
   for (let pass = 0; pass < maxPasses; pass++) {
     let improved = false;
-    for (const it of sim.data.budgetItems) {
+    for (const it of shownItems(sim)) {
       for (const d of [-1, 1]) {
         const next = sliders[it.id] + d;
         if (next < minSteps || next > maxSteps) continue;
@@ -186,12 +195,13 @@ export function createBot(kind: BotKind, seed: string): Bot {
           return;
         }
         if (s.phase === 'budgetVote') {
+          if (rng.next() < 0.2 && !canRerollBudget(sim)) sim.dispatch({ kind: 'rerollBudget' });
           const preset = rng.pick(sim.data.budgetVote).id;
           const sliders = presetSliders(sim, preset);
           const { minSteps, maxSteps } = sim.cfg.budgetVote.sliders;
           const nudges = rng.int(0, 3);
           for (let i = 0; i < nudges; i++) {
-            const id = rng.pick(sim.data.budgetItems).id;
+            const id = rng.pick(shownItems(sim)).id;
             sliders[id] = Math.min(maxSteps, Math.max(minSteps, sliders[id] + (rng.next() < 0.5 ? -1 : 1)));
           }
           sim.dispatch({ kind: 'voteBudget', sliders, presetId: sameSliders(sim, sliders, presetSliders(sim, preset)) ? preset : null });
@@ -208,6 +218,10 @@ export function createBot(kind: BotKind, seed: string): Bot {
           return rng.pick(opts).id;
         });
         for (const d of [...s.demands]) sim.dispatch({ kind: rng.next() < 0.5 ? 'acceptDemand' : 'rejectDemand', demandId: d.id });
+        for (const e of [...s.regionEvents]) {
+          const intervene = rng.next() < 0.5 && !canAnswerRegionEvent(sim, e.id, true);
+          sim.dispatch({ kind: intervene ? 'interveneRegionEvent' : 'ignoreRegionEvent', eventId: e.id });
+        }
         for (const pin of [...s.pins]) {
           if (pinDecided.has(pin.id)) continue;
           pinDecided.add(pin.id);
@@ -277,6 +291,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
       for (const pin of [...s.pins]) sim.dispatch({ kind: 'collectOpportunity', pinId: pin.id });
       for (const d of [...s.demands])
         sim.dispatch({ kind: greedyAccepts(sim, d.templateId, d.region) ? 'acceptDemand' : 'rejectDemand', demandId: d.id });
+      for (const e of [...s.regionEvents]) sim.dispatch({ kind: greedyIntervenes(sim, e.id) ? 'interveneRegionEvent' : 'ignoreRegionEvent', eventId: e.id });
       // cheapest available upgrade
       const avail = availableNodes(sim).sort((a, b) => a.cost - b.cost);
       if (avail.length && avail[0].cost <= s.pc) sim.dispatch({ kind: 'buyUpgrade', nodeId: avail[0].id });
