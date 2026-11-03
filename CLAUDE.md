@@ -11,6 +11,7 @@ Source of truth: `budget-inc-spec.md` (v1.1). Execution order: `budget-inc-build
 7. No network calls at runtime. Budget chapter names and codes are never shown to the player; only the player-facing budget categories in `data/budget_items.json` are.
 8. Phase gate: `npm run typecheck && npm run lint && npm test && npm run build` (+ `npm run simulate -- --runs 200 --bot random`).
 9. Commit after each phase: `phase N: <summary>`. Track phases in `PROGRESS.md`.
+10. Skill trees are Daniel's workspace (`SKILLTREE.md`): do not edit `data/upgrades/*.json` or `locales/skilltree.cs.json` unless Daniel asks. New modifier targets for trees are code and belong to the developer.
 
 ## Verification scales with the change
 

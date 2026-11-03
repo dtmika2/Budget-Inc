@@ -1,7 +1,7 @@
-/** Minimal i18n: every player-facing string goes through t(key). Czech lives in locales/cs.json. */
-import cs from '../../locales/cs.json';
+/** Minimal i18n: every player-facing string goes through t(key). Czech lives in locales/ (see locale.ts). */
+import { CS } from './locale';
 
-let dict: Record<string, string> = cs as Record<string, string>;
+let dict: Record<string, string> = CS;
 const reported = new Set<string>();
 
 export type Params = Record<string, string | number>;

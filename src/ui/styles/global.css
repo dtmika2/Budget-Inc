@@ -1003,3 +1003,11 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
   .demand__grid { grid-template-columns: 1fr; }
 }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* upgrade tree tabs (shared tree + leader tree) */
+.tree-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tree-tab {
+  min-height: 44px; padding: 4px 14px; cursor: pointer; background: var(--panel-2); color: var(--text-dim);
+  border: 2px solid var(--line); font: 16px var(--f-pixel);
+}
+.tree-tab.is-on { color: var(--gold); border-color: var(--gold); }

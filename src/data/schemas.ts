@@ -164,6 +164,8 @@ export const upgradeTreeSchema = z
   .object({
     id: z.string(),
     name: z.string(),
+    /** Leader tree: only this leader sees and can buy it. Omit for trees every leader has. */
+    leader: z.string().optional(),
     nodes: z.array(
       z
         .object({

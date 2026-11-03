@@ -253,7 +253,7 @@ describe('upgrades: Public Support branch', () => {
     expect(sim.dispatch({ kind: 'buyUpgrade', nodeId: 'sup_press_office' }).ok).toBe(false);
     expect(sim.dispatch({ kind: 'buyUpgrade', nodeId: 'sup_campaign_office' }).ok).toBe(true);
     expect(sim.dispatch({ kind: 'buyUpgrade', nodeId: 'sup_campaign_office' }).ok).toBe(false);
-    const tree = sim.data.upgrades[0];
+    const tree = sim.data.upgrades.find((x) => x.id === 'support')!;
     const status = (id: string) => nodeStatus(sim.state.ownedUpgrades, tree.nodes.find((n) => n.id === id)!);
     expect(status('sup_press_office')).toBe('available');
     expect(status('sup_permanent_campaign')).toBe('locked');
