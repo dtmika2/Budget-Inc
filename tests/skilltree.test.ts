@@ -59,6 +59,20 @@ describe('political compass tree', () => {
     }
   });
 
+  it('each střed box needs both of its 3B boxes', () => {
+    const sim = quietSim({ leader: 'mupka' });
+    sim.state.pc = 100;
+    const tree = compass(sim);
+    for (const side of ['l', 'r']) {
+      const mid = tree.nodes.find((n) => n.id === `c_${side}4m`)!;
+      expect(mid.requires).toHaveLength(2);
+      sim.state.ownedUpgrades = [tree.start.mupka!, mid.requires[0]];
+      expect(nodeStatus(sim.state.ownedUpgrades, mid, tree)).toBe('locked');
+      sim.state.ownedUpgrades.push(mid.requires[1]);
+      expect(nodeStatus(sim.state.ownedUpgrades, mid, tree)).toBe('available');
+    }
+  });
+
   it('every fork branch link is marked with a lock, other links are not', () => {
     const sim = quietSim({ leader: 'mupka' });
     const tree = compass(sim);

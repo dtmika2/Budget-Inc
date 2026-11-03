@@ -15,6 +15,7 @@
   "upgrades.excludes": "Vylučuje se s: {list}",
   "upgrades.excludedBy": "Zamčeno volbou: {list}",
   "upgrades.forkHint": "Rozcestí: vybrat lze jen jednu cestu.",
+  "upgrades.jointHint": "Spojení: tento uzel vyžaduje všechny cesty, které do něj vedou.",
   "upgrades.confirm.title": "Nevratná volba",
   "upgrades.confirm.body": "Koupí uzlu „{name}“ se natrvalo zamkne: {list}.",
   "upgrades.confirm.ok": "Potvrdit volbu",

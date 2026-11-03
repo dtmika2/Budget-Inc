@@ -35,6 +35,9 @@
 .tree__lock.is-open { color: var(--gold); border-color: var(--gold-dim); }
 .tree__lock.is-on { color: var(--gold); border-color: var(--gold); }
 .tree__lock.is-cut { color: var(--bad); border-color: var(--bad); opacity: 0.8; }
+.tree__links line.is-joint { stroke-width: 6px; }
+.tree__lock.is-joint { color: var(--text-dim); border-style: double; border-width: 4px; }
+.tree__lock.is-joint.is-on { color: var(--gold); border-color: var(--gold); }
 .node {
   position: absolute; z-index: 2; transform: translate(-50%, -50%);
   height: calc(78cqh / var(--rows)); width: min(84cqw / var(--cols), calc(78cqh / var(--rows) * 2));

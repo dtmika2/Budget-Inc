@@ -13,23 +13,34 @@ interface Edge {
   a: string;
   b: string;
   fork: boolean;
+  /** Prerequisite edge into a node that needs several boxes (all of them). */
+  joint: boolean;
 }
 
 /** Every drawn connection once: undirected links plus prerequisite arrows. */
 function edgesOf(tree: Tree): Edge[] {
   const seen = new Set<string>();
   const out: Edge[] = [];
-  const push = (a: string, b: string) => {
+  const push = (a: string, b: string, joint: boolean) => {
     const key = a < b ? `${a}|${b}` : `${b}|${a}`;
     if (seen.has(key)) return;
     seen.add(key);
-    out.push({ a, b, fork: isForkLink(tree, a, b) });
+    out.push({ a, b, fork: isForkLink(tree, a, b), joint });
   };
   for (const n of tree.nodes) {
-    for (const l of n.links) push(n.id, l);
-    for (const r of n.requires) push(r, n.id);
+    for (const l of n.links) push(n.id, l, false);
+    for (const r of n.requires) push(r, n.id, n.requires.length > 1);
   }
   return out;
+}
+
+/** "+" badge: the box at the end of this line needs every line leading into it. */
+function JointIcon() {
+  return (
+    <svg viewBox="0 0 7 7" width="14" height="14" aria-hidden="true" shapeRendering="crispEdges">
+      <path d="M2.5 0h2v2.5H7v2H4.5V7h-2V4.5H0v-2h2.5z" fill="currentColor" />
+    </svg>
+  );
 }
 
 function LockIcon() {
@@ -77,6 +88,10 @@ export function UpgradeTree() {
   const edges = edgesOf(tree);
 
   const edgeClass = (e: Edge) => {
+    if (e.joint) {
+      const sa = status.get(e.a);
+      return `is-joint ${sa === 'owned' ? 'is-on' : sa === 'excluded' ? 'is-cut' : ''}`;
+    }
     const sa = status.get(e.a);
     const sb = status.get(e.b);
     if (sa === 'excluded' || sb === 'excluded') return 'is-cut';
@@ -191,7 +206,7 @@ export function UpgradeTree() {
                 })}
               </svg>
               {edges
-                .filter((e) => e.fork)
+                .filter((e) => e.fork || e.joint)
                 .map((e) => {
                   const a = pct(byId.get(e.a)!);
                   const b = pct(byId.get(e.b)!);
@@ -203,9 +218,9 @@ export function UpgradeTree() {
                         left: `${(a.x + b.x) / 2}%`,
                         top: `${(a.y + b.y) / 2}%`,
                       }}
-                      title={t('upgrades.forkHint')}
+                      title={t(e.joint ? 'upgrades.jointHint' : 'upgrades.forkHint')}
                     >
-                      <LockIcon />
+                      {e.joint ? <JointIcon /> : <LockIcon />}
                     </span>
                   );
                 })}

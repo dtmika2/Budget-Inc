@@ -42,6 +42,9 @@ Rules:
   active from day 1. Placeholders: Mupka `c_r1t` (Pravice · tradice), Abis `c_l1t` (Levice · tradice).
 - **Paths.** A box can be bought when a box it is linked to is owned. Links have no direction: list each
   connection once, on either box.
+- **Joints.** A box with `requires` needs **all** listed boxes, not just one. The Levice and Pravice
+  střed boxes (`c_l4m`, `c_r4m`) require both their 3B boxes, so they open only when both the Progrese and
+  the Tradice side are owned. Lines into a joint are thicker and carry a "+" badge.
 - **Forks.** Each group in `exclusive` is a fork: buying one box locks the others out for good. The links
   into a fork carry a lock icon, and buying a fork box asks the player to confirm first.
 
