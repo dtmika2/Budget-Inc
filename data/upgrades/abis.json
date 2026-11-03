@@ -1,0 +1,28 @@
+{
+  "id": "abis",
+  "name": "upgrades.abis.name",
+  "leader": "abis",
+  "nodes": [
+    { "id": "abis_own_media", "cost": 2, "requires": [], "pos": { "col": 1, "row": 0 },
+      "name": "upgrade.abis_own_media.name", "description": "upgrade.abis_own_media.desc",
+      "modifiers": [{ "type": "multiplier", "target": "anger.media.gain", "value": 0.8 }] },
+    { "id": "abis_billboards", "cost": 3, "requires": ["abis_own_media"], "pos": { "col": 0, "row": 1 },
+      "name": "upgrade.abis_billboards.name", "description": "upgrade.abis_billboards.desc",
+      "modifiers": [
+        { "type": "multiplier", "target": "support.gain", "value": 1.15 },
+        { "type": "multiplier", "target": "anger.media.gain", "value": 1.15 }
+      ] },
+    { "id": "abis_crisis_staff", "cost": 3, "requires": ["abis_own_media"], "pos": { "col": 2, "row": 1 },
+      "name": "upgrade.abis_crisis_staff.name", "description": "upgrade.abis_crisis_staff.desc",
+      "modifiers": [
+        { "type": "multiplier", "target": "anger.eu.gain", "value": 0.75 },
+        { "type": "multiplier", "target": "prestige.loss", "value": 0.8 }
+      ] },
+    { "id": "abis_one_of_you", "cost": 6, "requires": ["abis_billboards", "abis_crisis_staff"], "pos": { "col": 1, "row": 2 },
+      "name": "upgrade.abis_one_of_you.name", "description": "upgrade.abis_one_of_you.desc",
+      "modifiers": [
+        { "type": "add", "target": "election.T_base", "value": -2 },
+        { "type": "multiplier", "target": "anger.eu.gain", "value": 1.2 }
+      ] }
+  ]
+}

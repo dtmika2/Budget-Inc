@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { t } from '../src/i18n';
-import cs from '../locales/cs.json';
+import { CS as cs } from '../src/i18n/locale';
+import main from '../locales/cs.json';
+import skilltree from '../locales/skilltree.cs.json';
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {
@@ -20,7 +22,12 @@ describe('i18n', () => {
     expect(t('no.such.key')).toBe('⟦no.such.key⟧');
   });
 
-  it('every literal t("...") key used in src/ exists in cs.json', () => {
+  it('the skill tree locale and the main locale share no keys', () => {
+    const dup = Object.keys(skilltree).filter((k) => k in main);
+    expect(dup).toEqual([]);
+  });
+
+  it('every literal t("...") key used in src/ exists in the locale', () => {
     const missing: string[] = [];
     for (const f of walk('src').filter((p) => /\.(ts|tsx)$/.test(p))) {
       const src = readFileSync(f, 'utf8');

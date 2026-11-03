@@ -416,7 +416,10 @@ export function loadGameData(
   const allNodes = trees.flatMap((t) => t.item.nodes.map((n, i) => ({ node: n, file: t.file, path: `nodes[${i}]` })));
   dupCheck(allNodes.map((n) => ({ id: n.node.id, file: n.file, path: n.path })));
   const nodeIds = new Set(allNodes.map((n) => n.node.id));
-  for (const t of trees) locKey(t.item.name, t.file, 'name');
+  for (const t of trees) {
+    locKey(t.item.name, t.file, 'name');
+    if (t.item.leader && leadersRaw && !leaderIds.has(t.item.leader)) err('unknownLeader', t.file, 'leader', t.item.leader);
+  }
   for (const { node, file, path } of allNodes) {
     locKey(node.name, file, `${path}.name`);
     locKey(node.description, file, `${path}.description`);

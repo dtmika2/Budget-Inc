@@ -19,8 +19,11 @@ export function readDataFiles(root = '.'): Record<string, unknown> {
   return out;
 }
 
+/** Czech locale: locales/cs.json merged with locales/skilltree.cs.json (see src/i18n/locale.ts). */
 export function readLocale(root = '.'): Record<string, string> {
-  return JSON.parse(readFileSync(join(root, 'locales/cs.json'), 'utf8'));
+  const main = JSON.parse(readFileSync(join(root, 'locales/cs.json'), 'utf8'));
+  const tree = JSON.parse(readFileSync(join(root, 'locales/skilltree.cs.json'), 'utf8'));
+  return { ...main, ...tree };
 }
 
 export function loadFromDisk(opts: LoadOptions = {}, root = '.'): LoadResult {

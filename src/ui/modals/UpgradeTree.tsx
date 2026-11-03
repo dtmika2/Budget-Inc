@@ -1,6 +1,6 @@
 /** Upgrade tree (spec §8.3): node graph with locked / available / owned states. Pauses the clock while open. */
 import { useState } from 'react';
-import { nodeStatus } from '@core/upgrades';
+import { nodeStatus, treesFor } from '@core/upgrades';
 import { t } from '@i18n/index';
 import { getStore, useStore } from '../store';
 
@@ -13,7 +13,9 @@ export function UpgradeTree() {
   const sim = store.sim!;
   const owned = useStore((s) => (s.sim ? [...s.sim.state.ownedUpgrades] : []));
   const pc = useStore((s) => s.sim?.state.pc ?? 0);
-  const tree = sim.data.upgrades[0];
+  const trees = treesFor(sim);
+  const [treeId, setTreeId] = useState(trees[0]?.id);
+  const tree = trees.find((x) => x.id === treeId) ?? trees[0];
   const [selected, setSelected] = useState<string | null>(null);
   if (!tree) return null;
   const cols = Math.max(...tree.nodes.map((n) => n.pos.col)) + 1;
@@ -43,6 +45,24 @@ export function UpgradeTree() {
             {'✕'}
           </button>
         </header>
+        {trees.length > 1 && (
+          <nav className="tree-tabs" role="tablist" aria-label={t('upgrades.tabsLabel')}>
+            {trees.map((x) => (
+              <button
+                key={x.id}
+                role="tab"
+                aria-selected={x.id === tree.id}
+                className={`tree-tab${x.id === tree.id ? ' is-on' : ''}`}
+                onClick={() => {
+                  setTreeId(x.id);
+                  setSelected(null);
+                }}
+              >
+                {t(x.name)}
+              </button>
+            ))}
+          </nav>
+        )}
         <div className="tree" style={{ width: W, height: H }}>
           <svg className="tree__links" width={W} height={H} aria-hidden="true">
             {tree.nodes.flatMap((n) =>

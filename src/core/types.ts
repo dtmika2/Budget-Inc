@@ -185,6 +185,8 @@ export interface UpgradeNode {
 export interface UpgradeTree {
   id: string;
   name: string;
+  /** Leader tree: only this leader has it. */
+  leader?: LeaderId;
   nodes: UpgradeNode[];
 }
 
