@@ -1,20 +1,36 @@
-# Skill trees: Daniel's workspace
+# Skill trees: separate workspace
 
-The skill trees (upgrade trees) are **data only** and live in their own files, so Daniel can design them
-while the developer works on the rest of the game. The developer does not edit these files; Daniel does
-not need to touch code.
+The skill trees (upgrade trees) live in their own files, so they can be developed on the `David` branch
+while the rest of the game is developed elsewhere without merge conflicts. Skill-tree work edits only the
+files below; other work does not edit them.
 
-## Your files
+## Skill-tree files
 
 | File | What it holds |
 |---|---|
 | `data/upgrades/support.json` | the shared Public Support tree (every leader) |
 | `data/upgrades/abis.json` | Bander Abis's leader tree (`"leader": "abis"`), starter version with `[DUMMY]` texts |
 | `data/upgrades/mupka.json` | Kartin Mupka's leader tree (create it the same way, `"leader": "mupka"`) |
-| `locales/skilltree.cs.json` | Czech names and descriptions of trees and nodes |
+| `locales/skilltree.cs.json` | Czech texts: tree and node names/descriptions and the tree screen's UI chrome (`upgrades.*`, `hud.upgrades`) |
+| `src/skilltree/` | tree screen (`UpgradeTree.tsx`), HUD button (`UpgradeButton.tsx`), styles (`skilltree.css`) |
+| `src/core/upgrades.ts` | buying rules: node status, which trees a leader has, `buyUpgrade` |
+| `tests/skilltree.test.ts` | skill-tree tests |
 
-Everything else (code, `locales/cs.json`, other data) belongs to the developer. Work on the `skill-tree`
-branch and open a pull request into `main` when a version is ready.
+### Seams into the shared code
+
+The rest of the game touches the tree only here. Changing a seam means touching a shared file, so keep
+those changes small and tell the other side:
+
+- `src/ui/screens/Game.tsx` renders `UpgradeButton` and `UpgradeTree` from `@/skilltree`.
+- `src/core/simulation.ts` dispatches `buyUpgrade`; `src/core/bots.ts` buys nodes in simulations.
+- `src/core/types.ts` (`UpgradeNode`, `UpgradeTree`, `ownedUpgrades`), `src/data/schemas.ts` and
+  `src/data/loader.ts` (tree schema and checks).
+- New modifier targets: `src/data/loader.ts` (known targets) plus the code where the effect applies.
+- Texts the shared UI shows about upgrades stay in `locales/cs.json`: `history.upgrade`, `popup.upgrade`,
+  `howToPlay.upgrades`, `tutorial.upgrades.*`, `dataError.unknownUpgrade`.
+
+Open a pull request from `David` into `main` when a version is ready, and merge `main` into `David` now
+and then to pick up the other work.
 
 ## A tree
 
@@ -54,13 +70,13 @@ Each `name` / `description` key needs a line in `locales/skilltree.cs.json`.
 
 Regional support changes count as `support` changes.
 
-## Effects that need the developer first
+## Effects that need new code first
 
 Anything tied to the newer mechanics needs a new modifier target in code before a node can use it, for
 example: Campaign Mode twice a year or a stronger ability, an extra regional tour per year, bigger rewards
 or penalties for pledges, a softer red line in the budget vote, mutually exclusive nodes ("pick one of
-two"). Write the wish as a short list (target name + what it does) and hand it to the developer; once the
-target exists, you can use it in your files.
+two"). Adding a target touches shared code (see the seams above), so agree on it with whoever works on the
+rest; once the target exists, nodes can use it.
 
 ## Check your changes
 

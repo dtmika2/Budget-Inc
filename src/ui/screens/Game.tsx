@@ -10,32 +10,15 @@ import { ElectionNight } from '../modals/ElectionNight';
 import { EndingCard } from '../modals/EndingCard';
 import { PauseMenu } from '../modals/PauseMenu';
 import { SettingsModal } from '../modals/Settings';
-import { UpgradeTree } from '../modals/UpgradeTree';
 import { SidePanel } from '../panel/SidePanel';
 import { PopupStack } from '../popups/PopupStack';
-import { nodeStatus } from '@core/upgrades';
 import { RegionScreen } from '../region/RegionScreen';
 import { PledgeTracker } from '../demands/PledgeTracker';
 import { getStore, useStore } from '../store';
 import { Tutorial } from '../tutorial/Tutorial';
+import { UpgradeButton, UpgradeTree } from '@/skilltree';
 
 const DEBUG = typeof location !== 'undefined' && new URLSearchParams(location.search).get('debug') === '1';
-
-function UpgradeButton() {
-  const store = getStore();
-  const pc = useStore((s) => s.sim?.state.pc ?? 0);
-  // glint while something in the tree is affordable
-  const affordable = useStore((s) => {
-    const st = s.sim?.state;
-    if (!st || !s.sim) return false;
-    return s.sim.data.upgrades.some((tree) => tree.nodes.some((n) => nodeStatus(st.ownedUpgrades, n) === 'available' && st.pc >= n.cost));
-  });
-  return (
-    <button className={`btn btn--upgrades${affordable ? ' is-affordable' : ''}`} onClick={() => store.openModal('upgrades')} data-tut-target="upgrades">
-      {t('hud.upgrades')} <span className="cost">{pc}</span>
-    </button>
-  );
-}
 
 function PausedBadge() {
   const paused = useStore((s) => s.ui.userPaused || s.ui.blurred);
