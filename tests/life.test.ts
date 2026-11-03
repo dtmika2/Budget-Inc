@@ -23,12 +23,19 @@ function ctx(patch: Partial<LifeContext> = {}): LifeContext {
     zeroFinances: false,
     entries: [],
     days: 0,
+    ambient: true,
     active: [],
     regions: REGIONS,
     distance: () => 300,
     maxActors: 99,
     ...patch,
   };
+}
+
+/** Many separate one-day calls (as the store makes them), collecting every spawn. */
+function many(c: LifeContext, seed: string, lc = L, calls = 400) {
+  const rng = new Rng(seed);
+  return Array.from({ length: calls }, () => planLife({ ...c, days: 1 }, rng, lc, pulse)).flat();
 }
 
 const entry = (type: string, extra: Partial<LogEntry> = {}): LogEntry =>
@@ -43,17 +50,15 @@ describe('living map director', () => {
   it('spawns protest crowds only in kraje with low regional support', () => {
     const low = ['CZ041', 'CZ080'];
     const regionSupport = Object.fromEntries(REGIONS.map((r) => [r, low.includes(r) ? L.crowdBelow - 5 : 60]));
-    const out = planLife(ctx({ regionSupport, days: 400 }), new Rng('crowd'), { ...L, truckPerDay: 0, limoPerDay: 0 }, pulse);
+    const out = many(ctx({ regionSupport }), 'crowd', { ...L, truckPerDay: 0, limoPerDay: 0 });
     const crowds = out.filter((a) => a.kind === 'crowd');
     expect(crowds.length).toBeGreaterThan(0);
     expect(new Set(crowds.map((a) => a.region))).toEqual(new Set(low));
-    // at most one crowd per kraj at a time
-    expect(crowds.length).toBe(new Set(crowds.map((a) => a.region)).size);
   });
 
   it('angry groups add crowds with their placard colour', () => {
     const anger = { oligarchs: 0, pensioners: pulse + 5, media: 0, eu: 0, activists: 0 } as Record<GroupId, number>;
-    const out = planLife(ctx({ anger, days: 200 }), new Rng('anger'), L, pulse);
+    const out = many(ctx({ anger }), 'anger');
     expect(out.some((a) => a.kind === 'crowd' && a.variant === 'pensioners')).toBe(true);
     expect(out.some((a) => a.variant === 'media')).toBe(false);
   });
@@ -83,18 +88,30 @@ describe('living map director', () => {
   });
 
   it('trucks drive empty when finances are low, and blackouts come while finances are low', () => {
-    const out = planLife(ctx({ days: 600, resources: { finances: 5, support: 50, coalition: 50, prestige: 50 } }), new Rng('t'), { ...L, crowdPerDay: 0 }, pulse);
+    const out = many(ctx({ resources: { finances: 5, support: 50, coalition: 50, prestige: 50 } }), 't', { ...L, crowdPerDay: 0 }, 1500);
     const trucks = out.filter((a) => a.kind === 'truck');
     expect(trucks.length).toBeGreaterThan(0);
     expect(trucks.every((a) => a.variant === 'empty' && a.to !== a.region)).toBe(true);
     expect(out.some((a) => a.kind === 'blackout')).toBe(true);
   });
 
+  it('spawns at most one ambient actor per call, none without the quiet gap, and events regardless', () => {
+    const regionSupport = Object.fromEntries(REGIONS.map((r) => [r, 0]));
+    const busy = ctx({ regionSupport, days: 50, resources: { finances: 100, support: 50, coalition: 50, prestige: 50 } });
+    const out = planLife(busy, new Rng('one'), L, pulse);
+    expect(out).toHaveLength(1);
+    expect(out[0].ambient).toBe(true);
+    expect(planLife({ ...busy, ambient: false }, new Rng('one'), L, pulse)).toEqual([]);
+    const ev = planLife({ ...busy, ambient: false, entries: [entry('chaos_fired')] }, new Rng('one'), L, pulse);
+    expect(ev.map((a) => a.kind)).toEqual(['blackout', 'crowd']);
+    expect(ev.some((a) => a.ambient)).toBe(false);
+  });
+
   it('respects the actor cap (counting actors already on the map)', () => {
     const regionSupport = Object.fromEntries(REGIONS.map((r) => [r, 0]));
     const active = [{ kind: 'truck' as const, region: 'CZ010' }, { kind: 'truck' as const, region: 'CZ020' }];
-    const out = planLife(ctx({ regionSupport, days: 500, active, maxActors: 5, entries: [entry('chaos_fired')] }), new Rng('cap'), L, pulse);
-    expect(out.length).toBe(3);
+    const out = planLife(ctx({ regionSupport, days: 500, active, maxActors: 3, entries: [entry('chaos_fired')] }), new Rng('cap'), L, pulse);
+    expect(out.length).toBe(1);
   });
 
   it('sprites only use known palette pixels', () => {
@@ -103,27 +120,41 @@ describe('living map director', () => {
 });
 
 describe('living map in the store', () => {
-  it('spawns while the run is running, prunes expired actors, and spawns nothing with reduced motion', () => {
-    const store = initStore({ ok: true, data: gameData(), warnings: [] });
-    store.startRun('mupka', 'normal');
-    const sim = store.sim!;
-    store.ui = { ...store.ui, tutorialQueue: [], tutorial: null };
-    sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
-    sim.state.schedule = [];
-    for (let i = 0; i < 60; i++) sim.tick();
-    expect(store.ui.actors.length).toBeGreaterThan(0);
-    expect(store.ui.actors.length).toBeLessThanOrEqual(config.life.maxActors);
-    // all expire after their lifetime
-    const far = Math.max(...store.ui.actors.map((a) => a.born + a.delayMs + a.ttlMs));
+  it('spawns while the run is running (at most the cap), prunes expired actors, and spawns nothing with reduced motion', () => {
+    // fake real-time clock: 1 s per game day, so the ambient quiet gap passes during the loop
     const realNow = performance.now;
-    performance.now = () => far + 1;
-    store.frame(16, true);
-    performance.now = realNow;
-    expect(store.ui.actors).toHaveLength(0);
+    let clock = realNow.call(performance);
+    performance.now = () => clock;
+    try {
+      const store = initStore({ ok: true, data: gameData(), warnings: [] });
+      store.startRun('mupka', 'normal');
+      const sim = store.sim!;
+      store.ui = { ...store.ui, tutorialQueue: [], tutorial: null };
+      sim.dispatch({ kind: 'pickPolicy', cardId: sim.state.draft!.hand[0] });
+      sim.state.schedule = [];
+      let seen = 0;
+      for (let i = 0; i < 60; i++) {
+        clock += 1000;
+        sim.tick();
+        store.frame(16, true);
+        seen += store.ui.actors.length;
+        expect(store.ui.actors.length).toBeLessThanOrEqual(config.life.maxActors);
+      }
+      expect(seen).toBeGreaterThan(0);
+      // all expire after their lifetime
+      clock += 60_000;
+      store.frame(16, true);
+      expect(store.ui.actors).toHaveLength(0);
 
-    store.setSettings({ reducedMotion: true });
-    for (let i = 0; i < 60; i++) sim.tick();
-    expect(store.ui.actors).toHaveLength(0);
+      store.setSettings({ reducedMotion: true });
+      for (let i = 0; i < 60; i++) {
+        clock += 1000;
+        sim.tick();
+      }
+      expect(store.ui.actors).toHaveLength(0);
+    } finally {
+      performance.now = realNow;
+    }
   });
 
   it('weekly trend points carry the projection, and replays still match', () => {

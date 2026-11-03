@@ -34,6 +34,8 @@ export interface ActorSpawn {
   /** Real-time lifetime and start delay. */
   ttlMs: number;
   delayMs: number;
+  /** Spawned by the ambient (per-day) part, not by an event. */
+  ambient?: boolean;
 }
 
 export interface LifeContext {
@@ -45,6 +47,8 @@ export interface LifeContext {
   entries: readonly LogEntry[];
   /** Game days elapsed since the last call (0 when only a decision happened). */
   days: number;
+  /** The ambient quiet gap has passed (at most one ambient actor is spawned per call). */
+  ambient: boolean;
   /** Actors currently on the map. */
   active: readonly { kind: ActorKind; region: string }[];
   regions: readonly string[];
@@ -102,8 +106,9 @@ export function planLife(ctx: LifeContext, rng: Rng, L: LifeConfig, pulseAt: num
     if (olig !== undefined && olig <= -L.limoOnDrop) limo(other(L.capital));
   }
 
-  // ---- ambient, per elapsed game day
-  for (let day = 0; day < ctx.days && room() > 0; day++) {
+  // ---- ambient, per elapsed game day: at most one, and only after the quiet gap
+  const events = out.length;
+  for (let day = 0; ctx.ambient && day < ctx.days && room() > 0 && out.length === events; day++) {
     const f = ctx.resources.finances;
     if (rng.next() < L.truckPerDay * (L.truckBase + Math.max(0, f) / 100)) {
       const from = rng.pick(ctx.regions);
@@ -118,5 +123,7 @@ export function planLife(ctx: LifeContext, rng: Rng, L: LifeConfig, pulseAt: num
     if ((ctx.zeroFinances || f < L.blackoutBelow) && rng.next() < L.blackoutPerDay) blackout(rng.pick(ctx.regions));
     if (ctx.anger.oligarchs < L.limoCalmBelow && rng.next() < L.limoPerDay) limo(other(L.capital));
   }
-  return out;
+  // keep a single ambient spawn (several rolls can succeed on the same day)
+  const ambient = out.slice(events, events + 1).map((a) => ({ ...a, ambient: true }));
+  return [...out.slice(0, events), ...ambient];
 }

@@ -207,8 +207,14 @@ export const config = {
    * read the game state. Spawn chances are per elapsed game day; lifetimes are real milliseconds.
    */
   life: {
-    maxActors: 16,
-    maxActorsMobile: 8,
+    /** At most this many actors on the map at once (cows not counted). */
+    maxActors: 3,
+    maxActorsMobile: 3,
+    /**
+     * After any actor appears, the next ambient one waits a random real-time gap (ms), so the map has
+     * quiet stretches. Event actors (chaos, budget vote, regional shifts) ignore the gap but not the cap.
+     */
+    ambientGapMs: { min: 3000, max: 9000 },
     /** Sprites are drawn this much larger on phones (the whole map is much smaller there). */
     mobileSpriteScale: 1.6,
     /** Ambient cows grazing in rural kraje: [region, count]. */
@@ -223,11 +229,11 @@ export const config = {
       ['CZ032', 1],
     ] as [string, number][],
     /** Trucks: chance/day = truckPerDay * (truckBase + finances / 100). Under truckEmptyBelow they drive empty. */
-    truckPerDay: 0.1,
+    truckPerDay: 0.25,
     truckBase: 0.3,
     truckEmptyBelow: 20,
     /** Map units per real second. */
-    truckSpeed: 70,
+    truckSpeed: 90,
     limoSpeed: 110,
     /** A passed budget vote sends a convoy of this many trucks out of the capital. */
     convoy: 3,
@@ -239,7 +245,7 @@ export const config = {
     /** Extra crowds (placards in the group's colour) for each group with anger >= anger.pulseAt. */
     angerCrowdPerDay: 0.06,
     crowdSize: { min: 3, max: 5 },
-    crowdMs: 7000,
+    crowdMs: 6000,
     /** Blackouts: on chaos events, and periodically while finances < blackoutBelow (or at the zero penalty). */
     blackoutBelow: 25,
     blackoutPerDay: 0.04,

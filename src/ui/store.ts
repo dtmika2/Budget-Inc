@@ -104,6 +104,8 @@ export class Store {
   /** Presentation-only RNG for the living map (never one of the simulation's streams). */
   private lifeRng: Rng | null = null;
   private lifeDay = 0;
+  /** performance.now() after which the next ambient actor may appear. */
+  private nextAmbientAt = 0;
   private angerArmed: Record<GroupId, boolean> = { oligarchs: true, pensioners: true, media: true, eu: true, activists: true };
   readonly clock: Clock;
 
@@ -172,6 +174,7 @@ export class Store {
     this.logCursor = 0;
     this.lifeRng = new Rng(`${seed}|life`);
     this.lifeDay = this.sim.absDay;
+    this.nextAmbientAt = 0;
     this.angerArmed = { oligarchs: true, pensioners: true, media: true, eu: true, activists: true };
     this.unsubSim = this.sim.subscribe(() => this.onSimChange());
     const tut = !tutorialSeen();
@@ -323,6 +326,7 @@ export class Store {
         zeroFinances: s.zeroPenalties.finances,
         entries,
         days: s.phase === 'running' ? days : 0,
+        ambient: now >= this.nextAmbientAt,
         active: actors,
         regions: REGION_CODES,
         distance: regionDistance,
@@ -333,6 +337,8 @@ export class Store {
       config.anger.pulseAt,
     );
     if (!spawns.length) return actors;
+    // any new actor (ambient or event) restarts the quiet gap before the next ambient one
+    this.nextAmbientAt = Math.max(this.nextAmbientAt, now + this.lifeRng.uniform(config.life.ambientGapMs.min, config.life.ambientGapMs.max));
     return [...actors, ...spawns.map((a) => ({ ...a, id: ++this.actorSeq, born: now }))];
   }
 
