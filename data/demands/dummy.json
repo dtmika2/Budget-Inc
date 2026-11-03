@@ -1,0 +1,442 @@
+[
+  {
+    "id": "dummy_demand_parking",
+    "status": "DUMMY",
+    "requesterTypes": [
+      "party"
+    ],
+    "parties": [
+      "ano"
+    ],
+    "regions": [
+      "CZ041"
+    ],
+    "fulfil": [
+      {
+        "type": "budget",
+        "item": "transport",
+        "minSteps": 1
+      },
+      {
+        "type": "compromise",
+        "region": "self",
+        "minRegionGain": 2
+      }
+    ],
+    "onAccept": {
+      "regions": {
+        "self": {
+          "min": 1,
+          "max": 1
+        }
+      }
+    },
+    "onFulfil": {
+      "regions": {
+        "self": {
+          "min": 3,
+          "max": 4
+        }
+      }
+    },
+    "onFail": {
+      "regions": {
+        "self": {
+          "min": -9,
+          "max": -5
+        }
+      }
+    },
+    "onReject": {
+      "regions": {
+        "self": {
+          "min": -4,
+          "max": -3
+        }
+      }
+    },
+    "text": "demand.dummy_demand_parking.text",
+    "fulfilHint": "demand.dummy_demand_parking.hint"
+  },
+  {
+    "id": "dummy_demand_pensions",
+    "status": "DUMMY",
+    "requesterTypes": [
+      "interestGroup"
+    ],
+    "interestGroups": [
+      "pensioners"
+    ],
+    "regionWeights": {
+      "rural": 1.5
+    },
+    "fulfil": [
+      {
+        "type": "budget",
+        "item": "pensions",
+        "minSteps": 1
+      },
+      {
+        "type": "policy",
+        "tags": [
+          "social"
+        ]
+      }
+    ],
+    "onAccept": {
+      "anger": {
+        "pensioners": {
+          "min": -1,
+          "max": -1
+        }
+      }
+    },
+    "onFulfil": {
+      "anger": {
+        "pensioners": {
+          "min": -6,
+          "max": -4
+        }
+      },
+      "regions": {
+        "self": {
+          "min": 1,
+          "max": 2
+        }
+      }
+    },
+    "onFail": {
+      "anger": {
+        "pensioners": {
+          "min": 8,
+          "max": 12
+        }
+      },
+      "regions": {
+        "self": {
+          "min": -3,
+          "max": -2
+        }
+      }
+    },
+    "onReject": {
+      "anger": {
+        "pensioners": {
+          "min": 3,
+          "max": 5
+        }
+      }
+    },
+    "text": "demand.dummy_demand_pensions.text",
+    "fulfilHint": "demand.dummy_demand_pensions.hint"
+  },
+  {
+    "id": "dummy_demand_environment",
+    "status": "DUMMY",
+    "requesterTypes": [
+      "interestGroup"
+    ],
+    "interestGroups": [
+      "activists"
+    ],
+    "regionWeights": {
+      "urban": 2,
+      "university": 1.5
+    },
+    "fulfil": [
+      {
+        "type": "policy",
+        "tags": [
+          "environment"
+        ]
+      },
+      {
+        "type": "budget",
+        "item": "environment",
+        "minSteps": 1
+      }
+    ],
+    "onAccept": {
+      "anger": {
+        "activists": {
+          "min": -1,
+          "max": -1
+        }
+      }
+    },
+    "onFulfil": {
+      "anger": {
+        "activists": {
+          "min": -6,
+          "max": -4
+        }
+      },
+      "regions": {
+        "self": {
+          "min": 1,
+          "max": 3
+        }
+      }
+    },
+    "onFail": {
+      "anger": {
+        "activists": {
+          "min": 7,
+          "max": 10
+        }
+      },
+      "regions": {
+        "self": {
+          "min": -3,
+          "max": -2
+        }
+      }
+    },
+    "onReject": {
+      "anger": {
+        "activists": {
+          "min": 3,
+          "max": 5
+        }
+      }
+    },
+    "text": "demand.dummy_demand_environment.text",
+    "fulfilHint": "demand.dummy_demand_environment.hint"
+  },
+  {
+    "id": "dummy_demand_industry",
+    "status": "DUMMY",
+    "requesterTypes": [
+      "interestGroup"
+    ],
+    "interestGroups": [
+      "oligarchs"
+    ],
+    "regionWeights": {
+      "industry": 2,
+      "coal": 2
+    },
+    "fulfil": [
+      {
+        "type": "policy",
+        "tags": [
+          "industry"
+        ]
+      }
+    ],
+    "onAccept": {
+      "anger": {
+        "oligarchs": {
+          "min": -1,
+          "max": -1
+        }
+      }
+    },
+    "onFulfil": {
+      "anger": {
+        "oligarchs": {
+          "min": -5,
+          "max": -4
+        }
+      },
+      "regions": {
+        "self": {
+          "min": 1,
+          "max": 2
+        }
+      }
+    },
+    "onFail": {
+      "anger": {
+        "oligarchs": {
+          "min": 6,
+          "max": 9
+        }
+      }
+    },
+    "onReject": {
+      "anger": {
+        "oligarchs": {
+          "min": 3,
+          "max": 5
+        }
+      }
+    },
+    "text": "demand.dummy_demand_industry.text",
+    "fulfilHint": "demand.dummy_demand_industry.hint"
+  },
+  {
+    "id": "dummy_demand_region_deal",
+    "status": "DUMMY",
+    "requesterTypes": [
+      "party"
+    ],
+    "parties": [
+      "ods",
+      "stan",
+      "kdu_csl"
+    ],
+    "regionWeights": {
+      "rural": 2
+    },
+    "fulfil": [
+      {
+        "type": "compromise",
+        "region": "self",
+        "minRegionGain": 2
+      }
+    ],
+    "onAccept": {
+      "regions": {
+        "self": {
+          "min": 1,
+          "max": 1
+        }
+      }
+    },
+    "onFulfil": {
+      "regions": {
+        "self": {
+          "min": 2,
+          "max": 4
+        }
+      }
+    },
+    "onFail": {
+      "regions": {
+        "self": {
+          "min": -8,
+          "max": -5
+        }
+      }
+    },
+    "onReject": {
+      "regions": {
+        "self": {
+          "min": -4,
+          "max": -2
+        }
+      }
+    },
+    "text": "demand.dummy_demand_region_deal.text",
+    "fulfilHint": "demand.dummy_demand_region_deal.hint"
+  },
+  {
+    "id": "dummy_demand_cut_admin",
+    "status": "DUMMY",
+    "requesterTypes": [
+      "party"
+    ],
+    "parties": [
+      "ods",
+      "top09"
+    ],
+    "fulfil": [
+      {
+        "type": "budget",
+        "item": "administration",
+        "minSteps": -1
+      }
+    ],
+    "onAccept": {},
+    "onFulfil": {
+      "regions": {
+        "self": {
+          "min": 1,
+          "max": 1
+        }
+      }
+    },
+    "onFail": {
+      "regions": {
+        "self": {
+          "min": -5,
+          "max": -3
+        }
+      }
+    },
+    "onReject": {
+      "regions": {
+        "self": {
+          "min": -2,
+          "max": -1
+        }
+      }
+    },
+    "text": "demand.dummy_demand_cut_admin.text",
+    "fulfilHint": "demand.dummy_demand_cut_admin.hint"
+  },
+  {
+    "id": "dummy_demand_media",
+    "status": "DUMMY",
+    "requesterTypes": [
+      "interestGroup",
+      "party"
+    ],
+    "parties": [
+      "pirati"
+    ],
+    "interestGroups": [
+      "media"
+    ],
+    "fulfil": [
+      {
+        "type": "policy",
+        "tags": [
+          "social"
+        ]
+      },
+      {
+        "type": "budget",
+        "item": "ngos",
+        "minSteps": 1
+      }
+    ],
+    "onAccept": {
+      "anger": {
+        "media": {
+          "min": -1,
+          "max": -1
+        }
+      }
+    },
+    "onFulfil": {
+      "anger": {
+        "media": {
+          "min": -4,
+          "max": -3
+        }
+      },
+      "regions": {
+        "self": {
+          "min": 1,
+          "max": 1
+        }
+      }
+    },
+    "onFail": {
+      "anger": {
+        "media": {
+          "min": 6,
+          "max": 9
+        }
+      },
+      "regions": {
+        "self": {
+          "min": -2,
+          "max": -1
+        }
+      }
+    },
+    "onReject": {
+      "anger": {
+        "media": {
+          "min": 2,
+          "max": 4
+        }
+      }
+    },
+    "text": "demand.dummy_demand_media.text",
+    "fulfilHint": "demand.dummy_demand_media.hint"
+  }
+]

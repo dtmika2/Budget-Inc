@@ -9,6 +9,7 @@
  */
 import type { CompromiseChannel } from '../config';
 import { scheduleChaosForPick } from './chaos';
+import { checkPledgesCompromise, pledgesForCompromise } from './demands';
 import { drawCompromises } from './draft';
 import { applyBundle } from './effects';
 import { worsensBalance } from './modifiers';
@@ -26,7 +27,8 @@ export function scheduleQuarterCompromise(sim: Simulation): void {
 /** Opens the decision (phase 'compromise'); returns false if too few compromises are available. */
 export function openCompromise(sim: Simulation): boolean {
   const { state, cfg } = sim;
-  const offer = drawCompromises(sim.compromises, state.picked, state.quarter, cfg.compromise.cooldownQuarters, cfg.compromise.choices, sim.rng.regions);
+  const boost = (c: { id: string }) => (pledgesForCompromise(sim, c.id).length ? cfg.demands.draftBoost : 1);
+  const offer = drawCompromises(sim.compromises, state.picked, state.quarter, cfg.compromise.cooldownQuarters, cfg.compromise.choices, sim.rng.regions, boost);
   if (offer.length < 2) {
     sim.log('compromise_skipped', { available: offer.length });
     return false;
@@ -115,5 +117,6 @@ export function makeCompromise(sim: Simulation, cardId: string, channelId: strin
   state.compromiseOffer = null;
   state.phase = 'running';
   sim.log('compromise_made', { cardId: comp.id, rejected, channelId, score, gainMult, lossMult, rolled }, deltas);
+  checkPledgesCompromise(sim, comp.id, deltas);
   scheduleChaosForPick(sim, comp);
 }

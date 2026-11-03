@@ -127,7 +127,7 @@ function ActiveEffects() {
   );
 }
 
-const HISTORY_TYPES = new Set(['policy_picked', 'compromise_made', 'chaos_fired', 'event_response', 'budget_vote', 'ability_used', 'upgrade_bought', 'opportunity_collected']);
+const HISTORY_TYPES = new Set(['policy_picked', 'compromise_made', 'chaos_fired', 'event_response', 'budget_vote', 'ability_used', 'upgrade_bought', 'opportunity_collected', 'demand_accepted', 'demand_rejected', 'demand_ignored', 'pledge_fulfilled', 'pledge_failed']);
 
 export function historyTitle(e: LogEntry): { kind: string; name: string } {
   const sim = getStore().sim!;
@@ -148,6 +148,15 @@ export function historyTitle(e: LogEntry): { kind: string; name: string } {
     }
     case 'ability_used':
       return { kind: t('history.ability'), name: t(sim.leaderDef.ability.name) };
+    case 'demand_accepted':
+    case 'demand_rejected':
+    case 'demand_ignored':
+    case 'pledge_fulfilled':
+    case 'pledge_failed': {
+      const tpl = sim.data.demands.find((d) => d.id === e.templateId);
+      const what = { demand_accepted: 'demandAccepted', demand_rejected: 'demandRejected', demand_ignored: 'demandIgnored', pledge_fulfilled: 'pledgeFulfilled', pledge_failed: 'pledgeFailed' }[e.type];
+      return { kind: t('history.demand'), name: `${tpl ? t(tpl.text) : ''} (${t(`history.${what}`)})` };
+    }
     case 'upgrade_bought':
       return { kind: t('history.upgrade'), name: t(`upgrade.${e.nodeId}.name`) };
     case 'opportunity_collected':

@@ -11,6 +11,7 @@ import { Simulation } from '@core/simulation';
 import type { Deltas, DifficultyId, GameData, GroupId, Input, LeaderId, LogEntry } from '@core/types';
 import { GROUP_IDS } from '@core/types';
 import { Rng } from '@core/rng';
+import { t } from '@i18n/index';
 import { Clock } from './clock';
 import { planLife, type ActorSpawn } from './map/lifeDirector';
 import { REGION_PATHS } from './map/regionsPath';
@@ -380,6 +381,24 @@ export class Store {
       case 'mandatory_growth':
         add({ kind: 'news', titleKey: 'budgetVote.title', textKey: 'popup.mandatoryGrowth', params: { pct: config.budgetVote.mandatoryGrowthPct }, tone: 'neutral', deltas: e.deltas });
         return;
+      case 'demand_spawned':
+        add({
+          kind: 'news',
+          titleKey: 'popup.demand',
+          textKey: 'popup.demandText',
+          keyParams: { region: `region.${e.region}` },
+          params: { who: demandWho(sim, e.requester as { type: string; id: string }) },
+          tone: 'neutral',
+        });
+        return;
+      case 'pledge_fulfilled':
+      case 'pledge_failed':
+      case 'demand_ignored': {
+        const tpl = sim.data.demands.find((d) => d.id === e.templateId);
+        const title = e.type === 'pledge_fulfilled' ? 'popup.pledgeFulfilled' : e.type === 'pledge_failed' ? 'popup.pledgeFailed' : 'popup.demandIgnored';
+        add({ kind: 'news', titleKey: title, textKey: tpl?.text, tone: e.type === 'pledge_fulfilled' ? 'good' : 'bad', deltas: e.deltas });
+        return;
+      }
       case 'opportunity_collected': {
         const opp = sim.data.opportunities.find((o) => o.id === e.opportunityId);
         add({ kind: 'news', titleKey: 'popup.opportunity', textKey: opp?.text, tone: 'good', deltas: e.deltas });
@@ -459,6 +478,13 @@ export function initStore(load: LoadResult): Store {
   store = new Store(load);
   return store;
 }
+/** Requester name for pop-ups (party label or interest group). */
+function demandWho(sim: Simulation, r: { type: string; id: string }): string {
+  if (r.type === 'interestGroup') return t(`group.${r.id}`);
+  const party = sim.data.parties.find((p) => p.id === r.id);
+  return t('demand.party', { name: party ? t(party.label) : r.id });
+}
+
 export function getStore(): Store {
   if (!store) throw new Error('store not initialised');
   return store;

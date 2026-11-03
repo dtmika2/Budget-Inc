@@ -4,6 +4,7 @@
  * is linear in its steps, so previews equal the applied result. Coalition red lines are drawn at vote open.
  */
 import { applyPct, budgetTerm, clonePct } from './budget';
+import { checkPledgesBudget } from './demands';
 import { applyBundle } from './effects';
 import { budgetChangePct } from './modifiers';
 import { schedule } from './scheduler';
@@ -164,6 +165,7 @@ export function voteBudget(sim: Simulation, sliders: Sliders, presetId: string |
     { presetId, sliders: full, redLines, violations: crossed, p_pass, roll, passed, rolled: applied.rolled },
     applied.deltas,
   );
+  checkPledgesBudget(sim, full, passed);
 }
 
 /** Finance delta of a slider setting, exact (used by previews, tests and bots). */

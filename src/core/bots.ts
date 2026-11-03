@@ -10,6 +10,7 @@
  */
 import { failBundle, presetSliders, sameSliders, type Sliders } from './budgetVote';
 import { channelBlocked } from './compromise';
+import { budgetConditionMet, pledgesForCard, pledgesForCompromise, templateOf } from './demands';
 import type { PreviewRanges } from './effects';
 import { Rng } from './rng';
 import type { Simulation } from './simulation';
@@ -75,6 +76,29 @@ function respondAll(sim: Simulation, choose: (instanceId: string, eventId: strin
   }
 }
 
+/** Value change of applying a preview, relative to now. */
+function gain(sim: Simulation, p: PreviewRanges): number {
+  return valueAfter(sim, p) - stateValue(sim, sim.state.resources, sim.state.anger);
+}
+
+/** Value of fulfilling these pledges (their onFulfil minus the onFail they avoid). */
+function pledgeBonus(sim: Simulation, pledges: { templateId: string; region: string }[]): number {
+  let v = 0;
+  for (const p of pledges) {
+    const pr = sim.previewDemand(p.templateId, p.region);
+    v += gain(sim, pr.fulfil) - gain(sim, pr.fail);
+  }
+  return v;
+}
+
+/** Greedy answer to a demand: accept when its expected value beats rejecting. */
+export function greedyAccepts(sim: Simulation, templateId: string, region: string): boolean {
+  const pr = sim.previewDemand(templateId, region);
+  const q = sim.cfg.bots.pledgeFulfilEstimate;
+  const accept = gain(sim, pr.accept) + q * gain(sim, pr.fulfil) + (1 - q) * gain(sim, pr.fail);
+  return accept > gain(sim, pr.reject);
+}
+
 /** Compromise channels usable right now (config order). */
 export function availableChannels(sim: Simulation): string[] {
   return Object.keys(sim.cfg.compromise.channels).filter((id) => !channelBlocked(sim, id));
@@ -88,7 +112,10 @@ export function presetVote(sim: Simulation, presetId: string): { kind: 'voteBudg
 /** Expected value of a slider setting: pass chance x value after + fail chance x value after failing. */
 function voteValue(sim: Simulation, sliders: Sliders, presetId: string | null, failV: number): number {
   const p = sim.previewVote(sliders, presetId);
-  return p.passChance * valueAfter(sim, p) + (1 - p.passChance) * failV;
+  const kept = sim.state.pledges.filter((pl) =>
+    templateOf(sim, pl.templateId).fulfil.some((c) => c.type === 'budget' && budgetConditionMet(c, sliders)),
+  );
+  return p.passChance * (valueAfter(sim, p) + pledgeBonus(sim, kept)) + (1 - p.passChance) * failV;
 }
 
 /** Greedy vote: best preset, then a bounded deterministic hill-climb over the sliders. */
@@ -179,6 +206,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
           const opts = sim.eventById.get(eventId)!.responses!.options.filter((o) => o.cost.pc <= sim.state.pc);
           return rng.pick(opts).id;
         });
+        for (const d of [...s.demands]) sim.dispatch({ kind: rng.next() < 0.5 ? 'acceptDemand' : 'rejectDemand', demandId: d.id });
         for (const pin of [...s.pins]) {
           if (pinDecided.has(pin.id)) continue;
           pinDecided.add(pin.id);
@@ -202,7 +230,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
         let best = s.draft.hand[0];
         let bestV = -Infinity;
         for (const id of s.draft.hand) {
-          const v = valueAfter(sim, sim.previewCard(id));
+          const v = valueAfter(sim, sim.previewCard(id)) + pledgeBonus(sim, pledgesForCard(sim, id));
           if (v > bestV) {
             bestV = v;
             best = id;
@@ -217,7 +245,7 @@ export function createBot(kind: BotKind, seed: string): Bot {
         let bestV = -Infinity;
         for (const id of s.compromiseOffer) {
           for (const ch of availableChannels(sim)) {
-            const v = valueAfter(sim, sim.previewCompromise(id, ch, score));
+            const v = valueAfter(sim, sim.previewCompromise(id, ch, score)) + pledgeBonus(sim, pledgesForCompromise(sim, id));
             if (v > bestV) {
               bestV = v;
               best = { cardId: id, channelId: ch };
@@ -246,6 +274,8 @@ export function createBot(kind: BotKind, seed: string): Bot {
         return best;
       });
       for (const pin of [...s.pins]) sim.dispatch({ kind: 'collectOpportunity', pinId: pin.id });
+      for (const d of [...s.demands])
+        sim.dispatch({ kind: greedyAccepts(sim, d.templateId, d.region) ? 'acceptDemand' : 'rejectDemand', demandId: d.id });
       // cheapest available upgrade
       const avail = sim.data.upgrades
         .flatMap((t) => t.nodes)

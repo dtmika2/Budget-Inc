@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { config } from '@/config';
 import { presetSliders, sameSliders, type Sliders } from '@core/budgetVote';
+import { pledgesForBudget } from '@core/demands';
 import { fmtSigned, t } from '@i18n/index';
 import { pct } from '../format';
 import { getStore, useStore } from '../store';
@@ -22,6 +23,7 @@ export function BudgetVoteModal() {
   const [sliders, setSliders] = useState<Sliders>(() => presetSliders(sim, null));
   const preview = useMemo(() => sim.previewVote(sliders, presetId), [sim, sliders, presetId]);
   const redLineOf = (id: string) => redLines.find((r) => r.item === id);
+  const budgetPledges = pledgesForBudget(sim);
 
   const choosePreset = (id: string) => {
     setPresetId(id);
@@ -91,6 +93,17 @@ export function BudgetVoteModal() {
                         <span aria-hidden="true">{'🔒'}</span> {t('budgetVote.redLineShort', { pct: rl.maxCutSteps * stepPct })}
                       </span>
                     )}
+                    {budgetPledges
+                      .filter((p) => p.item === it.id)
+                      .map((p) => (
+                        <span key={p.pledge.id} className="slider__pledge">
+                          {t('pledge.badgeBudget', {
+                            region: t(`region.short.${p.pledge.region}`),
+                            dir: t(p.minSteps > 0 ? 'pledge.raise' : 'pledge.cut'),
+                            pct: Math.abs(p.minSteps) * stepPct,
+                          })}
+                        </span>
+                      ))}
                     <output className="slider__value" htmlFor={`sl-${it.id}`}>
                       {v === 0 ? '0 %' : `${fmtSigned(v * stepPct)} %`}
                     </output>

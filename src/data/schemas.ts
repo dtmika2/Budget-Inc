@@ -38,7 +38,7 @@ export const budgetChangeSchema = z
   .strict();
 
 const modifierSourceSchema = z.enum([
-  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'any',
+  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'demand', 'any',
 ]);
 
 export const modifierSchema = z
@@ -301,3 +301,38 @@ export const regionProfilesSchema = z
   .strict();
 
 export const partySchema = z.object({ id: z.string().regex(/^[a-z0-9_]+$/), label: z.string() }).strict();
+
+const fulfilSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('policy'), tags: z.array(z.string()).optional(), cardIds: z.array(z.string()).optional() }).strict(),
+  z.object({ type: z.literal('compromise'), region: z.string(), minRegionGain: z.number().positive() }).strict(),
+  z.object({ type: z.literal('budget'), item: z.string(), minSteps: z.number().int().refine((n) => n !== 0, 'minSteps must not be 0') }).strict(),
+]);
+
+export const demandSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),
+    status: z.enum(['DUMMY', 'DRAFT', 'APPROVED']),
+    requesterTypes: z.array(z.enum(['party', 'interestGroup'])).min(1),
+    parties: z.array(z.string()).default([]),
+    interestGroups: z.array(z.enum(GROUP_IDS)).default([]),
+    regionWeights: z.record(z.string(), z.number().min(0)).default({}),
+    regions: z.array(z.string()).default([]),
+    text: z.string(),
+    fulfilHint: z.string(),
+    fulfil: z.array(fulfilSchema).min(1),
+    onAccept: bundleSchema.default({}),
+    onFulfil: bundleSchema,
+    onFail: bundleSchema,
+    onReject: bundleSchema,
+    programmeRef: z
+      .object({
+        party: z.string(),
+        file: z.string(),
+        page: z.number().int().positive().optional(),
+        section: z.string().optional(),
+        quote: z.string().max(240).optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();

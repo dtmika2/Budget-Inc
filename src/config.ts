@@ -319,6 +319,25 @@ export const config = {
     tickerWeeks: 26,
   },
 
+  /** Phase 14: regional demands ("!") and pledges. */
+  demands: {
+    /** Demands spawned per game year (spawn days drawn at the year's first quarter from the `demands` stream). */
+    perYear: 3,
+    /** Spawn window inside the year (days from the year's start / before its end). */
+    spawnFromDay: 10,
+    spawnBeforeYearEnd: 30,
+    /** At most this many open "!" pins; at most one demand or pledge per region. */
+    maxOpen: 2,
+    /** Days a "!" pin waits for an answer before it expires (counts as ignored). */
+    responseDays: 30,
+    /** Time to fulfil an accepted demand. */
+    deadlineQuarters: 4,
+    /** An ignored demand applies onReject x ignoreFactor. */
+    ignoreFactor: 0.5,
+    /** Draft / compromise-offer weight multiplier for cards that would fulfil an active pledge. */
+    draftBoost: 2,
+  },
+
   /** Compromise mini-games (UI only; the core only sees the final score). */
   minigames: {
     countdownSec: 3,
@@ -332,6 +351,8 @@ export const config = {
   /** Headless bots: assumed mini-game score of the greedy bot (random draws uniform 0..1). */
   bots: {
     greedyMinigameScore: 0.75,
+    /** Greedy bot's estimate of the chance to fulfil a pledge it accepts. */
+    pledgeFulfilEstimate: 0.6,
   },
 
   /** Simulator targets on Normal (§13). */

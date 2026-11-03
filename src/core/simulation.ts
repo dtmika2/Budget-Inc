@@ -7,7 +7,20 @@ import { activateAbility, canUseAbility, rechargeIfYearStart } from './abilities
 import { computeFinances, initPct } from './budget';
 import { openBudgetVote, passChance, scheduleBudgetVotes, validateVote, violations, voteBudget, voteBundle, type Sliders } from './budgetVote';
 import { canRespond, fireChaos, respond, scheduleChaosForPick } from './chaos';
-import { canMakeCompromise, makeCompromise, openCompromise, scheduleQuarterCompromise, soldBundle } from './compromise';
+import { canMakeCompromise, makeCompromise, openCompromise, scaleBundle, scheduleQuarterCompromise, soldBundle } from './compromise';
+import {
+  acceptDemand,
+  canAnswerDemand,
+  checkPledgeDeadlines,
+  checkPledgesPolicy,
+  expireDemand,
+  pledgesForCard,
+  rejectDemand,
+  resolveSelf,
+  scheduleYearDemands,
+  spawnDemand,
+  templateOf,
+} from './demands';
 import { drawHand, rerollCost } from './draft';
 import { applyBundle, applyDaily, previewBundle, type EffectHost, type PreviewRanges } from './effects';
 import { electionNight, projection } from './election';
@@ -125,6 +138,9 @@ export class Simulation implements EffectHost {
       budgetVoteRedLines: null,
       tourUsedInYear: null,
       regionHistory: [],
+      demands: [],
+      pledges: [],
+      demandSeq: 0,
       picked: [],
       schedule: [],
       scheduleSeq: 0,
@@ -276,6 +292,7 @@ export class Simulation implements EffectHost {
     this.log('quarter_started', { pcGained: gain });
     scheduleQuarterPins(this);
     scheduleQuarterCompromise(this);
+    scheduleYearDemands(this);
     s.draft = { hand: [], shownThisQuarter: [], rerolls: 0 };
     s.phase = 'draft';
     this.deal();
@@ -293,6 +310,7 @@ export class Simulation implements EffectHost {
         quarter: s.quarter,
         repeatCooldownQuarters: this.cfg.draft.repeatCooldownQuarters,
         handSize: this.cfg.draft.handSize,
+        boost: s.pledges.length ? (c) => (pledgesForCard(this, c.id).length ? this.cfg.demands.draftBoost : 1) : undefined,
       },
       this.rng.draft,
     );
@@ -333,6 +351,8 @@ export class Simulation implements EffectHost {
       if (e.kind === 'chaos') fireChaos(this, e);
       else if (e.kind === 'pinSpawn') spawnPin(this, e);
       else if (e.kind === 'pinExpire') expirePin(this, e);
+      else if (e.kind === 'demandSpawn') spawnDemand(this);
+      else if (e.kind === 'demandExpire') expireDemand(this, e);
     }
 
     // 2. daily changes: drift -> ongoing -> zero penalties (+ stand-ins) -> anger decay; then durations
@@ -343,6 +363,7 @@ export class Simulation implements EffectHost {
     for (const o of s.ongoing) applyDaily(this, o.target, o.perDay, 'ongoing');
     applyZeroPenalties(this);
     applyStandInPenalties(this);
+    checkPledgeDeadlines(this);
     const pull = this.cfg.anger.pullPerDay;
     if (pull > 0) {
       for (const g of GROUP_IDS) {
@@ -403,6 +424,10 @@ export class Simulation implements EffectHost {
     for (const o of s.ongoing) this.log('scheduled_cancelled', { what: 'ongoing', key: o.key, daysLeft: o.daysLeft, reason });
     for (const p of s.pins) this.log('scheduled_cancelled', { what: 'pin', pinId: p.id, reason });
     for (const p of s.pendingResponses) this.log('scheduled_cancelled', { what: 'response', eventId: p.eventId, reason });
+    for (const d of s.demands) this.log('scheduled_cancelled', { what: 'demand', demandId: d.id, reason });
+    for (const p of s.pledges) this.log('scheduled_cancelled', { what: 'pledge', pledgeId: p.id, reason });
+    s.demands = [];
+    s.pledges = [];
     s.schedule = [];
     s.ongoing = [];
     s.pins = [];
@@ -466,6 +491,9 @@ export class Simulation implements EffectHost {
         return canBuy(this, input.nodeId);
       case 'useAbility':
         return canUseAbility(this);
+      case 'acceptDemand':
+      case 'rejectDemand':
+        return canAnswerDemand(this, input.demandId);
     }
   }
 
@@ -485,6 +513,7 @@ export class Simulation implements EffectHost {
         s.draft = null;
         s.phase = 'running';
         this.log('policy_picked', { cardId: card.id, leaning: card.leaning, rolled }, deltas);
+        checkPledgesPolicy(this, card.id);
         scheduleChaosForPick(this, card);
         break;
       }
@@ -510,6 +539,12 @@ export class Simulation implements EffectHost {
         break;
       case 'useAbility':
         activateAbility(this);
+        break;
+      case 'acceptDemand':
+        acceptDemand(this, input.demandId);
+        break;
+      case 'rejectDemand':
+        rejectDemand(this, input.demandId);
         break;
     }
     this.checkTerminal();
@@ -547,6 +582,25 @@ export class Simulation implements EffectHost {
       passChance: passChance(this, sliders, presetId),
       violations: violations(this, sliders).map((r) => r.item),
     };
+  }
+
+  /** Ranges of a demand's four outcomes in its region. */
+  previewDemand(templateId: string, region: string): Record<'accept' | 'fulfil' | 'fail' | 'reject' | 'ignore', PreviewRanges> {
+    const tpl = templateOf(this, templateId);
+    const f = this.cfg.demands.ignoreFactor;
+    const p = (b: EffectBundle) => this.preview(resolveSelf(b, region), 'demand');
+    return {
+      accept: p(tpl.onAccept),
+      fulfil: p(tpl.onFulfil),
+      fail: p(tpl.onFail),
+      reject: p(tpl.onReject),
+      ignore: p(scaleBundle(tpl.onReject, f, f)),
+    };
+  }
+
+  /** Random stream of the demand system. */
+  demandRng() {
+    return this.rng.demands;
   }
 
   previewAbility(): PreviewRanges {

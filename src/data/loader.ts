@@ -11,6 +11,7 @@ import type {
   BudgetItem,
   BudgetVoteOption,
   ChaosEventDef,
+  DemandTemplate,
   EffectBundle,
   EndingDef,
   GameData,
@@ -25,6 +26,7 @@ import type {
 } from '../core/types';
 import { GROUP_IDS, RESOURCE_IDS } from '../core/types';
 import {
+  demandSchema,
   budgetItemSchema,
   budgetSchema,
   budgetVoteOptionSchema,
@@ -65,7 +67,8 @@ export type DataErrorCode =
   | 'unknownItem'
   | 'unknownTrait'
   | 'unknownTag'
-  | 'unknownParty';
+  | 'unknownParty'
+  | 'badDemand';
 
 export interface DataIssue {
   code: DataErrorCode;
@@ -164,6 +167,9 @@ export function loadGameData(
   const events = many(eventSchema, 'data/events');
   const opportunities = many(opportunitySchema, 'data/opportunities');
   const trees = many(upgradeTreeSchema, 'data/upgrades');
+  const demandsAll = many(demandSchema, 'data/demands');
+  // DRAFT demands (drafted from programmes, not yet approved) only load with includeDevFiller
+  const demands = demandsAll.filter((d) => d.item.status !== 'DRAFT' || includeFiller);
 
   // ---- normalise: `finances` in effects is an alias of `financesExtra`
   const normalise = <T extends EffectBundle>(b: T): T => {
@@ -199,6 +205,7 @@ export function loadGameData(
       if (!knownTags.has(tag)) err('unknownTag', file, `${path}.tags[${i}]`, tag);
     });
     for (const code of Object.keys(b.regions ?? {})) {
+      if (code === 'self' && path.includes('.on')) continue; // demand bundles: the demand's own region
       if (regions && !regionCodes.has(code)) err('unknownRegion', file, `${path}.regions.${code}`, code);
     }
     b.budgetChanges?.forEach((bc, i) => {
@@ -364,6 +371,41 @@ export function loadGameData(
     });
   }
 
+  // demands (phase 14)
+  dupCheck(demandsAll.map((d) => ({ id: d.item.id, file: d.file, path: `[${d.idx}]` })));
+  const policyTags = new Set(policies.flatMap((c) => c.item.tags ?? []));
+  const policyIds = new Set(policies.map((c) => c.item.id));
+  for (const { item: d, file, idx } of demandsAll) {
+    const p = `[${idx}]`;
+    locKey(d.text, file, `${p}.text`);
+    locKey(d.fulfilHint, file, `${p}.fulfilHint`);
+    for (const k of ['onAccept', 'onFulfil', 'onFail', 'onReject'] as const) checkBundle(d[k], file, `${p}.${k}`);
+    d.parties.forEach((pid: string, i: number) => {
+      if (partiesRaw && !partiesRaw.some((x) => x.id === pid)) err('unknownParty', file, `${p}.parties[${i}]`, pid);
+    });
+    d.regions.forEach((code: string, i: number) => {
+      if (regions && !regionCodes.has(code)) err('unknownRegion', file, `${p}.regions[${i}]`, code);
+    });
+    if (d.requesterTypes.includes('party') && d.status !== 'DUMMY' && !d.programmeRef)
+      err('badDemand', file, `${p}.programmeRef`, 'a party demand needs a programmeRef (spec: demands come from real party programmes)');
+    if (d.programmeRef && !d.parties.includes(d.programmeRef.party))
+      err('badDemand', file, `${p}.programmeRef.party`, `"${d.programmeRef.party}" is not one of the demand's parties`);
+    d.fulfil.forEach((f, i: number) => {
+      const fp = `${p}.fulfil[${i}]`;
+      if (f.type === 'policy') {
+        if (!f.tags?.length && !f.cardIds?.length) err('badDemand', file, fp, 'a policy condition needs tags or cardIds');
+        f.tags?.forEach((tag) => {
+          if (!policyTags.has(tag)) err('badDemand', file, `${fp}.tags`, `no policy card has tag "${tag}"`);
+        });
+        f.cardIds?.forEach((id) => {
+          if (!policyIds.has(id)) err('badDemand', file, `${fp}.cardIds`, `unknown card "${id}"`);
+        });
+      } else if (f.type === 'budget') {
+        if (itemsRaw && !itemIds.has(f.item)) err('unknownItem', file, `${fp}.item`, f.item);
+      } else if (f.region !== 'self' && regions && !regionCodes.has(f.region)) err('unknownRegion', file, `${fp}.region`, f.region);
+    });
+  }
+
   dupCheck(opportunities.map((o) => ({ id: o.item.id, file: o.file, path: `[${o.idx}]` })));
   for (const { item: o, file, idx } of opportunities) {
     locKey(o.text, file, `[${idx}].text`);
@@ -449,6 +491,7 @@ export function loadGameData(
     minigames: minigamesRaw as MinigameTexts,
     regionProfiles: profilesRaw as RegionProfiles,
     parties: partiesRaw as PartyDef[],
+    demands: demands.map((d) => d.item) as DemandTemplate[],
     upgrades: trees.map((t) => t.item) as UpgradeTree[],
     endings: endingsRaw as EndingDef[],
     fileHashes,

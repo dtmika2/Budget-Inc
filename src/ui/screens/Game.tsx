@@ -15,6 +15,7 @@ import { SidePanel } from '../panel/SidePanel';
 import { PopupStack } from '../popups/PopupStack';
 import { nodeStatus } from '@core/upgrades';
 import { RegionScreen } from '../region/RegionScreen';
+import { PledgeTracker } from '../demands/PledgeTracker';
 import { getStore, useStore } from '../store';
 import { Tutorial } from '../tutorial/Tutorial';
 
@@ -56,6 +57,7 @@ export function Game() {
             {t('hud.panel')}
           </button>
           <CzMap />
+          <PledgeTracker />
           <PausedBadge />
           <div className="game__dock">
             <LeaderDock />
