@@ -197,7 +197,17 @@ function makeCard(leader: LeaderDef, n: number, leaning: LeaningId): { card: Pol
 // with scripts/policy_docx.py) are kept as they are, texts included. Everything else is regenerated.
 const previous: PolicyCard[] = existsSync('data/policies/_filler.json') ? JSON.parse(readFileSync('data/policies/_filler.json', 'utf8')) : [];
 const written = new Map(previous.filter((c) => c.topic).map((c) => [c.id, c]));
-const writtenTexts = Object.fromEntries(Object.entries(locale).filter(([k]) => [...written.keys()].some((id) => k.startsWith(`policy.${id}.`))));
+// Compromises edited in content/compromises/_filler.docx (their name no longer the generated
+// "[FILLER] Kompromis …") are kept the same way.
+const previousComp: CompromiseCard[] = existsSync('data/compromises/_filler.json')
+  ? JSON.parse(readFileSync('data/compromises/_filler.json', 'utf8'))
+  : [];
+const writtenComp = new Map(previousComp.filter((c) => locale[c.title] !== undefined && !locale[c.title].startsWith('[FILLER] Kompromis ')).map((c) => [c.id, c]));
+const writtenTexts = Object.fromEntries(
+  Object.entries(locale).filter(
+    ([k]) => [...written.keys()].some((id) => k.startsWith(`policy.${id}.`)) || [...writtenComp.keys()].some((id) => k.startsWith(`compromise.${id}.`)),
+  ),
+);
 
 // drop previously generated filler keys, then regenerate
 for (const k of Object.keys(locale)) if (/^(policy|compromise)\.filler_/.test(k)) delete locale[k];
@@ -256,7 +266,7 @@ for (let n = 1; n <= F.compromises; n++) {
   locale[`compromise.${id}.title`] = `[FILLER] Kompromis ${tag} (${kind})`;
   locale[`compromise.${id}.desc`] = '[FILLER] Generovaný regionální kompromis pro testování mechanik.';
   locale[`compromise.${id}.drivenBy`] = '[FILLER]';
-  compromises.push(card);
+  compromises.push(writtenComp.get(id) ?? card);
 }
 
 Object.assign(locale, writtenTexts);
