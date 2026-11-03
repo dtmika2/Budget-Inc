@@ -328,11 +328,9 @@ h1, h2, h3 { margin: 0; }
 .memo[data-leaning='communism'] { border-top-color: #8f1d1d; }
 .memo__leaning { font-family: var(--f-pixel); font-size: 14px; color: var(--ink-soft); display: inline-flex; gap: 6px; align-items: center; }
 .memo__glyph { font-size: 18px; color: var(--ink); }
-.memo__topic { margin: 0 0 -6px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); }
 .memo__title { font-family: var(--f-pixel); font-size: 21px; line-height: 1.15; }
-.memo__desc { margin: 0; }
-.memo__driven { margin: 0; font-size: 14px; color: var(--ink-soft); }
-.memo__driven b { color: var(--ink); }
+.memo__flavor { margin: -4px 0 0; font-size: 15px; font-style: italic; line-height: 1.3; }
+.memo__desc { margin: 0; font-size: 14px; line-height: 1.35; color: var(--ink-soft); }
 .memo__pick { margin-top: auto; }
 .memo__stamp {
   position: absolute; left: 50%; top: 42%; pointer-events: none;

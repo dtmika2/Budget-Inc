@@ -33,6 +33,8 @@ export const PolicyCard = memo(function PolicyCard({
   const isCompromise = !('leaning' in card);
   const action = isCompromise ? t('draft.compromise') : t('draft.pick');
   const pledges = isCompromise ? pledgesForCompromise(sim, card.id) : pledgesForCard(sim, card.id);
+  const topic = 'topic' in card && card.topic ? t(card.topic) : null;
+  const desc = t(card.description);
   return (
     <article className={`memo${isCompromise ? ' memo--compromise' : ''}${stamped ? ' is-stamped' : ''}`} data-leaning={isCompromise ? undefined : card.leaning}>
       <header className="memo__head">
@@ -43,12 +45,10 @@ export const PolicyCard = memo(function PolicyCard({
           {isCompromise ? t('draft.compromiseTag') : t(`leaning.${card.leaning}`)}
         </span>
       </header>
-      {'topic' in card && card.topic && <p className="memo__topic">{t(card.topic)}</p>}
-      <h3 className="memo__title">{t(card.title)}</h3>
-      <p className="memo__desc">{t(card.description)}</p>
-      <p className="memo__driven">
-        {t('draft.drivenBy')}: <b>{t(card.drivenBy)}</b>
-      </p>
+      {/* a card with a topic: the topic is the headline and the name a smaller flavour line */}
+      <h3 className="memo__title">{topic ?? t(card.title)}</h3>
+      {topic && <p className="memo__flavor">{t(card.title)}</p>}
+      {desc && <p className="memo__desc">{desc}</p>}
       <RangeChips preview={preview} all />
       {pledges.map((p) => (
         <p key={p.id} className="memo__pledge">

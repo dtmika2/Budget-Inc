@@ -50,7 +50,7 @@ export interface Floater {
 /** A living-map actor on screen (presentation only). */
 export interface Actor extends ActorSpawn {
   id: number;
-  /** performance.now() at spawn. */
+  /** Map time (store.mapClock) at spawn. */
   born: number;
 }
 
@@ -111,8 +111,13 @@ export class Store {
   /** Presentation-only RNG for the living map (never one of the simulation's streams). */
   private lifeRng: Rng | null = null;
   private lifeDay = 0;
-  /** performance.now() after which the next ambient actor may appear. */
+  /** Map time (ms) after which the next ambient actor may appear. */
   private nextAmbientAt = 0;
+  /**
+   * Map time (ms): runs at the game speed while the clock runs, at 1x otherwise. The living map's actors
+   * are timed on it, and MapTempo plays the map's animations at the same rate.
+   */
+  private mapClock = 0;
   private angerArmed: Record<GroupId, boolean> = { oligarchs: true, pensioners: true, media: true, eu: true, activists: true };
   readonly clock: Clock;
 
@@ -228,6 +233,11 @@ export class Store {
 
   // ------------------------------------------------------------ clock-facing state
 
+  /** How fast map animations play: the game speed while the game runs, 1 when it is paused. */
+  get mapTempo(): number {
+    return !this.sim || this.effectivePaused ? 1 : this.ui.speed;
+  }
+
   get effectivePaused(): boolean {
     const u = this.ui;
     return u.userPaused || u.blurred || u.modal !== null || u.tutorial !== null || u.selectedRegion !== null || this.sim?.state.phase !== 'running';
@@ -315,7 +325,7 @@ export class Store {
     // drop response pop-ups whose event is no longer pending (cancelled at run end)
     const pending = new Set(sim.state.pendingResponses.map((p) => p.instanceId));
     popups = popups.filter((p) => p.kind !== 'response' || pending.has(p.instanceId!));
-    const actors = this.planActors(newEntries, now);
+    const actors = this.planActors(newEntries, this.mapClock);
     this.ui = { ...this.ui, popups, floaters: floaters.slice(-40), actors };
     this.advanceTutorial();
     this.emit();
@@ -443,6 +453,7 @@ export class Store {
   /** Advance real-time pop-up timers; returns true if something changed. */
   frame(dtMs: number, runningUnpaused: boolean): boolean {
     let changed = false;
+    this.mapClock += dtMs * (runningUnpaused ? this.ui.speed : 1);
     const max = this.ui.isMobile ? config.popups.maxVisibleMobile : config.popups.maxVisibleDesktop;
     const visible = new Set(visiblePopups(this.ui.popups, max).map((p) => p.id));
     const timedOut: Popup[] = [];
@@ -465,7 +476,7 @@ export class Store {
     const now = performance.now();
     const floaters = this.ui.floaters.filter((f) => now - f.born < 1400);
     if (floaters.length !== this.ui.floaters.length) changed = true;
-    const actors = this.ui.actors.filter((a) => now - a.born < a.delayMs + a.ttlMs);
+    const actors = this.ui.actors.filter((a) => this.mapClock - a.born < a.delayMs + a.ttlMs);
     if (actors.length !== this.ui.actors.length) changed = true;
     if (changed) this.ui = { ...this.ui, popups, floaters, actors };
     for (const p of timedOut) {

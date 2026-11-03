@@ -1,15 +1,19 @@
-"""Round-trip policy cards through Word.
+"""Round-trip policy cards and regional compromise cards through Word.
 
   python scripts/policy_docx.py export            -> exports/policies/<file>.docx (one per data/policies/*.json)
-  python scripts/policy_docx.py import <docx...>  -> writes edits back to data/policies/*.json and locales/cs.json
+                                                     exports/compromises/<file>.docx (one per data/compromises/*.json)
+  python scripts/policy_docx.py import <docx...>  -> writes edits back to data/policies/*.json (or
+                                                     data/compromises/*.json for a document in a folder named
+                                                     "compromises") and locales/cs.json
 
-Each card is one two-column table (label | value) under a heading. The heading is the card's topic (the
-small label above the name), the "Název" row its name. Texts live in locales/cs.json under
-policy.<id>.topic / .title / .desc / .drivenBy / .ongoing, numbers live in data/policies/<file>.json.
+Each card is one two-column table (label | value) under a heading. For a policy card the heading is its
+topic (the headline on the card), the "Název" row its name (the smaller flavour line). Texts live in
+locales/cs.json under policy.<id>.topic / .title / .desc / .drivenBy / .ongoing (compromise.<id>.… for
+compromises, which have no topic and no ideology), numbers in data/policies|compromises/<file>.json.
 Cards removed from the document are left untouched; a table with a new ID adds a card.
 
-The source of truth for the filler cards is content/policies/_filler.docx (imports into
-data/policies/_filler.json). The importer is forgiving about hand edits: ranges written high-to-low are
+Sources of truth (content/): policies/Policies_filler.docx, policies/policies_dummy.docx,
+compromises/kompro_filler.docx, compromises/Kompro_dummy.docx. The importer is forgiving about hand edits: ranges written high-to-low are
 sorted, a missing ":" or ";" between items is accepted, ideologies may be written in Czech, and a name
 left as "[text] Karta M01 (…)" keeps only the text in brackets; "[FILLER]" and "(ideology)" around the
 heading are dropped from the topic.
@@ -26,9 +30,29 @@ from docx.shared import Pt
 from docx.table import Table
 
 ROOT = Path(__file__).resolve().parent.parent
-POLICY_DIR = ROOT / "data" / "policies"
 LOCALE = ROOT / "locales" / "cs.json"
-OUT_DIR = ROOT / "exports" / "policies"
+
+# Policy cards and regional compromise cards share the format; compromises have no ideology and no topic.
+# A document in a folder named "compromises" imports into data/compromises, any other into data/policies.
+KINDS = {
+    "policies": {"data": ROOT / "data" / "policies", "out": ROOT / "exports" / "policies", "prefix": "policy", "heading": "Karty politik"},
+    "compromises": {"data": ROOT / "data" / "compromises", "out": ROOT / "exports" / "compromises", "prefix": "compromise", "heading": "Regionální kompromisy"},
+}
+
+
+def data_file_for(doc_path, kind):
+    """The data file a document belongs to: same name, or a name ending with it, ignoring case and a
+    leading "_" (Policies_filler.docx -> _filler.json, Kompro_dummy.docx -> dummy.json)."""
+    doc = Path(doc_path).stem.lower()
+    for f in sorted(KINDS[kind]["data"].glob("*.json")):
+        base = f.stem.lower().lstrip("_")
+        if doc.lstrip("_") == base or doc.endswith("_" + base):
+            return f
+    return None
+
+
+def kind_of(path):
+    return "compromises" if "compromises" in (part.lower() for part in Path(path).parent.parts) else "policies"
 
 LEANINGS = ["libertarianism", "conservatism", "populism", "socialism", "progressivism", "fascism", "communism"]
 LEANINGS_CZ = {
@@ -70,6 +94,16 @@ GUIDE = [
     "Řádek „Trvalý efekt – popisek“ hned pod ním je jeho text. Další trvalý efekt = přidejte další dvojici řádků.",
     "Seznamy (Dostupné pro, Tagy, Chaos události) oddělujte čárkou. Jen pro vývoj: ano / ne.",
     "Novou kartu přidáte zkopírováním celé tabulky a změnou ID (malá písmena, číslice, podtržítko).",
+]
+
+GUIDE_COMPROMISES = [
+    "Každý kompromis je jedna tabulka. Měňte jen pravý sloupec. Prázdná buňka = pole se nepoužije.",
+    "Regiony (povinné, aspoň jeden kraj): „kód kraje: min až max“, např. „CZ010: 4 až 6; CZ080: -3 až -2“.",
+    "Rozsahy: „název: min až max“, více položek odděluje středník.",
+    f"Efekty: {', '.join(EFFECTS)}. Skupiny (hněv): {', '.join(GROUPS)}.",
+    "Rozpočet: „kapitola revenue|expenditure procento“, např. „398 revenue -3; 313 expenditure 5“.",
+    "Seznamy (Dostupné pro, Tagy, Chaos události) oddělujte čárkou. Jen pro vývoj: ano / ne.",
+    "Nový kompromis přidáte zkopírováním celé tabulky a změnou ID (malá písmena, číslice, podtržítko).",
 ]
 
 
@@ -185,14 +219,20 @@ def name_from_title(title):
 
 
 def export():
+    for kind in KINDS:
+        export_kind(kind)
+
+
+def export_kind(kind):
+    k = KINDS[kind]
     texts = json.loads(LOCALE.read_text(encoding="utf-8"))
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    for path in sorted(POLICY_DIR.glob("*.json")):
+    k["out"].mkdir(parents=True, exist_ok=True)
+    for path in sorted(k["data"].glob("*.json")):
         cards = json.loads(path.read_text(encoding="utf-8"))
         doc = Document()
         doc.styles["Normal"].font.size = Pt(10)
-        doc.add_heading(f"Karty politik – {path.name}", 0)
-        for line in GUIDE:
+        doc.add_heading(f"{k['heading']} – {path.name}", 0)
+        for line in GUIDE if kind == "policies" else GUIDE_COMPROMISES:
             doc.add_paragraph(line, style="List Bullet")
         for c in cards:
             doc.add_heading(texts.get(c.get("topic", ""), "") or texts.get(c["title"], c["id"]), 2)
@@ -201,7 +241,10 @@ def export():
                 (L_TITLE, texts.get(c["title"], "")),
                 (L_DESC, texts.get(c["description"], "")),
                 (L_DRIVEN, texts.get(c["drivenBy"], "")),
-                (L_LEANING, c["leaning"]),
+            ]
+            if kind == "policies":
+                rows.append((L_LEANING, c["leaning"]))
+            rows += [
                 (L_LEADERS, ", ".join(c["availableFor"])),
                 (L_TAGS, ", ".join(c.get("tags", []))),
                 (L_EFFECTS, fmt_ranges(c.get("effects"))),
@@ -224,14 +267,14 @@ def export():
                 r[0].text = label
                 r[0].paragraphs[0].runs[0].bold = True
                 r[1].text = value
-        out = OUT_DIR / f"{path.stem}.docx"
+        out = k["out"] / f"{path.stem}.docx"
         doc.save(out)
         print(f"{out.relative_to(ROOT)}: {len(cards)} karet")
 
 
 # ---------- import ----------
 
-def read_card(table, where, heading=""):
+def read_card(table, where, heading="", kind="policies"):
     rows = [(cell_text(r.cells[0]), cell_text(r.cells[1])) for r in table.rows]
     fields, ongoing = {}, []
     for label, value in rows:
@@ -247,17 +290,19 @@ def read_card(table, where, heading=""):
     if not re.fullmatch(r"[a-z0-9_]+", cid):
         raise ValueError(f"{where}: neplatné ID „{cid}“")
     where = f"{where} ({cid})"
-    leaning = clean(fields.get(L_LEANING, ""))
-    leaning = LEANINGS_CZ.get(leaning.lower(), leaning)
-    if leaning not in LEANINGS:
-        raise ValueError(f"{where}: neznámá ideologie „{leaning}“")
+    leaning = None
+    if kind == "policies":
+        leaning = clean(fields.get(L_LEANING, ""))
+        leaning = LEANINGS_CZ.get(leaning.lower(), leaning)
+        if leaning not in LEANINGS:
+            raise ValueError(f"{where}: neznámá ideologie „{leaning}“")
     dev = clean(fields.get(L_DEV, "ne")).lower()
     if dev not in ("ano", "ne"):
         raise ValueError(f"{where}: „{L_DEV}“ musí být ano/ne")
     return {
         "id": cid,
         "texts": {
-            "topic": topic_from_heading(heading),
+            "topic": topic_from_heading(heading) if kind == "policies" else "",
             "title": name_from_title(fields.get(L_TITLE, "")),
             "desc": fields.get(L_DESC, "").strip(),
             "drivenBy": fields.get(L_DRIVEN, "").strip(),
@@ -276,27 +321,30 @@ def read_card(table, where, heading=""):
     }
 
 
-def apply(card, new, texts):
+def apply(card, new, texts, kind="policies"):
     """Update `card` (dict from JSON, key order kept) with values read from Word; returns it."""
+    prefix = KINDS[kind]["prefix"]
     cid = new["id"]
     card["id"] = cid
     for field, key in (("title", "title"), ("description", "desc"), ("drivenBy", "drivenBy")):
-        card.setdefault(field, f"policy.{cid}.{key}")
+        card.setdefault(field, f"{prefix}.{cid}.{key}")
         texts[card[field]] = new["texts"][key]
     topic = new["texts"]["topic"]
-    if topic and topic != new["texts"]["title"]:
-        card["topic"] = card.get("topic") or f"policy.{cid}.topic"
+    # a heading that just repeats the name (cards without a topic) is not a topic
+    if topic and clean(topic) != clean(new["texts"]["title"]):
+        card["topic"] = card.get("topic") or f"{prefix}.{cid}.topic"
         texts[card["topic"]] = topic
     elif "topic" in card:
         texts.pop(card.pop("topic"), None)
-    card["leaning"] = new["leaning"]
+    if new["leaning"]:
+        card["leaning"] = new["leaning"]
     card["availableFor"] = new["availableFor"]
     old_ongoing = card.get("ongoing", [])
     ongoing = []
     for i, (o, text) in enumerate(new["ongoing"]):
         label = old_ongoing[i].get("label") if i < len(old_ongoing) else None
         if text:
-            label = label or f"policy.{cid}.ongoing" + (str(i + 1) if i else "")
+            label = label or f"{prefix}.{cid}.ongoing" + (str(i + 1) if i else "")
             texts[label] = text
             o["label"] = label
         ongoing.append(o)
@@ -313,7 +361,8 @@ def apply(card, new, texts):
             card.pop(key, None)
         else:
             card[key] = value
-    card["chaosEvents"] = new["chaosEvents"]
+    if new["chaosEvents"] or "chaosEvents" in card:
+        card["chaosEvents"] = new["chaosEvents"]
     card["devOnly"] = new["devOnly"]
     return card
 
@@ -323,22 +372,24 @@ def import_(paths):
     texts_before = json.dumps(texts, ensure_ascii=False)
     seen, writes = set(), []
     for p in map(Path, paths):
-        target = POLICY_DIR / f"{p.stem}.json"
-        if not target.exists():
-            sys.exit(f"{p.name}: k němu neexistuje {target.relative_to(ROOT)} (název souboru musí zůstat stejný)")
+        kind = kind_of(p)
+        target = data_file_for(p, kind)
+        if not target:
+            names = ", ".join(f.name for f in sorted(KINDS[kind]["data"].glob("*.json")))
+            sys.exit(f"{p.name}: nevím, do kterého souboru patří (název musí končit jedním z: {names})")
         cards = json.loads(target.read_text(encoding="utf-8"))
         by_id = {c["id"]: c for c in cards}
         found = []
         for i, (t, heading) in enumerate(card_tables(Document(p)), 1):
-            new = read_card(t, f"{p.name} tabulka {i}", heading)
-            if new["id"] in seen:
+            new = read_card(t, f"{p.name} tabulka {i}", heading, kind)
+            if (kind, new["id"]) in seen:
                 sys.exit(f"{p.name}: ID „{new['id']}“ je v dokumentech dvakrát")
-            seen.add(new["id"])
+            seen.add((kind, new["id"]))
             found.append(new["id"])
             if new["id"] in by_id:
-                apply(by_id[new["id"]], new, texts)
+                apply(by_id[new["id"]], new, texts, kind)
             else:
-                cards.append(apply({}, new, texts))
+                cards.append(apply({}, new, texts, kind))
                 print(f"  + nová karta {new['id']}")
         for missing in sorted(set(by_id) - set(found)):
             print(f"  ! {missing} v dokumentu chybí – ponechána beze změny")
