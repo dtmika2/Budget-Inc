@@ -46,7 +46,7 @@ function originLabel(origin: string): string {
   if (kind === 'policy') return t(sim.cardById.get(id)?.title ?? id);
   if (kind === 'compromise') return t(sim.compromiseById.get(id)?.title ?? id);
   if (kind === 'chaos') return t(sim.eventById.get(id)?.text ?? id);
-  if (kind === 'ability') return t(sim.leaderDef.ability.name);
+  if (kind === 'ability') return t(sim.leaderDef.abilities.find((a) => a.id === id)?.name ?? id);
   if (kind === 'upgrade') return t(`upgrade.${id}.name`);
   if (kind === 'budget_vote') return t(sim.data.budgetVote.find((o) => o.id === id)?.label ?? (id === 'custom' ? 'budgetVote.custom' : 'budgetVote.title'));
   return origin;
@@ -127,7 +127,7 @@ function ActiveEffects() {
   );
 }
 
-const HISTORY_TYPES = new Set(['policy_picked', 'compromise_made', 'chaos_fired', 'event_response', 'budget_vote', 'ability_used', 'upgrade_bought', 'opportunity_collected', 'demand_accepted', 'demand_rejected', 'demand_ignored', 'pledge_fulfilled', 'pledge_failed']);
+const HISTORY_TYPES = new Set(['policy_picked', 'compromise_made', 'chaos_fired', 'event_response', 'budget_vote', 'ability_used', 'event_condemned', 'upgrade_bought', 'opportunity_collected', 'demand_accepted', 'demand_rejected', 'demand_ignored', 'pledge_fulfilled', 'pledge_failed']);
 
 export function historyTitle(e: LogEntry): { kind: string; name: string } {
   const sim = getStore().sim!;
@@ -147,7 +147,9 @@ export function historyTitle(e: LogEntry): { kind: string; name: string } {
       return { kind: t('history.budget'), name: `${t(opt ? opt.label : 'budgetVote.custom')}: ${e.passed ? t('history.passed') : t('history.failed')}` };
     }
     case 'ability_used':
-      return { kind: t('history.ability'), name: t(sim.leaderDef.ability.name) };
+      return { kind: t('history.ability'), name: t(sim.leaderDef.abilities.find((a) => a.id === e.abilityId)?.name ?? '') };
+    case 'event_condemned':
+      return { kind: t('history.condemned'), name: t(`ability.pick.${e.kind}`) };
     case 'demand_accepted':
     case 'demand_rejected':
     case 'demand_ignored':

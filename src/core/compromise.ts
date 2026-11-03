@@ -12,7 +12,7 @@ import { scheduleChaosForPick } from './chaos';
 import { checkPledgesCompromise, pledgesForCompromise } from './demands';
 import { drawCompromises } from './draft';
 import { applyBundle } from './effects';
-import { worsensBalance } from './modifiers';
+import { scalar, worsensBalance } from './modifiers';
 import { schedule } from './scheduler';
 import type { Simulation } from './simulation';
 import type { EffectBundle, GroupId, Range } from './types';
@@ -56,6 +56,8 @@ export function scoreMult(score: number, atZero: number, atOne: number, neutral:
 export function channelMults(sim: Simulation, channelId: string, score: number): { gainMult: number; lossMult: number } {
   const ch = sim.cfg.compromise.channels[channelId];
   const n = sim.cfg.compromise.neutralScore;
+  // ability bonuses on a channel's mini-game score (Tiskova zprava: compromise.press.score +0.15)
+  score = normScore(scalar(sim.pipeline(), `compromise.${channelId}.score`, score));
   return { gainMult: scoreMult(score, ch.gainAtZero, ch.gainAtOne, n), lossMult: scoreMult(score, ch.lossAtZero, ch.lossAtOne, n) };
 }
 

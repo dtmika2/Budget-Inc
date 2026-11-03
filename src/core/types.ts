@@ -233,12 +233,24 @@ export interface EndingDef {
   standInPenalty: { target: string; perDay: number };
 }
 
+/** Special action of an ability (beyond its modifiers, bundle and pulses). */
+export type AbilityAction = 'cancelEvent' | 'halveAnger';
+
+/** A leader ability (phase 17): usable once per game. */
 export interface AbilityDef {
   id: string;
   name: string;
   description: string;
+  /** Pixel icon id (src/ui/abilityIcons.ts). */
+  icon: string;
   modifiers: ModifierDef[];
   bundle: EffectBundle;
+  /** Repeated effect: `bundle` every `everyDays` days, `times` times (the first one month after use). */
+  pulses: { everyDays: number; times: number; bundle: EffectBundle; label: string } | null;
+  /** cancelEvent: cancel one open item (target "kind:id"); halveAnger: halve one group's anger (target = group). */
+  action: AbilityAction | null;
+  /** halveAnger: modifiers on the chosen group, `{group}` in the target is replaced (e.g. anger.{group}.gain). */
+  targetModifiers: ModifierDef[];
 }
 
 export interface LeaderDef {
@@ -251,7 +263,7 @@ export interface LeaderDef {
   start: Record<ResourceId, number>;
   startAnger: Record<GroupId, number>;
   leaningWeights: Record<LeaningId, number>;
-  ability: AbilityDef;
+  abilities: AbilityDef[];
   sprite: string;
 }
 
@@ -448,14 +460,14 @@ export type Input =
   | { kind: 'voteBudget'; sliders: Record<string, number>; presetId: string | null }
   | { kind: 'makeCompromise'; cardId: string; channelId: string; score: number }
   | { kind: 'buyUpgrade'; nodeId: string }
-  | { kind: 'useAbility' }
+  | { kind: 'useAbility'; abilityId: string; target?: string }
   | { kind: 'acceptDemand'; demandId: string }
   | { kind: 'rejectDemand'; demandId: string }
-  | { kind: 'acceptSpecial' }
-  | { kind: 'closeSpecial' }
   | { kind: 'rerollBudget' }
   | { kind: 'interveneRegionEvent'; eventId: string }
-  | { kind: 'ignoreRegionEvent'; eventId: string };
+  | { kind: 'ignoreRegionEvent'; eventId: string }
+  | { kind: 'acceptSpecial' }
+  | { kind: 'closeSpecial' };
 
 export interface RecordedInput {
   /** Number of effective ticks executed before this input (replay anchor). */
@@ -475,17 +487,7 @@ export interface OngoingInstance {
   label?: string;
 }
 
-export type ScheduledKind =
-  | 'budgetVote'
-  | 'compromise'
-  | 'special'
-  | 'chaos'
-  | 'pinSpawn'
-  | 'pinExpire'
-  | 'demandSpawn'
-  | 'demandExpire'
-  | 'regionEventSpawn'
-  | 'regionEventExpire';
+export type ScheduledKind = 'budgetVote' | 'compromise' | 'special' | 'chaos' | 'pinSpawn' | 'pinExpire' | 'demandSpawn' | 'demandExpire' | 'regionEventSpawn' | 'regionEventExpire' | 'abilityPulse';
 
 export interface ScheduledEntry {
   seq: number;
@@ -619,7 +621,8 @@ export interface GameState {
   pinSeq: number;
   pendingResponses: PendingResponse[];
   eventSeq: number;
-  abilityCharges: number;
+  /** Abilities already used this run (each works once per game). */
+  abilitiesUsed: string[];
   ownedUpgrades: string[];
   /** Catastrophes and special agents: drawn cards, the open card (core/specialCards.ts). */
   specials: SpecialsState;

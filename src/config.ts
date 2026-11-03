@@ -216,9 +216,10 @@ export const config = {
     supportBonus: 1,
   },
 
+  /** Leader abilities (phase 17): three per leader, each usable once per game (data/leaders.json). */
   abilities: {
-    chargesPerYear: 1,
-    rechargeQuarters: [5, 9, 13] as number[],
+    /** Game days per "month" of an ability (12 months = 360 days). */
+    monthDays: 30,
   },
 
   chaos: {
@@ -365,6 +366,16 @@ export const config = {
     draftBoost: 2,
   },
 
+  /** Regional events (regions workspace): one per kraj per year, whole-kraj animation + "!" pin. */
+  regionEvents: {
+    enabled: true,
+    /** Spawn window inside the year (days from the year's start / before its end). */
+    spawnFromDay: 5,
+    spawnBeforeYearEnd: 20,
+    /** Days the event (and its animation) stays open before it counts as ignored. */
+    responseDays: 30,
+  },
+
   /** Catastrophes and special agents (catastrophes workspace, core/specialCards.ts). */
   specials: {
     /** Special cards per game year (day and card drawn at the year's first quarter, `specials` stream). */
@@ -387,16 +398,6 @@ export const config = {
     revealDays: 91,
     /** How long the "now revealed" notification stays (real seconds). */
     toastSeconds: 7,
-  },
-
-  /** Regional events (regions workspace): one per kraj per year, whole-kraj animation + "!" pin. */
-  regionEvents: {
-    enabled: true,
-    /** Spawn window inside the year (days from the year's start / before its end). */
-    spawnFromDay: 5,
-    spawnBeforeYearEnd: 20,
-    /** Days the event (and its animation) stays open before it counts as ignored. */
-    responseDays: 30,
   },
 
   /** Compromise mini-games (UI only; the core only sees the final score). */

@@ -101,7 +101,8 @@ export function isValidOngoingTarget(t: string): boolean {
 
 /** Modifier target grammar from spec §4.8. */
 export function isValidModifierTarget(t: string): boolean {
-  if (['finances.negative', 'election.T_base', 'pc.perQuarter'].includes(t)) return true;
+  if (['finances.negative', 'election.T_base', 'pc.perQuarter', 'budget.change', 'budgetVote.redLinePenalty', 'party.positiveOnly'].includes(t)) return true;
+  if (/^compromise\.\w+\.score$/.test(t)) return true;
   const r = /^(\w+)\.(gain|loss|drift)$/.exec(t);
   if (r && (RESOURCE_IDS as readonly string[]).includes(r[1])) return true;
   const a = /^anger\.(\w+)\.(gain|loss)$/.exec(t);
@@ -257,10 +258,20 @@ export function loadGameData(
     dupCheck(leadersRaw.map((l, i) => ({ id: l.id, file: f, path: `[${i}]` })));
     leadersRaw.forEach((l, i) => {
       for (const k of ['name', 'party', 'profile'] as const) locKey(l[k], f, `[${i}].${k}`);
-      locKey(l.ability.name, f, `[${i}].ability.name`);
-      locKey(l.ability.description, f, `[${i}].ability.description`);
-      checkModifiers(l.ability.modifiers, f, `[${i}].ability`);
-      checkBundle(l.ability.bundle, f, `[${i}].ability.bundle`);
+      dupCheck(l.abilities.map((a, j) => ({ id: a.id, file: f, path: `[${i}].abilities[${j}]` })));
+      l.abilities.forEach((a, j) => {
+        const p = `[${i}].abilities[${j}]`;
+        locKey(a.name, f, `${p}.name`);
+        locKey(a.description, f, `${p}.description`);
+        checkModifiers(a.modifiers, f, p);
+        checkBundle(a.bundle, f, `${p}.bundle`);
+        if (a.pulses) {
+          checkBundle(a.pulses.bundle, f, `${p}.pulses.bundle`);
+          locKey(a.pulses.label, f, `${p}.pulses.label`);
+        }
+        // target modifiers name the chosen group as {group}: check them with a real group
+        checkModifiers(a.targetModifiers.map((m) => ({ ...m, target: m.target.replace('{group}', GROUP_IDS[0]) })), f, `${p}.target`);
+      });
     });
   }
 
@@ -542,7 +553,10 @@ export function loadGameData(
         offsets: Object.fromEntries(leadersRaw.map((l) => [l.id, r.offsets[l.id] ?? 0])),
       })),
     },
-    leaders: leadersRaw.map((l) => ({ ...l, ability: { ...l.ability, bundle: normalise(l.ability.bundle) } })) as LeaderDef[],
+    leaders: leadersRaw.map((l) => ({
+      ...l,
+      abilities: l.abilities.map((a) => ({ ...a, bundle: normalise(a.bundle), pulses: a.pulses && { ...a.pulses, bundle: normalise(a.pulses.bundle) } })),
+    })) as LeaderDef[],
     policies: policies.map((c) => normalise(c.item)) as PolicyCard[],
     compromises: compromises.map((c) => normalise(c.item)) as CompromiseCard[],
     events: events.map((e) => {

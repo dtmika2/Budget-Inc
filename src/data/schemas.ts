@@ -229,15 +229,27 @@ export const leaderSchema = z
     start: z.object(Object.fromEntries(RESOURCE_IDS.map((r) => [r, pct]))).strict(),
     startAnger: z.object(Object.fromEntries(GROUP_IDS.map((g) => [g, pct]))).strict(),
     leaningWeights: z.object(Object.fromEntries(LEANING_IDS.map((l) => [l, z.number().min(0)]))).strict(),
-    ability: z
-      .object({
-        id: z.string(),
-        name: z.string(),
-        description: z.string(),
-        modifiers: z.array(modifierSchema).default([]),
-        bundle: bundleSchema.default({}),
-      })
-      .strict(),
+    abilities: z
+      .array(
+        z
+          .object({
+            id: z.string().regex(/^[a-z0-9_]+$/),
+            name: z.string(),
+            description: z.string(),
+            icon: z.string(),
+            modifiers: z.array(modifierSchema).default([]),
+            bundle: bundleSchema.default({}),
+            pulses: z
+              .object({ everyDays: z.number().int().positive(), times: z.number().int().positive(), bundle: bundleSchema, label: z.string() })
+              .strict()
+              .nullable()
+              .default(null),
+            action: z.enum(['cancelEvent', 'halveAnger']).nullable().default(null),
+            targetModifiers: z.array(modifierSchema).default([]),
+          })
+          .strict(),
+      )
+      .min(1),
     sprite: z.string(),
   })
   .strict();

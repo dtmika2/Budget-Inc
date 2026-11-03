@@ -18,6 +18,8 @@
 - [x] P14 — Regional demands ("!") and pledges
 - [x] P15 — Region events (second map layer) and the tabbed region screen
 - [x] P16 — Budget vote: hand of 6 categories with re-roll, safe bands, zones and advisors
+- [x] P17 — Three once-per-game abilities per leader with pixel icons
+- [x] P18 — Calm budget-vote layout
 
 Every phase gate passed (`typecheck`, `lint`, `test` — 98 tests, `build`, and from P5 on `simulate --runs 200 --bot random`).
 

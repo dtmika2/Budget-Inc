@@ -3,6 +3,7 @@ import { DebugOverlay } from '../DebugOverlay';
 import { LeaderDock } from '../hud/LeaderDock';
 import { TopBar } from '../hud/TopBar';
 import { CzMap, RegionScreen } from '@/regions';
+import { AbilityPicker } from '../modals/AbilityPicker';
 import { BudgetVoteModal } from '../modals/BudgetVoteModal';
 import { CompromiseModal } from '../modals/CompromiseModal';
 import { DraftModal } from '../modals/DraftModal';
@@ -56,6 +57,7 @@ export function Game() {
       {phase === 'ending' && <EndingCard />}
       {phase === 'election' && <ElectionNight />}
       {modal === 'upgrades' && <UpgradeTree />}
+      {modal === 'ability' && <AbilityPicker />}
       {(modal === 'pause' || modal === 'confirmRestart' || modal === 'confirmMenu') && <PauseMenu />}
       {modal === 'settings' && <SettingsModal />}
       <Tutorial />

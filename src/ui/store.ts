@@ -18,7 +18,7 @@ import { REGION_PATHS } from '@/regions/regionsPath';
 import { loadSettings, recordScore, saveSettings, setTutorialSeen, tutorialSeen, type Settings } from './persist';
 
 export type Screen = 'menu' | 'howto' | 'settings' | 'select' | 'game' | 'final' | 'dataError';
-export type Modal = null | 'upgrades' | 'pause' | 'settings' | 'confirmRestart' | 'confirmMenu';
+export type Modal = null | 'upgrades' | 'pause' | 'settings' | 'confirmRestart' | 'confirmMenu' | 'ability';
 export type TutorialStep = 'draft' | 'topbar' | 'map' | 'panel' | 'pin' | 'upgrades';
 export const TUTORIAL_STEPS: TutorialStep[] = ['draft', 'topbar', 'map', 'panel', 'pin', 'upgrades'];
 
@@ -80,6 +80,8 @@ export interface UiState {
   selectedRegion: string | null;
   /** Open tab of the region screen (regions workspace). */
   regionTab: RegionTab;
+  /** Ability whose target picker is open (modal 'ability'). */
+  abilityPick: string | null;
   setup: { leader: LeaderId; difficulty: DifficultyId };
   newBest: boolean;
   electionRevealed: boolean;
@@ -133,6 +135,7 @@ export class Store {
       settings,
       selectedRegion: null,
       regionTab: 'main',
+      abilityPick: null,
       setup: { leader: this.data?.leaders[0]?.id ?? 'mupka', difficulty: config.defaultDifficulty },
       newBest: false,
       electionRevealed: false,
@@ -199,6 +202,7 @@ export class Store {
       tutorial: null,
       selectedRegion: null,
       regionTab: 'main',
+      abilityPick: null,
       newBest: false,
       electionRevealed: false,
     };
@@ -386,6 +390,14 @@ export class Store {
       }
       case 'mandatory_growth':
         add({ kind: 'news', titleKey: 'budgetVote.title', textKey: 'popup.mandatoryGrowth', params: { pct: config.budgetVote.mandatoryGrowthPct }, tone: 'neutral', deltas: e.deltas });
+        return;
+      case 'ability_pulse': {
+        const a = sim.leaderDef.abilities.find((x) => x.id === e.abilityId);
+        if (a?.pulses) add({ kind: 'news', titleKey: a.name, textKey: a.pulses.label, params: { n: Number(e.n), of: Number(e.of) }, tone: 'good', deltas: e.deltas });
+        return;
+      }
+      case 'event_condemned':
+        add({ kind: 'news', titleKey: 'history.condemned', textKey: `ability.pick.${e.kind}`, tone: 'good' });
         return;
       case 'region_event_spawned': {
         const tpl = sim.data.regionEvents.find((x) => x.id === e.templateId);

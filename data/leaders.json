@@ -6,16 +6,144 @@
     "profile": "leader.mupka.profile",
     "color": "#2f6fe4",
     "colorLight": "#9fbef7",
-    "start": { "finances": 60, "support": 40, "coalition": 55, "prestige": 60 },
-    "startAnger": { "oligarchs": 35, "media": 30, "eu": 20, "activists": 40, "pensioners": 45 },
-    "leaningWeights": { "libertarianism": 35, "conservatism": 35, "populism": 10, "socialism": 7, "progressivism": 8, "fascism": 3, "communism": 2 },
-    "ability": {
-      "id": "austerity_freeze",
-      "name": "ability.austerity_freeze.name",
-      "description": "ability.austerity_freeze.desc",
-      "modifiers": [{ "type": "multiplier", "target": "finances.negative", "value": 0.5, "days": 30 }],
-      "bundle": {}
+    "start": {
+      "finances": 60,
+      "support": 40,
+      "coalition": 55,
+      "prestige": 60
     },
+    "startAnger": {
+      "oligarchs": 35,
+      "media": 30,
+      "eu": 20,
+      "activists": 40,
+      "pensioners": 45
+    },
+    "leaningWeights": {
+      "libertarianism": 35,
+      "conservatism": 35,
+      "populism": 10,
+      "socialism": 7,
+      "progressivism": 8,
+      "fascism": 3,
+      "communism": 2
+    },
+    "abilities": [
+      {
+        "id": "press_release",
+        "name": "ability.press_release.name",
+        "description": "ability.press_release.desc",
+        "icon": "press_release",
+        "modifiers": [
+          {
+            "type": "multiplier",
+            "target": "anger.media.gain",
+            "value": 0.5,
+            "days": 360
+          },
+          {
+            "type": "multiplier",
+            "target": "support.loss",
+            "value": 0.75,
+            "days": 360,
+            "source": "chaos"
+          },
+          {
+            "type": "multiplier",
+            "target": "support.loss",
+            "value": 0.75,
+            "days": 360,
+            "source": "special"
+          },
+          {
+            "type": "add",
+            "target": "compromise.press.score",
+            "value": 0.15,
+            "days": 360
+          }
+        ],
+        "bundle": {},
+        "pulses": {
+          "everyDays": 30,
+          "times": 12,
+          "bundle": {
+            "anger": {
+              "media": {
+                "min": -3,
+                "max": -3
+              }
+            },
+            "effects": {
+              "support": {
+                "min": 0.5,
+                "max": 0.5
+              }
+            }
+          },
+          "label": "ability.press_release.pulse"
+        },
+        "action": null,
+        "targetModifiers": []
+      },
+      {
+        "id": "godfathers",
+        "name": "ability.godfathers.name",
+        "description": "ability.godfathers.desc",
+        "icon": "godfathers",
+        "modifiers": [
+          {
+            "type": "multiplier",
+            "target": "anger.oligarchs.gain",
+            "value": 0.5,
+            "days": 360
+          },
+          {
+            "type": "multiplier",
+            "target": "anger.oligarchs.loss",
+            "value": 1.5,
+            "days": 360
+          }
+        ],
+        "bundle": {
+          "anger": {
+            "oligarchs": {
+              "min": -20,
+              "max": -20
+            },
+            "media": {
+              "min": 5,
+              "max": 5
+            }
+          }
+        },
+        "pulses": {
+          "everyDays": 30,
+          "times": 12,
+          "bundle": {
+            "effects": {
+              "finances": {
+                "min": 2,
+                "max": 2
+              }
+            }
+          },
+          "label": "ability.godfathers.pulse"
+        },
+        "action": null,
+        "targetModifiers": []
+      },
+      {
+        "id": "condemnation",
+        "name": "ability.condemnation.name",
+        "description": "ability.condemnation.desc",
+        "icon": "condemnation",
+        "modifiers": [],
+        "bundle": {},
+        "pulses": null,
+        "action": "cancelEvent",
+        "targetModifiers": []
+      }
+    ],
     "sprite": "mupka"
   },
   {
@@ -25,16 +153,115 @@
     "profile": "leader.abis.profile",
     "color": "#14b8a6",
     "colorLight": "#8de8dc",
-    "start": { "finances": 50, "support": 55, "coalition": 45, "prestige": 40 },
-    "startAnger": { "oligarchs": 25, "media": 50, "eu": 45, "activists": 35, "pensioners": 20 },
-    "leaningWeights": { "libertarianism": 8, "conservatism": 15, "populism": 35, "socialism": 30, "progressivism": 5, "fascism": 3, "communism": 4 },
-    "ability": {
-      "id": "campaign_mode",
-      "name": "ability.campaign_mode.name",
-      "description": "ability.campaign_mode.desc",
-      "modifiers": [],
-      "bundle": { "effects": { "support": { "min": 10, "max": 10 } }, "anger": { "media": { "min": 5, "max": 5 } } }
+    "start": {
+      "finances": 50,
+      "support": 55,
+      "coalition": 45,
+      "prestige": 40
     },
+    "startAnger": {
+      "oligarchs": 25,
+      "media": 50,
+      "eu": 45,
+      "activists": 35,
+      "pensioners": 20
+    },
+    "leaningWeights": {
+      "libertarianism": 8,
+      "conservatism": 15,
+      "populism": 35,
+      "socialism": 30,
+      "progressivism": 5,
+      "fascism": 3,
+      "communism": 4
+    },
+    "abilities": [
+      {
+        "id": "subsidies",
+        "name": "ability.subsidies.name",
+        "description": "ability.subsidies.desc",
+        "icon": "subsidies",
+        "modifiers": [
+          {
+            "type": "multiplier",
+            "target": "budget.change",
+            "value": 2,
+            "days": 360
+          }
+        ],
+        "bundle": {},
+        "pulses": null,
+        "action": null,
+        "targetModifiers": []
+      },
+      {
+        "id": "microbossing",
+        "name": "ability.microbossing.name",
+        "description": "ability.microbossing.desc",
+        "icon": "microbossing",
+        "modifiers": [
+          {
+            "type": "multiplier",
+            "target": "coalition.loss",
+            "value": 0,
+            "days": 360
+          },
+          {
+            "type": "multiplier",
+            "target": "budgetVote.redLinePenalty",
+            "value": 0,
+            "days": 360
+          },
+          {
+            "type": "add",
+            "target": "party.positiveOnly",
+            "value": 1,
+            "days": 360
+          }
+        ],
+        "bundle": {},
+        "pulses": {
+          "everyDays": 30,
+          "times": 12,
+          "bundle": {
+            "effects": {
+              "coalition": {
+                "min": 1,
+                "max": 1
+              }
+            }
+          },
+          "label": "ability.microbossing.pulse"
+        },
+        "action": null,
+        "targetModifiers": []
+      },
+      {
+        "id": "stb",
+        "name": "ability.stb.name",
+        "description": "ability.stb.desc",
+        "icon": "stb",
+        "modifiers": [],
+        "bundle": {
+          "anger": {
+            "media": {
+              "min": 3,
+              "max": 3
+            }
+          }
+        },
+        "pulses": null,
+        "action": "halveAnger",
+        "targetModifiers": [
+          {
+            "type": "multiplier",
+            "target": "anger.{group}.gain",
+            "value": 0.7,
+            "days": 180
+          }
+        ]
+      }
+    ],
     "sprite": "abis"
   }
 ]
