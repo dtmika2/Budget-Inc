@@ -11,3 +11,9 @@ Source of truth: `budget-inc-spec.md` (v1.1). Execution order: `budget-inc-build
 7. No network calls at runtime. Budget chapter names are never shown to the player.
 8. Phase gate: `npm run typecheck && npm run lint && npm test && npm run build` (+ `npm run simulate -- --runs 200 --bot random`).
 9. Commit after each phase: `phase N: <summary>`. Track phases in `PROGRESS.md`.
+
+## Verification scales with the change
+
+- **Small tweaks** (tuning a value, adjusting an animation or style, a one-component fix, a follow-up to the last change): run only `npm run typecheck`, plus the test file that covers the touched code if one exists. Commit, push, start `npm run dev`, and give the user the local URL so they can check it themselves. No browser screenshot scripts, measurement runs, repeated test loops or waiting on the Pages deploy.
+- **Big tasks** (a new mechanic, a phase from the build plan, work from a large spec or update document, anything touching `src/core/` rules or balance): run the full phase gate (rule 8) and do browser checks as needed.
+- When unsure, treat it as small and say what was not verified.
