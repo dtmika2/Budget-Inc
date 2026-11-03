@@ -340,9 +340,10 @@ export const config = {
 
   /** Catastrophes and special agents (catastrophes workspace, core/specialCards.ts). */
   specials: {
-    /** Cards drawn per game year (days and cards drawn at the year's first quarter, `specials` stream). */
-    catastrophesPerYear: 2,
-    agentsPerYear: 2,
+    /** Special cards per game year (day and card drawn at the year's first quarter, `specials` stream). */
+    perYear: 1,
+    /** Chance that a drawn card is a special agent; otherwise it is a catastrophe. */
+    agentChance: 0.5,
     /** Spawn window inside the year (days from the year's start / before its end). */
     spawnFromDay: 15,
     spawnBeforeYearEnd: 20,

@@ -71,7 +71,7 @@ function cardsFor(sim: Simulation, kind: SpecialKind): SpecialCardDef[] {
   return sim.data.specialCards.filter((c) => c.kind === kind && (!c.availableFor || c.availableFor.includes(sim.state.leader)));
 }
 
-/** At each year-start quarter: draw this year's catastrophes and agents (days and cards). */
+/** At each year-start quarter: draw this year's special cards (kind, day and card). */
 export function scheduleYearSpecials(sim: Simulation): void {
   const { cfg, state } = sim;
   const sp = cfg.specials;
@@ -83,10 +83,12 @@ export function scheduleYearSpecials(sim: Simulation): void {
   const to = Math.min(start + yearDays(sim) - sp.spawnBeforeYearEnd, lastDay - 1);
   if (to < from) return;
 
-  const kinds: SpecialKind[] = [...Array<SpecialKind>(sp.catastrophesPerYear).fill('catastrophe'), ...Array<SpecialKind>(sp.agentsPerYear).fill('agent')];
   const days: number[] = [];
   const usedCards = new Set<string>();
-  for (const kind of kinds) {
+  for (let n = 0; n < sp.perYear; n++) {
+    // each card is an agent with agentChance, otherwise a catastrophe (the other kind if one has no cards)
+    let kind: SpecialKind = rng.next() < sp.agentChance ? 'agent' : 'catastrophe';
+    if (cardsFor(sim, kind).length === 0) kind = kind === 'agent' ? 'catastrophe' : 'agent';
     const pool = cardsFor(sim, kind);
     if (pool.length === 0) continue;
     // a day at least minGapDays from the other cards of this year (a few tries, then give up on this card)

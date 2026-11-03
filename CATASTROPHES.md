@@ -34,8 +34,9 @@ A special card is one card the player cannot refuse. It checks the state at the 
 - **Catastrophe:** check failed → `onFail` (sanction); check passed → nothing.
 - **Special agent:** check passed → `onPass` (bonus); check failed → nothing.
 
-Every game year (Q1, Q5, Q9, Q13) draws `config.specials.catastrophesPerYear` catastrophes and
-`agentsPerYear` agents on random days, at least `minGapDays` apart (own RNG stream `specials`). They are
+Every game year (Q1, Q5, Q9, Q13) draws `config.specials.perYear` special cards (1) on random days, at
+least `minGapDays` apart; each is an agent with `agentChance` (0.5), otherwise a catastrophe (own RNG
+stream `specials`). They are
 surprises: nothing announces them, and the timeline shows them only after they happened. When one fires,
 the game pauses (phase `special`): the card animates in, "Přijmout" runs the check and reveals the result, and
 "Pokračovat" lets the game run on.
