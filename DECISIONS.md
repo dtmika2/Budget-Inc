@@ -37,6 +37,11 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 - §5.3 — If all available leanings have weight 0, leanings are drawn uniformly (avoids a dead draft).
 - §5.2 — Abilities can be used while the game runs or during the draft (not during the budget vote / after the run).
 - §6.1 — Rerolls: cost = `rerollBaseCost × rerollCostFactor^n` (1, 2, 4, …) in PC (`config.draft.rerollCurrency`, [OPEN]); the counter lives in the per-quarter draft state, so it resets each quarter.
+- §7.1 — A chaos event's chance is capped at 1 after the difficulty multiplier; its `quarterOffset` is capped at `config.chaos.maxQuarterOffset` (3).
+- §7.3 — Responses are accepted in any non-terminal phase (the countdown only runs while unpaused, but a click on a visible pop-up is honoured); a timed-out response always applies the event's `default`, whatever `responseId` was sent.
+- §7.4 — Pin day, region (weighted by seats = w_r) and reward (weighted by `weight`) are all drawn at quarter start from the `opportunities` stream; the reward is revealed on tap. A pin's lifetime is counted in absolute days, so a pin spawned on day 85 can live into the next quarter.
+- §4.7 — The budget-vote roll uses its own `budgetVote` stream; the fail branch is applied as a fixed bundle through the same pipeline (so difficulty and modifiers affect it like any other loss).
+- §8 — Upgrades can be bought in any non-terminal phase (the tree pauses the clock and is reachable at any time).
 
 ## Blockers
 _None._
