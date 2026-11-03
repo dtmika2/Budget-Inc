@@ -33,6 +33,8 @@ export interface SpecialCardDef {
   onPass?: EffectBundle;
   weight: number;
   availableFor?: LeaderId[];
+  /** Pixel-art scene shown on the card (src/catastrophes/cardArt.tsx); defaults by kind. */
+  art?: string;
 }
 
 export interface UpcomingSpecial {
@@ -208,6 +210,23 @@ export function forceOpenSpecial(sim: Simulation, cardId: string): boolean {
   const id = `preview${state.specials.seq++}`;
   state.specials.upcoming.push({ id, cardId, fireAbsDay: sim.absDay });
   return openSpecial(sim, { seq: -1, kind: 'special', absDay: sim.absDay, payload: { id } });
+}
+
+/**
+ * Preview page (special.html): show the warning banner for `cardId`, `daysAhead` days out. The card is
+ * only announced, not scheduled, so it never fires. Replaces an earlier preview warning and closes an
+ * open card so the banner is visible.
+ */
+export function forceWarning(sim: Simulation, cardId: string, daysAhead: number): boolean {
+  const { state } = sim;
+  if (!specialCard(sim, cardId)) return false;
+  if (state.phase === 'special') {
+    state.specials.open = null;
+    state.phase = 'running';
+  }
+  state.specials.upcoming = state.specials.upcoming.filter((u) => !u.id.startsWith('warn'));
+  state.specials.upcoming.push({ id: `warn${state.specials.seq++}`, cardId, fireAbsDay: sim.absDay + daysAhead });
+  return true;
 }
 
 /** Headless bots and tests: accept and close. */

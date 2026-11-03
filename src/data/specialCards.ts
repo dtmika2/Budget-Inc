@@ -27,6 +27,8 @@ export const specialCardSchema = z
     onPass: bundleSchema.optional(),
     weight: z.number().positive().default(1),
     availableFor: z.array(z.string()).optional(),
+    /** Pixel-art scene key (src/catastrophes/cardArt.tsx). */
+    art: z.string().optional(),
   })
   .strict()
   .refine((c) => (c.kind === 'catastrophe' ? !!c.onFail && !c.onPass : !!c.onPass && !c.onFail), {

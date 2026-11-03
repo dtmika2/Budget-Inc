@@ -17,6 +17,7 @@ not edit them.
 | `src/core/specialCards.ts` | special cards: yearly draw, warnings, the check, sanction / bonus, accept / close |
 | `src/data/specialCards.ts` | special-card schema and data checks (called from the loader) |
 | `src/catastrophes/Layer.tsx` | the workspace's mount point: `PopupStack` = news pop-ups + special-card warnings + the special card |
+| `src/catastrophes/cardArt.tsx` | pixel-art scenes for the cards (24 x 14 letter grids, like the leader portraits) |
 | `src/catastrophes/SpecialCard.tsx`, `CatastropheFx.tsx`, `AgentFx.tsx`, `SpecialWarnings.tsx`, `specialText.ts` | the special card (drop + earthquake / flip + shine), the warning banner, condition texts |
 | `special.html`, `src/catastrophes/preview/` | preview page: the game screen, paused, with a panel that opens any special card (`forceOpenSpecial`) |
 | `tests/specialCards.test.ts` | special-card tests |
@@ -46,9 +47,14 @@ pauses (phase `special`): the card animates in, "Přijmout" runs the check and r
   "condition": { "type": "resource", "resource": "finances", "op": "gte", "value": 40 },
   "onFail": { "effects": { "support": { "min": -6, "max": -3 } } },   // catastrophe: sanction
   // agent: "onPass": { … } instead (bonus). Both are normal effect bundles: effects, anger, ongoing, pc, regions, budgetChanges
+  "art": "finance_crash",                     // optional: pixel scene (cardArt.tsx); default storm / diplomat
   "weight": 1,                                // optional: how often it is drawn
   "availableFor": ["mupka"] }                 // optional: only these leaders
 ```
+
+Scenes in `cardArt.tsx`: `finance_crash`, `media_storm`, `flood`, `storm` (catastrophe default),
+`diplomat` (agent default), `analyst`. A new scene is a new entry there: 14 rows of 24 letters, one letter
+per pixel, colours from the `BASE` palette (`.` = transparent).
 
 Conditions (`op` is `gte` = at least, `lte` = at most):
 - `{ "type": "resource", "resource": "finances" | "support" | "coalition" | "prestige", … }`
@@ -98,7 +104,8 @@ come on their own a few times a year (the banner at the top right warns a week a
 
 To watch a card open without waiting for it, use the preview page:
 `http://localhost:5173/special.html?card=dummy_cat_finances` (any card id; `&leader=abis` for the other
-leader). The panel at the bottom left opens any card again and replays its animation. The page is also
+leader). The panel at the bottom left opens any card again and replays its animation; "Ukázat varování"
+shows the warning banner for the selected card (top right, as 3 days ahead). The page is also
 part of the build (`dist/special.html`).
 
 ```bash

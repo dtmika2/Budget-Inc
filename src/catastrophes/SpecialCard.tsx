@@ -12,6 +12,7 @@ import { RangeChips } from '@ui/modals/RangeChips';
 import { getStore, useStore } from '@ui/store';
 import { AgentCardBack, AgentFx } from './AgentFx';
 import { CatastropheFx } from './CatastropheFx';
+import { CardArt } from './cardArt';
 import { conditionName, conditionText, conditionValue } from './specialText';
 
 /** Shake the game under a landing catastrophe (skipped with reduced motion). */
@@ -57,6 +58,9 @@ export function SpecialCard() {
         </span>
         {t(`special.kind.${kind}`)}
       </header>
+      <div className="special-card__art">
+        <CardArt art={card.art} kind={kind} />
+      </div>
       <div className="special-card__body">
         <h2 id="special-title" className="special-card__title">
           {t(card.title)}

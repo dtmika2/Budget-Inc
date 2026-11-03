@@ -1,42 +1,7 @@
 [
-  {
-    "id": "dummy_cat_finances",
-    "kind": "catastrophe",
-    "title": "special.dummy_cat_finances.title",
-    "text": "special.dummy_cat_finances.text",
-    "condition": { "type": "resource", "resource": "finances", "op": "gte", "value": 40 },
-    "onFail": { "effects": { "support": { "min": -6, "max": -3 }, "coalition": { "min": -4, "max": -2 } } }
-  },
-  {
-    "id": "dummy_cat_media",
-    "kind": "catastrophe",
-    "title": "special.dummy_cat_media.title",
-    "text": "special.dummy_cat_media.text",
-    "condition": { "type": "anger", "group": "media", "op": "lte", "value": 60 },
-    "onFail": { "effects": { "support": { "min": -5, "max": -2 }, "prestige": { "min": -4, "max": -2 } } }
-  },
-  {
-    "id": "dummy_cat_region",
-    "kind": "catastrophe",
-    "title": "special.dummy_cat_region.title",
-    "text": "special.dummy_cat_region.text",
-    "condition": { "type": "region", "region": "CZ080", "op": "gte", "value": 35 },
-    "onFail": { "regions": { "CZ080": { "min": -6, "max": -3 } }, "effects": { "coalition": { "min": -3, "max": -1 } } }
-  },
-  {
-    "id": "dummy_agent_pc",
-    "kind": "agent",
-    "title": "special.dummy_agent_pc.title",
-    "text": "special.dummy_agent_pc.text",
-    "condition": { "type": "pc", "op": "gte", "value": 3 },
-    "onPass": { "effects": { "prestige": { "min": 3, "max": 5 }, "support": { "min": 2, "max": 3 } } }
-  },
-  {
-    "id": "dummy_agent_support",
-    "kind": "agent",
-    "title": "special.dummy_agent_support.title",
-    "text": "special.dummy_agent_support.text",
-    "condition": { "type": "resource", "resource": "support", "op": "gte", "value": 45 },
-    "onPass": { "effects": { "finances": { "min": 2, "max": 4 }, "coalition": { "min": 2, "max": 4 } } }
-  }
+  {"id": "dummy_cat_finances", "kind": "catastrophe", "title": "special.dummy_cat_finances.title", "text": "special.dummy_cat_finances.text", "art": "finance_crash", "condition": {"type": "resource", "resource": "finances", "op": "gte", "value": 40}, "onFail": {"effects": {"support": {"min": -6, "max": -3}, "coalition": {"min": -4, "max": -2}}}},
+  {"id": "dummy_cat_media", "kind": "catastrophe", "title": "special.dummy_cat_media.title", "text": "special.dummy_cat_media.text", "art": "media_storm", "condition": {"type": "anger", "group": "media", "op": "lte", "value": 60}, "onFail": {"effects": {"support": {"min": -5, "max": -2}, "prestige": {"min": -4, "max": -2}}}},
+  {"id": "dummy_cat_region", "kind": "catastrophe", "title": "special.dummy_cat_region.title", "text": "special.dummy_cat_region.text", "art": "flood", "condition": {"type": "region", "region": "CZ080", "op": "gte", "value": 35}, "onFail": {"regions": {"CZ080": {"min": -6, "max": -3}}, "effects": {"coalition": {"min": -3, "max": -1}}}},
+  {"id": "dummy_agent_pc", "kind": "agent", "title": "special.dummy_agent_pc.title", "text": "special.dummy_agent_pc.text", "art": "diplomat", "condition": {"type": "pc", "op": "gte", "value": 3}, "onPass": {"effects": {"prestige": {"min": 3, "max": 5}, "support": {"min": 2, "max": 3}}}},
+  {"id": "dummy_agent_support", "kind": "agent", "title": "special.dummy_agent_support.title", "text": "special.dummy_agent_support.text", "art": "analyst", "condition": {"type": "resource", "resource": "support", "op": "gte", "value": 45}, "onPass": {"effects": {"finances": {"min": 2, "max": 4}, "coalition": {"min": 2, "max": 4}}}}
 ]
