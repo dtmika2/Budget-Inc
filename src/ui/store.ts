@@ -8,7 +8,7 @@ import { useRef, useSyncExternalStore } from 'react';
 import { config } from '@/config';
 import type { LoadResult } from '@data/loader';
 import { Simulation } from '@core/simulation';
-import type { Deltas, DifficultyId, GameData, GroupId, Input, LeaderId, LogEntry } from '@core/types';
+import type { Deltas, DifficultyId, GameData, GroupId, Input, LeaderId, LogEntry, ResourceId } from '@core/types';
 import { GROUP_IDS } from '@core/types';
 import { Rng } from '@core/rng';
 import { t } from '@i18n/index';
@@ -32,11 +32,33 @@ export interface Popup {
   keyParams?: Record<string, string>;
   tone: 'bad' | 'good' | 'neutral';
   deltas?: Deltas;
+  /** Where a click on the pop-up takes the player (phase 20). */
+  target?: PopupTarget;
   instanceId?: string;
   eventId?: string;
   /** Remaining real milliseconds (news: auto-dismiss; response: countdown). */
   remainingMs: number;
   totalMs: number;
+}
+
+/** A place in the HUD a pop-up (or anything else) can take the player to. */
+export type PopupTarget =
+  | { kind: 'region'; code: string; tab: RegionTab }
+  | { kind: 'resource'; id: ResourceId | 'projection' }
+  | { kind: 'panel'; tab: PanelTab };
+
+export type PanelTab = 'trend' | 'effects' | 'history';
+
+/** Where a log entry belongs: its kraj, else the resource it moved most, else the interest groups, else history. */
+export function targetOf(e: LogEntry): PopupTarget {
+  if (typeof e.region === 'string' && e.region) {
+    const open = e.type === 'region_event_spawned' || e.type === 'demand_spawned';
+    return { kind: 'region', code: e.region, tab: open ? 'events' : 'main' };
+  }
+  const res = Object.entries(e.deltas?.resources ?? {}).sort((a, b) => Math.abs(b[1] ?? 0) - Math.abs(a[1] ?? 0))[0];
+  if (res && Math.abs(res[1] ?? 0) >= 0.05) return { kind: 'resource', id: res[0] as ResourceId };
+  if (Object.keys(e.deltas?.anger ?? {}).length) return { kind: 'panel', tab: 'trend' };
+  return { kind: 'panel', tab: 'history' };
 }
 
 export interface Floater {
@@ -80,6 +102,10 @@ export interface UiState {
   selectedRegion: string | null;
   /** Open tab of the region screen (regions workspace). */
   regionTab: RegionTab;
+  /** Resource (or projection) whose top-bar detail is open. */
+  resourceDetail: ResourceId | 'projection' | null;
+  /** Open tab of the side panel. */
+  panelTab: PanelTab;
   /** Ability whose target picker is open (modal 'ability'). */
   abilityPick: string | null;
   setup: { leader: LeaderId; difficulty: DifficultyId };
@@ -140,6 +166,8 @@ export class Store {
       settings,
       selectedRegion: null,
       regionTab: 'main',
+      resourceDetail: null,
+      panelTab: 'trend',
       abilityPick: null,
       setup: { leader: this.data?.leaders[0]?.id ?? 'mupka', difficulty: config.defaultDifficulty },
       newBest: false,
@@ -207,6 +235,8 @@ export class Store {
       tutorial: null,
       selectedRegion: null,
       regionTab: 'main',
+      resourceDetail: null,
+      panelTab: 'trend',
       abilityPick: null,
       newBest: false,
       electionRevealed: false,
@@ -306,14 +336,18 @@ export class Store {
     let popups = this.ui.popups;
     let floaters = this.ui.floaters;
     const now = performance.now();
+    let entry: LogEntry | null = null;
     const add = (p: Omit<Popup, 'id' | 'remainingMs' | 'totalMs'>) => {
       const ms = (p.kind === 'response' ? config.popups.responseTimeoutSec : config.popups.popupSeconds) * 1000;
-      popups = [...popups, { ...p, id: ++this.popupSeq, remainingMs: ms, totalMs: ms }];
+      const target = p.target ?? (entry ? targetOf(entry) : undefined);
+      popups = [...popups, { ...p, target, id: ++this.popupSeq, remainingMs: ms, totalMs: ms }];
     };
     for (const e of newEntries) {
       if (e.deltas && !this.ui.settings.reducedMotion) floaters = [...floaters, ...this.floatersFor(e.deltas, now)];
+      entry = e;
       this.popupFor(e, add);
     }
+    entry = null;
     // anger warnings: once per crossing of warnAt, re-armed below rearmBelow
     for (const g of GROUP_IDS) {
       const a = sim.state.anger[g];
@@ -485,6 +519,20 @@ export class Store {
       this.dispatch({ kind: 'respond', eventInstanceId: p.instanceId!, responseId: ev?.responses?.default ?? '', timedOut: true });
     }
     return changed || timedOut.length > 0;
+  }
+
+  /** Take the player to a place in the HUD (a pop-up's target, a history row, ...). */
+  goTo(target: PopupTarget): void {
+    if (target.kind === 'region') this.setUi({ selectedRegion: target.code, regionTab: target.tab, resourceDetail: null });
+    else if (target.kind === 'resource') this.setUi({ resourceDetail: target.id, selectedRegion: null });
+    else this.setUi({ panelTab: target.tab, drawerOpen: this.ui.isMobile, resourceDetail: null });
+  }
+
+  /** A click on a news pop-up: go to its target and close it. */
+  openPopup(id: number): void {
+    const p = this.ui.popups.find((x) => x.id === id);
+    this.dismissPopup(id);
+    if (p?.target) this.goTo(p.target);
   }
 
   dismissPopup(id: number): void {

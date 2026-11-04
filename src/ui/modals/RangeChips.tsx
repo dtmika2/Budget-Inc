@@ -3,6 +3,7 @@ import type { PreviewRanges } from '@core/effects';
 import type { Range } from '@core/types';
 import { GROUP_IDS, RESOURCE_IDS } from '@core/types';
 import { fmtSigned, t } from '@i18n/index';
+import { GROUP_COLOR, RESOURCE_COLOR } from '../colors';
 import { mid, rangeText, tone } from '../format';
 
 interface Props {
@@ -14,13 +15,13 @@ interface Props {
   groupRegions?: number;
 }
 
-function chip(key: string, label: string, r: Range | undefined, anger: boolean, compact: boolean) {
+function chip(key: string, label: string, r: Range | undefined, anger: boolean, compact: boolean, color?: string) {
   if (!r) return null;
   const tn = tone(mid(r), anger);
   const arrow = anger ? (mid(r) > 0 ? '▲' : '▼') : '';
   return (
-    <li key={key} className={`chip chip--${tn}`}>
-      <span className="chip__label">{label}</span>
+    <li key={key} className={`chip chip--${tn}`} style={color ? { ['--chip-c' as string]: color } : undefined}>
+      <span className={`chip__label${color ? ' chip__label--key' : ''}`}>{label}</span>
       <span className="chip__value">
         {arrow}
         {compact ? rangeText(r) : rangeText(r)}
@@ -35,14 +36,14 @@ export function RangeChips({ preview, all = false, compact = false, groupRegions
     if (!range && !all) return null;
     if (!range)
       return (
-        <li key={r} className="chip chip--neutral">
-          <span className="chip__label">{t(`resource.short.${r}`)}</span>
+        <li key={r} className="chip chip--neutral" style={{ ['--chip-c' as string]: RESOURCE_COLOR[r] }}>
+          <span className="chip__label chip__label--key">{t(`resource.short.${r}`)}</span>
           <span className="chip__value">0</span>
         </li>
       );
-    return chip(r, t(`resource.short.${r}`), range, false, compact);
+    return chip(r, t(`resource.short.${r}`), range, false, compact, RESOURCE_COLOR[r]);
   });
-  const anger = GROUP_IDS.map((g) => chip(`a-${g}`, t(`group.${g}`), preview.anger[g], true, compact));
+  const anger = GROUP_IDS.map((g) => chip(`a-${g}`, t(`group.${g}`), preview.anger[g], true, compact, GROUP_COLOR[g]));
   const hasAnger = GROUP_IDS.some((g) => preview.anger[g]);
   const regionCodes = Object.keys(preview.regions ?? {});
   const grouped = groupRegions !== undefined && regionCodes.length > groupRegions;

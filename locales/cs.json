@@ -764,5 +764,18 @@
   "hover.anger.critical": "Těsně před výbuchem! Na {n} přijde konec vlády nebo trvalý pokles podpory.",
   "hover.anger.scale": "Naštvanost 0–100: čím víc, tím hůř a tím výš je hranice pro výhru voleb.",
   "hover.ability.use": "Klikni a použij. Jde to jen jednou za hru.",
-  "hover.ability.pick": "Klikni a vyber cíl. Jde to jen jednou za hru."
+  "hover.ability.pick": "Klikni a vyber cíl. Jde to jen jednou za hru.",
+  "panel.page": "{n} / {of}",
+  "panel.newer": "Novější",
+  "panel.older": "Starší",
+  "hud.dateShort": "Q{q} · týden {w}",
+  "lanes.resources": "Zdroje",
+  "lanes.groups": "Skupiny · naštvanost",
+  "lanes.kraje": "Kraje",
+  "lanes.noGroups": "Žádnou skupinu nezajímá.",
+  "lanes.noKraje": "Na kraje zvlášť nepůsobí.",
+  "lanes.moreKraje": "+ {n} dalších krajů",
+  "lanes.ongoing": "{what} {v}/den po {days} dní",
+  "lanes.pc": "Politický kapitál {v}",
+  "lanes.chaos": "Může vyvolat událost ({n}×)"
 }

@@ -15,10 +15,8 @@ export interface Series {
   get: (p: TrendPoint) => number;
 }
 
-/** Categorical slots for the dark surface, fixed order (validated: tools in the dataviz skill). */
-export const SERIES_COLORS = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181'];
 
-const H = 132;
+const DEFAULT_H = 132;
 const PAD = { l: 26, r: 6, t: 6, b: 18 };
 
 function useWidth<T extends HTMLElement>(): [React.RefObject<T>, number] {
@@ -41,13 +39,17 @@ export function TrendChart({
   series,
   title,
   labelOf,
+  height = DEFAULT_H,
 }: {
   points: readonly TrendPoint[];
   series: Series[];
   title: string;
   /** Tooltip / table label of a weekly point. */
   labelOf: (p: TrendPoint) => string;
+  /** Plot height in px (the side panel lets it fill the free space). */
+  height?: number;
 }) {
+  const H = height;
   const [ref, width] = useWidth<HTMLElement>();
   const [hover, setHover] = useState<number | null>(null);
   const n = points.length;

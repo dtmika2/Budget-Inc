@@ -3,7 +3,7 @@ import type { CompromiseCard, PolicyCard as Card } from '@core/types';
 import { t } from '@i18n/index';
 import { pledgesForCard, pledgesForCompromise } from '@core/demands';
 import { getStore } from '../store';
-import { RangeChips } from './RangeChips';
+import { EffectLanes } from './EffectLanes';
 
 const LEANING_GLYPH: Record<string, string> = {
   libertarianism: '⚖',
@@ -49,7 +49,7 @@ export const PolicyCard = memo(function PolicyCard({
       <h3 className="memo__title">{topic ?? t(card.title)}</h3>
       {topic && <p className="memo__flavor">{t(card.title)}</p>}
       {desc && <p className="memo__desc">{desc}</p>}
-      <RangeChips preview={preview} all />
+      <EffectLanes preview={preview} chaos={card.chaosEvents?.length ?? 0} />
       {pledges.map((p) => (
         <p key={p.id} className="memo__pledge">
           {t('pledge.badge', { region: t(`region.short.${p.region}`) })}

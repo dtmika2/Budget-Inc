@@ -7,6 +7,7 @@
 import { memo, type CSSProperties } from 'react';
 import { config } from '@/config';
 import type { GroupId } from '@core/types';
+import { GROUP_COLOR } from '@ui/colors';
 import { useStore, type Actor } from '@ui/store';
 import { REGION_BOXES } from './Liquid';
 import { REGION_PATHS } from './regionsPath';
@@ -21,14 +22,8 @@ const CARGO: Record<string, Vars> = {
   gold: { '--cargo': '#d9b45a', '--cargo-dot': '#fff2a8' },
   empty: { '--cargo': '#6d6577', '--cargo-dot': '#4a4560' },
 };
-export const PLACARD: Record<GroupId | 'chaos', string> = {
-  chaos: '#efe6cf',
-  oligarchs: '#d9b45a',
-  pensioners: '#c9a0dc',
-  media: '#7fb3ff',
-  eu: '#3f6fd8',
-  activists: '#6fc27f',
-};
+/** Placard colours: each group's colour from the shared palette (@ui/colors). */
+export const PLACARD: Record<GroupId | 'chaos', string> = { chaos: '#efe6cf', ...GROUP_COLOR };
 export const JACKETS = ['#4a6fa5', '#8f3b4a', '#3f7a52', '#6b5a8e', '#a0703a'];
 
 /** Small deterministic hash (positions / phases that must not change between renders). */

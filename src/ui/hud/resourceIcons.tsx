@@ -4,14 +4,10 @@
  */
 import { memo } from 'react';
 import type { ResourceId } from '@core/types';
+import { RESOURCE_COLOR } from '../colors';
 
-/** Accent colour of each resource: its "vibe" in the top bar and its detail panel. */
-export const RESOURCE_ACCENT: Record<ResourceId, string> = {
-  finances: '#e2b84a',
-  support: '#ec6f8e',
-  coalition: '#a78bfa',
-  prestige: '#5fb2f0',
-};
+/** Accent colour of each resource (one palette for the whole game: ../colors.ts). */
+export const RESOURCE_ACCENT = RESOURCE_COLOR;
 
 const ICONS: Record<ResourceId, string[]> = {
   // a stack of coins

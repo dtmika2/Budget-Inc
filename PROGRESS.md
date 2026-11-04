@@ -21,6 +21,9 @@
 - [x] P17 — Three once-per-game abilities per leader with pixel icons
 - [x] P18 — Calm budget-vote layout
 - [x] P19 — Stable top bar with resource details, one hover card, 3 region events a year
+- [x] P20 — Left panel without scrolling, one colour palette, quiet clickable pop-ups
+- [x] P21 — Slim top bar, compact timeline, Vylepšení in leader colours
+- [x] P22 — Full-page draft, effects as three lanes on policy cards
 
 Every phase gate passed (`typecheck`, `lint`, `test` — 98 tests, `build`, and from P5 on `simulate --runs 200 --bot random`).
 

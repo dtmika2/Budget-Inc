@@ -99,6 +99,8 @@ those changes small and tell the other side:
   `src/ui/modals/RangeChips.tsx`, and the pop-up titles and texts other mechanics use (`popup.*` in
   `locales/cs.json`, including `popup.chaos`).
 - The living map reacts to chaos events (blackouts) in `src/regions/` (regions workspace).
+- News pop-ups are clickable (phase 20): `store.openPopup` takes the player to `Popup.target` (set in
+  `store.ts`, `targetOf`). Their quiet look lives in `catastrophes.css`.
 - Special cards: `src/core/types.ts` (phase and scheduled kind `special`, inputs `acceptSpecial` /
   `closeSpecial`, modifier source `special`, `GameData.specialCards`, `GameState.specials`);
   `src/core/simulation.ts` (draw at the year start, open on its day, the two inputs);
