@@ -3,7 +3,8 @@
  *
  * A special card is a single, unrefusable card that checks the state at the moment it fires
  * ("Finances >= 40 %?"). A catastrophe applies `onFail` when the check fails; an agent applies `onPass`
- * when it passes. Cards are drawn at each year start (own RNG stream `specials`), announced
+ * when it passes. A catastrophe may instead have `onPass`: a reward for coming through it well, and no
+ * sanction. Cards are drawn at each year start (own RNG stream `specials`), announced
  * never announced (surprises; the timeline shows them only once they happened), and resolved in phase
  * 'special': accept (evaluate + apply) -> close.
  */
@@ -28,9 +29,9 @@ export interface SpecialCardDef {
   title: string;
   text: string;
   condition: SpecialCondition;
-  /** Catastrophe: applied when the check fails. */
+  /** Applied when the check fails (catastrophes). */
   onFail?: EffectBundle;
-  /** Agent: applied when the check passes. */
+  /** Applied when the check passes (agents, and catastrophes that reward instead of punish). */
   onPass?: EffectBundle;
   weight: number;
   availableFor?: LeaderId[];
@@ -135,9 +136,14 @@ export function evaluate(sim: Simulation, c: SpecialCondition): { value: number;
   return { value, passed: c.op === 'gte' ? value >= c.value : value <= c.value };
 }
 
-/** The bundle the card would apply (onFail for a catastrophe, onPass for an agent). */
+/** The bundle the card would apply: a card has either onPass or onFail. */
 export function consequenceOf(card: SpecialCardDef): EffectBundle {
-  return (card.kind === 'catastrophe' ? card.onFail : card.onPass) ?? {};
+  return card.onPass ?? card.onFail ?? {};
+}
+
+/** True if the card's bundle applies on a passed check, false if on a failed one. */
+export function paysOnPass(card: SpecialCardDef): boolean {
+  return !!card.onPass;
 }
 
 /** Fired from the schedule: opens the card (phase 'special', the clock stops). False if it is gone. */
@@ -172,7 +178,7 @@ export function acceptSpecial(sim: Simulation): void {
   const open = sim.state.specials.open!;
   const card = specialCard(sim, open.cardId)!;
   const { value, passed } = evaluate(sim, card.condition);
-  const applies = card.kind === 'catastrophe' ? !passed : passed;
+  const applies = paysOnPass(card) === passed;
   let deltas: Deltas | undefined;
   let rolled: Record<string, number> | undefined;
   if (applies) ({ deltas, rolled } = applyBundle(sim, consequenceOf(card), 'special', `special:${card.id}`, sim.rng.effects));

@@ -547,7 +547,7 @@
       },
       "support": {
         "min": -2,
-        "max": 0
+        "max": 0.5
       }
     },
     "anger": {
@@ -927,11 +927,11 @@
     },
     "anger": {
       "eu": {
-        "min": -3,
+        "min": -4,
         "max": -2
       },
       "media": {
-        "min": 2,
+        "min": -2,
         "max": 3
       }
     },
@@ -976,8 +976,8 @@
         "max": 4
       },
       "coalition": {
-        "min": 0,
-        "max": 1
+        "min": -2,
+        "max": -1
       }
     },
     "anger": {
@@ -1017,7 +1017,7 @@
   },
   {
     "id": "filler_mupka_22",
-    "leaning": "fascism",
+    "leaning": "libertarianism",
     "availableFor": [
       "mupka"
     ],
@@ -1189,8 +1189,8 @@
         "max": 3
       },
       "pensioners": {
-        "min": -3,
-        "max": -2
+        "min": -5,
+        "max": -4
       }
     },
     "budgetChanges": [
@@ -1254,7 +1254,7 @@
   },
   {
     "id": "filler_abis_05",
-    "leaning": "progressivism",
+    "leaning": "conservatism",
     "availableFor": [
       "abis"
     ],
@@ -1274,12 +1274,20 @@
     },
     "anger": {
       "pensioners": {
-        "min": 3,
-        "max": 5
+        "min": -5,
+        "max": -3
       },
       "activists": {
-        "min": -3,
-        "max": -2
+        "min": 3,
+        "max": 3
+      },
+      "media": {
+        "min": 3,
+        "max": 4
+      },
+      "eu": {
+        "min": 2.5,
+        "max": 2.5
       }
     },
     "budgetChanges": [
@@ -1311,8 +1319,8 @@
     "drivenBy": "policy.filler_abis_06.drivenBy",
     "effects": {
       "support": {
-        "min": 2,
-        "max": 4
+        "min": 1,
+        "max": 3
       },
       "prestige": {
         "min": -5,
@@ -1366,8 +1374,8 @@
     "drivenBy": "policy.filler_abis_07.drivenBy",
     "effects": {
       "support": {
-        "min": 3,
-        "max": 5
+        "min": 2,
+        "max": 4
       },
       "coalition": {
         "min": -3,
@@ -1413,12 +1421,16 @@
     "drivenBy": "policy.filler_abis_08.drivenBy",
     "effects": {
       "prestige": {
-        "min": 1,
-        "max": 3
+        "min": -3,
+        "max": -1
       },
       "coalition": {
         "min": -1,
         "max": 0
+      },
+      "support": {
+        "min": 1,
+        "max": 1
       }
     },
     "anger": {
@@ -1427,8 +1439,8 @@
         "max": 4
       },
       "oligarchs": {
-        "min": 2,
-        "max": 3
+        "min": -3,
+        "max": -2
       }
     },
     "budgetChanges": [
@@ -1497,8 +1509,8 @@
     "drivenBy": "policy.filler_abis_10.drivenBy",
     "effects": {
       "prestige": {
-        "min": 2,
-        "max": 4
+        "min": -4,
+        "max": -2
       },
       "support": {
         "min": -1,
@@ -1511,8 +1523,8 @@
         "max": 5
       },
       "eu": {
-        "min": -3,
-        "max": -2
+        "min": 2,
+        "max": 3
       }
     },
     "budgetChanges": [
@@ -1544,8 +1556,8 @@
     "drivenBy": "policy.filler_abis_11.drivenBy",
     "effects": {
       "support": {
-        "min": 4,
-        "max": 5
+        "min": 1,
+        "max": 4
       },
       "coalition": {
         "min": -2,
@@ -1586,12 +1598,12 @@
     "drivenBy": "policy.filler_abis_12.drivenBy",
     "effects": {
       "support": {
-        "min": -2,
-        "max": 0
+        "min": 0,
+        "max": 2
       },
       "prestige": {
-        "min": 1,
-        "max": 3
+        "min": -1,
+        "max": 2
       }
     },
     "anger": {
@@ -1601,6 +1613,10 @@
       },
       "activists": {
         "min": -3,
+        "max": -2
+      },
+      "eu": {
+        "min": -2,
         "max": -2
       }
     },
@@ -1646,12 +1662,12 @@
     },
     "anger": {
       "activists": {
-        "min": -4,
-        "max": -3
+        "min": 1,
+        "max": 3
       },
-      "oligarchs": {
-        "min": 3,
-        "max": 4
+      "eu": {
+        "min": -2,
+        "max": -1
       }
     },
     "budgetChanges": [
@@ -1682,13 +1698,13 @@
     "description": "policy.filler_abis_14.desc",
     "drivenBy": "policy.filler_abis_14.drivenBy",
     "effects": {
-      "coalition": {
-        "min": 1,
-        "max": 2
+      "prestige": {
+        "min": -2,
+        "max": 1
       },
       "support": {
-        "min": -3,
-        "max": -1
+        "min": 1,
+        "max": 1
       }
     },
     "anger": {
@@ -1748,12 +1764,16 @@
     },
     "anger": {
       "oligarchs": {
-        "min": 4,
-        "max": 5
+        "min": -5,
+        "max": -4
       },
       "eu": {
-        "min": 2,
+        "min": 3,
         "max": 3
+      },
+      "activists": {
+        "min": 3,
+        "max": 4
       }
     },
     "ongoing": [

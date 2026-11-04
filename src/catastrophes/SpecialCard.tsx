@@ -5,7 +5,7 @@
  */
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { consequenceOf, specialCard } from '@core/specialCards';
+import { consequenceOf, paysOnPass, specialCard } from '@core/specialCards';
 import { t } from '@i18n/index';
 import { DeltaList } from '@ui/popups/DeltaList';
 import { RangeChips } from '@ui/modals/RangeChips';
@@ -47,7 +47,8 @@ export function SpecialCard() {
   const kind = card.kind;
   const result = open.result;
   const preview = sim.preview(consequenceOf(card), 'special');
-  const applied = result ? (kind === 'catastrophe' ? !result.passed : result.passed) : false;
+  const rewards = paysOnPass(card);
+  const applied = result ? rewards === result.passed : false;
   const name = conditionName(card.condition);
 
   const face = (
@@ -78,7 +79,7 @@ export function SpecialCard() {
         {!result ? (
           <>
             <div className="special-card__stakes">
-              <span className="special-card__label">{t(kind === 'catastrophe' ? 'special.ifFail' : 'special.ifPass')}</span>
+              <span className="special-card__label">{t(rewards ? 'special.ifPass' : 'special.ifFail')}</span>
               <RangeChips preview={preview} compact />
             </div>
             <button className="btn btn--stamp special-card__btn" onClick={() => store.dispatch({ kind: 'acceptSpecial' })} autoFocus>
@@ -97,11 +98,11 @@ export function SpecialCard() {
             <div className="special-card__stakes">
               {applied && result.deltas ? (
                 <>
-                  <span className="special-card__label">{t(kind === 'catastrophe' ? 'special.sanction' : 'special.bonus')}</span>
+                  <span className="special-card__label">{t(rewards ? 'special.bonus' : 'special.sanction')}</span>
                   <DeltaList deltas={result.deltas} />
                 </>
               ) : (
-                <span className="special-card__label">{t(kind === 'catastrophe' ? 'special.noSanction' : 'special.noBonus')}</span>
+                <span className="special-card__label">{t(rewards ? 'special.noBonus' : 'special.noSanction')}</span>
               )}
             </div>
             <button className="btn btn--stamp special-card__btn" onClick={() => store.dispatch({ kind: 'closeSpecial' })} autoFocus>

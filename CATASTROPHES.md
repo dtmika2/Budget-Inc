@@ -13,7 +13,7 @@ not edit them.
 | `locales/events.cs.json` | Czech texts: event texts and responses (`event.*`) and the response pop-up chrome (`response.*`) |
 | `src/catastrophes/` | pop-up stack with news and response pop-ups (`PopupStack.tsx`), styles (`catastrophes.css`), entry point (`index.ts`) |
 | `src/core/chaos.ts` | scheduling chaos events when a card is picked, firing them, responses |
-| `data/catastrophes/*.json` | special cards: catastrophes and special agents (`dummy.json`, `[DUMMY]` texts) |
+| `data/catastrophes/*.json` | special cards: catastrophes and special agents (`dummy.json`; texts from `content/catastrophes/agenti a katastrofy.docx`, entered by hand because the document has no tables) |
 | `src/core/specialCards.ts` | special cards: yearly draw, warnings, the check, sanction / bonus, accept / close |
 | `src/data/specialCards.ts` | special-card schema and data checks (called from the loader) |
 | `src/catastrophes/Layer.tsx` | the workspace's mount point: `PopupStack` = news pop-ups + special-card warnings + the special card |
@@ -33,6 +33,7 @@ events in another file (for example `data/events/catastrophes.json`).
 A special card is one card the player cannot refuse. It checks the state at the moment it fires:
 - **Catastrophe:** check failed → `onFail` (sanction); check passed → nothing.
 - **Special agent:** check passed → `onPass` (bonus); check failed → nothing.
+- **Catastrophe with a reward** (`onPass` instead of `onFail`, for example Rozvod): check passed → bonus; check failed → nothing.
 
 Every game year (Q1, Q5, Q9, Q13) draws `config.specials.perYear` special cards (1) on random days, at
 least `minGapDays` apart; each is an agent with `agentChance` (0.5), otherwise a catastrophe (own RNG
