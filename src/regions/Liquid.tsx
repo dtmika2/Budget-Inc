@@ -1,9 +1,10 @@
 /**
- * Liquid fill for map regions: each kraj is a mustard-beige glass clipped to its own shape, filled with
- * wine-red liquid up to its support level (0–100 % of the region's height). The surface is a two-layer
- * pixel wave with an irregular profile (several harmonics + occasional spray pixels) that scrolls in
- * whole-pixel steps; each region gets its own offset, speed and phase so neighbours never move in
- * lockstep. The level steps up/down when support changes. Reduced motion stops all of it (global CSS).
+ * Liquid fill for map regions: each kraj is a mustard-beige glass clipped to its own shape, filled up to
+ * its support level (0–100 % of the region's height): red wine in Moravia, foamy beer everywhere else. The
+ * surface is a two-layer pixel wave with an irregular profile (several harmonics + occasional spray pixels
+ * or foam bubbles) that scrolls in whole-pixel steps; each region gets its own offset, speed and phase so
+ * neighbours never move in lockstep. The level steps up/down when support changes. Reduced motion stops
+ * all of it (global CSS).
  */
 import { memo, type CSSProperties } from 'react';
 import { REGION_PATHS } from './regionsPath';
@@ -20,6 +21,18 @@ export const LIQUID = {
   back: '#8a2241',
   spray: '#c25a72',
 };
+
+const BEER = {
+  body: '#bd6f10',
+  crest: '#e39c2a', // bright line where the beer meets the foam
+  back: '#ead9ab', // back wave: the far side of the foam head
+  foam: '#f7ecd2',
+  foamTop: '#fffaf0',
+  foamShade: '#e2cd9b',
+};
+
+/** Kraje that keep red wine: the four Moravian ones (names in locales/regions.cs.json). All others pour beer. */
+const WINE_REGIONS = new Set(['CZ064', 'CZ071', 'CZ072', 'CZ080']);
 
 export interface Box {
   x: number;
@@ -67,12 +80,20 @@ function profile(cols: number, harmonics: [number, number, number][], base: numb
 
 const FRONT = profile(FRONT_COLS, [[1, 1.4, 0], [2, 0.9, 1.7], [3, 0.6, 0.4], [7, 0.45, 2.2]], 4);
 const BACK = profile(BACK_COLS, [[1, 1.2, 2.4], [3, 0.8, 0.9], [5, 0.5, 3.1]], 5);
-/** Spray pixels just above some crests (local maxima), skipping a few for irregularity. */
-const SPRAY = FRONT.map((h, i) => {
-  const l = FRONT[(i - 1 + FRONT_COLS) % FRONT_COLS];
-  const r = FRONT[(i + 1) % FRONT_COLS];
-  return h > l && h >= r && i % 3 !== 1;
-});
+/** Columns for loose pixels just above some crests (local maxima), skipping a few for irregularity. */
+function crests(heights: number[]): boolean[] {
+  const cols = heights.length;
+  return heights.map((h, i) => h > heights[(i - 1 + cols) % cols] && h >= heights[(i + 1) % cols] && i % 3 !== 1);
+}
+
+const SPRAY = crests(FRONT);
+
+// Beer sits calmer than wine: a flatter surface under a lumpy foam head, same periods so the CSS keyframes fit.
+const BEER_FRONT = profile(FRONT_COLS, [[1, 0.7, 0.6], [2, 0.45, 2.3], [5, 0.3, 1.1]], 3);
+const FOAM = profile(FRONT_COLS, [[3, 0.7, 0.9], [8, 0.6, 2.4], [13, 0.3, 0.5]], 2.6);
+const BEER_BACK = profile(BACK_COLS, [[2, 0.7, 1.2], [5, 0.6, 0.3], [9, 0.4, 2]], 6);
+const FOAM_TOP = BEER_FRONT.map((n, i) => n + FOAM[i]);
+const BUBBLES = crests(FOAM_TOP);
 
 /** Small deterministic hash of a region code (for per-region offset, speed and phase). */
 function hash(code: string): number {
@@ -99,6 +120,26 @@ export const LiquidDefs = memo(function LiquidDefs({ prefix }: { prefix: string 
           <rect key={i} x={i * PX} y={TILE_H - n * PX} width={PX} height={n * PX} fill={LIQUID.back} />
         ))}
       </pattern>
+      <pattern id={`${prefix}-beer-front`} patternUnits="userSpaceOnUse" width={FRONT_COLS * PX} height={TILE_H} shapeRendering="crispEdges">
+        {BEER_FRONT.map((n, i) => {
+          const top = FOAM_TOP[i];
+          return (
+            <g key={i}>
+              <rect x={i * PX} y={TILE_H - n * PX} width={PX} height={n * PX} fill={BEER.body} />
+              <rect x={i * PX} y={TILE_H - n * PX} width={PX} height={PX} fill={BEER.crest} />
+              <rect x={i * PX} y={TILE_H - top * PX} width={PX} height={FOAM[i] * PX} fill={BEER.foam} />
+              <rect x={i * PX} y={TILE_H - (n + 1) * PX} width={PX} height={PX} fill={BEER.foamShade} />
+              <rect x={i * PX} y={TILE_H - top * PX} width={PX} height={PX} fill={BEER.foamTop} />
+              {BUBBLES[i] && top + 2 <= ROWS && <rect x={i * PX} y={TILE_H - (top + 2) * PX} width={PX} height={PX} fill={BEER.foam} />}
+            </g>
+          );
+        })}
+      </pattern>
+      <pattern id={`${prefix}-beer-back`} patternUnits="userSpaceOnUse" width={BACK_COLS * PX} height={TILE_H} shapeRendering="crispEdges">
+        {BEER_BACK.map((n, i) => (
+          <rect key={i} x={i * PX} y={TILE_H - n * PX} width={PX} height={n * PX} fill={BEER.back} />
+        ))}
+      </pattern>
       {REGION_PATHS.map((r) => (
         <clipPath key={r.code} id={`${prefix}-clip-${r.code}`}>
           <path d={r.d} fillRule="evenodd" />
@@ -120,13 +161,15 @@ export const LiquidRegion = memo(function LiquidRegion({ prefix, code, d, suppor
   const backX = box.x - backLen - ((h >>> 8) % BACK_COLS) * PX;
   const frontStyle: CSSProperties = { animationDuration: `${4.2 + ((h >>> 4) % 9) * 0.25}s`, animationDelay: `-${(h >>> 12) % 5}s` };
   const backStyle: CSSProperties = { animationDuration: `${6 + ((h >>> 16) % 7) * 0.4}s`, animationDelay: `-${(h >>> 20) % 6}s` };
+  const wine = WINE_REGIONS.has(code);
+  const pattern = wine ? 'wave' : 'beer';
   return (
     <g clipPath={`url(#${prefix}-clip-${code})`}>
       <path d={d} fillRule="evenodd" className="glass" />
       <g className="liquid" style={{ transform: `translateY(${y}px)` }} shapeRendering="crispEdges">
-        <rect className="wave wave--back" style={backStyle} x={backX} y={-TILE_H} width={box.w + 3 * backLen} height={TILE_H} fill={`url(#${prefix}-wave-back)`} />
-        <rect className="wave wave--front" style={frontStyle} x={frontX} y={-TILE_H} width={box.w + 3 * frontLen} height={TILE_H} fill={`url(#${prefix}-wave-front)`} />
-        <rect x={box.x - PX} y={-PX} width={box.w + 2 * PX} height={box.h + TILE_H + 8} fill={LIQUID.body} />
+        <rect className="wave wave--back" style={backStyle} x={backX} y={-TILE_H} width={box.w + 3 * backLen} height={TILE_H} fill={`url(#${prefix}-${pattern}-back)`} />
+        <rect className="wave wave--front" style={frontStyle} x={frontX} y={-TILE_H} width={box.w + 3 * frontLen} height={TILE_H} fill={`url(#${prefix}-${pattern}-front)`} />
+        <rect x={box.x - PX} y={-PX} width={box.w + 2 * PX} height={box.h + TILE_H + 8} fill={wine ? LIQUID.body : BEER.body} />
       </g>
     </g>
   );

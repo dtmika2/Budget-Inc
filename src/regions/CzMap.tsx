@@ -1,5 +1,5 @@
 /**
- * Static SVG map of the 14 kraje (spec §12.4). Each region is a mustard glass filled with wine-red liquid
+ * Static SVG map of the 14 kraje (spec §12.4). Each region is a mustard glass filled with wine or beer
  * up to its regional support s_r, with a pixel wave on the surface (Liquid.tsx). The core updates s_r
  * weekly, so the level moves weekly. Outlines on top take the taps.
  * Opportunity pins are HTML buttons laid over the SVG so they stay >= 44 px at any map size.
