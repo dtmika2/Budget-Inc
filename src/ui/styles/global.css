@@ -871,3 +871,31 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 /* phase 20: every resource / group chip carries its colour key */
 .chip__label--key::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 5px; background: var(--chip-c); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35); vertical-align: 1px; }
 .delta--key::before { content: ''; display: inline-block; width: 6px; height: 6px; margin-right: 4px; background: var(--chip-c); vertical-align: 1px; }
+
+/* ------------------------------------------------------------ full-page draft + effect lanes (phase 22) */
+.modal.modal--draft { width: calc(100vw - 32px); max-width: 1500px; min-height: calc(100dvh - 32px); display: flex; flex-direction: column; }
+.modal--draft .carousel { flex: 1; align-items: stretch; gap: 20px; }
+.modal--draft .memo { padding: 18px 20px 16px; gap: 10px; }
+.modal--draft .memo__title { font-size: 24px; }
+.modal--draft .memo__flavor { font-size: 16px; }
+.modal--draft .memo__desc { font-size: 15px; line-height: 1.45; }
+.lanes { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+.lane { border-top: 2px dashed rgba(42, 34, 51, 0.18); padding: 7px 0 5px; }
+.lane__head { margin: 0 0 4px; display: flex; align-items: center; gap: 6px; font: 12px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+.lane__icon { width: 16px; height: 16px; display: inline-grid; place-items: center; font: 11px var(--f-pixel); color: var(--paper); background: var(--ink); }
+.lane__row { display: grid; grid-template-columns: 7.2em minmax(0, 1fr) 5.2em; gap: 8px; align-items: center; font-size: 14px; min-height: 22px; }
+.lane__label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lane__key { display: inline-block; width: 9px; height: 9px; margin-right: 6px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); }
+.lane__bar { position: relative; height: 10px; background: rgba(42, 34, 51, 0.1); }
+.lane__bar::after { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; border-left: 1px solid rgba(42, 34, 51, 0.4); }
+.lane__bar i { position: absolute; top: 0; bottom: 0; }
+.lane__num { text-align: right; font: 13px var(--f-num); white-space: nowrap; }
+.lane__num--good { color: var(--good-on-paper); }
+.lane__num--bad { color: var(--bad-on-paper); }
+.lane__num--none { color: #a99f86; }
+.lane__ongoing { margin: 2px 0 0; font-size: 12px; color: var(--ink-soft); }
+.lane__empty { margin: 0; font-size: 12px; color: #a99f86; }
+.lanes__foot { margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--ink-soft); }
+@media (max-width: 760px) {
+  .modal.modal--draft { width: auto; min-height: 0; }
+}
