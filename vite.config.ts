@@ -10,7 +10,13 @@ export default defineConfig({
   base: './',
   plugins: [react()],
   // special.html: preview page of the special cards (catastrophes workspace, see CATASTROPHES.md)
-  build: { rolldownOptions: { input: { main: r('./index.html'), special: r('./special.html') } } },
+  build: {
+    rolldownOptions: {
+      input: { main: r('./index.html'), special: r('./special.html') },
+      // libraries (React, zod) in their own long-cached file: a game update re-downloads only the game code
+      output: { codeSplitting: { groups: [{ name: 'vendor', test: /node_modules/ }] } },
+    },
+  },
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   resolve: {
     alias: {

@@ -52,9 +52,9 @@ describe('region event data', () => {
 });
 
 describe('spawning', () => {
-  const run = (enabled: boolean, days = 370) => {
+  const run = (enabled: boolean, days = 370, seed = 'rev-spawn') => {
     const cfg = cfgWith((c) => (c.regionEvents.enabled = enabled));
-    const sim = makeSim({ seed: 'rev-spawn' }, cfg);
+    const sim = makeSim({ seed }, cfg);
     const keep = (k: string) => k === 'budgetVote' || k === 'regionEventSpawn';
     for (let d = 0; d < days && !sim.isOver; ) {
       if (sim.state.phase !== 'running') resolveModal(sim);
@@ -68,13 +68,22 @@ describe('spawning', () => {
     }
     return sim;
   };
+  const runSeed = (seed: string) => run(true, 370, seed);
 
-  it('every kraj gets exactly one event in the first year, deterministically', () => {
+  it('perYear events in the first year, spread over the year, in random kraje, deterministically', () => {
     const a = run(true);
     const b = run(true);
-    const spawned = a.state.log.filter((e) => e.type === 'region_event_spawned' && e.absDay <= 4 * config.time.daysPerQuarter);
-    expect(spawned.map((e) => e.region as string).sort()).toEqual(gameData().regions.regions.map((r) => r.code).sort());
-    expect(spawned).toEqual(b.state.log.filter((e) => e.type === 'region_event_spawned' && e.absDay <= 4 * config.time.daysPerQuarter));
+    const year1 = (sim: Simulation) => sim.state.log.filter((e) => e.type === 'region_event_spawned' && e.absDay <= 4 * config.time.daysPerQuarter);
+    const spawned = year1(a);
+    expect(spawned).toHaveLength(config.regionEvents.perYear);
+    expect(spawned).toEqual(year1(b));
+    // one in each equal slice of the year: consecutive events are at least a few weeks apart
+    const days = spawned.map((e) => e.absDay);
+    for (let i = 1; i < days.length; i++) expect(days[i] - days[i - 1]).toBeGreaterThan(20);
+    for (const e of spawned) expect(gameData().regions.regions.some((r) => r.code === e.region)).toBe(true);
+    // different seeds pick different kraje
+    const kraje = new Set(Array.from({ length: 6 }, (_, i) => year1(runSeed(`rev-k${i}`)).map((e) => e.region).join()));
+    expect(kraje.size).toBeGreaterThan(1);
   });
 
   it('leaves every other RNG stream alone', () => {

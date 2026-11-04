@@ -9,13 +9,12 @@ import { t } from '@i18n/index';
 import { getStore, useStore } from '@ui/store';
 import { LiquidDefs, LiquidRegion } from './Liquid';
 import { MapLife } from './MapLife';
-import { ProjectionTicker } from '@ui/charts/ProjectionTicker';
 import { Floaters } from '@ui/popups/Floaters';
 import { DemandPin } from './DemandPin';
 import { RegionEventLayer } from './RegionEventLayer';
 import { RegionEventPin } from './RegionEventPin';
 import { OpportunityPin } from './OpportunityPin';
-import { MAP_ATTRIBUTION, MAP_HEIGHT, MAP_SCHEMATIC, MAP_WIDTH, REGION_PATHS } from './regionsPath';
+import { MAP_HEIGHT, MAP_WIDTH, REGION_PATHS } from './regionsPath';
 
 const LABEL_BY_CODE = new Map(REGION_PATHS.map((r) => [r.code, r]));
 
@@ -137,8 +136,6 @@ export function CzMap() {
         <QuarterBanner />
         <Pins />
       </div>
-      <ProjectionTicker />
-      <p className="map__credit">{MAP_SCHEMATIC ? t('map.schematic') : MAP_ATTRIBUTION ? t('map.attribution') : ''}</p>
     </div>
   );
 }
