@@ -3,7 +3,6 @@ import { config } from '@/config';
 import type { ResourceId } from '@core/types';
 import { RESOURCE_IDS } from '@core/types';
 import { fmt, fmtSigned, t } from '@i18n/index';
-import { dateLabel } from '../format';
 import { historyTitle, originLabel } from '../panel/SidePanel';
 import { Floaters } from '../popups/Floaters';
 import { HoverCard, type HoverInfo } from '../HoverCard';
@@ -65,8 +64,7 @@ const ResourceTile = memo(function ResourceTile({ id, open, onToggle }: { id: Re
         <ResourceIcon id={id} size={22} />
         <span className="res__main">
           <span className="res__label">
-            <span className="res__name res__name--long">{t(`resource.${id}`)}</span>
-            <span className="res__name res__name--short">{t(`resource.short.${id}`)}</span>
+            <span className="res__name">{t(`resource.short.${id}`)}</span>
             <span className="res__nums">
               {week !== 0 && <span className={`res__trend res__trend--${week > 0 ? 'up' : 'down'}`}>{week > 0 ? '▲' : '▼'}</span>}
               <b className="res__value">{fmt(value)}</b>
@@ -218,7 +216,8 @@ function Sparkline({ values }: { values: number[] }) {
 }
 
 function DateLabel() {
-  const label = useStore((s) => (s.sim ? dateLabel(s.sim) : ''));
+  // quarter and week of the quarter only
+  const label = useStore((s) => (s.sim ? t('hud.dateShort', { q: s.sim.state.quarter, w: Math.ceil(s.sim.state.day / 7) }) : ''));
   return <span className="hud-date">{label}</span>;
 }
 
@@ -227,7 +226,8 @@ function Pc() {
   return (
     <span className="hud-pc" title={t('hud.pcLong')}>
       <span className="hud-pc__coin" aria-hidden="true" />
-      <b>{pc}</b> {t('hud.pc')}
+      <b>{pc}</b>
+      <span className="hud-pc__label">{t('hud.pc')}</span>
     </span>
   );
 }
@@ -256,8 +256,7 @@ export function ProjectionBadge({ open, onToggle }: { open: boolean; onToggle: (
         aria-expanded={open}
         aria-label={`${t('hud.projection')}: ${pct} %`}
       >
-        <span className="projection__long">{t('hud.projection')}</span>
-        <span className="projection__short">{t('hud.projectionShort')}</span>
+        <span className="projection__label">{t('hud.projection')}</span>
         <b key={pct} className="flash-num">
           {pct} %
         </b>
@@ -356,7 +355,6 @@ function SpeedControls() {
 }
 
 export function TopBar() {
-  const mock = useStore((s) => s.data?.budget.source === 'MOCK DATA');
   const store = getStore();
   const open = useStore((s) => s.ui.resourceDetail);
   const setOpen = (id: ResourceId | 'projection' | null) => store.setUi({ resourceDetail: id });
@@ -378,22 +376,15 @@ export function TopBar() {
   }, [open]);
   return (
     <header className="topbar" data-tut-target="topbar" ref={ref}>
-      <div className="topbar__time">
-        <div className="topbar__row">
-          <Pc />
-          <DateLabel />
-        </div>
-        <div className="topbar__row">
-          <SpeedControls />
-          {mock && <span className="mock-badge">{t('hud.mockData')}</span>}
-        </div>
-      </div>
+      <Pc />
+      <ProjectionBadge open={open === 'projection'} onToggle={() => toggle('projection')} />
       <div className="topbar__resources">
         {RESOURCE_IDS.map((r) => (
           <ResourceTile key={r} id={r} open={open === r} onToggle={toggle} />
         ))}
       </div>
-      <ProjectionBadge open={open === 'projection'} onToggle={() => toggle('projection')} />
+      <SpeedControls />
+      <DateLabel />
       {open === 'projection' && <ProjectionDetail onClose={() => setOpen(null)} />}
       {open && open !== 'projection' && <ResourceDetail id={open} onClose={() => setOpen(null)} />}
     </header>

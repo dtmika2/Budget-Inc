@@ -230,3 +230,24 @@ body[data-quake] .game { animation: sp-quake 0.9s steps(12); }
   .special-card__check strong { font-size: 18px; }
   .special-stamp { font-size: 18px; top: -12px; }
 }
+
+/* compact timeline (phase 21, Daniel): narrower and shorter, so it does not cover the map */
+.timeline { top: 8px; width: min(380px, 38%); }
+.timeline__strip { height: 54px; }
+.tl-item { width: 16px; height: 16px; font-size: 10px; border-width: 1px; box-shadow: 1px 1px 0 #0c0a14; }
+.tl-item--row0 { top: 3px; }
+.tl-item--row1 { top: 19px; }
+.tl-item--anchor { top: 35px; }
+.tl-item.is-past::after { right: -5px; top: -6px; font-size: 9px; }
+.tl-quarter__label { font-size: 9px; bottom: 1px; }
+.tl-now { top: -3px; bottom: -3px; border-left-width: 2px; }
+.tl-now::before { left: -6px; border-width: 5px; border-top-width: 6px; }
+.tl-toast { padding: 4px 6px; gap: 6px; }
+.tl-toast__art { width: 36px; height: 21px; }
+.tl-toast__text { font-size: 12px; }
+.tl-toast__text b { font-size: 12px; }
+.game__stage > .paused-badge { top: 72px; }
+@media (max-width: 760px) {
+  .timeline { width: auto; }
+  .game__stage > .paused-badge { top: 120px; }
+}

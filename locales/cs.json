@@ -767,5 +767,6 @@
   "hover.ability.pick": "Klikni a vyber cíl. Jde to jen jednou za hru.",
   "panel.page": "{n} / {of}",
   "panel.newer": "Novější",
-  "panel.older": "Starší"
+  "panel.older": "Starší",
+  "hud.dateShort": "Q{q} · týden {w}"
 }
