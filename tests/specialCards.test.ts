@@ -162,27 +162,6 @@ describe('special cards: resolution', () => {
     expect(s.state.resources.prestige).toBe(p0);
   });
 
-  it('a catastrophe with onPass rewards a passed check and does nothing on a failed one', () => {
-    const s = sim();
-    fire(s, 'cat_divorce');
-    s.state.resources.prestige = 80;
-    const support = s.state.resources.support;
-    s.dispatch({ kind: 'acceptSpecial' });
-    expect(s.state.specials.open!.result!.passed).toBe(true);
-    expect(s.state.specials.open!.result!.deltas).toBeDefined();
-    expect(s.state.resources.support).toBeGreaterThan(support);
-    s.dispatch({ kind: 'closeSpecial' });
-
-    fire(s, 'cat_divorce');
-    s.state.resources.prestige = 10;
-    const before = { ...s.state.resources };
-    s.dispatch({ kind: 'acceptSpecial' });
-    expect(s.state.specials.open!.result!.passed).toBe(false);
-    expect(s.state.specials.open!.result!.deltas).toBeUndefined();
-    expect(s.state.resources.support).toBe(before.support);
-    expect(s.state.resources.coalition).toBe(before.coalition);
-  });
-
   it('the clock stops while a card is open and inputs come in order', () => {
     const s = sim();
     fire(s, 'dummy_cat_media');
@@ -225,7 +204,6 @@ describe('special cards: data', () => {
     expect(codes((c) => ((c[1].condition as Record<string, unknown>).group = 'nope'))).toContain('schema');
     expect(codes((c) => delete c[0].onFail)).toContain('schema');
     expect(codes((c) => (c[3].onFail = c[3].onPass))).toContain('schema');
-    expect(codes((c) => (c[0].onPass = c[0].onFail))).toContain('schema');
     expect(codes((c) => (c[0].title = 'special.nope'))).toContain('missingLocale');
   });
 });

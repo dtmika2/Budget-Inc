@@ -31,8 +31,8 @@ export const specialCardSchema = z
     art: z.string().optional(),
   })
   .strict()
-  .refine((c) => (c.kind === 'catastrophe' ? !!c.onFail !== !!c.onPass : !!c.onPass && !c.onFail), {
-    message: 'a catastrophe needs onFail or onPass (not both), an agent needs onPass (no onFail)',
+  .refine((c) => (c.kind === 'catastrophe' ? !!c.onFail && !c.onPass : !!c.onPass && !c.onFail), {
+    message: 'a catastrophe needs onFail (no onPass), an agent needs onPass (no onFail)',
   });
 
 export interface SpecialCheckCtx {

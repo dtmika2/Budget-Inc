@@ -33,7 +33,6 @@ events in another file (for example `data/events/catastrophes.json`).
 A special card is one card the player cannot refuse. It checks the state at the moment it fires:
 - **Catastrophe:** check failed → `onFail` (sanction); check passed → nothing.
 - **Special agent:** check passed → `onPass` (bonus); check failed → nothing.
-- **Catastrophe with a reward** (`onPass` instead of `onFail`, for example Rozvod): check passed → bonus; check failed → nothing.
 
 Every game year (Q1, Q5, Q9, Q13) draws `config.specials.perYear` special cards (1) on random days, at
 least `minGapDays` apart; each is an agent with `agentChance` (0.5), otherwise a catastrophe (own RNG
