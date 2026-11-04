@@ -1,8 +1,6 @@
 {
   "map.support": "Podpora: {v} %",
   "map.seats": "Mandáty: {seats} (koeficient {w})",
-  "map.attribution": "Hranice krajů: © EuroGeographics (Eurostat GISCO, NUTS 2021)",
-  "map.schematic": "Schematická mapa (zástupná)",
   "map.pin": "Příležitost",
   "map.quarterBanner": "Q{q} · rok {y}",
   "region.CZ010": "Hlavní město Praha",

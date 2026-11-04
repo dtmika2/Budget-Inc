@@ -6,6 +6,7 @@ import { GROUP_IDS, RESOURCE_IDS } from '@core/types';
 import { SERIES_COLORS, TrendChart, quarterOf, type Series } from '../charts/TrendChart';
 import { fmt, fmtSigned, t } from '@i18n/index';
 import { Floaters } from '../popups/Floaters';
+import { HoverCard, type HoverInfo } from '../HoverCard';
 import { getStore, useStore } from '../store';
 import { DeltaList } from '../popups/DeltaList';
 
@@ -21,8 +22,18 @@ const AngerMeter = memo(function AngerMeter({ g }: { g: GroupId }) {
   const shake = useStore((s) => s.ui.floaters.filter((x) => x.key === `anger.${g}` && Math.abs(x.value) >= config.life.flashMinDelta).at(-1)?.id ?? 0);
   const hot = value >= config.anger.pulseAt;
   const critical = value >= config.anger.warnAt;
+  const ending = getStore().sim?.data.endings.find((e) => e.group === g);
+  const info: HoverInfo = {
+    title: t(`group.${g}`),
+    accent: hot ? 'var(--bad)' : 'var(--gold)',
+    desc: t(`group.desc.${g}`),
+    value: fmt(value),
+    valueColor: critical ? 'var(--bad)' : hot ? '#e0952c' : undefined,
+    status: t(critical ? 'hover.anger.critical' : hot ? 'hover.anger.hot' : 'hover.anger.calm', { n: ending?.threshold ?? 100 }),
+    hint: t('hover.anger.scale'),
+  };
   return (
-    <li className={`meter${hot ? ' meter--hot' : ''}${critical ? ' meter--critical' : ''}`}>
+    <HoverCard as="li" info={info} className={`meter${hot ? ' meter--hot' : ''}${critical ? ' meter--critical' : ''}`}>
       <span className="meter__name">{t(`group.${g}`)}</span>
       <span key={shake} className={`meter__bar${shake ? ' is-shaking' : ''}`} aria-hidden="true">
         <span style={{ width: `${value}%` }} />
@@ -32,7 +43,7 @@ const AngerMeter = memo(function AngerMeter({ g }: { g: GroupId }) {
         {trend > 0 ? '▲' : trend < 0 ? '▼' : ''}
       </span>
       <Floaters k={`anger.${g}`} />
-    </li>
+    </HoverCard>
   );
 });
 
@@ -40,7 +51,7 @@ function targetLabel(target: string): string {
   return target.startsWith('anger.') ? t(`group.${target.slice(6)}`) : t(`resource.short.${target}`);
 }
 
-function originLabel(origin: string): string {
+export function originLabel(origin: string): string {
   const sim = getStore().sim!;
   const [kind, id] = origin.split(':');
   if (kind === 'policy') return t(sim.cardById.get(id)?.title ?? id);
@@ -163,6 +174,15 @@ export function historyTitle(e: LogEntry): { kind: string; name: string } {
       return { kind: t('history.upgrade'), name: t(`upgrade.${e.nodeId}.name`) };
     case 'opportunity_collected':
       return { kind: t('history.opportunity'), name: t(sim.data.opportunities.find((o) => o.id === e.opportunityId)?.text ?? '') };
+    case 'mandatory_growth':
+      return { kind: t('history.budget'), name: t('history.mandatoryGrowth') };
+    case 'ability_pulse':
+      return { kind: t('history.ability'), name: t(sim.leaderDef.abilities.find((x) => x.id === e.abilityId)?.name ?? '') };
+    case 'region_event_intervened':
+    case 'region_event_ignored':
+      return { kind: t('history.regionEvent'), name: t(sim.data.regionEvents.find((x) => x.id === e.templateId)?.title ?? '') };
+    case 'special_resolved':
+      return { kind: t('history.special'), name: t(sim.data.specialCards.find((x) => x.id === e.cardId)?.title ?? '') };
     default:
       return { kind: e.type, name: '' };
   }

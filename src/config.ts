@@ -342,7 +342,7 @@ export const config = {
     flashMinDelta: 1,
   },
 
-  /** Trend charts (side panel + map ticker). Trend points are weekly. */
+  /** Trend charts (side panel, top-bar details). Trend points are weekly. */
   charts: {
     tickerWeeks: 26,
   },
@@ -366,9 +366,11 @@ export const config = {
     draftBoost: 2,
   },
 
-  /** Regional events (regions workspace): one per kraj per year, whole-kraj animation + "!" pin. */
+  /** Regional events (regions workspace): a few a year in random kraje, whole-kraj animation + "!" pin. */
   regionEvents: {
     enabled: true,
+    /** Events per game year, spread evenly over the year, each in a random kraj. */
+    perYear: 3,
     /** Spawn window inside the year (days from the year's start / before its end). */
     spawnFromDay: 5,
     spawnBeforeYearEnd: 20,
