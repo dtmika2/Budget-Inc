@@ -3,17 +3,29 @@
 
 /* ------------------------------------------------------------ pop-ups */
 .popups {
-  position: absolute; right: var(--gutter); bottom: 76px; width: min(380px, calc(100% - 2 * var(--gutter)));
-  display: flex; flex-direction: column-reverse; gap: 10px; z-index: 6; pointer-events: none;
+  position: absolute; right: var(--gutter); bottom: 76px; width: min(320px, calc(100% - 2 * var(--gutter)));
+  display: flex; flex-direction: column-reverse; gap: 6px; z-index: 6; pointer-events: none;
 }
 .popup { position: relative; pointer-events: auto; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); border-left: 6px solid var(--ink-soft); overflow: hidden; animation: slip 0.2s steps(3); }
+/* news (phase 20): quiet, dark and small, so the map stays the focus; a click goes to the source */
+.popup--news { background: rgba(27, 23, 41, 0.86); color: var(--text); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4); border-left-width: 3px; border-left-color: var(--line); opacity: 0.92; }
+.popup--news:hover { opacity: 1; background: rgba(36, 30, 54, 0.96); }
+.popup--news .popup__title { color: var(--text-dim); font-size: 11px; }
+.popup--news .popup__text { font-weight: 400; font-size: 13px; }
+.popup--news .deltas { font-size: 11px; }
+.popup--news .deltas .delta--good { color: var(--good); }
+.popup--news .deltas .delta--bad { color: var(--bad); }
+.popup--news .popup__timer { height: 2px; background: var(--line); }
+.popup--link .popup__title::after { content: ' ›'; color: var(--gold); }
 .popup--bad { border-left-color: var(--stamp); }
 .popup--good { border-left-color: var(--good-on-paper); }
-.popup--news .popup__body { all: unset; display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 12px; cursor: pointer; width: 100%; box-sizing: border-box; }
+.popup--news.popup--bad { border-left-color: rgba(232, 92, 80, 0.7); }
+.popup--news.popup--good { border-left-color: rgba(95, 196, 130, 0.7); }
+.popup--news .popup__body { all: unset; display: flex; flex-direction: column; gap: 1px; padding: 6px 10px 7px; cursor: pointer; width: 100%; box-sizing: border-box; }
 .popup__title { font-family: var(--f-pixel); font-size: 13px; color: var(--ink-soft); }
 .popup__text { font-weight: 700; }
-.popup .deltas .delta--good { color: var(--good-on-paper); }
-.popup .deltas .delta--bad { color: var(--bad-on-paper); }
+.popup--response .deltas .delta--good { color: var(--good-on-paper); }
+.popup--response .deltas .delta--bad { color: var(--bad-on-paper); }
 .popup__timer { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--ink-soft); transform-origin: left; }
 .popup--response { border-left-color: var(--stamp); padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 6px; }
 .popup__head { display: flex; justify-content: space-between; align-items: baseline; }

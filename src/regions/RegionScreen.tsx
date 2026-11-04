@@ -11,7 +11,8 @@ import { regionCohorts, traitFactors } from '@core/regions';
 import type { LogEntry, TrendPoint } from '@core/types';
 import { DEMOGRAPHIC_FIELDS, RESOURCE_IDS } from '@core/types';
 import { fmt, fmtSigned, t } from '@i18n/index';
-import { quarterOf, SERIES_COLORS, TrendChart, type Series } from '@ui/charts/TrendChart';
+import { quarterOf, TrendChart, type Series } from '@ui/charts/TrendChart';
+import { RESOURCE_COLOR } from '@ui/colors';
 import { historyTitle } from '@ui/panel/SidePanel';
 import { DeltaList } from '@ui/popups/DeltaList';
 import { getStore, useStore, type RegionTab } from '@ui/store';
@@ -20,7 +21,7 @@ import { RegionDemands } from './RegionDemands';
 import { RegionEventHistory, RegionEvents } from './RegionEvents';
 
 const TABS: RegionTab[] = ['main', 'events', 'data'];
-const RESOURCE_SERIES: Series[] = RESOURCE_IDS.map((id, i) => ({ id, label: '', color: SERIES_COLORS[i], get: (p: TrendPoint) => p.resources[id] }));
+const RESOURCE_SERIES: Series[] = RESOURCE_IDS.map((id) => ({ id, label: '', color: RESOURCE_COLOR[id], get: (p: TrendPoint) => p.resources[id] }));
 
 /** Source type of a log entry for the impact list and chart markers. */
 export function sourceKind(type: string): 'policy' | 'compromise' | 'demand' | 'chaos' | 'other' {

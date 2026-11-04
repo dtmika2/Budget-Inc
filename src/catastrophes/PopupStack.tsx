@@ -20,8 +20,8 @@ function popupText(p: Popup): string {
 const NewsPopup = memo(function NewsPopup({ p }: { p: Popup }) {
   const store = getStore();
   return (
-    <div className={`popup popup--news popup--${p.tone}`} role="status">
-      <button className="popup__body" onClick={() => store.dismissPopup(p.id)}>
+    <div className={`popup popup--news popup--${p.tone}${p.target ? ' popup--link' : ''}`} role="status">
+      <button className="popup__body" onClick={() => store.openPopup(p.id)}>
         <span className="popup__title">{t(p.titleKey)}</span>
         <span className="popup__text">{popupText(p)}</span>
         {p.deltas && <DeltaList deltas={p.deltas} />}

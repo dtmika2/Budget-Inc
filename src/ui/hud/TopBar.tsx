@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { config } from '@/config';
 import type { ResourceId } from '@core/types';
 import { RESOURCE_IDS } from '@core/types';
@@ -357,14 +357,18 @@ function SpeedControls() {
 
 export function TopBar() {
   const mock = useStore((s) => s.data?.budget.source === 'MOCK DATA');
-  const [open, setOpen] = useState<ResourceId | 'projection' | null>(null);
+  const store = getStore();
+  const open = useStore((s) => s.ui.resourceDetail);
+  const setOpen = (id: ResourceId | 'projection' | null) => store.setUi({ resourceDetail: id });
   const ref = useRef<HTMLElement>(null);
-  const toggle = (id: ResourceId | 'projection') => setOpen((o) => (o === id ? null : id));
+  const toggle = (id: ResourceId | 'projection') => setOpen(open === id ? null : id);
   // close the detail on Escape or a click outside the bar
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(null);
-    const onDown = (e: PointerEvent) => !ref.current?.contains(e.target as Node) && setOpen(null);
+    const close = () => getStore().setUi({ resourceDetail: null });
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close();
+    // pop-ups and panel rows open details themselves, so a click there does not close one first
+    const onDown = (e: PointerEvent) => !ref.current?.contains(e.target as Node) && !(e.target as Element).closest?.('.popup, .erow, .hrow') && close();
     window.addEventListener('keydown', onKey);
     window.addEventListener('pointerdown', onDown);
     return () => {

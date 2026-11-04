@@ -1,13 +1,15 @@
 /** Left panel / mobile drawer (spec §10.4): anger meters, active effects, decision history. */
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { config } from '@/config';
-import type { GroupId, LogEntry, TrendPoint } from '@core/types';
+import type { GroupId, LogEntry, ResourceId, TrendPoint } from '@core/types';
 import { GROUP_IDS, RESOURCE_IDS } from '@core/types';
-import { SERIES_COLORS, TrendChart, quarterOf, type Series } from '../charts/TrendChart';
+import { TrendChart, quarterOf, type Series } from '../charts/TrendChart';
+import { GROUP_COLOR, RESOURCE_COLOR, targetColor } from '../colors';
 import { fmt, fmtSigned, t } from '@i18n/index';
 import { Floaters } from '../popups/Floaters';
 import { HoverCard, type HoverInfo } from '../HoverCard';
-import { getStore, useStore } from '../store';
+import { getStore, targetOf, useStore, type PanelTab } from '../store';
+import { Paged } from './Paged';
 import { DeltaList } from '../popups/DeltaList';
 
 const AngerMeter = memo(function AngerMeter({ g }: { g: GroupId }) {
@@ -35,7 +37,7 @@ const AngerMeter = memo(function AngerMeter({ g }: { g: GroupId }) {
   return (
     <HoverCard as="li" info={info} className={`meter${hot ? ' meter--hot' : ''}${critical ? ' meter--critical' : ''}`}>
       <span className="meter__name">{t(`group.${g}`)}</span>
-      <span key={shake} className={`meter__bar${shake ? ' is-shaking' : ''}`} aria-hidden="true">
+      <span key={shake} className={`meter__bar${shake ? ' is-shaking' : ''}`} style={{ ['--grp-c' as string]: GROUP_COLOR[g] }} aria-hidden="true">
         <span style={{ width: `${value}%` }} />
       </span>
       <span className="meter__value">{fmt(value)}</span>
@@ -63,78 +65,84 @@ export function originLabel(origin: string): string {
   return origin;
 }
 
+interface EffectRow {
+  key: string;
+  name: string;
+  what: string;
+  when?: string;
+  tone: 'good' | 'bad' | 'neutral';
+  /** Resource or `anger.<group>` the effect acts on (its colour key and click target). */
+  target?: string;
+}
+
 function ActiveEffects() {
-  const effects = useStore((s) => {
+  const store = getStore();
+  const sig = useStore((s) => {
     const st = s.sim?.state;
-    if (!st) return [] as string[];
-    const out: string[] = [];
-    for (const o of st.ongoing) out.push(`o|${o.key}|${o.origin}|${o.target}|${o.perDay}|${o.daysLeft}|${o.label ?? ''}`);
-    for (const m of st.modifiers) if (m.daysLeft !== undefined) out.push(`m|${m.origin}|${m.target}|${m.value}|${m.daysLeft}`);
-    for (const id of ['finances', 'support', 'prestige'] as const) if (st.zeroPenalties[id]) out.push(`z|${id}`);
-    if (st.financeModAccum < 0) out.push(`i|${st.financeModAccum.toFixed(1)}`);
-    for (const e of s.sim!.data.endings) if (!e.built && st.anger[e.group] >= e.threshold) out.push(`s|${e.group}|${e.standInPenalty.target}|${e.standInPenalty.perDay}`);
-    return out;
+    if (!st) return '';
+    return [
+      ...st.ongoing.map((o) => `${o.key}${o.daysLeft}`),
+      ...st.modifiers.map((m) => `${m.origin}${m.target}${m.daysLeft}`),
+      JSON.stringify(st.zeroPenalties),
+      st.financeModAccum.toFixed(1),
+      st.ownedUpgrades.join(),
+      ...GROUP_IDS.map((g) => (st.anger[g] >= 100 ? g : '')),
+    ].join('|');
   });
-  const owned = useStore((s) => (s.sim ? [...s.sim.state.ownedUpgrades] : []));
-  if (!effects.length && !owned.length) return <p className="panel__empty">{t('panel.noEffects')}</p>;
+  const rows = useMemo(() => {
+    void sig;
+    const sim = store.sim;
+    if (!sim) return [] as EffectRow[];
+    const st = sim.state;
+    const out: EffectRow[] = [];
+    for (const o of st.ongoing)
+      out.push({
+        key: `o${o.key}`,
+        name: o.label ? t(o.label) : originLabel(o.origin),
+        what: `${targetLabel(o.target)} ${t('common.perDay', { v: fmtSigned(o.perDay, 2) })}`,
+        when: t('common.days', { n: o.daysLeft }),
+        tone: (o.target.startsWith('anger.') ? o.perDay < 0 : o.perDay > 0) ? 'good' : 'bad',
+        target: o.target,
+      });
+    // one row per modifier source (an ability's or card's several modifiers read as one effect)
+    const byOrigin = new Map<string, { days: number; target: string }>();
+    for (const m of st.modifiers) if (m.daysLeft !== undefined) byOrigin.set(m.origin, { days: Math.max(m.daysLeft, byOrigin.get(m.origin)?.days ?? 0), target: m.target });
+    for (const [origin, m] of byOrigin) out.push({ key: `m${origin}`, name: originLabel(origin), what: t('panel.modifier'), when: t('common.days', { n: m.days }), tone: 'neutral', target: m.target });
+    for (const id of ['finances', 'support', 'prestige'] as const)
+      if (st.zeroPenalties[id]) out.push({ key: `z${id}`, name: t(`penalty.${id}`), what: `${t(`resource.${id}`)} = 0`, tone: 'bad', target: id });
+    if (st.financeModAccum < 0)
+      out.push({ key: 'iso', name: t('penalty.prestige'), what: `${t('resource.short.finances')} ${fmtSigned(st.financeModAccum, 1)}`, when: t('panel.permanent'), tone: 'bad', target: 'finances' });
+    for (const e of sim.data.endings)
+      if (!e.built && st.anger[e.group] >= e.threshold)
+        out.push({
+          key: `s${e.group}`,
+          name: `${t('penalty.standIn')}: ${t(`group.${e.group}`)}`,
+          what: `${targetLabel(e.standInPenalty.target)} ${t('common.perDay', { v: fmtSigned(e.standInPenalty.perDay, 2) })}`,
+          tone: 'bad',
+          target: `anger.${e.group}`,
+        });
+    for (const id of st.ownedUpgrades) out.push({ key: `u${id}`, name: t(`upgrade.${id}.name`), what: t(`upgrade.${id}.desc`), when: t('panel.permanent'), tone: 'good' });
+    return out;
+  }, [store, sig]);
+  const go = (target?: string) => {
+    if (!target) return;
+    const res = target.split('.')[0];
+    if ((RESOURCE_IDS as readonly string[]).includes(res)) store.goTo({ kind: 'resource', id: res as ResourceId });
+    else store.goTo({ kind: 'panel', tab: 'trend' });
+  };
   return (
-    <ul className="effects">
-      {effects.map((e) => {
-        const p = e.split('|');
-        if (p[0] === 'o')
-          return (
-            <li key={e}>
-              <b>{p[6] ? t(p[6]) : originLabel(p[2])}</b>
-              <span>
-                {targetLabel(p[3])} {t('common.perDay', { v: fmtSigned(Number(p[4]), 2) })}
-              </span>
-              <em>{t('common.days', { n: p[5] })}</em>
-            </li>
-          );
-        if (p[0] === 'm')
-          return (
-            <li key={e}>
-              <b>{originLabel(p[1])}</b>
-              <span>{t('panel.modifier')}</span>
-              <em>{t('common.days', { n: p[4] })}</em>
-            </li>
-          );
-        if (p[0] === 'z')
-          return (
-            <li key={e} className="effects__bad">
-              <b>{t(`penalty.${p[1]}`)}</b>
-              <span>{t(`resource.${p[1]}`)} = 0</span>
-            </li>
-          );
-        if (p[0] === 'i')
-          return (
-            <li key={e} className="effects__bad">
-              <b>{t('penalty.prestige')}</b>
-              <span>
-                {t('resource.short.finances')} {fmtSigned(Number(p[1]), 1)}
-              </span>
-              <em>{t('panel.permanent')}</em>
-            </li>
-          );
-        return (
-          <li key={e} className="effects__bad">
-            <b>
-              {t('penalty.standIn')}: {t(`group.${p[1]}`)}
-            </b>
-            <span>
-              {targetLabel(p[2])} {t('common.perDay', { v: fmtSigned(Number(p[3]), 2) })}
-            </span>
-          </li>
-        );
-      })}
-      {owned.map((id) => (
-        <li key={id} className="effects__good">
-          <b>{t(`upgrade.${id}.name`)}</b>
-          <span>{t(`upgrade.${id}.desc`)}</span>
-          <em>{t('panel.permanent')}</em>
-        </li>
-      ))}
-    </ul>
+    <Paged
+      items={rows}
+      rowHeight={46}
+      empty={t('panel.noEffects')}
+      render={(r) => (
+        <button className={`erow erow--${r.tone}`} style={{ ['--chip-c' as string]: r.target ? targetColor(r.target) : undefined }} onClick={() => go(r.target)} disabled={!r.target}>
+          <b className="erow__name">{r.name}</b>
+          <span className="erow__what">{r.what}</span>
+          {r.when && <em className="erow__when">{r.when}</em>}
+        </button>
+      )}
+    />
   );
 }
 
@@ -189,36 +197,49 @@ export function historyTitle(e: LogEntry): { kind: string; name: string } {
 }
 
 function History() {
+  const store = getStore();
   const count = useStore((s) => s.sim?.state.log.length ?? 0);
-  const entries = useStore(
-    (s) => (s.sim ? s.sim.state.log.filter((e) => HISTORY_TYPES.has(e.type)) : []),
-    (a, b) => a.length === b.length,
-  );
-  void count;
-  if (!entries.length) return <p className="panel__empty">{t('panel.noHistory')}</p>;
+  const entries = useMemo(() => {
+    void count;
+    return (store.sim?.state.log ?? []).filter((e) => HISTORY_TYPES.has(e.type)).reverse();
+  }, [store, count]);
   return (
-    <ol className="history" reversed>
-      {[...entries].reverse().map((e, i) => {
+    <Paged
+      items={entries}
+      rowHeight={50}
+      empty={t('panel.noHistory')}
+      render={(e) => {
         const { kind, name } = historyTitle(e);
         return (
-          <li key={entries.length - i}>
-            <span className="history__when">Q{e.quarter}</span>
-            <span className="history__kind">{kind}</span>
-            <span className="history__name">{name}</span>
+          <button className="hrow" onClick={() => store.goTo(targetOf(e))}>
+            <span className="hrow__when">Q{e.quarter}</span>
+            <span className="hrow__name">
+              <small>{kind}</small> {name}
+            </span>
             {e.deltas && <DeltaList deltas={e.deltas} />}
-          </li>
+          </button>
         );
-      })}
-    </ol>
+      }}
+    />
   );
 }
 
-const RESOURCE_SERIES: Series[] = RESOURCE_IDS.map((id, i) => ({ id, label: '', color: SERIES_COLORS[i], get: (p: TrendPoint) => p.resources[id] }));
-const ANGER_SERIES: Series[] = GROUP_IDS.map((g, i) => ({ id: g, label: '', color: SERIES_COLORS[i], get: (p: TrendPoint) => p.anger[g] }));
+const RESOURCE_SERIES: Series[] = RESOURCE_IDS.map((id) => ({ id, label: '', color: RESOURCE_COLOR[id], get: (p: TrendPoint) => p.resources[id] }));
+const ANGER_SERIES: Series[] = GROUP_IDS.map((g) => ({ id: g, label: '', color: GROUP_COLOR[g], get: (p: TrendPoint) => p.anger[g] }));
 
 function Trends() {
   const [view, setView] = useState<'resources' | 'anger'>('resources');
   const points = useStore((s) => (s.sim ? s.sim.state.trend.slice() : []));
+  // the chart fills the panel's free height (no scrolling): measure the box it sits in
+  const box = useRef<HTMLDivElement>(null);
+  const [boxH, setBoxH] = useState(0);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setBoxH(el.clientHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const sim = getStore().sim!;
   const series = (view === 'resources' ? RESOURCE_SERIES : ANGER_SERIES).map((x) => ({
     ...x,
@@ -237,7 +258,9 @@ function Trends() {
           </button>
         ))}
       </div>
-      <TrendChart points={points} series={series} title={t(`chart.${view}Title`)} labelOf={labelOf} />
+      <div ref={box} className="trends__box">
+        <TrendChart points={points} series={series} title={t(`chart.${view}Title`)} labelOf={labelOf} height={Math.max(120, Math.min(320, boxH - 80))} />
+      </div>
     </div>
   );
 }
@@ -245,7 +268,8 @@ function Trends() {
 export function SidePanel() {
   const store = getStore();
   const open = useStore((s) => s.ui.drawerOpen);
-  const [tab, setTab] = useState<'trend' | 'effects' | 'history'>('trend');
+  const tab = useStore((s) => s.ui.panelTab);
+  const setTab = (t: PanelTab) => store.setUi({ panelTab: t });
   const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     if (open) ref.current?.focus();
@@ -274,7 +298,7 @@ export function SidePanel() {
             {t('panel.history')}
           </button>
         </div>
-        <div className="panel__scroll">{tab === 'trend' ? <Trends /> : tab === 'effects' ? <ActiveEffects /> : <History />}</div>
+        <div className="panel__body">{tab === 'trend' ? <Trends /> : tab === 'effects' ? <ActiveEffects /> : <History />}</div>
       </aside>
     </>
   );
