@@ -28,13 +28,6 @@
         "max": 1
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "329",
-        "type": "expenditure",
-        "changePct": 16.5
-      }
-    ],
     "chaosEvents": [
       "filler_evt_mupka_01"
     ],
@@ -70,18 +63,6 @@
         "max": 6
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "315",
-        "type": "revenue",
-        "changePct": 20
-      },
-      {
-        "chapter": "333",
-        "type": "revenue",
-        "changePct": 20
-      }
-    ],
     "chaosEvents": [
       "filler_evt_mupka_02"
     ],
@@ -131,14 +112,9 @@
     ],
     "budgetChanges": [
       {
-        "chapter": "329",
-        "type": "revenue",
-        "changePct": 20
-      },
-      {
-        "chapter": "333",
+        "chapter": "314",
         "type": "expenditure",
-        "changePct": 5.5
+        "changePct": 5.7
       }
     ],
     "chaosEvents": [
@@ -178,14 +154,9 @@
     },
     "budgetChanges": [
       {
-        "chapter": "314",
-        "type": "revenue",
-        "changePct": 20
-      },
-      {
-        "chapter": "314",
+        "chapter": "313",
         "type": "expenditure",
-        "changePct": 6
+        "changePct": 1
       }
     ],
     "chaosEvents": [
@@ -231,18 +202,6 @@
         "max": -6
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "313",
-        "type": "revenue",
-        "changePct": 1.5
-      },
-      {
-        "chapter": "329",
-        "type": "revenue",
-        "changePct": -20
-      }
-    ],
     "chaosEvents": [
       "filler_evt_mupka_05"
     ],
@@ -282,13 +241,6 @@
         "max": 5
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "313",
-        "type": "expenditure",
-        "changePct": -1.5
-      }
-    ],
     "chaosEvents": [
       "filler_evt_mupka_06"
     ],
@@ -324,13 +276,6 @@
         "max": -7
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "398",
-        "type": "revenue",
-        "changePct": -1
-      }
-    ],
     "chaosEvents": [
       "filler_evt_mupka_07"
     ],
@@ -370,18 +315,6 @@
         "max": -3
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "327",
-        "type": "expenditure",
-        "changePct": -6
-      },
-      {
-        "chapter": "327",
-        "type": "expenditure",
-        "changePct": -19
-      }
-    ],
     "chaosEvents": [
       "filler_evt_mupka_08"
     ],
@@ -421,13 +354,6 @@
         "max": 1
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "314",
-        "type": "expenditure",
-        "changePct": -20
-      }
-    ],
     "chaosEvents": [
       "filler_evt_mupka_09"
     ],
@@ -474,8 +400,8 @@
     "budgetChanges": [
       {
         "chapter": "333",
-        "type": "revenue",
-        "changePct": -20
+        "type": "expenditure",
+        "changePct": 4
       }
     ],
     "chaosEvents": [
@@ -513,13 +439,6 @@
         "max": -6
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "315",
-        "type": "expenditure",
-        "changePct": 20
-      }
-    ],
     "chaosEvents": [
       "filler_evt_mupka_11"
     ],
@@ -570,14 +489,9 @@
     ],
     "budgetChanges": [
       {
-        "chapter": "313",
-        "type": "revenue",
-        "changePct": 3.5
-      },
-      {
         "chapter": "329",
         "type": "expenditure",
-        "changePct": -10.5
+        "changePct": -7.3
       }
     ],
     "chaosEvents": [
@@ -617,9 +531,9 @@
     },
     "budgetChanges": [
       {
-        "chapter": "313",
+        "chapter": "398",
         "type": "revenue",
-        "changePct": -2.5
+        "changePct": -0.3
       }
     ],
     "chaosEvents": [
@@ -659,14 +573,9 @@
     },
     "budgetChanges": [
       {
-        "chapter": "329",
+        "chapter": "398",
         "type": "revenue",
-        "changePct": 20
-      },
-      {
-        "chapter": "314",
-        "type": "expenditure",
-        "changePct": -6
+        "changePct": -0.3
       }
     ],
     "chaosEvents": [
@@ -708,7 +617,7 @@
       {
         "chapter": "312",
         "type": "expenditure",
-        "changePct": 20
+        "changePct": 17
       }
     ],
     "chaosEvents": [
@@ -748,9 +657,9 @@
     },
     "budgetChanges": [
       {
-        "chapter": "312",
+        "chapter": "398",
         "type": "revenue",
-        "changePct": 20
+        "changePct": 0.6
       }
     ],
     "chaosEvents": [
@@ -790,9 +699,9 @@
     },
     "budgetChanges": [
       {
-        "chapter": "312",
+        "chapter": "398",
         "type": "revenue",
-        "changePct": 20
+        "changePct": 0.3
       }
     ],
     "chaosEvents": [
@@ -836,18 +745,6 @@
         "perDay": 0.04,
         "days": 150,
         "label": "policy.filler_mupka_18.ongoing"
-      }
-    ],
-    "budgetChanges": [
-      {
-        "chapter": "333",
-        "type": "revenue",
-        "changePct": -20
-      },
-      {
-        "chapter": "315",
-        "type": "expenditure",
-        "changePct": 20
       }
     ],
     "chaosEvents": [
@@ -897,7 +794,7 @@
       {
         "chapter": "314",
         "type": "expenditure",
-        "changePct": 10.5
+        "changePct": 5.7
       }
     ],
     "chaosEvents": [
@@ -946,13 +843,8 @@
     "budgetChanges": [
       {
         "chapter": "307",
-        "type": "revenue",
-        "changePct": 20
-      },
-      {
-        "chapter": "314",
-        "type": "revenue",
-        "changePct": -20
+        "type": "expenditure",
+        "changePct": 12.4
       }
     ],
     "chaosEvents": [
@@ -1000,14 +892,9 @@
     ],
     "budgetChanges": [
       {
-        "chapter": "313",
+        "chapter": "398",
         "type": "revenue",
-        "changePct": -1.5
-      },
-      {
-        "chapter": "307",
-        "type": "revenue",
-        "changePct": -20
+        "changePct": 0.6
       }
     ],
     "chaosEvents": [
@@ -1055,9 +942,9 @@
     ],
     "budgetChanges": [
       {
-        "chapter": "333",
+        "chapter": "398",
         "type": "revenue",
-        "changePct": 20
+        "changePct": -0.6
       }
     ],
     "chaosEvents": [
@@ -1101,14 +988,9 @@
     },
     "budgetChanges": [
       {
-        "chapter": "333",
-        "type": "expenditure",
-        "changePct": -3.5
-      },
-      {
         "chapter": "398",
         "type": "expenditure",
-        "changePct": -2
+        "changePct": -1.5
       }
     ],
     "chaosEvents": [
@@ -1150,12 +1032,7 @@
       {
         "chapter": "327",
         "type": "revenue",
-        "changePct": -20
-      },
-      {
-        "chapter": "315",
-        "type": "expenditure",
-        "changePct": -20
+        "changePct": -34
       }
     ],
     "chaosEvents": [
@@ -1193,18 +1070,6 @@
         "max": -4
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "307",
-        "type": "revenue",
-        "changePct": 20
-      },
-      {
-        "chapter": "313",
-        "type": "expenditure",
-        "changePct": 1
-      }
-    ],
     "chaosEvents": [
       "filler_evt_abis_03"
     ],
@@ -1242,9 +1107,9 @@
     },
     "budgetChanges": [
       {
-        "chapter": "312",
-        "type": "expenditure",
-        "changePct": -20
+        "chapter": "398",
+        "type": "revenue",
+        "changePct": 0.6
       }
     ],
     "chaosEvents": [
@@ -1290,18 +1155,6 @@
         "max": 2.5
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "312",
-        "type": "revenue",
-        "changePct": -20
-      },
-      {
-        "chapter": "329",
-        "type": "revenue",
-        "changePct": 20
-      }
-    ],
     "chaosEvents": [
       "filler_evt_abis_05"
     ],
@@ -1345,18 +1198,6 @@
         "label": "policy.filler_abis_06.ongoing"
       }
     ],
-    "budgetChanges": [
-      {
-        "chapter": "314",
-        "type": "expenditure",
-        "changePct": -20
-      },
-      {
-        "chapter": "335",
-        "type": "expenditure",
-        "changePct": -20
-      }
-    ],
     "chaosEvents": [
       "filler_evt_abis_06"
     ],
@@ -1392,18 +1233,6 @@
         "max": -3
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "313",
-        "type": "expenditure",
-        "changePct": -2
-      },
-      {
-        "chapter": "333",
-        "type": "revenue",
-        "changePct": -20
-      }
-    ],
     "chaosEvents": [
       "filler_evt_abis_07"
     ],
@@ -1445,9 +1274,9 @@
     },
     "budgetChanges": [
       {
-        "chapter": "313",
+        "chapter": "398",
         "type": "revenue",
-        "changePct": 3.5
+        "changePct": -1.2
       }
     ],
     "chaosEvents": [
@@ -1485,13 +1314,6 @@
         "max": 2
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "313",
-        "type": "expenditure",
-        "changePct": -2
-      }
-    ],
     "chaosEvents": [
       "filler_evt_abis_09"
     ],
@@ -1531,12 +1353,7 @@
       {
         "chapter": "307",
         "type": "expenditure",
-        "changePct": 10.5
-      },
-      {
-        "chapter": "314",
-        "type": "revenue",
-        "changePct": -20
+        "changePct": 9.3
       }
     ],
     "chaosEvents": [
@@ -1574,13 +1391,6 @@
         "max": -2
       }
     },
-    "budgetChanges": [
-      {
-        "chapter": "313",
-        "type": "revenue",
-        "changePct": -3.5
-      }
-    ],
     "chaosEvents": [
       "filler_evt_abis_11"
     ],
@@ -1630,9 +1440,9 @@
     ],
     "budgetChanges": [
       {
-        "chapter": "314",
-        "type": "revenue",
-        "changePct": 20
+        "chapter": "327",
+        "type": "expenditure",
+        "changePct": 4.1
       }
     ],
     "chaosEvents": [
@@ -1672,14 +1482,9 @@
     },
     "budgetChanges": [
       {
-        "chapter": "313",
-        "type": "revenue",
-        "changePct": -3
-      },
-      {
-        "chapter": "315",
-        "type": "revenue",
-        "changePct": 20
+        "chapter": "333",
+        "type": "expenditure",
+        "changePct": 3.8
       }
     ],
     "chaosEvents": [
@@ -1723,18 +1528,6 @@
         "perDay": -0.05,
         "days": 150,
         "label": "policy.filler_abis_14.ongoing"
-      }
-    ],
-    "budgetChanges": [
-      {
-        "chapter": "333",
-        "type": "expenditure",
-        "changePct": -4.5
-      },
-      {
-        "chapter": "398",
-        "type": "revenue",
-        "changePct": 0.5
       }
     ],
     "chaosEvents": [
@@ -1786,14 +1579,9 @@
     ],
     "budgetChanges": [
       {
-        "chapter": "398",
+        "chapter": "315",
         "type": "expenditure",
-        "changePct": 2
-      },
-      {
-        "chapter": "327",
-        "type": "revenue",
-        "changePct": 20
+        "changePct": -12.8
       }
     ],
     "chaosEvents": [
@@ -1815,10 +1603,6 @@
       "support": {
         "min": -1,
         "max": 1
-      },
-      "finances": {
-        "min": 1,
-        "max": 2
       }
     },
     "anger": {
@@ -1885,7 +1669,7 @@
       {
         "chapter": "314",
         "type": "revenue",
-        "changePct": -20
+        "changePct": -51
       }
     ],
     "chaosEvents": [
@@ -1926,8 +1710,8 @@
     "budgetChanges": [
       {
         "chapter": "333",
-        "type": "revenue",
-        "changePct": -20
+        "type": "expenditure",
+        "changePct": 3.8
       }
     ],
     "chaosEvents": [
@@ -1967,14 +1751,9 @@
     },
     "budgetChanges": [
       {
-        "chapter": "335",
+        "chapter": "398",
         "type": "revenue",
-        "changePct": 20
-      },
-      {
-        "chapter": "329",
-        "type": "revenue",
-        "changePct": -20
+        "changePct": 0.6
       }
     ],
     "chaosEvents": [
@@ -2022,9 +1801,9 @@
     ],
     "budgetChanges": [
       {
-        "chapter": "312",
+        "chapter": "398",
         "type": "revenue",
-        "changePct": 20
+        "changePct": 0.6
       }
     ],
     "chaosEvents": [
@@ -2065,8 +1844,8 @@
     "budgetChanges": [
       {
         "chapter": "333",
-        "type": "revenue",
-        "changePct": -20
+        "type": "expenditure",
+        "changePct": 1.9
       }
     ],
     "chaosEvents": [
