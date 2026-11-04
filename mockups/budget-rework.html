@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<title>Budget Inc. — návrhy: efekty a rozpočet</title>
+<!-- Design mockups only (not part of the game build). Served by the dev server: /mockups/budget-rework.html?v=<variant> -->
+<script type="module">
+  import '@fontsource/pixelify-sans/latin-ext-500.css';
+  import '@fontsource/pixelify-sans/latin-ext-700.css';
+  import '@fontsource/pixelify-sans/latin-500.css';
+  import '@fontsource/pixelify-sans/latin-700.css';
+  import '@fontsource/silkscreen/latin-400.css';
+  import '@fontsource/silkscreen/latin-ext-400.css';
+  import '@fontsource/atkinson-hyperlegible/latin-ext-400.css';
+  import '@fontsource/atkinson-hyperlegible/latin-ext-700.css';
+  import '@fontsource/atkinson-hyperlegible/latin-400.css';
+  import '@fontsource/atkinson-hyperlegible/latin-700.css';
+  import '/src/ui/styles/global.css';
+  const v = new URLSearchParams(location.search).get('v') ?? 'effects-a';
+  document.body.dataset.v = v;
+  document.fonts.ready.then(() => document.body.classList.add('ready'));
+</script>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--ground, #1b1729); overflow: hidden; }
+  section { display: none; }
+  body[data-v='effects-a'] #effects-a, body[data-v='effects-b'] #effects-b, body[data-v='effects-c'] #effects-c,
+  body[data-v='budget-a'] #budget-a, body[data-v='budget-b'] #budget-b, body[data-v='midyear'] #midyear { display: block; }
+  .stage { width: 1280px; height: 800px; box-sizing: border-box; padding: 28px 40px; display: flex; flex-direction: column; gap: 14px; color: var(--text); font-family: var(--f-body); }
+  .stage__head { display: flex; justify-content: space-between; align-items: baseline; }
+  .stage__head h2 { margin: 0; font: 26px var(--f-pixel); color: var(--gold); }
+  .stage__head p { margin: 0; color: var(--text-dim); font-size: 15px; }
+  .variant { font: 14px var(--f-pixel); color: var(--ground); background: var(--gold); padding: 2px 8px; }
+  .cards { display: grid; grid-template-columns: repeat(2, 380px); gap: 22px; justify-content: center; align-items: start; }
+  .memo { min-height: 0; }
+  .x { --fin: #e2b84a; --sup: #ec6f8e; --coa: #a78bfa; --pre: #5fb2f0; --oli: #e0873a; --pen: #b9ad93; --med: #2fa898; --eu: #4b6fe0; --act: #4fa260; }
+  .sq { display: inline-block; width: 9px; height: 9px; margin-right: 5px; box-shadow: 0 0 0 1px rgba(0,0,0,.4); }
+  .g { color: var(--good-on-paper); } .b { color: var(--bad-on-paper); } .m { color: #a99f86; }
+  .fx-lane { border-top: 2px dashed rgba(42,34,51,.18); padding: 6px 0 4px; }
+  .fx-lane__h { display: flex; align-items: center; gap: 6px; font: 12px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+  .fx-ico { width: 16px; height: 16px; display: inline-grid; place-items: center; font: 11px var(--f-pixel); color: var(--paper); background: var(--ink); }
+  .fx-row { display: grid; grid-template-columns: 74px 1fr 52px; gap: 6px; align-items: center; font-size: 13px; margin: 2px 0; }
+  .fx-bar { height: 9px; background: rgba(42,34,51,.1); position: relative; }
+  .fx-bar i { position: absolute; top: 0; bottom: 0; }
+  .fx-bar::after { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; border-left: 1px solid rgba(42,34,51,.35); }
+  .fx-num { text-align: right; font: 13px var(--f-num); }
+  .fx-kraj { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 1px 6px; margin: 2px 3px 0 0; background: rgba(214,188,108,.45); border-left: 3px solid var(--good-on-paper); }
+  .fx-kraj.b { border-left-color: var(--bad-on-paper); }
+  .score { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; text-align: center; }
+  .score > div { padding-top: 3px; border-top: 4px solid; }
+  .score small { display: block; font: 11px var(--f-pixel); color: var(--ink-soft); }
+  .score b { font: 18px var(--f-num); }
+  .mood { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 1px 6px; margin: 2px 3px 0 0; background: rgba(42,34,51,.07); }
+  .verdict { display: flex; gap: 6px; }
+  .verdict span { font: 12px var(--f-pixel); padding: 2px 7px; }
+  .vb-good { background: #cfe7c9; color: #245c2c; } .vb-bad { background: #f0cfc8; color: #8a2a20; } .vb-n { background: rgba(42,34,51,.08); color: var(--ink-soft); }
+  .vl { padding: 5px 0 3px; border-top: 2px dashed rgba(42,34,51,.18); font-size: 13px; line-height: 1.5; }
+  .vl__h { font: 12px var(--f-pixel); text-transform: uppercase; }
+  .vl em { font-style: normal; font: 11px var(--f-pixel); color: var(--paper); background: var(--ink); padding: 0 3px; margin-right: 3px; }
+  .mini-map { width: 110px; height: 56px; }
+  /* budget */
+  .bm { width: 1060px; margin: 0 auto; background: var(--panel, #231e36); border: 3px solid var(--gold-dim); box-shadow: var(--shadow); padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; }
+  .bm__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .bm__head h3 { margin: 0; font: 26px var(--f-pixel); color: var(--text); }
+  .bm__head p { margin: 4px 0 0; color: var(--text-dim); font-size: 14px; }
+  .kpis { display: flex; gap: 8px; align-items: stretch; }
+  .kpi { min-width: 104px; padding: 5px 10px 7px; background: var(--panel-2); border: 2px solid var(--line); display: flex; flex-direction: column; align-items: flex-end; }
+  .kpi span { font: 11px var(--f-pixel); color: var(--text-dim); } .kpi b { font: 400 26px/1 var(--f-num); }
+  .kpi--good b { color: var(--good); } .kpi--gold b { color: var(--gold); font-size: 15px; line-height: 26px; }
+  .submit { font: 17px var(--f-pixel); padding: 0 16px; background: var(--stamp); color: #fff; border: 2px solid #8f241f; box-shadow: 3px 3px 0 #0c0a14; }
+  .chips { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+  .chip-btn { padding: 4px 11px; border: 2px solid var(--line); color: var(--text); font-size: 13px; }
+  .chip-btn.on { background: var(--gold); color: var(--ground); border-color: var(--gold); }
+  .tbl { display: flex; flex-direction: column; gap: 5px; }
+  .tr { display: grid; grid-template-columns: 28px 170px 150px 1fr 1fr 1fr 96px; gap: 10px; align-items: center; padding: 6px 10px; background: var(--panel-2); border: 2px solid var(--line); border-left: 5px solid rgba(95,196,130,.7); font-size: 13px; }
+  .tr.th { background: none; border: 0; padding: 0 12px; color: var(--text-dim); font: 12px var(--f-pixel); }
+  .tr.prio { border-color: var(--gold); background: rgba(217,180,90,.12); }
+  .tr.cut { border-left-color: var(--bad); }
+  .star { font-size: 18px; color: #4a4258; } .tr.prio .star { color: var(--gold); }
+  .nm { font: 16px var(--f-pixel); } .nm small { display: inline-block; margin-left: 6px; font: 10px var(--f-pixel); color: var(--ground); background: var(--gold); padding: 1px 4px; }
+  .stp { display: flex; align-items: center; gap: 3px; } .stp i { width: 30px; height: 30px; display: grid; place-items: center; border: 2px solid var(--line); background: var(--panel); font: 700 18px var(--f-pixel); font-style: normal; }
+  .stp b { min-width: 58px; text-align: center; font: 15px var(--f-num); }
+  .cell { display: flex; flex-wrap: wrap; gap: 3px 8px; font-size: 12px; } .cell .gd { color: var(--good); } .cell .bd { color: #ff8d80; } .cell .mm { color: var(--text-dim); }
+  .zone { justify-self: end; font: 12px var(--f-pixel); padding: 2px 6px; color: var(--text-dim); } .zone.bad { color: var(--ground); background: var(--bad); } .zone.x2 { color: var(--ground); background: var(--gold); }
+  .colh { display: inline-flex; align-items: center; gap: 5px; }
+  .note { font-size: 13px; color: var(--text-dim); }
+  .bcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .bc { background: var(--panel-2); border: 2px solid var(--line); border-top: 5px solid rgba(95,196,130,.7); padding: 9px 11px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+  .bc.prio { border-color: var(--gold); background: rgba(217,180,90,.1); } .bc.cut { border-top-color: var(--bad); }
+  .bc__h { display: flex; justify-content: space-between; align-items: center; }
+  .bc__l { display: grid; grid-template-columns: 62px 1fr; gap: 6px; align-items: baseline; }
+  .bc__l > span:first-child { font: 11px var(--f-pixel); color: var(--text-dim); }
+  .adv { font-size: 12px; color: var(--text-dim); border-top: 1px dashed var(--line); padding-top: 5px; }
+</style>
+</head>
+<body>
+
+<!-- ============ EFFECTS A: three lanes ============ -->
+<section id="effects-a"><div class="stage x">
+  <div class="stage__head"><h2>Čtvrtletní výběr politiky</h2><span class="variant">Efekty · varianta A · tři pruhy</span></div>
+  <p class="note">Každý typ metriky má svůj pruh: zdroje (vždy všechny čtyři), zájmové skupiny a kraje. Pruh od středu doprava = zisk, doleva = ztráta. Kraje jsou vidět jen tam, kde karta na kraje působí (zde ilustrace).</p>
+  <div class="cards">
+    <article class="memo" data-leaning="populism">
+      <header class="memo__head"><span class="memo__leaning"><span class="memo__glyph">✊</span> Populismus</span></header>
+      <h3 class="memo__title">Posílíme ochranu hranic</h3><p class="memo__flavor">„Chcete dopadnout jako Němci?“</p>
+      <div class="fx-lane"><div class="fx-lane__h"><span class="fx-ico">$</span>Zdroje</div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--fin)"></span>Finance</span><div class="fx-bar"></div><span class="fx-num m">–</span></div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--sup)"></span>Podpora</span><div class="fx-bar"><i style="left:50%;width:12%;background:var(--sup)"></i></div><span class="fx-num g">+2…3</span></div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--coa)"></span>Koalice</span><div class="fx-bar"><i style="right:50%;width:5%;background:var(--coa)"></i></div><span class="fx-num">−2…1</span></div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--pre)"></span>Prestiž</span><div class="fx-bar"><i style="left:50%;width:24%;background:var(--pre)"></i></div><span class="fx-num g">+4…6</span></div></div>
+      <div class="fx-lane"><div class="fx-lane__h"><span class="fx-ico">☺</span>Skupiny · naštvanost</div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--med)"></span>Média</span><div class="fx-bar"><i style="left:50%;width:12%;background:var(--med)"></i></div><span class="fx-num b">▲1…4</span></div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--act)"></span>Aktivisté</span><div class="fx-bar"><i style="right:50%;width:20%;background:var(--act)"></i></div><span class="fx-num g">▼3…5</span></div></div>
+      <div class="fx-lane"><div class="fx-lane__h"><span class="fx-ico">⌖</span>Kraje</div>
+        <span class="fx-kraj">Příhraniční kraje +1…2</span></div>
+      <button class="btn btn--stamp memo__pick">Prosadit</button>
+    </article>
+    <article class="memo" data-leaning="socialism">
+      <header class="memo__head"><span class="memo__leaning"><span class="memo__glyph">⚒</span> Socialismus</span></header>
+      <h3 class="memo__title">Dostupné bydlení</h3><p class="memo__flavor">„Mladí lidé si nemůžou našetřit na vlastní bydlení!“</p>
+      <div class="fx-lane"><div class="fx-lane__h"><span class="fx-ico">$</span>Zdroje</div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--fin)"></span>Finance</span><div class="fx-bar"></div><span class="fx-num m">–</span></div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--sup)"></span>Podpora</span><div class="fx-bar"></div><span class="fx-num m">–</span></div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--coa)"></span>Koalice</span><div class="fx-bar"><i style="left:50%;width:14%;background:var(--coa)"></i></div><span class="fx-num g">+2…4</span></div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--pre)"></span>Prestiž</span><div class="fx-bar"><i style="left:50%;width:5%;background:var(--pre)"></i></div><span class="fx-num g">0…2</span></div></div>
+      <div class="fx-lane"><div class="fx-lane__h"><span class="fx-ico">☺</span>Skupiny · naštvanost</div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--act)"></span>Aktivisté</span><div class="fx-bar"><i style="left:50%;width:30%;background:var(--act)"></i></div><span class="fx-num b">▲6…7</span></div>
+        <div class="fx-row"><span><span class="sq" style="background:var(--oli)"></span>Oligarch.</span><div class="fx-bar"><i style="right:50%;width:18%;background:var(--oli)"></i></div><span class="fx-num g">▼3…5</span></div></div>
+      <div class="fx-lane"><div class="fx-lane__h"><span class="fx-ico">⌖</span>Kraje</div>
+        <span class="fx-kraj">Praha +2</span><span class="fx-kraj">Brno +1</span><span class="fx-kraj b">venkov −1</span></div>
+      <button class="btn btn--stamp memo__pick">Prosadit</button>
+    </article>
+  </div>
+</div></section>
+
+<!-- ============ EFFECTS B: scoreboard ============ -->
+<section id="effects-b"><div class="stage x">
+  <div class="stage__head"><h2>Čtvrtletní výběr politiky</h2><span class="variant">Efekty · varianta B · výsledková tabule</span></div>
+  <p class="note">Zdroje jako čtyři velká čísla v barvách zdrojů, skupiny jako nálada (klidnější / naštvanější), kraje jako počet nahoru / dolů s malou mapkou. Nejrychlejší na čtení, přesná čísla skupin až po najetí.</p>
+  <div class="cards">
+    <article class="memo" data-leaning="populism">
+      <header class="memo__head"><span class="memo__leaning"><span class="memo__glyph">✊</span> Populismus</span></header>
+      <h3 class="memo__title">Posílíme ochranu hranic</h3><p class="memo__flavor">„Chcete dopadnout jako Němci?“</p>
+      <div class="fx-lane"><div class="score">
+        <div style="border-color:var(--fin)"><small>Finance</small><b class="m">–</b></div>
+        <div style="border-color:var(--sup)"><small>Podpora</small><b class="g">+3</b></div>
+        <div style="border-color:var(--coa)"><small>Koalice</small><b>±1</b></div>
+        <div style="border-color:var(--pre)"><small>Prestiž</small><b class="g">+5</b></div></div></div>
+      <div class="fx-lane"><div class="fx-lane__h"><span class="fx-ico">☺</span>Skupiny</div>
+        <span class="mood"><span class="sq" style="background:var(--med)"></span>Média <b class="b">naštvanější</b></span>
+        <span class="mood"><span class="sq" style="background:var(--act)"></span>Aktivisté <b class="g">klidnější</b></span></div>
+      <div class="fx-lane" style="display:flex;justify-content:space-between;align-items:center"><div><div class="fx-lane__h"><span class="fx-ico">⌖</span>Kraje</div><span class="verdict"><span class="vb-good">↑ 4 kraje</span></span></div>
+        <svg class="mini-map" viewBox="0 0 110 56"><path d="M8 22 L30 8 L58 6 L80 14 L104 22 L100 40 L74 50 L44 52 L18 44 Z" fill="rgba(42,34,51,.12)" stroke="rgba(42,34,51,.4)"/><path d="M8 22 L30 8 L40 16 L22 30 Z" fill="#5fa36a"/><path d="M80 14 L104 22 L96 30 Z" fill="#5fa36a"/><path d="M58 6 L80 14 L70 20 L54 14 Z" fill="#5fa36a"/><path d="M74 50 L100 40 L92 36 L70 44 Z" fill="#5fa36a"/></svg></div>
+      <button class="btn btn--stamp memo__pick">Prosadit</button>
+    </article>
+    <article class="memo" data-leaning="socialism">
+      <header class="memo__head"><span class="memo__leaning"><span class="memo__glyph">⚒</span> Socialismus</span></header>
+      <h3 class="memo__title">Dostupné bydlení</h3><p class="memo__flavor">„Mladí lidé si nemůžou našetřit na vlastní bydlení!“</p>
+      <div class="fx-lane"><div class="score">
+        <div style="border-color:var(--fin)"><small>Finance</small><b class="m">–</b></div>
+        <div style="border-color:var(--sup)"><small>Podpora</small><b class="m">–</b></div>
+        <div style="border-color:var(--coa)"><small>Koalice</small><b class="g">+3</b></div>
+        <div style="border-color:var(--pre)"><small>Prestiž</small><b class="g">+1</b></div></div></div>
+      <div class="fx-lane"><div class="fx-lane__h"><span class="fx-ico">☺</span>Skupiny</div>
+        <span class="mood"><span class="sq" style="background:var(--act)"></span>Aktivisté <b class="b">naštvanější</b></span>
+        <span class="mood"><span class="sq" style="background:var(--oli)"></span>Oligarchové <b class="g">klidnější</b></span></div>
+      <div class="fx-lane" style="display:flex;justify-content:space-between;align-items:center"><div><div class="fx-lane__h"><span class="fx-ico">⌖</span>Kraje</div><span class="verdict"><span class="vb-good">↑ 2</span><span class="vb-bad">↓ 5</span></span></div>
+        <svg class="mini-map" viewBox="0 0 110 56"><path d="M8 22 L30 8 L58 6 L80 14 L104 22 L100 40 L74 50 L44 52 L18 44 Z" fill="#d79a8f" stroke="rgba(42,34,51,.4)"/><circle cx="42" cy="26" r="6" fill="#5fa36a"/><circle cx="76" cy="38" r="5" fill="#5fa36a"/></svg></div>
+      <button class="btn btn--stamp memo__pick">Prosadit</button>
+    </article>
+  </div>
+</div></section>
+
+<!-- ============ EFFECTS C: verdict first ============ -->
+<section id="effects-c"><div class="stage x">
+  <div class="stage__head"><h2>Čtvrtletní výběr politiky</h2><span class="variant">Efekty · varianta C · nejdřív verdikt</span></div>
+  <p class="note">Nahoře souhrn (kolik zisků, kolik ztrát), pod ním „Pomůže“ a „Uškodí“. Typ metriky poznáš podle štítku: Z = zdroj, S = skupina, K = kraj. Nejrychlejší rozhodování, typy jsou v jednom seznamu.</p>
+  <div class="cards">
+    <article class="memo" data-leaning="populism">
+      <header class="memo__head"><span class="memo__leaning"><span class="memo__glyph">✊</span> Populismus</span></header>
+      <h3 class="memo__title">Posílíme ochranu hranic</h3><p class="memo__flavor">„Chcete dopadnout jako Němci?“</p>
+      <div class="verdict"><span class="vb-good">4 zisky</span><span class="vb-bad">1 ztráta</span><span class="vb-n">1 nejisté</span></div>
+      <div class="vl"><div class="vl__h g">▲ Pomůže</div><em>Z</em>Prestiž <b class="g">+4…6</b> · <em>Z</em>Podpora <b class="g">+2…3</b><br><em>S</em>Aktivisté <b class="g">▼3…5</b> · <em>K</em>příhraniční <b class="g">+1…2</b></div>
+      <div class="vl"><div class="vl__h b">▼ Uškodí</div><em>S</em>Média <b class="b">▲1…4</b></div>
+      <div class="vl"><div class="vl__h" style="color:var(--ink-soft)">± Nejisté</div><em>Z</em>Koalice <b>−2…+1</b></div>
+      <button class="btn btn--stamp memo__pick">Prosadit</button>
+    </article>
+    <article class="memo" data-leaning="socialism">
+      <header class="memo__head"><span class="memo__leaning"><span class="memo__glyph">⚒</span> Socialismus</span></header>
+      <h3 class="memo__title">Dostupné bydlení</h3><p class="memo__flavor">„Mladí lidé si nemůžou našetřit na vlastní bydlení!“</p>
+      <div class="verdict"><span class="vb-good">5 zisků</span><span class="vb-bad">2 ztráty</span></div>
+      <div class="vl"><div class="vl__h g">▲ Pomůže</div><em>Z</em>Koalice <b class="g">+2…4</b> · <em>Z</em>Prestiž <b class="g">0…2</b><br><em>S</em>Oligarchové <b class="g">▼3…5</b> · <em>K</em>Praha <b class="g">+2</b> · <em>K</em>Brno <b class="g">+1</b></div>
+      <div class="vl"><div class="vl__h b">▼ Uškodí</div><em>S</em>Aktivisté <b class="b">▲6…7</b> · <em>K</em>venkov <b class="b">−1</b></div>
+      <button class="btn btn--stamp memo__pick">Prosadit</button>
+    </article>
+  </div>
+</div></section>
+
+<!-- ============ BUDGET A: list with impact columns ============ -->
+<section id="budget-a"><div class="stage">
+  <div class="bm">
+    <div class="bm__head"><div><h3>Roční rozpočet</h3><p>Prosinec · povinné výdaje +2 % · vyber jednu prioritu (★ = zisky ×2, škrt ×2)</p></div>
+      <div class="kpis"><div class="kpi kpi--good"><span>Šance</span><b>64 %</b></div><div class="kpi kpi--good"><span>Finance</span><b>+6</b></div><div class="kpi kpi--gold"><span>Priorita</span><b>★ Školství</b></div><button class="submit">Předložit sněmovně</button></div></div>
+    <div class="chips"><span class="note">Předvolby</span><span class="chip-btn">Úsporný</span><span class="chip-btn on">Vyrovnaný</span><span class="chip-btn">Štědrý</span><span class="chip-btn" style="margin-left:auto;border-color:var(--gold-dim);color:var(--gold)">↻ Jiné oblasti · 1 PK</span></div>
+    <div class="tbl">
+      <div class="tr th"><span></span><span>Oblast</span><span>Krok</span><span class="colh"><span class="sq" style="background:#e2b84a"></span>Zdroje</span><span class="colh">☺ Skupiny</span><span class="colh">⌖ Kraje</span><span></span></div>
+      <div class="tr prio"><span class="star">★</span><span class="nm">Školství<small>hlavní</small></span><span class="stp"><i>−</i><b>+20 %</b><i>+</i></span><span class="cell"><span class="bd">Fin −4</span><span class="gd">Podp +6</span></span><span class="cell"><span class="gd">Aktivisté ▼8</span></span><span class="cell"><span class="gd">univerzitní +3</span></span><span class="zone x2">×2</span></div>
+      <div class="tr cut"><span class="star">☆</span><span class="nm">Důchody<small>hlavní</small></span><span class="stp"><i>−</i><b style="color:var(--bad)">−20 %</b><i>+</i></span><span class="cell"><span class="gd">Fin +9</span><span class="bd">Podp −5</span></span><span class="cell"><span class="bd">Důchodci ▲12</span></span><span class="cell"><span class="bd">venkovské −4</span></span><span class="zone bad">škrt!</span></div>
+      <div class="tr"><span class="star">☆</span><span class="nm">Doprava</span><span class="stp"><i>−</i><b>+10 %</b><i>+</i></span><span class="cell"><span class="bd">Fin −2</span><span class="gd">Podp +2</span></span><span class="cell"><span class="gd">Oligarchové ▼3</span></span><span class="cell"><span class="gd">venkovské +2</span></span><span class="zone">v klidu</span></div>
+      <div class="tr"><span class="star">☆</span><span class="nm">Policie</span><span class="stp"><i>−</i><b>0 %</b><i>+</i></span><span class="cell"><span class="mm">–</span></span><span class="cell"><span class="mm">–</span></span><span class="cell"><span class="mm">–</span></span><span class="zone">v klidu</span></div>
+      <div class="tr"><span class="star">☆</span><span class="nm">Energetika</span><span class="stp"><i>−</i><b>−10 %</b><i>+</i></span><span class="cell"><span class="gd">Fin +2</span></span><span class="cell"><span class="bd">Oligarchové ▲3</span></span><span class="cell"><span class="bd">uhelné −2</span></span><span class="zone">v klidu</span></div>
+      <div class="tr"><span class="star">☆</span><span class="nm">Bydlení</span><span class="stp"><i>−</i><b>0 %</b><i>+</i></span><span class="cell"><span class="mm">–</span></span><span class="cell"><span class="mm">–</span></span><span class="cell"><span class="mm">–</span></span><span class="zone">v klidu</span></div>
+    </div>
+    <p class="note">Klik na řádek: poradce vysvětlí bezpečné pásmo a co se stane za ním. Klik na ☆: oblast se stane prioritou (jen jedna).</p>
+  </div>
+</div></section>
+
+<!-- ============ BUDGET B: area cards ============ -->
+<section id="budget-b"><div class="stage">
+  <div class="bm">
+    <div class="bm__head"><div><h3>Roční rozpočet</h3><p>Prosinec · povinné výdaje +2 % · vyber jednu prioritu (★)</p></div>
+      <div class="kpis"><div class="kpi kpi--good"><span>Šance</span><b>64 %</b></div><div class="kpi kpi--good"><span>Finance</span><b>+6</b></div><button class="submit">Předložit sněmovně</button></div></div>
+    <div class="bcards">
+      <div class="bc prio"><div class="bc__h"><span class="nm">Školství<small>hlavní</small></span><span class="star" style="color:var(--gold)">★ ×2</span></div><span class="stp"><i>−</i><b>+20 %</b><i>+</i></span>
+        <div class="bc__l"><span>Zdroje</span><span class="cell"><span class="bd">Fin −4</span><span class="gd">Podp +6</span></span></div><div class="bc__l"><span>Skupiny</span><span class="cell"><span class="gd">Aktivisté ▼8</span></span></div><div class="bc__l"><span>Kraje</span><span class="cell"><span class="gd">univerzitní +3</span></span></div>
+        <div class="adv">Poradce: nad +20 % zdraží nájmy učitelů, Brusel bude chtít úspory.</div></div>
+      <div class="bc cut"><div class="bc__h"><span class="nm">Důchody<small>hlavní</small></span><span class="star">☆</span></div><span class="stp"><i>−</i><b style="color:var(--bad)">−20 %</b><i>+</i></span>
+        <div class="bc__l"><span>Zdroje</span><span class="cell"><span class="gd">Fin +9</span><span class="bd">Podp −5</span></span></div><div class="bc__l"><span>Skupiny</span><span class="cell"><span class="bd">Důchodci ▲12</span></span></div><div class="bc__l"><span>Kraje</span><span class="cell"><span class="bd">venkovské −4</span></span></div>
+        <div class="adv" style="color:#ff8d80">Poradce: pod −10 % se senioři vzbouří a venkov to pocítí.</div></div>
+      <div class="bc"><div class="bc__h"><span class="nm">Doprava</span><span class="star">☆</span></div><span class="stp"><i>−</i><b>+10 %</b><i>+</i></span>
+        <div class="bc__l"><span>Zdroje</span><span class="cell"><span class="bd">Fin −2</span><span class="gd">Podp +2</span></span></div><div class="bc__l"><span>Skupiny</span><span class="cell"><span class="gd">Oligarchové ▼3</span></span></div><div class="bc__l"><span>Kraje</span><span class="cell"><span class="gd">venkovské +2</span></span></div>
+        <div class="adv">Poradce: v klidu, nic nehrozí.</div></div>
+      <div class="bc"><div class="bc__h"><span class="nm">Policie</span><span class="star">☆</span></div><span class="stp"><i>−</i><b>0 %</b><i>+</i></span><div class="bc__l"><span>Zdroje</span><span class="cell"><span class="mm">–</span></span></div><div class="bc__l"><span>Skupiny</span><span class="cell"><span class="mm">–</span></span></div><div class="bc__l"><span>Kraje</span><span class="cell"><span class="mm">–</span></span></div></div>
+      <div class="bc"><div class="bc__h"><span class="nm">Energetika</span><span class="star">☆</span></div><span class="stp"><i>−</i><b>−10 %</b><i>+</i></span><div class="bc__l"><span>Zdroje</span><span class="cell"><span class="gd">Fin +2</span></span></div><div class="bc__l"><span>Skupiny</span><span class="cell"><span class="bd">Oligarchové ▲3</span></span></div><div class="bc__l"><span>Kraje</span><span class="cell"><span class="bd">uhelné −2</span></span></div></div>
+      <div class="bc"><div class="bc__h"><span class="nm">Bydlení</span><span class="star">☆</span></div><span class="stp"><i>−</i><b>0 %</b><i>+</i></span><div class="bc__l"><span>Zdroje</span><span class="cell"><span class="mm">–</span></span></div><div class="bc__l"><span>Skupiny</span><span class="cell"><span class="mm">–</span></span></div><div class="bc__l"><span>Kraje</span><span class="cell"><span class="mm">–</span></span></div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ MID-YEAR CORRECTION ============ -->
+<section id="midyear"><div class="stage" style="justify-content:center">
+  <div class="bm" style="width:820px">
+    <div class="bm__head"><div><h3>Rozpočtové opatření</h3><p>Červen · bez hlasování · máš 2 kroky na přesun peněz mezi oblastmi</p></div>
+      <div class="kpis"><div class="kpi"><span>Zbývá kroků</span><b>1 / 2</b></div><div class="kpi kpi--good"><span>Finance</span><b>+1</b></div><button class="submit">Potvrdit opatření</button></div></div>
+    <div class="tbl">
+      <div class="tr th" style="grid-template-columns:28px 170px 220px 1fr 96px"><span></span><span>Oblast</span><span>Rozpočet → nově</span><span>Dopad přesunu</span><span></span></div>
+      <div class="tr prio" style="grid-template-columns:28px 170px 220px 1fr 96px"><span class="star">★</span><span class="nm">Školství</span><span class="stp"><i>−</i><b>+20 % → +20 %</b><i>+</i></span><span class="cell"><span class="mm">priorita drží</span></span><span class="zone x2">×2</span></div>
+      <div class="tr" style="grid-template-columns:28px 170px 220px 1fr 96px"><span class="star">☆</span><span class="nm">Doprava</span><span class="stp"><i>−</i><b style="color:var(--bad)">+10 % → 0 %</b><i>+</i></span><span class="cell"><span class="gd">Fin +2</span><span class="bd">venkovské −1</span></span><span class="zone">−1 krok</span></div>
+      <div class="tr" style="grid-template-columns:28px 170px 220px 1fr 96px"><span class="star">☆</span><span class="nm">Zdravotnictví</span><span class="stp"><i>−</i><b style="color:var(--good)">0 % → +10 %</b><i>+</i></span><span class="cell"><span class="bd">Fin −2</span><span class="gd">Důchodci ▼4</span></span><span class="zone">+1 krok</span></div>
+    </div>
+    <p class="note">Přesun peněz z priority stojí Koalici −3. Opatření nejde přes sněmovnu, ale červené linie koalice platí dál.</p>
+  </div>
+</div></section>
+
+</body>
+</html>
