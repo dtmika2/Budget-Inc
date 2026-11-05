@@ -839,5 +839,6 @@
   "prestigeBonus.group": "Získal jsi podporu skupiny {group} díky vysoké prestiži.",
   "blame.shifted": "Nepopulární politiku jsi svedl na koaličního partnera. Zbývá {left}.",
   "budgetVote.advice.groupDrains": "Naštvanost nad {from} této skupiny každý den ubírá: {list}.",
-  "budgetVote.advice.drainedBy": "Tohle číslo každý den ubírají skupiny naštvané nad {from}: {list}."
+  "budgetVote.advice.drainedBy": "Tohle číslo každý den ubírají skupiny naštvané nad {from}: {list}.",
+  "draft.status": "Teď máš"
 }

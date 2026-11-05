@@ -144,6 +144,7 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 - P24 prestige bonuses — monthly roll on own RNG stream `prestige` (always 2 draws, so no other stream shifts): chance 20 % at Prestiž 60, +1 % per point, max 60 %; bonus Podpora +1,5, Koalice +2, or the angriest group −6 anger (equal weights), each with a "díky vysoké prestiži" pop-up
 - P24 Abis abilities — Dotace: no more ×2 budget changes; Finance +2 and EU anger +1,5 every month for 12 months. Microbossing: immediate Koalice +6 and +2 a month (the first try, +10 and +3, put greedy Abis at 40,2 %, on the edge of the target). STB: keeps halving the anger, plus the next 4 policies with a Podpora/Prestiž loss lose nothing there and Koalice takes half of the loss (`blame` on the ability, shown in card previews)
 - P24 balance (1000 runs/row, Normal, seed "sim") — greedy Mupka 19,0 % (was 19 % before, unchanged by this block), greedy Abis 31,9 % (was 18,5 % at 200 runs); random Mupka 0 %, Abis 3,5 % (200 runs). Mupka stays 1 point under the 20–40 % target, as before: left for a separate balance call
+- P25 policy cards — every lane row shows "today → after" (midpoint of the range, clamped 0–100; kraje use the projected regional support); a "Teď máš" strip (four attributes + projection) sits above the draft so the cards no longer hide the top bar; optional `base` prop on EffectLanes, so the budget screen is unchanged
 
 ## Blockers
 _None._

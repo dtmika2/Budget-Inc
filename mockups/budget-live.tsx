@@ -7,6 +7,7 @@
  *   hover  - hover the slider cell of that row (0-based) at that step value, e.g. 1:2
  *   metric - hover that impact-lane row (0-based, in page order)
  *   compact - start the commentary in compact mode
+ *   stop   - `draft`: stop at the first policy draft of Q2 instead (policy cards, P24)
  */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -44,7 +45,8 @@ if (store.data) {
   store.startRun(store.data.leaders[0].id);
   const sim = store.sim!;
   const bot = createBot('firstCard', 'live');
-  for (let n = 0; n < 50000 && sim.state.phase !== 'budgetVote'; n++) {
+  const target = params.get('stop') === 'draft' ? 'draft' : 'budgetVote';
+  for (let n = 0; n < 50000 && !(sim.state.phase === target && sim.state.quarter > 1) && !(target === 'budgetVote' && sim.state.phase === 'budgetVote'); n++) {
     if (sim.state.phase === 'running') sim.tick();
     else if (sim.state.phase === 'special') resolveSpecialForBot(sim);
     else bot.act(sim);

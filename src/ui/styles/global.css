@@ -969,6 +969,16 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .lane__num--none { color: #a99f86; }
 .lane__ongoing { margin: 2px 0 0; font-size: 12px; color: var(--ink-soft); }
 .lane__empty { margin: 0; font-size: 12px; color: #a99f86; }
+.lanes--base .lane__row { grid-template-columns: 7.2em minmax(0, 1fr) 5.2em 4.6em; }
+.lane__to { text-align: right; font: 12px var(--f-num); white-space: nowrap; color: var(--ink-soft); }
+.lane__to b { font-weight: 400; }
+.lane__to--good b { color: var(--good-on-paper); }
+.lane__to--bad b { color: var(--bad-on-paper); }
+.draft-status { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 6px 10px; background: var(--panel-2); border: 2px solid var(--line); font-size: 14px; }
+.draft-status__label { font: 12px var(--f-pixel); color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.draft-status__item { display: inline-flex; align-items: baseline; gap: 6px; }
+.draft-status__item b { font: 16px var(--f-num); font-weight: 400; }
+.draft-status__key { width: 9px; height: 9px; align-self: center; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); }
 .lanes__foot { margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--ink-soft); }
 @media (max-width: 760px) {
   .modal.modal--draft { width: auto; min-height: 0; }

@@ -6,6 +6,7 @@
  *
  * Optional (budget vote, phase 23): `highlight` dims the rows not in it, `part` outlines one share of each
  * value, `selected` marks a row, and `onRowHover` makes rows inspectable (pointer or keyboard focus).
+ * With `base` (P24, policy cards) each row also shows where the value ends up from today's state.
  */
 import type { MetricKey } from '@core/budgetAdvice';
 import type { PreviewRanges } from '@core/effects';
@@ -43,12 +44,35 @@ function Bar({ r, part, anger, color, scale }: { r?: Range; part?: Range; anger?
 
 export const metricId = (m: MetricKey) => `${m.kind}:${m.id}`;
 
+/** "41 → 44": today's value and where the card's midpoint takes it (0–100). */
+function BaseTo({ now, delta, tone }: { now?: number; delta: number; tone: string }) {
+  if (now === undefined) return <span className="lane__to" />;
+  const after = clamp100(now + delta);
+  return (
+    <span className={`lane__to lane__to--${Math.abs(after - now) < 0.5 ? 'none' : tone}`}>
+      {Math.round(now)} → <b>{Math.round(after)}</b>
+    </span>
+  );
+}
+
+/** Today's values: attributes, group anger and kraj support (P24, "41 → 44"). */
+export interface LaneBase {
+  resources: Record<string, number>;
+  anger: Record<string, number>;
+  regions: Record<string, number>;
+}
+
 interface Inspect {
+  base?: LaneBase;
   highlight?: Set<string>;
   part?: PreviewRanges;
   selected?: string;
   onRowHover?: (m: MetricKey) => void;
 }
+
+const baseOf = (b: LaneBase | undefined, m: MetricKey): number | undefined =>
+  !b ? undefined : m.kind === 'resource' ? b.resources[m.id] : m.kind === 'group' ? b.anger[m.id] : b.regions[m.id];
+const clamp100 = (v: number) => Math.max(0, Math.min(100, v));
 
 const partOf = (p: PreviewRanges | undefined, m: MetricKey): Range | undefined =>
   !p ? undefined : m.kind === 'resource' ? p.resources[m.id] : m.kind === 'group' ? p.anger[m.id] : p.regions[m.id];
@@ -83,6 +107,7 @@ function Lane({ icon, title, rows, extra, ins }: { icon: string; title: string; 
             <span className={`lane__num lane__num--${tone}`}>
               {!row.range ? '–' : `${row.anger ? (v > 0 ? '▲' : '▼') : ''}${rangeText(row.range)}`}
             </span>
+            {ins.base && <BaseTo now={baseOf(ins.base, row.metric)} delta={row.range ? mid(row.range) : 0} tone={tone} />}
           </div>
         );
       })}
@@ -115,7 +140,7 @@ export function EffectLanes({ preview, chaos = 0, ...ins }: { preview: PreviewRa
   const shown: Row[] = kraje.slice(0, MAX_KRAJE).map(([code, r]) => ({ key: code, metric: { kind: 'kraj', id: code }, label: t(`region.short.${code}`), range: r }));
   const more = kraje.length - shown.length;
   return (
-    <div className="lanes">
+    <div className={`lanes${ins.base ? ' lanes--base' : ''}`}>
       <Lane icon="$" title={t('lanes.resources')} rows={resources} ins={ins} extra={RESOURCE_IDS.flatMap((r) => ongoing(r))} />
       <Lane
         icon="☺"

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { t } from '@i18n/index';
 import { getStore, useStore } from '../store';
+import { DraftStatus } from './DraftStatus';
 import { PolicyCard } from './PolicyCard';
 
 const STAMP_MS = 520;
@@ -43,6 +44,7 @@ export function DraftModal() {
             {t('draft.reroll')} <span className="cost">{t('draft.rerollCost', { n: cost })}</span>
           </button>
         </header>
+        <DraftStatus />
         <div className="carousel">
           {hand.map((id) => (
             <PolicyCard key={id} card={sim.cardById.get(id)!} stamped={stamped === id} onPick={() => pick(id)} />
