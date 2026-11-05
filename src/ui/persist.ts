@@ -37,6 +37,10 @@ export const saveSettings = (s: Settings) => write('settings', s);
 export const budgetCompact = () => read<boolean>('budgetCompact', false);
 export const setBudgetCompact = (v: boolean) => write('budgetCompact', v);
 
+/** Background music switched off by the player. */
+export const musicMuted = () => read<boolean>('musicMuted', false);
+export const setMusicMuted = (v: boolean) => write('musicMuted', v);
+
 export const tutorialSeen = () => read<boolean>('tutorialSeen', false);
 export const setTutorialSeen = (v: boolean) => write('tutorialSeen', v);
 
