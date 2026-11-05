@@ -248,7 +248,7 @@ h1, h2, h3 { margin: 0; }
 
 /* dock */
 .game__dock { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-top: 8px; }
-/* mute and coffee float above Vylepšení, so they take no height from the map */
+/* mute and coffee float above the upgrades button, so they take no height from the map */
 .game__dock-side { position: relative; }
 .dock-extras { position: absolute; right: 0; bottom: 100%; z-index: 2; margin-bottom: 6px; display: flex; gap: 6px; }
 .dock-extra { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; background: var(--panel-2); border: 2px solid var(--line); box-shadow: 2px 2px 0 #0c0a14; cursor: pointer; }

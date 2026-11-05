@@ -17,7 +17,7 @@ export const PIXEL_ICONS = {
   newspaper: ['KKKKKKKKKK', 'KWWWWWWWWK', 'KWKKKKKKWK', 'KWWWWWWWWK', 'KWKKWXXXWK', 'KWKKWWWWWK', 'KWWWWXXXWK', 'KWXXXWWWWK', 'KWWWWWWWWK', 'KKKKKKKKKK'],
   tv: ['..X....X..', '...X..X...', '....XX....', 'KKKKKKKKKK', 'KBBBBBBKXK', 'KBBBBBBKRK', 'KBBBBBBKXK', 'KBBBBBBKXK', 'KKKKKKKKKK', '.KK....KK.'],
   bus: ['..........', '.GGGGGGGG.', 'GGGGGGGGGG', 'GBBGBBGBBG', 'GBBGBBGBBG', 'GGGGGGGGGG', 'TTTTTTTTTT', 'GGGGGGGGGG', '.KKK..KKK.', '..X....X..'],
-  // buttons above Vylepšení
+  // buttons above the upgrades button
   soundOn: ['....W.....', '...WW..G..', '..WWW...G.', 'WWWWW.G..G', 'WWWWW..G.G', 'WWWWW..G.G', 'WWWWW.G..G', '..WWW...G.', '...WW..G..', '....W.....'],
   soundOff: ['....W.....', '...WW.....', '..WWW.....', 'WWWWWR...R', 'WWWWW.R.R.', 'WWWWW..R..', 'WWWWW.R.R.', '..WWWR...R', '...WW.....', '....W.....'],
   coffee: ['...W..W...', '..W..W....', '...W..W...', 'TTTTTTTT..', 'WWWWWWWWW.', 'WWWWWWWW.W', 'WWWWWWWW.W', 'WWWWWWWWW.', '.WWWWWW...', 'TTTTTTTTT.'],

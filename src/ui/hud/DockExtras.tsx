@@ -1,21 +1,22 @@
 /**
- * The small buttons above Vylepšení: background music with its mute switch, and the coffee link.
+ * The small buttons above the upgrades button: background music with its mute switch, and the coffee link.
  * Mounted with the game screen, so the music plays during a run. Browsers may refuse sound until the player
  * has interacted with the page, so while the music should play, every click or key press retries it.
  */
 import { useEffect, useRef, useState } from 'react';
 import { config } from '@/config';
-import track from '@/assets/audio/pastoral-breakbeat.mp3';
 import { t } from '@i18n/index';
 import { musicMuted, setMusicMuted } from '../persist';
 import { PixelIcon } from '../pixelIcons';
+
+const TRACK = `${import.meta.env.BASE_URL}audio/pastoral-breakbeat.mp3`;
 
 function MusicButton() {
   const [muted, setMuted] = useState(musicMuted);
   const audio = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const a = new Audio(track);
+    const a = new Audio(TRACK);
     a.loop = true;
     a.volume = config.music.volume;
     audio.current = a;
