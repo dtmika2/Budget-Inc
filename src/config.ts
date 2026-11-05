@@ -140,7 +140,7 @@ export const config = {
       special: ['coal', 'border', 'university'],
     } as Record<'settlement' | 'economy' | 'special', string[]>,
     /** Opacity of the Czech flag between the map's glass and its liquid (0–1). */
-    flagOpacity: 0.8,
+    flagOpacity: 0.6,
     /** Hidden card tags that traits react to. */
     tags: ['agriculture', 'industry', 'transport', 'services', 'tourism', 'environment', 'education', 'social', 'coal', 'border'] as string[],
     /**
