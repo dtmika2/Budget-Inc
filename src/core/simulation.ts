@@ -78,7 +78,7 @@ import type {
   ResourceId,
 } from './types';
 import { GROUP_IDS, RESOURCE_IDS } from './types';
-import { buyUpgrade, canBuy, grantStartNodes } from './upgrades';
+import { buyUpgrade, canBuy, canUseUpgradeAction, grantStartNodes, upgradeActionBundle, applyUpgradeAction } from './upgrades';
 import { acceptSpecial, canAcceptSpecial, canCloseSpecial, closeSpecial, initialSpecials, openSpecial, scheduleYearSpecials } from './specialCards';
 
 export interface SimOptions {
@@ -163,6 +163,7 @@ export class Simulation implements EffectHost {
       draft: null,
       compromiseOffer: null,
       budgetVoteRedLines: null,
+      budgetVoteRequests: null,
       budgetVoteItems: null,
       budgetVoteRerolls: 0,
       tourUsedInYear: null,
@@ -183,6 +184,7 @@ export class Simulation implements EffectHost {
       abilitiesUsed: [],
       blame: null,
       ownedUpgrades: [],
+      upgradeReady: {},
       specials: initialSpecials(),
       projection: { S: 0, T: 0, P: 0, regionSupport: {} },
       trend: [],
@@ -542,6 +544,8 @@ export class Simulation implements EffectHost {
         return validateVote(this, input.sliders, input.presetId);
       case 'buyUpgrade':
         return canBuy(this, input.nodeId);
+      case 'useUpgradeAction':
+        return canUseUpgradeAction(this, input.nodeId, input.target);
       case 'useAbility':
         return canUseAbility(this, input.abilityId, input.target);
       case 'acceptDemand':
@@ -607,6 +611,9 @@ export class Simulation implements EffectHost {
         break;
       case 'buyUpgrade':
         buyUpgrade(this, input.nodeId);
+        break;
+      case 'useUpgradeAction':
+        applyUpgradeAction(this, input.nodeId, input.target);
         break;
       case 'useAbility':
         activateAbility(this, input.abilityId, input.target);
@@ -689,6 +696,11 @@ export class Simulation implements EffectHost {
     const it = this.data.budgetItems.find((i) => i.id === itemId)!;
     const z = (zone: typeof it.onCut) => ({ ...this.preview(zoneBundle(this, zone), 'budget_vote'), pass: zone.pass ?? 0 });
     return { cut: z(it.onCut), overspend: z(it.onOverspend) };
+  }
+
+  /** Ranges of an active skill-tree ability on a target (P29). */
+  previewUpgradeAction(nodeId: string, target?: string): PreviewRanges {
+    return this.preview(upgradeActionBundle(this, nodeId, target), 'ability');
   }
 
   /** Ranges of a kraj action in that kraj (P26). */

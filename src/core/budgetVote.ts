@@ -14,7 +14,7 @@ import { applyBundle } from './effects';
 import { budgetChangePct, scalar } from './modifiers';
 import { schedule } from './scheduler';
 import type { Simulation } from './simulation';
-import type { BudgetChange, BudgetItem, BudgetZone, EffectBundle, GroupId, Range, RedLine, ResourceId } from './types';
+import type { BudgetChange, BudgetItem, BudgetZone, CoalitionRequest, EffectBundle, GroupId, Range, RedLine, ResourceId } from './types';
 import { GROUP_IDS } from './types';
 
 export type Sliders = Record<string, number>;
@@ -88,6 +88,7 @@ export function openBudgetVote(sim: Simulation): void {
   state.budgetVoteRerolls = 0;
   state.budgetVoteItems = drawBudgetHand(sim);
   state.budgetVoteRedLines = drawRedLines(sim);
+  state.budgetVoteRequests = drawRequests(sim);
   state.phase = 'budgetVote';
   sim.log('budget_vote_opened', { items: [...state.budgetVoteItems], redLines: state.budgetVoteRedLines.map((r) => ({ ...r })) });
 }
@@ -108,6 +109,7 @@ export function rerollBudget(sim: Simulation): void {
   state.budgetVoteRerolls++;
   state.budgetVoteItems = drawBudgetHand(sim);
   state.budgetVoteRedLines = drawRedLines(sim);
+  state.budgetVoteRequests = drawRequests(sim);
   sim.log('budget_reroll', { cost, items: [...state.budgetVoteItems], redLines: state.budgetVoteRedLines.map((r) => ({ ...r })) });
 }
 
@@ -186,17 +188,40 @@ export function violations(sim: Simulation, sliders: Sliders): RedLine[] {
   return (sim.state.budgetVoteRedLines ?? []).filter((r) => (sliders[r.item] ?? 0) < -r.maxCutSteps);
 }
 
-export function passChance(sim: Simulation, sliders: Sliders, presetId: string | null): number {
+/** The pass chance in parts (P31: shown on the budget screen); `total` is the clamped chance. */
+export interface PassParts {
+  base: number;
+  coalition: number;
+  preset: number;
+  steps: number;
+  zones: number;
+  redLines: number;
+  requests: number;
+  total: number;
+}
+
+export function passChanceParts(sim: Simulation, sliders: Sliders, presetId: string | null): PassParts {
   const b = sim.cfg.budgetVote;
   const opt = presetId ? sim.data.budgetVote.find((o) => o.id === presetId) : undefined;
-  let p = b.passBase + (sim.state.resources.coalition - 50) / 100 + (opt?.passChanceMod ?? 0);
+  let steps = 0;
+  let zones = 0;
   for (const it of shownItems(sim)) {
     const s = sliders[it.id] ?? 0;
-    p += it.passPerStep * b.impact * s + (itemZone(it, s)?.pass ?? 0);
+    steps += it.passPerStep * b.impact * s;
+    zones += itemZone(it, s)?.pass ?? 0;
   }
   // Microbossing: the coalition forgives red lines (budgetVote.redLinePenalty x0)
-  p -= scalar(sim.pipeline(), 'budgetVote.redLinePenalty', b.redLines.passPenalty) * violations(sim, sliders).length;
-  return Math.min(b.passMax, Math.max(b.passMin, p));
+  const redLines = -scalar(sim.pipeline(), 'budgetVote.redLinePenalty', b.redLines.passPenalty) * violations(sim, sliders).length;
+  // coalition partners' requests (P30): a big bonus when met, a bigger penalty when ignored
+  let requests = 0;
+  for (const r of sim.state.budgetVoteRequests ?? []) requests += requestMet(r, sliders) ? b.requests.metBonus : -b.requests.missPenalty;
+  const parts = { base: b.passBase, coalition: (sim.state.resources.coalition - 50) / 100, preset: opt?.passChanceMod ?? 0, steps, zones, redLines, requests };
+  const sum = parts.base + parts.coalition + parts.preset + parts.steps + parts.zones + parts.redLines + parts.requests;
+  return { ...parts, total: Math.min(b.passMax, Math.max(b.passMin, sum)) };
+}
+
+export function passChance(sim: Simulation, sliders: Sliders, presetId: string | null): number {
+  return passChanceParts(sim, sliders, presetId).total;
 }
 
 const addRange = (a: Range | undefined, v: number, r?: Range): Range => ({ min: (a?.min ?? 0) + v + (r?.min ?? 0), max: (a?.max ?? 0) + v + (r?.max ?? 0) });
@@ -213,9 +238,43 @@ export function sliderBudgetChanges(sim: Simulation, sliders: Sliders): BudgetCh
   return out;
 }
 
+/** Is a coalition request met by these sliders (at least one step in the asked direction)? */
+export const requestMet = (r: CoalitionRequest, sliders: Sliders) => (sliders[r.item] ?? 0) * r.dir >= 1;
+
+/** Draw the coalition partners' requests for the shown areas (`coalition` stream; P30). */
+export function drawRequests(sim: Simulation): CoalitionRequest[] {
+  const c = sim.cfg.budgetVote.requests;
+  if (!c.enabled) return [];
+  const rng = sim.rng.coalition;
+  const shown = new Set(shownItems(sim).map((i) => i.id));
+  const out: CoalitionRequest[] = [];
+  for (const party of sim.data.coalitionRequests.partners[sim.state.leader] ?? []) {
+    const pref = sim.data.coalitionRequests.preferences[party];
+    if (!pref) continue;
+    const pool: CoalitionRequest[] = [
+      ...pref.raise.map((item) => ({ party, item, dir: 1 as const })),
+      ...pref.cut.map((item) => ({ party, item, dir: -1 as const })),
+    ].filter((r) => shown.has(r.item) && !out.some((o) => o.item === r.item && o.party === r.party));
+    const n = Math.min(pool.length, rng.int(c.perParty.min, c.perParty.max));
+    for (let i = 0; i < n; i++) {
+      const [r] = pool.splice(Math.floor(rng.next() * pool.length), 1);
+      // one request per area and party
+      out.push(r);
+      for (let j = pool.length - 1; j >= 0; j--) if (pool[j].item === r.item) pool.splice(j, 1);
+    }
+  }
+  return out;
+}
+
 /** The whole vote as one effect bundle: preset base effects + linear slider effects + zone bundles. */
 export function voteBundle(sim: Simulation, sliders: Sliders, presetId: string | null): EffectBundle {
   let bundle = sliderBundle(sim, sliders, presetId);
+  // met coalition requests please the partners (applies only when the vote passes)
+  const met = (sim.state.budgetVoteRequests ?? []).filter((r) => requestMet(r, sliders)).length;
+  if (met > 0) {
+    const v = met * sim.cfg.budgetVote.requests.coalitionPerMet;
+    bundle = mergeBundles(bundle, { effects: { coalition: { min: v, max: v } } });
+  }
   for (const it of shownItems(sim)) {
     const zone = itemZone(it, sliders[it.id] ?? 0);
     if (zone) bundle = mergeBundles(bundle, zoneBundle(sim, zone));
@@ -229,18 +288,19 @@ function sliderBundle(sim: Simulation, sliders: Sliders, presetId: string | null
   const opt = presetId ? sim.data.budgetVote.find((o) => o.id === presetId) : undefined;
   const effects: Partial<Record<ResourceId | 'financesExtra', Range>> = { ...(opt?.effects ?? {}) };
   const anger: Partial<Record<GroupId, Range>> = { ...(opt?.anger ?? {}) };
-  let support = 0;
+  const resSum: Partial<Record<'support' | 'coalition' | 'prestige', number>> = {};
   const angerSum: Partial<Record<GroupId, number>> = {};
   for (const it of shownItems(sim)) {
     const s = sliders[it.id] ?? 0;
     if (s === 0) continue;
-    support += it.supportPerStep * impact * s;
+    for (const [r, v] of Object.entries(it.effectsPerStep) as ['support' | 'coalition' | 'prestige', number][])
+      if (v) resSum[r] = (resSum[r] ?? 0) + v * impact * s;
     for (const g of GROUP_IDS) {
       const a = it.angerPerStep[g];
       if (a) angerSum[g] = (angerSum[g] ?? 0) + a * impact * s;
     }
   }
-  if (support !== 0) effects.support = addRange(effects.support, support);
+  for (const [r, v] of Object.entries(resSum) as ['support' | 'coalition' | 'prestige', number][]) if (v) effects[r] = addRange(effects[r], v);
   for (const g of GROUP_IDS) if (angerSum[g]) anger[g] = addRange(anger[g], angerSum[g]!);
   return {
     effects,
@@ -265,6 +325,7 @@ export function voteBudget(sim: Simulation, sliders: Sliders, presetId: string |
   const p_pass = passChance(sim, full, presetId);
   const redLines = (sim.state.budgetVoteRedLines ?? []).map((r) => ({ ...r }));
   const crossed = violations(sim, full).map((r) => r.item);
+  const requests = (sim.state.budgetVoteRequests ?? []).map((r) => ({ ...r, met: requestMet(r, full) }));
   const roll = sim.rng.budgetVote.next();
   const passed = roll < p_pass;
   const origin = `budget_vote:${presetId ?? 'custom'}`;
@@ -272,11 +333,12 @@ export function voteBudget(sim: Simulation, sliders: Sliders, presetId: string |
     ? applyBundle(sim, voteBundle(sim, full, presetId), 'budget_vote', origin, sim.rng.effects)
     : applyBundle(sim, failBundle(sim), 'budget_vote', 'budget_vote:failed', sim.rng.effects, true);
   sim.state.budgetVoteRedLines = null;
+  sim.state.budgetVoteRequests = null;
   sim.state.budgetVoteItems = null;
   sim.state.phase = 'running';
   sim.log(
     'budget_vote',
-    { presetId, sliders: full, zones, redLines, violations: crossed, p_pass, roll, passed, rolled: applied.rolled },
+    { presetId, sliders: full, zones, redLines, violations: crossed, requests, p_pass, roll, passed, rolled: applied.rolled },
     applied.deltas,
   );
   checkPledgesBudget(sim, full, passed);

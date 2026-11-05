@@ -1,19 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { config } from '@/config';
 import { keptPreset, type MetricKey } from '@core/budgetAdvice';
-import { budgetRerollCost, presetSliders, shownItems, type Sliders } from '@core/budgetVote';
+import { budgetRerollCost, presetSliders, requestMet, shownItems, type Sliders } from '@core/budgetVote';
 import { pledgesForBudget } from '@core/demands';
 import type { PreviewRanges } from '@core/effects';
 import type { Range } from '@core/types';
 import { fmtSigned, t } from '@i18n/index';
 import { mid, pct } from '../../format';
-import { budgetCompact, setBudgetCompact } from '../../persist';
 import { getStore, useStore } from '../../store';
 import { EffectLanes, metricId } from '../EffectLanes';
 import { areaName, Chip, metricName, stepText } from './adviceText';
 import { BudgetCommentary } from './BudgetCommentary';
 import { BudgetSliders } from './BudgetSliders';
 import { ChamberEstimate } from './ChamberEstimate';
+import { CoalitionTab } from './CoalitionTab';
+import { PassBreakdown } from './PassBreakdown';
 
 /** What the player inspects: a slider step (hover / keyboard), an impact row, or nothing. */
 export type Focus = { kind: 'step'; item: string; to: number } | { kind: 'metric'; metric: MetricKey } | null;
@@ -53,7 +54,7 @@ export function BudgetScreen() {
   const [presetId, setPresetId] = useState<string | null>(null);
   const [sliders, setSliders] = useState<Sliders>(() => presetSliders(sim, null));
   const [focus, setFocusNow] = useState<Focus>(null);
-  const [compact, setCompactState] = useState(budgetCompact);
+  const [midTab, setMidTab] = useState<'coalition' | 'comment'>('coalition');
   const timer = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => clearTimeout(timer.current), []);
   // pointer hover settles before the commentary changes (no flicker while sweeping across the steps);
@@ -62,10 +63,6 @@ export function BudgetScreen() {
     clearTimeout(timer.current);
     if (now) setFocusNow(f);
     else timer.current = setTimeout(() => setFocusNow(f), config.budgetAdvice.hoverDelayMs);
-  };
-  const setCompact = (v: boolean) => {
-    setCompactState(v);
-    setBudgetCompact(v);
   };
 
   const apply = (next: Sliders, pid: string | null) => {
@@ -83,6 +80,9 @@ export function BudgetScreen() {
   };
   const choosePreset = (id: string | null) => apply(presetSliders(sim, id), id);
   const submit = () => store.dispatch({ kind: 'voteBudget', sliders, presetId });
+  const failText = Object.entries(config.budgetVote.failEffects)
+    .map(([k, v]) => `${t(`resource.short.${k}`)} ${fmtSigned(v ?? 0)}`)
+    .join(', ');
 
   const preview = useMemo(() => sim.previewVote(sliders, presetId), [sim, sliders, presetId]);
   // the inspected step: its preview (shown in the lanes and seats) and its slider's share (outlined)
@@ -101,22 +101,9 @@ export function BudgetScreen() {
   const shown = inspected?.after ?? preview;
   const fin = mid(shown.resources.finances ?? zero);
 
+  const missed = (sim.state.budgetVoteRequests ?? []).filter((r) => !requestMet(r, sliders)).length;
   const budgetPledges = pledgesForBudget(sim);
   const pledged = new Set(budgetPledges.map((p) => p.item));
-  const chips = (
-    <>
-      {redLines.map((r) => (
-        <Chip
-          key={`rl-${r.item}`}
-          text={t('budgetVote.chamber.redLine', { area: areaName(sim, r.item), pct: r.maxCutSteps * config.budgetVote.sliders.stepPct })}
-          tone={shown.violations.includes(r.item) ? 'bad' : 'none'}
-        />
-      ))}
-      {budgetPledges.map((p, i) => (
-        <Chip key={`pl-${i}`} text={t('budgetVote.chamber.pledge', { area: areaName(sim, p.item), region: t(`region.short.${p.pledge.region}`) })} tone="none" />
-      ))}
-    </>
-  );
   const focusLabel =
     focus?.kind === 'step' && inspected
       ? `${areaName(sim, focus.item)} ${stepText(focus.to)}`
@@ -132,7 +119,7 @@ export function BudgetScreen() {
             <h2 id="vote-title" className="h-display">
               {t('budgetVote.title')}
             </h2>
-            <p className="modal__sub">{t('budgetVote.lead', { pct: config.budgetVote.mandatoryGrowthPct })}</p>
+            <p className="modal__sub">{t('budgetVote.lead', { pct: config.budgetVote.mandatoryGrowthPct, n: items.length })}</p>
           </div>
           <div className="bscreen__kpis" aria-live="polite">
             <Kpi label={t('budgetVote.passShort')} value={pct(preview.passChance)} tone={preview.passChance >= 0.6 ? 'good' : preview.passChance >= 0.4 ? 'warn' : 'bad'} />
@@ -141,7 +128,7 @@ export function BudgetScreen() {
               value={Math.abs(mid(preview.resources.finances ?? zero)) < 0.05 ? '0' : fmtSigned(mid(preview.resources.finances ?? zero), 1)}
               tone={mid(preview.resources.finances ?? zero) > 0 ? 'good' : mid(preview.resources.finances ?? zero) < 0 ? 'bad' : 'neutral'}
             />
-            <button className="btn btn--stamp bscreen__submit" onClick={submit}>
+            <button className="btn btn--stamp bscreen__submit" onClick={submit} title={t('budgetVote.failNote', { effects: failText })}>
               {t('budgetVote.submit')}
             </button>
           </div>
@@ -175,26 +162,43 @@ export function BudgetScreen() {
               redLines={redLines}
               violations={shown.violations}
               pledged={pledged}
+              requests={sim.state.budgetVoteRequests ?? []}
               onFocus={setFocus}
               onSet={setOne}
             />
           </div>
 
           <div className="bscreen__mid">
-            <div className="bpanel">
-              <ChamberEstimate chance={preview.passChance} next={inspected ? inspected.after.passChance : null} chips={chips} />
+            <div className="bpanel bscreen__chamber">
+              <ChamberEstimate chance={preview.passChance} next={inspected ? inspected.after.passChance : null} compact />
             </div>
-            <div className="bpanel bpanel--gold">
-              <BudgetCommentary sim={sim} sliders={sliders} presetId={presetId} focus={focus} compact={compact} onCompact={setCompact} onApply={apply} />
-              {focus && (
-                <button className="chip-btn chip-btn--ghost bscreen__all" onClick={() => (clearTimeout(timer.current), setFocusNow(null))}>
-                  {t('budgetVote.advice.showAll')}
-                </button>
+            <div className="bpanel bpanel--gold bscreen__tabs">
+              <nav className="bscreen__tablist" role="tablist">
+                {(['coalition', 'comment'] as const).map((id) => (
+                  <button key={id} role="tab" aria-selected={midTab === id} className={`bscreen__tab${midTab === id ? ' is-on' : ''}`} onClick={() => setMidTab(id)}>
+                    {t(`budgetVote.tab.${id}`)}
+                    {id === 'coalition' && missed > 0 && <span className="bscreen__tabbadge">{missed}</span>}
+                  </button>
+                ))}
+              </nav>
+              {midTab === 'coalition' ? (
+                <CoalitionTab sim={sim} sliders={sliders} next={focus?.kind === 'step' && inspected ? { ...sliders, [focus.item]: focus.to } : null} />
+              ) : (
+                <BudgetCommentary sim={sim} sliders={sliders} presetId={presetId} focus={focus} />
               )}
+              <div className="bscreen__fail">
+                <h4>{t('budgetVote.failHead')}</h4>
+                <p className="bchips">
+                  {Object.entries(config.budgetVote.failEffects).map(([k, v]) => (
+                    <Chip key={k} text={`${t(`resource.short.${k}`)} ${fmtSigned(v ?? 0)}`} tone="bad" />
+                  ))}
+                </p>
+                <p className="bscreen__failnote">{t('budgetVote.failText', { pct: config.budgetVote.mandatoryGrowthPct })}</p>
+              </div>
             </div>
           </div>
 
-          <aside className="memo bscreen__impact">
+          <aside className="memo bscreen__impact" onPointerLeave={() => setFocus(null)}>
             <p className="bscreen__impact-head">
               <span>{t('budgetVote.summary')}</span>
               <small>{focusLabel ? t('budgetVote.impactFocus', { what: focusLabel }) : t('budgetVote.impactAll')}</small>
@@ -211,6 +215,7 @@ export function BudgetScreen() {
               <b>{pct(shown.passChance)}</b>
               {Math.abs(fin) >= 0.05 && <span>{`${t('resource.short.finances')} ${fmtSigned(fin, 1)}`}</span>}
             </p>
+            <PassBreakdown sim={sim} sliders={focus?.kind === 'step' && inspected ? { ...sliders, [focus.item]: focus.to } : sliders} presetId={presetId} />
           </aside>
         </div>
       </section>

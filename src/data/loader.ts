@@ -14,6 +14,7 @@ import type {
   DemandTemplate,
   RegionEventTemplate,
   RegionActionTemplate,
+  CoalitionRequestsData,
   EffectBundle,
   EndingDef,
   GameData,
@@ -31,6 +32,7 @@ import {
   demandSchema,
   regionEventSchema,
   regionActionSchema,
+  coalitionRequestsSchema,
   budgetItemSchema,
   budgetSchema,
   budgetVoteOptionSchema,
@@ -166,6 +168,7 @@ export function loadGameData(
   const leadersRaw = single(leaderSchema.array().min(1), 'data/leaders.json');
   const endingsRaw = single(endingSchema.array(), 'data/endings.json');
   const voteRaw = single(budgetVoteOptionSchema.array().min(1), 'data/annual/budget_vote.json');
+  const coalitionRaw = single(coalitionRequestsSchema, 'data/annual/coalition_requests.json');
   const itemsRaw = single(budgetItemSchema.array().min(1), 'data/budget_items.json');
   const minigamesRaw = single(minigameTextsSchema, 'data/minigames/texts.json');
   const profilesRaw = single(regionProfilesSchema, 'data/region_profiles.json');
@@ -464,6 +467,19 @@ export function loadGameData(
     for (const k of ['onIntervene', 'onIgnore'] as const) checkBundle(e[k], file, `${p}.${k}`);
     for (const tr of Object.keys(e.regionWeights)) if (!knownTraits.has(tr)) err('unknownTrait', file, `${p}.regionWeights.${tr}`, tr);
   }
+  // coalition requests (P30): partners are known parties of known leaders, preferences name known budget areas
+  if (coalitionRaw) {
+    const f = 'data/annual/coalition_requests.json';
+    const partyIds = new Set((partiesRaw ?? []).map((p: { id: string }) => p.id));
+    const itemIds = new Set((itemsRaw ?? []).map((i: { id: string }) => i.id));
+    for (const [lid, ps] of Object.entries(coalitionRaw.partners)) {
+      if (leadersRaw && !leaderIds.has(lid)) err('unknownLeader', f, `partners.${lid}`, lid);
+      for (const p of ps) if (partiesRaw && !partyIds.has(p)) err('unknownParty', f, `partners.${lid}`, p);
+    }
+    for (const [p, pref] of Object.entries(coalitionRaw.preferences))
+      for (const side of ['raise', 'cut'] as const)
+        for (const it of pref[side]) if (itemsRaw && !itemIds.has(it)) err('unknownItem', f, `preferences.${p}.${side}`, it);
+  }
   // kraj actions (regions workspace, P26)
   dupCheck(regionActionsAll.map((e) => ({ id: e.item.id, file: e.file, path: `[${e.idx}]` })));
   for (const { item: a, file, idx } of regionActionsAll) {
@@ -511,6 +527,7 @@ export function loadGameData(
   for (const { node, file, path } of allNodes) {
     locKey(node.name, file, `${path}.name`);
     locKey(node.description, file, `${path}.description`);
+    if (node.active) checkBundle(node.active.bundle, file, `${path}.active.bundle`, true);
     checkModifiers(node.modifiers, file, path);
     node.requires.forEach((r: string, i: number) => {
       if (!nodeIds.has(r)) err('unknownUpgrade', file, `${path}.requires[${i}]`, r);
@@ -587,6 +604,7 @@ export function loadGameData(
     parties: partiesRaw as PartyDef[],
     demands: demands.map((d) => d.item) as DemandTemplate[],
     regionEvents: regionEvents.map((e) => ({ ...e.item, onIntervene: normalise(e.item.onIntervene), onIgnore: normalise(e.item.onIgnore) })) as RegionEventTemplate[],
+    coalitionRequests: (coalitionRaw ?? { partners: {}, preferences: {} }) as CoalitionRequestsData,
     regionActions: regionActions.map((e) => ({ ...e.item, bundle: normalise(e.item.bundle) })) as RegionActionTemplate[],
     upgrades: trees.map((t) => t.item) as UpgradeTree[],
     specialCards: specialsAll.map((d) => {

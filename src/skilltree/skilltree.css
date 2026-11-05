@@ -70,16 +70,79 @@
   .node__cost { font-size: 13px; }
   .tree-axis { font-size: 14px; }
 }
-/* detail: one thin line above the tree */
-.tree__detail {
-  display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 6px 4px 12px; overflow: hidden;
-  background: var(--paper); color: var(--ink); box-shadow: var(--shadow-sm); white-space: nowrap;
+/* P29: the tree on the left, a fixed description panel on the right */
+.tree-body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: start; min-height: 0; }
+.tree-panel {
+  position: relative; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; min-height: 0;
+  max-height: calc(100dvh - 190px); overflow-y: auto; background: var(--paper); color: var(--ink); box-shadow: var(--shadow-sm);
+  border-top: 6px solid var(--gold-dim);
 }
-.tree__detail h3 { font-family: var(--f-pixel); font-size: 16px; margin: 0; flex: none; }
-.tree__detail p { margin: 0; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.tree__detail p:not(.tree__meta) { flex: 0 1 auto; }
-.tree__meta { flex: 1 1 0; font-size: 14px; color: var(--ink-soft); }
-.tree__detail .btn { flex: none; margin-left: auto; min-height: 32px; padding: 2px 12px; }
+.tree-panel__hint { margin: 0; font-size: 14px; color: var(--ink-soft); }
+.tree-panel__node { display: flex; flex-direction: column; gap: 6px; }
+.tree-panel__tags { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.tree-panel__quad, .tree-panel__kind { font: 11px var(--f-pixel); padding: 2px 7px; text-transform: uppercase; letter-spacing: 0.04em; }
+.tree-panel__quad { color: #fff; background: var(--q, var(--ink-soft)); }
+.tree-panel__kind { color: var(--ink-soft); border: 1px solid rgba(42, 34, 51, 0.3); display: inline-flex; align-items: center; gap: 4px; }
+.tree-panel__kind.is-active { color: #6b4a00; background: #f3d36b; border-color: #c9a227; }
+.tree-panel__name { margin: 2px 0 0; font: 22px/1.1 var(--f-pixel); }
+.tree-panel__desc { margin: 0; font-size: 14px; line-height: 1.45; }
+.tree-panel__h { margin: 6px 0 0; font: 12px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; border-top: 2px dashed rgba(42, 34, 51, 0.18); padding-top: 6px; }
+.tree-panel__fx { margin: 0; padding: 0 0 0 16px; font-size: 14px; line-height: 1.45; }
+.tree-panel__fx li::marker { color: var(--q, var(--ink-soft)); }
+.tree-panel__meta { margin: 0; font-size: 13px; color: var(--ink-soft); }
+.tree-panel__pick { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.tree-panel__pick select { flex: 1; min-height: 32px; font: 14px var(--f-body); }
+.tree-panel__groups { display: flex; flex-wrap: wrap; gap: 4px; }
+.tree-panel__groups .chip-btn { min-height: 28px; padding: 0 8px; font-size: 13px; color: var(--ink); border-color: rgba(42, 34, 51, 0.3); }
+.tree-panel__groups .chip-btn.is-on { color: var(--ground); }
+.tree-panel__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.tree-panel__list { margin-top: auto; }
+.tree-panel__list ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.tree-panel__active {
+  width: 100%; display: flex; align-items: center; gap: 6px; padding: 5px 8px; cursor: pointer; text-align: left;
+  background: rgba(42, 34, 51, 0.06); border: 1px solid rgba(42, 34, 51, 0.2); font: 14px var(--f-body); color: var(--ink);
+}
+.tree-panel__active span { margin-left: auto; font-size: 12px; color: var(--ink-soft); }
+.tree-panel__active span.is-ready { color: var(--good-on-paper); font-weight: 700; }
+/* quadrant colours (panel tags, box edges, list markers) */
+.tree-panel__node--lp, .tree-panel__quad--lp, .node--q-lp { --q: #c42f86; }
+.tree-panel__node--rp, .tree-panel__quad--rp, .node--q-rp { --q: #2b56c9; }
+.tree-panel__node--lt, .tree-panel__quad--lt, .node--q-lt { --q: #a8141c; }
+.tree-panel__node--rt, .tree-panel__quad--rt, .node--q-rt { --q: #b58a00; }
+.tree-panel__node--p, .tree-panel__quad--p, .node--q-p,
+.tree-panel__node--t, .tree-panel__quad--t, .node--q-t,
+.tree-panel__node--l, .tree-panel__quad--l, .node--q-l,
+.tree-panel__node--r, .tree-panel__quad--r, .node--q-r { --q: #6b6080; }
+/* the four compass quadrants: tinted backgrounds with their own pattern and a corner label */
+.tree-quad { position: absolute; width: 50%; height: 50%; z-index: 0; pointer-events: none; }
+.tree-quad--lp { left: 0; top: 0; background: repeating-linear-gradient(45deg, rgba(196, 47, 134, 0.16) 0 2px, transparent 2px 14px), rgba(196, 47, 134, 0.1); }
+.tree-quad--rp { right: 0; top: 0; background: repeating-linear-gradient(-45deg, rgba(43, 86, 201, 0.18) 0 2px, transparent 2px 14px), rgba(43, 86, 201, 0.11); }
+.tree-quad--lt { left: 0; bottom: 0; background: radial-gradient(rgba(168, 20, 28, 0.22) 1.5px, transparent 2px) 0 0 / 14px 14px, rgba(168, 20, 28, 0.1); }
+.tree-quad--rt { right: 0; bottom: 0; background: linear-gradient(rgba(216, 168, 0, 0.14) 2px, transparent 2px) 0 0 / 100% 14px, rgba(216, 168, 0, 0.09); }
+.tree-quad__label {
+  position: absolute; font: 12px var(--f-pixel); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim);
+  padding: 3px 8px; background: rgba(12, 10, 20, 0.55);
+}
+.tree-quad__label { transform: translateX(-50%); white-space: nowrap; }
+.tree-quad--lp .tree-quad__label { left: 50%; top: 4px; border-left: 4px solid #c42f86; }
+.tree-quad--rp .tree-quad__label { left: 50%; top: 4px; border-right: 4px solid #2b56c9; }
+.tree-quad--lt .tree-quad__label { left: 50%; bottom: 4px; border-left: 4px solid #a8141c; }
+.tree-quad--rt .tree-quad__label { left: 50%; bottom: 4px; border-right: 4px solid #d8a800; }
+.tree__links { z-index: 1; }
+/* boxes: an edge in the quadrant colour; active abilities get a bolt badge */
+.node { border-left: 6px solid var(--q, var(--line)); }
+.node--owned { border-left-color: var(--q, var(--gold)); }
+.node--active { padding-right: 12px; border-style: solid; box-shadow: var(--shadow-sm), inset 0 0 0 2px rgba(243, 211, 107, 0.35); }
+.node__bolt {
+  position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 13px; height: 13px;
+  background: #f3d36b; color: #6b4a00; box-shadow: 1px 1px 0 #0c0a14;
+}
+.node--owned .node__bolt { background: var(--ground); color: #f3d36b; }
+@media (max-width: 1000px) {
+  .tree-body { grid-template-columns: 1fr; }
+  .tree-panel { max-height: none; }
+  .tree { height: min(calc(100dvh - 300px), 520px); }
+}
 
 /* upgrade tree tabs (shared tree + leader tree) */
 .tree-tabs { display: flex; flex-wrap: wrap; gap: 6px; }

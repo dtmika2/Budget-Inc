@@ -201,6 +201,7 @@ describe('budget vote', () => {
       sim.state.resources.coalition = 40;
       while (sim.state.phase === 'running') sim.tick();
       sim.state.budgetVoteRedLines = [];
+      sim.state.budgetVoteRequests = [];
       p = passChance(sim, presetSliders(sim, 'budget_tight'), 'budget_tight');
       sumP += p;
       const sl = presetSliders(sim, 'budget_tight');

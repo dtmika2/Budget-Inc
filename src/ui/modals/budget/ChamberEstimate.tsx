@@ -26,7 +26,7 @@ function seatLayout(total: number): { x: number; y: number }[] {
  * Small chamber picture of the pass chance (display only: the vote itself is one pass chance). The share
  * of green seats equals the chance; seats the inspected change would win or lose are outlined.
  */
-export function ChamberEstimate({ chance, next, chips }: { chance: number; next: number | null; chips: React.ReactNode }) {
+export function ChamberEstimate({ chance, next, chips, compact = false }: { chance: number; next: number | null; chips?: React.ReactNode; compact?: boolean }) {
   const total = config.budgetAdvice.chamberSeats;
   const seats = useMemo(() => seatLayout(total), [total]);
   const yes = Math.round(chance * total);
@@ -36,11 +36,13 @@ export function ChamberEstimate({ chance, next, chips }: { chance: number; next:
   const shown = next ?? chance;
   const tone = shown >= 0.6 ? 'good' : shown >= 0.4 ? 'warn' : 'bad';
   return (
-    <section className="bchamber" aria-label={t('budgetVote.chamber.title')}>
-      <p className="bpanel__head">
-        <span>{t('budgetVote.chamber.title')}</span>
-        <span>{t('budgetVote.chamber.note')}</span>
-      </p>
+    <section className={`bchamber${compact ? ' bchamber--compact' : ''}`} aria-label={t('budgetVote.chamber.title')}>
+      {!compact && (
+        <p className="bpanel__head">
+          <span>{t('budgetVote.chamber.title')}</span>
+          <span>{t('budgetVote.chamber.note')}</span>
+        </p>
+      )}
       <div className="bchamber__row">
         <svg viewBox="0 0 260 132" className="bchamber__svg" aria-hidden="true">
           {seats.map((s, i) => {
@@ -64,9 +66,10 @@ export function ChamberEstimate({ chance, next, chips }: { chance: number; next:
             <span className={next > chance ? 'is-up' : 'is-down'}>{t('budgetVote.chamber.from', { v: pct(chance) })}</span>
           )}
           <small>{t(`budgetVote.chamber.${tone}`)}</small>
+          {compact && <small className="bchamber__label">{t('budgetVote.chamber.title')}</small>}
         </div>
       </div>
-      <div className="bchips">{chips}</div>
+      {chips && <div className="bchips">{chips}</div>}
     </section>
   );
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canBuy, isForkLink, nodeStatus, treesFor } from '../src/core/upgrades';
+import { canBuy, isForkLink, nodeStatus, treesFor, upgradeCooldownLeft } from '../src/core/upgrades';
 import { loadGameData } from '../src/data/loader';
 import { readDataFiles, readLocale } from '../scripts/lib/nodeData';
 import { quietSim } from './helpers';
@@ -93,5 +93,45 @@ describe('political compass tree', () => {
     expect(codes(loadWith((t) => delete t.start.abis))).toContain('missingStart');
     expect(codes(loadWith((t) => t.nodes[0].links.push('nope')))).toContain('unknownUpgrade');
     expect(codes(loadWith((t) => (t.start.nope = t.nodes[0].id)))).toContain('unknownLeader');
+  });
+});
+
+describe('active abilities (P29)', () => {
+  const owner = (id: string) => {
+    const sim = quietSim({ seed: `act-${id}` });
+    sim.state.ownedUpgrades.push(id);
+    sim.state.pc = 5;
+    return sim;
+  };
+
+  it('every tree has active boxes with a cooldown; their texts load', () => {
+    const sim = quietSim();
+    const actives = sim.data.upgrades.flatMap((tr) => tr.nodes).filter((n) => n.active);
+    expect(actives.length).toBeGreaterThanOrEqual(5);
+    for (const n of actives) expect(n.active!.cooldownDays).toBeGreaterThan(0);
+  });
+
+  it('a region ability needs a kraj, raises it, then cools down', () => {
+    const id = quietSim().data.upgrades.flatMap((tr) => tr.nodes).find((n) => n.active?.target === 'region')!.id;
+    const sim = owner(id);
+    expect(sim.dispatch({ kind: 'useUpgradeAction', nodeId: id }).ok).toBe(false);
+    const kraj = sim.data.regions.regions[0].code;
+    const p = sim.previewUpgradeAction(id, kraj);
+    const s0 = sim.state.regionShift[kraj];
+    expect(sim.dispatch({ kind: 'useUpgradeAction', nodeId: id, target: kraj }).ok).toBe(true);
+    const d = sim.state.regionShift[kraj] - s0;
+    expect(d).toBeGreaterThanOrEqual(p.regions[kraj]!.min - 1e-9);
+    expect(sim.dispatch({ kind: 'useUpgradeAction', nodeId: id, target: kraj }).ok).toBe(false);
+    expect(upgradeCooldownLeft(sim, id)).toBeGreaterThan(0);
+  });
+
+  it('a group ability calms the chosen group; only owned boxes can be used', () => {
+    const id = quietSim().data.upgrades.flatMap((tr) => tr.nodes).find((n) => n.active?.target === 'group')!.id;
+    expect(quietSim().dispatch({ kind: 'useUpgradeAction', nodeId: id, target: 'eu' }).ok).toBe(false);
+    const sim = owner(id);
+    sim.state.anger.eu = 70;
+    expect(sim.dispatch({ kind: 'useUpgradeAction', nodeId: id, target: 'eu' }).ok).toBe(true);
+    expect(sim.state.anger.eu).toBeLessThan(70);
+    expect(sim.state.log.some((l) => l.type === 'upgrade_action' && l.target === 'eu')).toBe(true);
   });
 });

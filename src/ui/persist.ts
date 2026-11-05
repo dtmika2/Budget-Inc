@@ -33,10 +33,6 @@ export function loadSettings(defaultSpeed: number): Settings {
 
 export const saveSettings = (s: Settings) => write('settings', s);
 
-/** Budget vote commentary in compact mode (before / after table). */
-export const budgetCompact = () => read<boolean>('budgetCompact', false);
-export const setBudgetCompact = (v: boolean) => write('budgetCompact', v);
-
 /** Background music switched off by the player. */
 export const musicMuted = () => read<boolean>('musicMuted', false);
 export const setMusicMuted = (v: boolean) => write('musicMuted', v);

@@ -168,7 +168,8 @@ export interface BudgetItem {
   chapters: { chapter: string; type: 'revenue' | 'expenditure'; weight: number }[];
   /** Anger change per +1 step (a cut is a negative step, so it inverts the sign). */
   angerPerStep: Partial<Record<GroupId, number>>;
-  supportPerStep: number;
+  /** Per-step effects on Support / Coalition / Prestige (x config.budgetVote.impact); Finances come from the chapters. */
+  effectsPerStep: Partial<Record<'support' | 'coalition' | 'prestige', number>>;
   /** Pass-chance change per +1 step (e.g. partners like more spending on this). */
   passPerStep: number;
   canBeRedLine: boolean;
@@ -208,6 +209,8 @@ export interface UpgradeNode {
   description: string;
   /** Layout hint for the tree UI, in grid units. */
   pos: { col: number; row: number };
+  /** Active ability (P29): usable again and again with a cooldown once owned. */
+  active?: { bundle: EffectBundle; target: 'region' | 'group' | null; groupAnger?: Range; cooldownDays: number };
 }
 
 export interface UpgradeTree {
@@ -448,6 +451,8 @@ export interface GameData {
   parties: PartyDef[];
   demands: DemandTemplate[];
   regionEvents: RegionEventTemplate[];
+  /** Coalition partners and their budget preferences (P30). */
+  coalitionRequests: CoalitionRequestsData;
   /** Kraj actions the player can choose (P26, regions workspace). */
   regionActions: RegionActionTemplate[];
   upgrades: UpgradeTree[];
@@ -470,6 +475,7 @@ export type Input =
   | { kind: 'voteBudget'; sliders: Record<string, number>; presetId: string | null }
   | { kind: 'makeCompromise'; cardId: string; channelId: string; score: number }
   | { kind: 'buyUpgrade'; nodeId: string }
+  | { kind: 'useUpgradeAction'; nodeId: string; target?: string }
   | { kind: 'useAbility'; abilityId: string; target?: string }
   | { kind: 'acceptDemand'; demandId: string }
   | { kind: 'rejectDemand'; demandId: string }
@@ -595,6 +601,18 @@ export interface RegionActionTemplate {
   bundle: EffectBundle;
 }
 
+/** A coalition partner's request in the open budget vote (P30): raise (+1) or cut (-1) an area by at least a step. */
+export interface CoalitionRequest {
+  party: string;
+  item: string;
+  dir: 1 | -1;
+}
+
+export interface CoalitionRequestsData {
+  partners: Record<string, string[]>;
+  preferences: Record<string, { raise: string[]; cut: string[] }>;
+}
+
 export interface GameState {
   runId: string;
   seed: string;
@@ -622,6 +640,8 @@ export interface GameState {
   compromiseOffer: string[] | null;
   /** Coalition red lines of the open budget vote (drawn at vote open). */
   budgetVoteRedLines: RedLine[] | null;
+  /** Coalition partners' requests in the open budget vote (P30). */
+  budgetVoteRequests: CoalitionRequest[] | null;
   /** Budget categories shown in the open vote (2 core + 4 extra, pledged ones forced in); null = all. */
   budgetVoteItems: string[] | null;
   /** Re-rolls of the shown categories in the open vote (each costs more PC). */
@@ -651,6 +671,8 @@ export interface GameState {
   /** Blame on the coalition partner (STB): policies left and the Coalition share of their losses. */
   blame: { left: number; coalitionFactor: number; origin: string } | null;
   ownedUpgrades: string[];
+  /** Active skill-tree abilities (P29): absolute day from which each can be used again. */
+  upgradeReady: Record<string, number>;
   /** Catastrophes and special agents: drawn cards, the open card (core/specialCards.ts). */
   specials: SpecialsState;
   projection: Projection;
