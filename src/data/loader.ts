@@ -511,6 +511,7 @@ export function loadGameData(
   for (const { node, file, path } of allNodes) {
     locKey(node.name, file, `${path}.name`);
     locKey(node.description, file, `${path}.description`);
+    if (node.active) checkBundle(node.active.bundle, file, `${path}.active.bundle`, true);
     checkModifiers(node.modifiers, file, path);
     node.requires.forEach((r: string, i: number) => {
       if (!nodeIds.has(r)) err('unknownUpgrade', file, `${path}.requires[${i}]`, r);

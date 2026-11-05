@@ -160,7 +160,8 @@ export const budgetItemSchema = z
       )
       .min(1),
     angerPerStep: z.object(Object.fromEntries(GROUP_IDS.map((g) => [g, z.number()]))).partial().strict().default({}),
-    supportPerStep: z.number().default(0),
+    /** Per-step effects on the other resources (Finances come from the chapters). P27: at least two per area. */
+    effectsPerStep: z.object({ support: z.number(), coalition: z.number(), prestige: z.number() }).partial().strict().default({}),
     passPerStep: z.number().default(0),
     canBeRedLine: z.boolean().default(true),
     core: z.boolean().default(false),
@@ -197,6 +198,20 @@ export const upgradeTreeSchema = z
           name: z.string(),
           description: z.string(),
           pos: z.object({ col: z.number(), row: z.number() }).strict(),
+          /**
+           * Active ability (P29): once owned, usable again and again with a cooldown. `bundle` may use the region
+           * key `self` (target `region`); `groupAnger` is the anger change of the chosen group (target `group`).
+           * A negative `pc` in the bundle is its PC price.
+           */
+          active: z
+            .object({
+              bundle: bundleSchema,
+              target: z.enum(['region', 'group']).nullable().default(null),
+              groupAnger: z.object({ min: z.number(), max: z.number() }).strict().optional(),
+              cooldownDays: z.number().int().positive(),
+            })
+            .strict()
+            .optional(),
         })
         .strict(),
     ),

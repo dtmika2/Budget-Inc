@@ -5,6 +5,9 @@ import { pledgesForCard, pledgesForCompromise } from '@core/demands';
 import { getStore } from '../store';
 import { EffectLanes } from './EffectLanes';
 
+/** A stable four-digit file number for a card (decoration only). */
+const fileNo = (id: string) => String([...id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9000, 7) + 1000);
+
 const LEANING_GLYPH: Record<string, string> = {
   libertarianism: '⚖',
   conservatism: '⌂',
@@ -44,21 +47,24 @@ export const PolicyCard = memo(function PolicyCard({
           </span>
           {isCompromise ? t('draft.compromiseTag') : t(`leaning.${card.leaning}`)}
         </span>
+        <span className="memo__file">{t('draft.fileNo', { n: fileNo(card.id) })}</span>
       </header>
-      {/* a card with a topic: the topic is the headline and the name a smaller flavour line */}
-      <h3 className="memo__title">{topic ?? t(card.title)}</h3>
-      {topic && <p className="memo__flavor">{t(card.title)}</p>}
-      {desc && <p className="memo__desc">{desc}</p>}
-      <EffectLanes
-        preview={preview}
-        chaos={card.chaosEvents?.length ?? 0}
-        base={{ resources: sim.state.resources, anger: sim.state.anger, regions: sim.state.projection.regionSupport }}
-      />
-      {pledges.map((p) => (
-        <p key={p.id} className="memo__pledge">
-          {t('pledge.badge', { region: t(`region.short.${p.region}`) })}
-        </p>
-      ))}
+      <div className="memo__body">
+        {/* a card with a topic: the topic is the headline and the name a smaller flavour line */}
+        <h3 className="memo__title">{topic ?? t(card.title)}</h3>
+        {topic && <p className="memo__flavor">{t(card.title)}</p>}
+        {desc && <p className="memo__desc">{desc}</p>}
+        <EffectLanes
+          preview={preview}
+          chaos={card.chaosEvents?.length ?? 0}
+          base={{ resources: sim.state.resources, anger: sim.state.anger, regions: sim.state.projection.regionSupport }}
+        />
+        {pledges.map((p) => (
+          <p key={p.id} className="memo__pledge">
+            {t('pledge.badge', { region: t(`region.short.${p.region}`) })}
+          </p>
+        ))}
+      </div>
       <button className={`btn memo__pick ${isCompromise ? 'btn--compromise' : 'btn--stamp'}`} onClick={onPick} disabled={stamped}>
         {action}
       </button>

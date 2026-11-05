@@ -168,7 +168,8 @@ export interface BudgetItem {
   chapters: { chapter: string; type: 'revenue' | 'expenditure'; weight: number }[];
   /** Anger change per +1 step (a cut is a negative step, so it inverts the sign). */
   angerPerStep: Partial<Record<GroupId, number>>;
-  supportPerStep: number;
+  /** Per-step effects on Support / Coalition / Prestige (x config.budgetVote.impact); Finances come from the chapters. */
+  effectsPerStep: Partial<Record<'support' | 'coalition' | 'prestige', number>>;
   /** Pass-chance change per +1 step (e.g. partners like more spending on this). */
   passPerStep: number;
   canBeRedLine: boolean;
@@ -208,6 +209,8 @@ export interface UpgradeNode {
   description: string;
   /** Layout hint for the tree UI, in grid units. */
   pos: { col: number; row: number };
+  /** Active ability (P29): usable again and again with a cooldown once owned. */
+  active?: { bundle: EffectBundle; target: 'region' | 'group' | null; groupAnger?: Range; cooldownDays: number };
 }
 
 export interface UpgradeTree {
@@ -470,6 +473,7 @@ export type Input =
   | { kind: 'voteBudget'; sliders: Record<string, number>; presetId: string | null }
   | { kind: 'makeCompromise'; cardId: string; channelId: string; score: number }
   | { kind: 'buyUpgrade'; nodeId: string }
+  | { kind: 'useUpgradeAction'; nodeId: string; target?: string }
   | { kind: 'useAbility'; abilityId: string; target?: string }
   | { kind: 'acceptDemand'; demandId: string }
   | { kind: 'rejectDemand'; demandId: string }
@@ -651,6 +655,8 @@ export interface GameState {
   /** Blame on the coalition partner (STB): policies left and the Coalition share of their losses. */
   blame: { left: number; coalitionFactor: number; origin: string } | null;
   ownedUpgrades: string[];
+  /** Active skill-tree abilities (P29): absolute day from which each can be used again. */
+  upgradeReady: Record<string, number>;
   /** Catastrophes and special agents: drawn cards, the open card (core/specialCards.ts). */
   specials: SpecialsState;
   projection: Projection;

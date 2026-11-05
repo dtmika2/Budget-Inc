@@ -7,7 +7,6 @@ import type { PreviewRanges } from '@core/effects';
 import type { Range } from '@core/types';
 import { fmtSigned, t } from '@i18n/index';
 import { mid, pct } from '../../format';
-import { budgetCompact, setBudgetCompact } from '../../persist';
 import { getStore, useStore } from '../../store';
 import { EffectLanes, metricId } from '../EffectLanes';
 import { areaName, Chip, metricName, stepText } from './adviceText';
@@ -53,7 +52,6 @@ export function BudgetScreen() {
   const [presetId, setPresetId] = useState<string | null>(null);
   const [sliders, setSliders] = useState<Sliders>(() => presetSliders(sim, null));
   const [focus, setFocusNow] = useState<Focus>(null);
-  const [compact, setCompactState] = useState(budgetCompact);
   const timer = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => clearTimeout(timer.current), []);
   // pointer hover settles before the commentary changes (no flicker while sweeping across the steps);
@@ -62,10 +60,6 @@ export function BudgetScreen() {
     clearTimeout(timer.current);
     if (now) setFocusNow(f);
     else timer.current = setTimeout(() => setFocusNow(f), config.budgetAdvice.hoverDelayMs);
-  };
-  const setCompact = (v: boolean) => {
-    setCompactState(v);
-    setBudgetCompact(v);
   };
 
   const apply = (next: Sliders, pid: string | null) => {
@@ -83,6 +77,9 @@ export function BudgetScreen() {
   };
   const choosePreset = (id: string | null) => apply(presetSliders(sim, id), id);
   const submit = () => store.dispatch({ kind: 'voteBudget', sliders, presetId });
+  const failText = Object.entries(config.budgetVote.failEffects)
+    .map(([k, v]) => `${t(`resource.short.${k}`)} ${fmtSigned(v ?? 0)}`)
+    .join(', ');
 
   const preview = useMemo(() => sim.previewVote(sliders, presetId), [sim, sliders, presetId]);
   // the inspected step: its preview (shown in the lanes and seats) and its slider's share (outlined)
@@ -141,7 +138,7 @@ export function BudgetScreen() {
               value={Math.abs(mid(preview.resources.finances ?? zero)) < 0.05 ? '0' : fmtSigned(mid(preview.resources.finances ?? zero), 1)}
               tone={mid(preview.resources.finances ?? zero) > 0 ? 'good' : mid(preview.resources.finances ?? zero) < 0 ? 'bad' : 'neutral'}
             />
-            <button className="btn btn--stamp bscreen__submit" onClick={submit}>
+            <button className="btn btn--stamp bscreen__submit" onClick={submit} title={t('budgetVote.failNote', { effects: failText })}>
               {t('budgetVote.submit')}
             </button>
           </div>
@@ -181,20 +178,15 @@ export function BudgetScreen() {
           </div>
 
           <div className="bscreen__mid">
-            <div className="bpanel">
+            <div className="bpanel bscreen__chamber">
               <ChamberEstimate chance={preview.passChance} next={inspected ? inspected.after.passChance : null} chips={chips} />
             </div>
             <div className="bpanel bpanel--gold">
-              <BudgetCommentary sim={sim} sliders={sliders} presetId={presetId} focus={focus} compact={compact} onCompact={setCompact} onApply={apply} />
-              {focus && (
-                <button className="chip-btn chip-btn--ghost bscreen__all" onClick={() => (clearTimeout(timer.current), setFocusNow(null))}>
-                  {t('budgetVote.advice.showAll')}
-                </button>
-              )}
+              <BudgetCommentary sim={sim} sliders={sliders} presetId={presetId} focus={focus} />
             </div>
           </div>
 
-          <aside className="memo bscreen__impact">
+          <aside className="memo bscreen__impact" onPointerLeave={() => setFocus(null)}>
             <p className="bscreen__impact-head">
               <span>{t('budgetVote.summary')}</span>
               <small>{focusLabel ? t('budgetVote.impactFocus', { what: focusLabel }) : t('budgetVote.impactAll')}</small>

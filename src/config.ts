@@ -225,7 +225,7 @@ export const config = {
     hand: { core: 2, extra: 4 },
     /** Re-roll of the shown categories: costs baseCost x factor^rerolls PC (like the policy draft). */
     reroll: { baseCost: 1, factor: 2 },
-    /** Multiplier on every category's supportPerStep, angerPerStep and passPerStep. */
+    /** Multiplier on every category's effectsPerStep, angerPerStep and passPerStep. */
     impact: 1.5,
     /**
      * Coalition red lines: at vote open, min..max categories (with canBeRedLine) are drawn from the
@@ -496,8 +496,9 @@ export const config = {
   /** Simulator targets on Normal (§13). */
   simulatorTargets: {
     randomMaxWinRate: 0.15,
-    greedyMinWinRate: 0.2,
-    greedyMaxWinRate: 0.4,
+    /** Daniel (P27): both leaders at least 33 % with the greedy bot on Normal; 55 % as a soft ceiling. */
+    greedyMinWinRate: 0.33,
+    greedyMaxWinRate: 0.55,
   },
 };
 

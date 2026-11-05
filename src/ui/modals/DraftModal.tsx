@@ -31,7 +31,7 @@ export function DraftModal() {
   };
 
   return (
-    <div className="modal-backdrop">
+    <div className="modal-backdrop modal-backdrop--under-bar">
       <section className="modal modal--draft" role="dialog" aria-modal="true" aria-labelledby="draft-title" data-tut-target="draft">
         <header className="modal__head">
           <div>

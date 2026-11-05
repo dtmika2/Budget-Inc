@@ -28,6 +28,9 @@
 - [x] P24 — Stakeholder feedback, block 1: interest groups drain attributes (shown on hover), prestige bonuses, Abis abilities reworked
 - [x] P25 — Policy cards show today → after for every value; status strip above the draft
 - [x] P26 — Kraj actions (pick where to work: 2–4 actions per kraj for Finance / PC), region events 3 → 1 a year
+- [x] P27 — Budget areas: every area moves ≥2 resources and ≥2 groups, much bigger effects; light budget commentary (one sentence, no recommendations); balance target ≥33 % for both leaders
+- [x] P28 — Policy cards: draft under the top bar, distinct leaning colours, corner details, whole card visible on phones
+- [ ] P29 — Skill tree rework (core and data done; screen in progress)
 
 Every phase gate passed (`typecheck`, `lint`, `test` — 98 tests, `build`, and from P5 on `simulate --runs 200 --bot random`).
 

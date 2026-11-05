@@ -7,9 +7,12 @@
  * - no node of its `exclusive` group in the tree is owned (forks: picking one locks the others out).
  * A tree with `start` gives each leader their start node for free at the beginning of a run.
  */
+import { resolveSelf } from './demands';
+import { applyBundle } from './effects';
 import { instantiate } from './modifiers';
 import type { Simulation } from './simulation';
-import type { UpgradeNode, UpgradeTree } from './types';
+import type { EffectBundle, UpgradeNode, UpgradeTree } from './types';
+import { GROUP_IDS } from './types';
 
 export type NodeStatus = 'owned' | 'available' | 'locked' | 'excluded';
 
@@ -122,4 +125,38 @@ export function grantStartNodes(sim: Simulation): void {
 /** The start node the current leader got in `tree`, if any. */
 export function startNodeOf(sim: Simulation, tree: UpgradeTree): string | undefined {
   return tree.start[sim.state.leader];
+}
+
+/** Days until an owned active ability can be used again (0 = ready). */
+export function upgradeCooldownLeft(sim: Simulation, nodeId: string): number {
+  return Math.max(0, (sim.state.upgradeReady[nodeId] ?? 0) - sim.absDay);
+}
+
+/** Null if the active ability can be used now on this target, else a reason. */
+export function canUseUpgradeAction(sim: Simulation, nodeId: string, target?: string): string | null {
+  const found = findNode(sim, nodeId);
+  const a = found?.node.active;
+  if (!found || !a) return 'no such active ability';
+  if (!sim.state.ownedUpgrades.includes(nodeId)) return 'not owned';
+  if (sim.state.phase !== 'running') return 'not now';
+  if (upgradeCooldownLeft(sim, nodeId) > 0) return 'cooling down';
+  if (a.target === 'region' && !sim.data.regions.regions.some((r) => r.code === target)) return 'choose a kraj';
+  if (a.target === 'group' && !(GROUP_IDS as readonly string[]).includes(target ?? '')) return 'choose a group';
+  if (Math.max(0, -(a.bundle.pc ?? 0)) > sim.state.pc) return 'cannot afford';
+  return null;
+}
+
+/** The ability's bundle on a target: the kraj for `self`, the chosen group's anger. */
+export function upgradeActionBundle(sim: Simulation, nodeId: string, target?: string): EffectBundle {
+  const a = findNode(sim, nodeId)!.node.active!;
+  let b = a.target === 'region' && target ? resolveSelf(a.bundle, target) : a.bundle;
+  if (a.target === 'group' && target && a.groupAnger) b = { ...b, anger: { ...(b.anger ?? {}), [target]: a.groupAnger } };
+  return b;
+}
+
+export function applyUpgradeAction(sim: Simulation, nodeId: string, target?: string): void {
+  const a = findNode(sim, nodeId)!.node.active!;
+  const { deltas } = applyBundle(sim, upgradeActionBundle(sim, nodeId, target), 'ability', `upgrade:${nodeId}`, sim.rng.effects);
+  sim.state.upgradeReady[nodeId] = sim.absDay + a.cooldownDays;
+  sim.log('upgrade_action', { nodeId, target: target ?? null }, deltas);
 }

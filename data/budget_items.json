@@ -10,9 +10,13 @@
       }
     ],
     "angerPerStep": {
-      "pensioners": -3
+      "pensioners": -5,
+      "eu": 1.5
     },
-    "supportPerStep": 0.6,
+    "effectsPerStep": {
+      "support": 1.5,
+      "coalition": 0.5
+    },
     "passPerStep": 0.02,
     "canBeRedLine": true,
     "core": true,
@@ -101,10 +105,13 @@
       }
     ],
     "angerPerStep": {
-      "activists": -2.5,
-      "eu": -0.5
+      "activists": -3,
+      "eu": -1
     },
-    "supportPerStep": -0.2,
+    "effectsPerStep": {
+      "prestige": 0.6,
+      "support": -0.3
+    },
     "passPerStep": 0,
     "canBeRedLine": true,
     "core": false,
@@ -178,10 +185,13 @@
       }
     ],
     "angerPerStep": {
-      "eu": -1.5,
-      "activists": 0.5
+      "eu": -2.5,
+      "activists": 1
     },
-    "supportPerStep": 0,
+    "effectsPerStep": {
+      "prestige": 1.5,
+      "support": 0.4
+    },
     "passPerStep": 0.01,
     "canBeRedLine": true,
     "core": true,
@@ -255,9 +265,13 @@
       }
     ],
     "angerPerStep": {
-      "activists": -1
+      "activists": -2.5,
+      "media": -1.5
     },
-    "supportPerStep": 0.4,
+    "effectsPerStep": {
+      "support": 1.2,
+      "prestige": 0.5
+    },
     "passPerStep": 0.01,
     "canBeRedLine": true,
     "core": true,
@@ -331,9 +345,13 @@
       }
     ],
     "angerPerStep": {
-      "oligarchs": -1.5
+      "oligarchs": -3,
+      "pensioners": -1
     },
-    "supportPerStep": 0.3,
+    "effectsPerStep": {
+      "support": 1,
+      "coalition": 0.5
+    },
     "passPerStep": 0,
     "canBeRedLine": true,
     "core": true,
@@ -412,9 +430,13 @@
       }
     ],
     "angerPerStep": {
-      "pensioners": -1
+      "pensioners": -3,
+      "media": -1
     },
-    "supportPerStep": 0.5,
+    "effectsPerStep": {
+      "support": 1.4,
+      "coalition": 0.4
+    },
     "passPerStep": 0.01,
     "canBeRedLine": true,
     "core": true,
@@ -488,9 +510,13 @@
       }
     ],
     "angerPerStep": {
-      "oligarchs": -1
+      "oligarchs": -2,
+      "eu": 1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "support": 0.5,
+      "coalition": 0.4
+    },
     "passPerStep": 0.01,
     "canBeRedLine": true,
     "core": false,
@@ -564,11 +590,14 @@
       }
     ],
     "angerPerStep": {
-      "activists": -1.5,
-      "eu": -1,
-      "oligarchs": 0.5
+      "activists": -2.5,
+      "eu": -2,
+      "oligarchs": 1
     },
-    "supportPerStep": 0,
+    "effectsPerStep": {
+      "prestige": 0.8,
+      "support": 0.2
+    },
     "passPerStep": 0,
     "canBeRedLine": true,
     "core": false,
@@ -647,9 +676,13 @@
       }
     ],
     "angerPerStep": {
-      "media": 0.5
+      "media": 1.5,
+      "eu": -1
     },
-    "supportPerStep": -0.3,
+    "effectsPerStep": {
+      "coalition": 0.6,
+      "support": -0.6
+    },
     "passPerStep": 0,
     "canBeRedLine": false,
     "core": true,
@@ -715,9 +748,13 @@
       }
     ],
     "angerPerStep": {
-      "media": -1.5
+      "media": -2.5,
+      "activists": -1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "support": 0.5,
+      "prestige": 0.4
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -791,9 +828,13 @@
       }
     ],
     "angerPerStep": {
-      "media": -1.5
+      "media": -2,
+      "oligarchs": -1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "support": 0.7,
+      "coalition": 0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -867,9 +908,13 @@
       }
     ],
     "angerPerStep": {
-      "pensioners": -1.5
+      "pensioners": -2.5,
+      "activists": 1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "support": 0.6,
+      "coalition": 0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -943,9 +988,13 @@
       }
     ],
     "angerPerStep": {
-      "media": -1.5
+      "media": -2.5,
+      "eu": -1.5
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "prestige": 0.6,
+      "support": 0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -1011,9 +1060,13 @@
       }
     ],
     "angerPerStep": {
-      "activists": -1.5
+      "activists": -2.5,
+      "eu": -1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "prestige": 0.8,
+      "support": 0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -1079,9 +1132,13 @@
       }
     ],
     "angerPerStep": {
-      "eu": -1.5
+      "eu": -2.5,
+      "oligarchs": -1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "prestige": 0.5,
+      "support": 0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -1155,9 +1212,13 @@
       }
     ],
     "angerPerStep": {
-      "activists": -1.5
+      "activists": -2.5,
+      "pensioners": -1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "support": 0.8,
+      "coalition": 0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -1223,9 +1284,13 @@
       }
     ],
     "angerPerStep": {
-      "pensioners": -1.5
+      "pensioners": -2.5,
+      "activists": -1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "support": 0.8,
+      "coalition": 0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -1299,9 +1364,13 @@
       }
     ],
     "angerPerStep": {
-      "oligarchs": -1.5
+      "oligarchs": -2.5,
+      "eu": -1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "support": 0.6,
+      "coalition": 0.5
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -1383,9 +1452,13 @@
       }
     ],
     "angerPerStep": {
-      "oligarchs": -1.5
+      "oligarchs": -2.5,
+      "activists": 1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "support": 0.5,
+      "prestige": -0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -1459,9 +1532,13 @@
       }
     ],
     "angerPerStep": {
-      "pensioners": -1.5
+      "pensioners": -2,
+      "activists": -1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "support": 0.5,
+      "prestige": 0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -1535,9 +1612,13 @@
       }
     ],
     "angerPerStep": {
-      "eu": -1.5
+      "eu": -2.5,
+      "activists": -1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "prestige": 1,
+      "support": -0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,
@@ -1603,9 +1684,13 @@
       }
     ],
     "angerPerStep": {
-      "pensioners": -1.5
+      "pensioners": -2.5,
+      "media": -1
     },
-    "supportPerStep": 0.2,
+    "effectsPerStep": {
+      "support": 0.7,
+      "coalition": 0.3
+    },
     "passPerStep": 0.005,
     "canBeRedLine": true,
     "core": false,

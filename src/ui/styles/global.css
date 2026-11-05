@@ -386,13 +386,6 @@ h1, h2, h3 { margin: 0; }
   background-image: repeating-linear-gradient(0deg, transparent 0 25px, rgba(42, 34, 51, 0.06) 25px 26px);
   border-top: 8px solid var(--ink-soft);
 }
-.memo[data-leaning='libertarianism'] { border-top-color: #c9a227; }
-.memo[data-leaning='conservatism'] { border-top-color: #2f5fb3; }
-.memo[data-leaning='populism'] { border-top-color: #d9741f; }
-.memo[data-leaning='socialism'] { border-top-color: #c8352e; }
-.memo[data-leaning='progressivism'] { border-top-color: #3c9a5f; }
-.memo[data-leaning='fascism'] { border-top-color: #3a3a3a; }
-.memo[data-leaning='communism'] { border-top-color: #8f1d1d; }
 .memo__leaning { font-family: var(--f-pixel); font-size: 14px; color: var(--ink-soft); display: inline-flex; gap: 6px; align-items: center; }
 .memo__glyph { font-size: 18px; color: var(--ink); }
 .memo__title { font-family: var(--f-pixel); font-size: 21px; line-height: 1.15; }
@@ -704,8 +697,12 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .bpanel--gold { border-color: var(--gold-dim); }
 .bpanel__head { margin: 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; font: 12px var(--f-pixel); color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
 .bscreen__mid { display: flex; flex-direction: column; gap: 12px; min-width: 0; min-height: 0; }
-.bscreen__mid > .bpanel--gold { flex: 1; min-height: 0; overflow-y: auto; }
-.bscreen__all { align-self: flex-start; min-height: 28px; font-size: 13px; }
+.bscreen__mid > .bscreen__chamber { flex: 1; min-height: 0; justify-content: center; }
+.bscreen__chamber .bchamber__row { grid-template-columns: minmax(0, 1fr) 150px; }
+.bscreen__chamber .bchamber__svg { max-height: 320px; }
+.bcomment { display: flex; flex-direction: column; gap: 6px; }
+.bcomment__line { margin: 0; font-size: 14px; line-height: 1.45; }
+.bcomment__line b { font: 15px var(--f-pixel); font-weight: 400; color: var(--gold); margin-right: 8px; }
 
 /* sliders: one cell per step, the safe band tinted */
 .bsl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
@@ -754,39 +751,6 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .bchip--none { background: var(--panel); color: var(--text-dim); border: 1px solid var(--line); font-weight: 400; }
 
 /* commentary */
-.bcomment { display: flex; flex-direction: column; gap: 8px; }
-.bcomment__modes { display: inline-flex; gap: 4px; text-transform: none; letter-spacing: 0; }
-.bcomment__modes .chip-btn { min-height: 26px; padding: 0 8px; font-size: 12px; }
-.bcomment__who { display: flex; align-items: center; gap: 10px; }
-.bcomment__who b { display: block; font: 15px var(--f-pixel); font-weight: 400; }
-.bcomment__who small { font-size: 12px; color: var(--text-dim); }
-.bcomment__avatar { width: 34px; height: 34px; flex: none; background: #c9a87a; box-shadow: 0 0 0 2px #15121f; position: relative; }
-.bcomment__avatar::before { content: ''; position: absolute; left: 7px; top: 11px; width: 20px; height: 5px; background: #15121f; }
-.bcomment__avatar::after { content: ''; position: absolute; left: 11px; top: 23px; width: 12px; height: 3px; background: #7a3a2a; }
-.bcomment__ctx { margin-left: auto; font: 12px var(--f-pixel); color: var(--ground); background: var(--paper); padding: 2px 8px; white-space: nowrap; }
-.bcomment__quote { margin: 0; font-size: 14px; line-height: 1.45; background: var(--panel); border-left: 4px solid var(--gold); padding: 7px 10px; }
-.bcomment__cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
-.bcomment__sec h4 { margin: 0 0 6px; font: 12px var(--f-pixel); color: var(--gold); text-transform: uppercase; letter-spacing: 0.04em; }
-.bcomment__why { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.4; }
-.bcomment__why li { padding-left: 10px; border-left: 3px solid var(--line); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
-.bcomment__why li.is-good { border-left-color: var(--good); }
-.bcomment__why li.is-bad { border-left-color: var(--bad); }
-.bcomment__none { margin: 0; font-size: 13px; color: var(--text-dim); }
-.bcomment__foot { margin: 0; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--text-dim); border-top: 1px dashed var(--line); padding-top: 6px; }
-.brec { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 8px; align-items: center; background: var(--panel); border: 2px solid var(--line); padding: 7px 9px; margin-bottom: 6px; font-size: 12px; color: var(--text-dim); }
-.brec.is-best { border-color: var(--good); background: rgba(95, 196, 130, 0.08); }
-.brec__title { font: 14px var(--f-pixel); font-weight: 400; color: var(--text); }
-.brec__badge { font: 10px var(--f-pixel); padding: 0 4px; margin-left: 6px; background: var(--good); color: var(--ground); vertical-align: 2px; }
-.brec__apply { grid-row: 1 / span 2; grid-column: 2; min-height: 30px; padding: 0 10px; font: 13px var(--f-pixel); background: var(--gold); color: var(--ground); border: 0; box-shadow: 2px 2px 0 #0c0a14; }
-.brec__note { grid-column: 1; }
-.brec__fx { grid-column: 1 / -1; }
-.bcompare { width: 100%; border-collapse: collapse; font-size: 13px; }
-.bcompare th { font: 11px var(--f-pixel); color: var(--text-dim); text-align: right; padding: 2px 6px; text-transform: uppercase; }
-.bcompare td { padding: 3px 6px; border-top: 1px solid var(--line); }
-.bcompare .num { font: 13px var(--f-num); text-align: right; white-space: nowrap; }
-.bcompare .verdict { font: 11px var(--f-pixel); text-align: right; }
-.bcompare .verdict.is-good { color: var(--good); }
-.bcompare .verdict.is-bad { color: #ff8d80; }
 
 /* impact lanes (policy-card template) */
 .bscreen__impact { padding: 12px 14px; gap: 2px; }
@@ -803,7 +767,7 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 @media (max-width: 1100px) {
   .modal--budget { height: auto; max-height: calc(100vh - 2 * var(--gutter)); overflow-y: auto; }
   .bscreen__cols { flex: none; grid-template-columns: minmax(280px, 1fr) minmax(0, 1.3fr); align-items: start; }
-  .bscreen__left, .bscreen__impact, .bscreen__mid > .bpanel--gold { overflow: visible; }
+  .bscreen__left, .bscreen__impact { overflow: visible; }
   .bscreen__impact { grid-column: 1 / -1; }
 }
 @media (max-width: 760px) {
@@ -816,7 +780,6 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
   .chip-btn--reroll { margin-left: 0; }
   .bscreen__cols { grid-template-columns: 1fr; }
   .bsl__track { height: 40px; }
-  .bcomment__cols { grid-template-columns: 1fr; }
   .bchamber__row { grid-template-columns: 150px 1fr; }
 }
 
@@ -983,3 +946,65 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 @media (max-width: 760px) {
   .modal.modal--draft { width: auto; min-height: 0; }
 }
+/* policy cards (P28): a coloured leaning band with notched ends, corner brackets, a folded corner */
+.memo[data-leaning] { --lean: var(--ink-soft); --lean-ink: #fff; border-top: 0; padding-top: 0; overflow: hidden; }
+.memo[data-leaning='libertarianism'] { --lean: #d8a800; --lean-ink: #2a2233; }
+.memo[data-leaning='conservatism'] { --lean: #2b56c9; }
+.memo[data-leaning='populism'] { --lean: #ef6f12; }
+.memo[data-leaning='socialism'] { --lean: #c42f86; }
+.memo[data-leaning='progressivism'] { --lean: #27a35a; }
+.memo[data-leaning='fascism'] { --lean: #3b3b3b; }
+.memo[data-leaning='communism'] { --lean: #a8141c; }
+.memo[data-leaning] .memo__head {
+  margin: 0 -16px; padding: 9px 16px 8px; background: var(--lean); color: var(--lean-ink);
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px));
+}
+.memo[data-leaning='fascism'] .memo__head { background: repeating-linear-gradient(-45deg, #3b3b3b 0 8px, #2a2a2a 8px 16px); }
+.memo[data-leaning] .memo__leaning, .memo[data-leaning] .memo__glyph { color: var(--lean-ink); font-size: 15px; }
+.memo[data-leaning] .memo__glyph { font-size: 20px; }
+.memo__file { font: 11px var(--f-num); opacity: 0.85; letter-spacing: 0.04em; white-space: nowrap; }
+.memo--compromise .memo__file { color: var(--ink-soft); }
+.memo[data-leaning]::before {
+  content: ''; position: absolute; left: 7px; right: 7px; bottom: 7px; height: 14px; pointer-events: none;
+  background:
+    linear-gradient(var(--lean), var(--lean)) left bottom / 14px 3px no-repeat,
+    linear-gradient(var(--lean), var(--lean)) left bottom / 3px 14px no-repeat,
+    linear-gradient(var(--lean), var(--lean)) right bottom / 14px 3px no-repeat,
+    linear-gradient(var(--lean), var(--lean)) right bottom / 3px 14px no-repeat;
+  opacity: 0.75;
+}
+.memo[data-leaning]::after {
+  content: ''; position: absolute; right: 0; top: 46px; width: 0; height: 0; pointer-events: none;
+  border-style: solid; border-width: 0 0 16px 16px; border-color: transparent transparent rgba(42, 34, 51, 0.18) var(--ground);
+}
+.memo__body { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.memo[data-leaning] .memo__body { padding-top: 6px; }
+.modal--draft .memo[data-leaning] { padding-top: 0; }
+.modal--draft .memo[data-leaning] .memo__head { margin: 0 -20px; padding: 10px 20px 9px; }
+.memo[data-leaning] .memo__title { border-left: 4px solid var(--lean); padding-left: 10px; margin-left: -2px; }
+.memo[data-leaning] .memo__pick { position: relative; z-index: 1; }
+/* the draft opens under the top bar on wide screens, so the bar stays readable */
+@media (min-width: 761px) {
+  .modal-backdrop--under-bar { top: 63px; }
+  .modal-backdrop--under-bar .modal.modal--draft { min-height: calc(100dvh - 63px - 32px); }
+  .modal--draft .draft-status { display: none; }
+}
+@media (max-width: 760px) {
+  /* phones: the card fits the screen; its middle scrolls and the pick button stays visible */
+  .modal.modal--draft { width: 100%; max-width: 100%; height: calc(100dvh - 24px); display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+  .modal--draft .modal__head { flex-wrap: nowrap; }
+  .modal--draft .modal__sub { display: none; }
+  .modal--draft .btn--reroll { padding: 6px 10px; font-size: 14px; }
+  .modal--draft .draft-status { font-size: 12px; gap: 2px 10px; padding: 4px 8px; }
+  .modal--draft .carousel { flex: 1; min-height: 0; align-items: stretch; }
+  .modal--draft .memo { min-height: 0; max-height: 100%; padding: 0 12px 12px; gap: 6px; }
+  .modal--draft .memo[data-leaning] .memo__head { margin: 0 -12px; padding: 8px 12px 7px; }
+  .modal--draft .memo__body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
+  .modal--draft .memo__title { font-size: 19px; }
+  .modal--draft .memo__desc { font-size: 13px; }
+  .modal--draft .lanes--base .lane__row { grid-template-columns: 6.4em minmax(0, 1fr) 4.8em 4.2em; gap: 5px; font-size: 13px; }
+  .modal--draft .memo__pick { flex: none; min-height: 48px; }
+  .modal--draft .carousel__hint { flex: none; }
+}
+

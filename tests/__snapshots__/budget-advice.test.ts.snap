@@ -20,7 +20,7 @@ exports[`budget advice > the greedy bot vote is unchanged by sharing its scoring
     "sliders": {
       "administration": -1,
       "education": 3,
-      "justice": 2,
+      "justice": 1,
       "ngos": -1,
       "science": 2,
       "sport": 2,
@@ -31,10 +31,10 @@ exports[`budget advice > the greedy bot vote is unchanged by sharing its scoring
     "presetId": null,
     "sliders": {
       "defence": 2,
-      "digital": 2,
+      "digital": 1,
       "firefighters": 2,
       "ngos": -1,
-      "pensions": 2,
+      "pensions": 3,
       "sport": 2,
     },
   },
@@ -43,11 +43,11 @@ exports[`budget advice > the greedy bot vote is unchanged by sharing its scoring
     "presetId": null,
     "sliders": {
       "agriculture": 2,
-      "energy": 2,
+      "energy": 1,
       "health": 3,
       "housing": 2,
       "transport": 3,
-      "water": 2,
+      "water": 1,
     },
   },
   {
@@ -55,7 +55,7 @@ exports[`budget advice > the greedy bot vote is unchanged by sharing its scoring
     "presetId": null,
     "sliders": {
       "administration": -1,
-      "environment": 0,
+      "environment": 1,
       "housing": 2,
       "police": 2,
       "social_care": 2,

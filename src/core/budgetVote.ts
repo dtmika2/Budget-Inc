@@ -229,18 +229,19 @@ function sliderBundle(sim: Simulation, sliders: Sliders, presetId: string | null
   const opt = presetId ? sim.data.budgetVote.find((o) => o.id === presetId) : undefined;
   const effects: Partial<Record<ResourceId | 'financesExtra', Range>> = { ...(opt?.effects ?? {}) };
   const anger: Partial<Record<GroupId, Range>> = { ...(opt?.anger ?? {}) };
-  let support = 0;
+  const resSum: Partial<Record<'support' | 'coalition' | 'prestige', number>> = {};
   const angerSum: Partial<Record<GroupId, number>> = {};
   for (const it of shownItems(sim)) {
     const s = sliders[it.id] ?? 0;
     if (s === 0) continue;
-    support += it.supportPerStep * impact * s;
+    for (const [r, v] of Object.entries(it.effectsPerStep) as ['support' | 'coalition' | 'prestige', number][])
+      if (v) resSum[r] = (resSum[r] ?? 0) + v * impact * s;
     for (const g of GROUP_IDS) {
       const a = it.angerPerStep[g];
       if (a) angerSum[g] = (angerSum[g] ?? 0) + a * impact * s;
     }
   }
-  if (support !== 0) effects.support = addRange(effects.support, support);
+  for (const [r, v] of Object.entries(resSum) as ['support' | 'coalition' | 'prestige', number][]) if (v) effects[r] = addRange(effects[r], v);
   for (const g of GROUP_IDS) if (angerSum[g]) anger[g] = addRange(anger[g], angerSum[g]!);
   return {
     effects,

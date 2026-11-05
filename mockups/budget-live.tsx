@@ -2,11 +2,10 @@
  * Dev-only harness for the real budget vote screen (phase 23): starts a run, plays it to the first budget
  * vote with the first-card bot and shows the screen. Not part of the game build.
  *
- * URL: /mockups/budget-live.html?hover=<row>:<steps>&metric=<lane row>&compact=1
+ * URL: /mockups/budget-live.html?hover=<row>:<steps>&metric=<lane row>
  *   set    - click slider cells first, comma separated <row>:<steps>, e.g. 0:2,1:-1
  *   hover  - hover the slider cell of that row (0-based) at that step value, e.g. 1:2
  *   metric - hover that impact-lane row (0-based, in page order)
- *   compact - start the commentary in compact mode
  *   stop   - `draft`: stop at the first policy draft of Q2 instead (policy cards, P24)
  */
 import { StrictMode } from 'react';
@@ -28,11 +27,9 @@ import { createBot } from '../src/core/bots';
 import { resolveSpecialForBot } from '../src/core/specialCards';
 import { loadBundledData } from '../src/data/browser';
 import { App } from '../src/ui/App';
-import { setBudgetCompact } from '../src/ui/persist';
 import { initStore } from '../src/ui/store';
 
 const params = new URLSearchParams(location.search);
-setBudgetCompact(params.get('compact') === '1');
 const store = initStore(loadBundledData());
 
 createRoot(document.getElementById('root')!).render(

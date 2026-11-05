@@ -120,3 +120,19 @@ describe('STB blames the coalition partner', () => {
     if (shifted === 4) expect(sim.state.blame).toBeNull();
   });
 });
+
+describe('budget areas (P27)', () => {
+  it('every area moves at least two resources and two interest groups per step; core areas the most', () => {
+    const sim = quietSim();
+    const size = (it: (typeof sim.data.budgetItems)[number]) =>
+      Object.values(it.effectsPerStep).reduce((s, v) => s + Math.abs(v ?? 0), 0) + Object.values(it.angerPerStep).reduce((s, v) => s + Math.abs(v ?? 0), 0);
+    for (const it of sim.data.budgetItems) {
+      expect(Object.values(it.effectsPerStep).filter((v) => v).length, it.id).toBeGreaterThanOrEqual(2);
+      expect(Object.values(it.angerPerStep).filter((v) => v).length, it.id).toBeGreaterThanOrEqual(2);
+    }
+    const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+    const core = sim.data.budgetItems.filter((i) => i.core).map(size);
+    const other = sim.data.budgetItems.filter((i) => !i.core).map(size);
+    expect(avg(core)).toBeGreaterThan(avg(other));
+  });
+});
