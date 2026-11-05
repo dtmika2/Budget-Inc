@@ -2,18 +2,17 @@ import { memo } from 'react';
 import type { CompromiseCard, PolicyCard as Card } from '@core/types';
 import { t } from '@i18n/index';
 import { pledgesForCard, pledgesForCompromise } from '@core/demands';
-import { PixelIcon, type PixelIconName } from '../pixelIcons';
 import { getStore } from '../store';
 import { EffectLanes } from './EffectLanes';
 
-const LEANING_ICON: Record<string, PixelIconName> = {
-  libertarianism: 'scales',
-  conservatism: 'house',
-  populism: 'smiley',
-  socialism: 'tools',
-  progressivism: 'flower',
-  fascism: 'skull',
-  communism: 'redStar',
+const LEANING_GLYPH: Record<string, string> = {
+  libertarianism: '⚖',
+  conservatism: '⌂',
+  populism: '☺',
+  socialism: '⚒',
+  progressivism: '✿',
+  fascism: '☠',
+  communism: '★',
 };
 
 /**
@@ -41,7 +40,7 @@ export const PolicyCard = memo(function PolicyCard({
       <header className="memo__head">
         <span className="memo__leaning">
           <span className="memo__glyph" aria-hidden="true">
-            <PixelIcon name={isCompromise ? 'swap' : LEANING_ICON[card.leaning]} />
+            {isCompromise ? '⇄' : LEANING_GLYPH[card.leaning]}
           </span>
           {isCompromise ? t('draft.compromiseTag') : t(`leaning.${card.leaning}`)}
         </span>
