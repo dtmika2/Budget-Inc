@@ -19,7 +19,7 @@ import { Rng } from './rng';
 import type { Simulation } from './simulation';
 import type { GroupId, Range, ResourceId } from './types';
 import { GROUP_IDS, RESOURCE_IDS } from './types';
-import { availableNodes } from './upgrades';
+import { availableNodes, canUseUpgradeAction, treesFor } from './upgrades';
 import { resolveSpecialForBot } from './specialCards';
 
 export type BotKind = 'random' | 'greedy' | 'firstCard';
@@ -93,6 +93,31 @@ function pledgeBonus(sim: Simulation, pledges: { templateId: string; region: str
     v += gain(sim, pr.fulfil) - gain(sim, pr.fail);
   }
   return v;
+}
+
+/** Best use of an owned active skill-tree ability now, or null when none helps (P29). Prices like kraj actions. */
+export function greedyUpgradeAction(sim: Simulation): { nodeId: string; target?: string } | null {
+  const now = stateValue(sim, sim.state.resources, sim.state.anger);
+  let best: { nodeId: string; target?: string } | null = null;
+  let bestV = 0;
+  for (const n of treesFor(sim).flatMap((tr) => tr.nodes)) {
+    const a = n.active;
+    if (!a || !sim.state.ownedUpgrades.includes(n.id)) continue;
+    const targets: (string | undefined)[] = a.target === 'region' ? sim.data.regions.regions.map((r) => r.code) : a.target === 'group' ? [...GROUP_IDS] : [undefined];
+    for (const target of targets) {
+      if (canUseUpgradeAction(sim, n.id, target)) continue;
+      const p = sim.previewUpgradeAction(n.id, target);
+      const fin = -mid(p.resources.finances);
+      if (fin > 0 && sim.state.resources.finances - fin < sim.cfg.bots.regionActionFinanceReserve) continue;
+      const pcCost = Math.max(0, -(a.bundle.pc ?? 0));
+      const v = valueAfter(sim, p) - now - pcCost * sim.cfg.bots.regionActionPcPrice - Math.max(0, fin) * sim.cfg.bots.regionActionFinancePrice;
+      if (v > bestV) {
+        bestV = v;
+        best = { nodeId: n.id, target };
+      }
+    }
+  }
+  return best;
 }
 
 /** Best kraj action now (value gain minus a small PC price), or null when none helps (P26). */
@@ -304,6 +329,14 @@ export function createBot(kind: BotKind, seed: string): Bot {
           const acts = offeredActions(sim, region);
           if (acts.length) sim.dispatch({ kind: 'regionAction', region, actionId: rng.pick(acts).id });
         }
+        if (rng.next() < 0.02) {
+          const acts = treesFor(sim).flatMap((tr) => tr.nodes).filter((n) => n.active && s.ownedUpgrades.includes(n.id));
+          if (acts.length) {
+            const n = rng.pick(acts);
+            const target = n.active!.target === 'region' ? rng.pick(sim.data.regions.regions).code : n.active!.target === 'group' ? rng.pick([...GROUP_IDS]) : undefined;
+            sim.dispatch({ kind: 'useUpgradeAction', nodeId: n.id, target });
+          }
+        }
         if (rng.next() < 0.01) {
           const nodes = availableNodes(sim).filter((n) => n.cost <= s.pc);
           if (nodes.length) sim.dispatch({ kind: 'buyUpgrade', nodeId: rng.pick(nodes).id });
@@ -380,6 +413,11 @@ export function createBot(kind: BotKind, seed: string): Bot {
       if (sim.absDay % 7 === 0) {
         const best = greedyRegionAction(sim);
         if (best) sim.dispatch({ kind: 'regionAction', ...best });
+      }
+      // active skill-tree abilities (P29): the best use when it adds value, checked once a week
+      if (sim.absDay % 7 === 3) {
+        const best = greedyUpgradeAction(sim);
+        if (best) sim.dispatch({ kind: 'useUpgradeAction', ...best });
       }
       // cheapest available upgrade
       const avail = availableNodes(sim).sort((a, b) => a.cost - b.cost);

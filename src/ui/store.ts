@@ -486,6 +486,11 @@ export class Store {
         if (a) add({ kind: 'news', titleKey: a.title, textKey: 'regionAction.done', keyParams: { region: `region.${e.region}` }, tone: 'good', deltas: e.deltas });
         return;
       }
+      case 'upgrade_action': {
+        const node = sim.data.upgrades.flatMap((tr) => tr.nodes).find((n) => n.id === e.nodeId);
+        if (node) add({ kind: 'news', titleKey: node.name, textKey: 'upgrades.usedNews', tone: 'good', deltas: e.deltas });
+        return;
+      }
       case 'blame_shifted':
         add({ kind: 'news', titleKey: 'ability.stb.name', textKey: 'blame.shifted', params: { left: Number(e.left) }, tone: 'good' });
         return;
