@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<title>Budget Inc. — návrhy: rozpočet s posuvníky</title>
+<!-- Design mockups only (not part of the game build). Served by the dev server: /mockups/budget-sliders.html?v=<variant>
+     Variants: mixer, splitbar, rounds, knobs, focus, chamber. All numbers are illustrative. -->
+<script type="module">
+  import '@fontsource/pixelify-sans/latin-ext-500.css';
+  import '@fontsource/pixelify-sans/latin-ext-700.css';
+  import '@fontsource/pixelify-sans/latin-500.css';
+  import '@fontsource/pixelify-sans/latin-700.css';
+  import '@fontsource/silkscreen/latin-400.css';
+  import '@fontsource/silkscreen/latin-ext-400.css';
+  import '@fontsource/atkinson-hyperlegible/latin-ext-400.css';
+  import '@fontsource/atkinson-hyperlegible/latin-ext-700.css';
+  import '@fontsource/atkinson-hyperlegible/latin-400.css';
+  import '@fontsource/atkinson-hyperlegible/latin-700.css';
+  import '/src/ui/styles/global.css';
+  const v = new URLSearchParams(location.search).get('v') ?? 'mixer';
+  document.body.dataset.v = v;
+  document.fonts.ready.then(() => document.body.classList.add('ready'));
+</script>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--ground); overflow: hidden; color: var(--text); font-family: var(--f-body);
+    --fin: #e2b84a; --sup: #ec6f8e; --coa: #a78bfa; --pre: #5fb2f0; --oli: #e0873a; --pen: #b9ad93; --med: #2fa898; --eu: #4b6fe0; --act: #4fa260; }
+  section { display: none; }
+  body[data-v='mixer'] #mixer, body[data-v='splitbar'] #splitbar, body[data-v='rounds'] #rounds,
+  body[data-v='knobs'] #knobs, body[data-v='focus'] #focus, body[data-v='chamber'] #chamber { display: block; }
+  .stage { width: 1280px; height: 800px; box-sizing: border-box; padding: 22px 30px; display: flex; flex-direction: column; gap: 12px; }
+  .head { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .head h2 { margin: 0; font: 28px var(--f-pixel); color: var(--text); }
+  .head p { margin: 2px 0 0; color: var(--text-dim); font-size: 14px; }
+  .tag { font: 13px var(--f-pixel); color: var(--ground); background: var(--gold); padding: 2px 8px; white-space: nowrap; }
+  .note { font-size: 13px; color: var(--text-dim); margin: 0; }
+  .kpis { display: flex; gap: 8px; align-items: stretch; }
+  .kpi { min-width: 96px; padding: 4px 10px 6px; background: var(--panel-2); border: 2px solid var(--line); display: flex; flex-direction: column; align-items: flex-end; }
+  .kpi span { font: 11px var(--f-pixel); color: var(--text-dim); } .kpi b { font: 400 24px/1 var(--f-num); }
+  .kpi.g b { color: var(--good); } .kpi.r b { color: var(--bad); }
+  .submit { font: 17px var(--f-pixel); padding: 0 16px; background: var(--stamp); color: #fff; border: 2px solid #8f241f; box-shadow: 3px 3px 0 #0c0a14; }
+  .sq { display: inline-block; width: 9px; height: 9px; margin-right: 5px; box-shadow: 0 0 0 1px rgba(0,0,0,.4); vertical-align: 0; }
+
+  /* ---------- impact template (same lanes as policy cards) ---------- */
+  .memo.fx { align-self: start; background: var(--paper); color: var(--ink); padding: 12px 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 2px; }
+  .fx__title { font: 15px var(--f-pixel); display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
+  .fx__title small { font: 11px var(--f-pixel); color: var(--ink-soft); }
+  .fx-lane { border-top: 2px dashed rgba(42,34,51,.18); padding: 6px 0 4px; }
+  .fx-lane__h { display: flex; align-items: center; gap: 6px; font: 12px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+  .fx-ico { width: 16px; height: 16px; display: inline-grid; place-items: center; font: 11px var(--f-pixel); color: var(--paper); background: var(--ink); }
+  .fx-row { display: grid; grid-template-columns: 86px 1fr 46px; gap: 6px; align-items: center; font-size: 13px; margin: 3px 0; }
+  .fx-row.dim { opacity: .35; }
+  .fx-row.hl > span:first-child { font-weight: 700; }
+  .fx-bar { height: 10px; background: rgba(42,34,51,.1); position: relative; }
+  .fx-bar i { position: absolute; top: 0; bottom: 0; }
+  .fx-bar i.part { top: -3px; bottom: -3px; outline: 2px solid var(--ink); outline-offset: -1px; background: transparent !important; }
+  .fx-bar::after { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; border-left: 1px solid rgba(42,34,51,.35); }
+  .fx-num { text-align: right; font: 13px var(--f-num); }
+  .g { color: var(--good-on-paper); } .b { color: var(--bad-on-paper); } .m { color: #a99f86; }
+  .fx-kraj { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 1px 6px; margin: 2px 3px 0 0; background: rgba(214,188,108,.45); border-left: 3px solid var(--good-on-paper); }
+  .fx-kraj.b { border-left-color: var(--bad-on-paper); } .fx-kraj.more { border-left-color: var(--ink-soft); background: rgba(42,34,51,.08); }
+  .fx-foot { border-top: 2px dashed rgba(42,34,51,.18); padding-top: 6px; font-size: 12px; color: var(--ink-soft); display: flex; justify-content: space-between; }
+  .fx-wide { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  .fx-wide .fx-lane { border-top: 0; padding-top: 0; }
+
+  /* ---------- horizontal slider ---------- */
+  .hs { position: relative; height: 26px; }
+  .hs__track { position: absolute; left: 0; right: 0; top: 10px; height: 8px; background: #3a3354; box-shadow: inset 0 0 0 2px #15121f; }
+  .hs__band { position: absolute; top: 10px; height: 8px; background: rgba(111,194,127,.55); box-shadow: inset 0 0 0 2px #15121f; }
+  .hs__fill { position: absolute; top: 12px; height: 4px; }
+  .hs__tick { position: absolute; top: 20px; width: 2px; height: 5px; background: #5a5170; }
+  .hs__tick.z { height: 8px; top: 18px; background: var(--text-dim); }
+  .hs__knob { position: absolute; top: 3px; width: 14px; height: 22px; margin-left: -7px; background: var(--paper); box-shadow: 0 0 0 2px #15121f, 2px 2px 0 2px #0c0a14; }
+  .hs__knob::after { content: ''; position: absolute; left: 6px; top: 4px; bottom: 4px; width: 2px; background: var(--ink); }
+  .hs__ghost { position: absolute; top: 5px; width: 10px; height: 18px; margin-left: -5px; border: 2px dashed var(--text-dim); box-sizing: border-box; }
+  .hs.big { height: 40px; } .hs.big .hs__track, .hs.big .hs__band { top: 14px; height: 12px; } .hs.big .hs__fill { top: 17px; height: 6px; }
+  .hs.big .hs__knob { top: 4px; width: 20px; height: 32px; margin-left: -10px; } .hs.big .hs__knob::after { left: 9px; }
+  .hs.big .hs__tick { top: 29px; } .hs.big .hs__tick.z { top: 27px; }
+  .val { font: 15px var(--f-num); text-align: right; }
+  .val.up { color: var(--good); } .val.dn { color: #ff8d80; } .val.z { color: var(--text-dim); }
+  .warn { font: 11px var(--f-pixel); color: var(--ground); background: var(--bad); padding: 1px 5px; }
+  .star { color: #4a4258; font-size: 17px; } .star.on { color: var(--gold); }
+
+  /* ---------- V1 mixer ---------- */
+  .mix { display: grid; grid-template-columns: 1fr 370px; gap: 18px; flex: 1; min-height: 0; }
+  .desk { background: linear-gradient(#2f2848, #241f37); border: 3px solid var(--gold-dim); box-shadow: var(--shadow); padding: 14px 14px 10px; display: flex; flex-direction: column; gap: 10px; }
+  .pool { display: grid; grid-template-columns: 150px 1fr 90px; gap: 10px; align-items: center; font: 13px var(--f-pixel); color: var(--text-dim); }
+  .leds { display: flex; gap: 3px; } .leds i { flex: 1; height: 14px; background: #3a3354; } .leds i.on { background: var(--good); } .leds i.w { background: var(--gold); } .leds i.r { background: var(--bad); }
+  .faders { flex: 1; display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
+  .fd { display: flex; flex-direction: column; align-items: center; gap: 6px; background: rgba(0,0,0,.18); padding: 8px 2px; border: 2px solid transparent; }
+  .fd.prio { border-color: var(--gold); background: rgba(217,180,90,.1); }
+  .fd__v { font: 15px var(--f-num); } .fd__n { font: 13px var(--f-pixel); text-align: center; line-height: 1.1; height: 30px; display: grid; place-items: center; }
+  .fd__slot { position: relative; width: 44px; flex: 1; }
+  .fd__track { position: absolute; left: 18px; width: 8px; top: 0; bottom: 0; background: #15121f; }
+  .fd__band { position: absolute; left: 16px; width: 12px; background: rgba(111,194,127,.5); }
+  .fd__red { position: absolute; left: 16px; width: 12px; background: rgba(240,103,92,.35); }
+  .fd__tick { position: absolute; left: 4px; right: 4px; height: 2px; background: #4a4262; } .fd__tick.z { background: var(--text-dim); left: 0; right: 0; }
+  .fd__cap { position: absolute; left: 4px; width: 36px; height: 20px; margin-top: -10px; background: var(--paper); box-shadow: 0 0 0 2px #15121f, 2px 3px 0 2px #0c0a14; }
+  .fd__cap::after { content: ''; position: absolute; left: 4px; right: 4px; top: 9px; height: 2px; background: var(--ink); }
+  .fd__fx { display: flex; gap: 2px; height: 10px; } .fd__fx i { width: 8px; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-dim); }
+
+  /* ---------- V2 split bar ---------- */
+  .split { position: relative; height: 92px; display: flex; border: 3px solid #15121f; box-shadow: var(--shadow); }
+  .sgm { position: relative; min-width: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 8px 0 14px; color: #15121f; overflow: hidden; border-right: 3px solid #15121f; }
+  .sgm:last-child { border-right: 0; }
+  .sgm b { font: 15px var(--f-pixel); white-space: nowrap; } .sgm span { font: 13px var(--f-num); }
+  .sgm.sel { outline: 4px solid var(--paper); outline-offset: -4px; }
+  .sgm .dlt { position: absolute; right: 6px; top: 6px; font: 12px var(--f-num); padding: 0 3px; background: rgba(21,18,31,.8); color: var(--good); }
+  .sgm .dlt.dn { color: #ff8d80; }
+  .handle { position: absolute; top: -10px; bottom: -10px; width: 12px; margin-left: -6px; background: var(--paper); box-shadow: 0 0 0 2px #15121f; z-index: 2; }
+  .handle::before { content: '⇔'; position: absolute; top: -20px; left: -6px; font-size: 14px; color: var(--paper); }
+  .lastyear { display: flex; height: 12px; opacity: .55; margin-top: -4px; }
+  .lastyear i { border-right: 2px solid var(--ground); }
+  .sb-lower { display: grid; grid-template-columns: 380px 1fr; gap: 18px; flex: 1; min-height: 0; }
+  .detail { background: var(--panel); border: 3px solid var(--gold-dim); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .detail h3 { margin: 0; font: 22px var(--f-pixel); display: flex; justify-content: space-between; }
+  .zones { display: grid; grid-template-columns: 1fr 1.3fr 1fr; text-align: center; font: 11px var(--f-pixel); }
+  .zones span { padding: 3px 0; } .zones .zc { background: rgba(240,103,92,.3); } .zones .zs { background: rgba(111,194,127,.35); } .zones .zo { background: rgba(240,103,92,.3); }
+  .adv { font-size: 13px; color: var(--text-dim); border-top: 1px dashed var(--line); padding-top: 8px; }
+  .adv b { color: var(--gold); font-weight: 400; font-family: var(--f-pixel); }
+
+  /* ---------- V3 rounds ---------- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .st { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--panel-2); border: 2px solid var(--line); font: 15px var(--f-pixel); color: var(--text-dim); clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%, 16px 50%); padding-left: 26px; }
+  .st:first-child { clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%); padding-left: 14px; }
+  .st i { font-style: normal; width: 24px; height: 24px; display: grid; place-items: center; background: var(--line); color: var(--text); font: 13px var(--f-num); }
+  .st.done { color: var(--text); } .st.done i { background: var(--good); color: var(--ground); }
+  .st.act { background: var(--gold); color: var(--ground); border-color: var(--gold); } .st.act i { background: var(--ground); color: var(--gold); }
+  .rd { display: grid; grid-template-columns: 1fr 380px; gap: 18px; flex: 1; min-height: 0; }
+  .rd__main { background: var(--panel); border: 3px solid var(--gold-dim); padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+  .rd__main h3 { margin: 0; font: 22px var(--f-pixel); }
+  .share { display: grid; grid-template-columns: 170px 1fr 70px; gap: 14px; align-items: center; }
+  .share .nm { font: 18px var(--f-pixel); } .share .nm small { display: block; font: 12px var(--f-body); color: var(--text-dim); }
+  .share .pct { font: 22px var(--f-num); text-align: right; }
+  .sum { display: flex; height: 26px; border: 2px solid #15121f; }
+  .sum i { display: grid; place-items: center; font: 12px var(--f-num); color: #15121f; font-style: normal; }
+  .focus-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .fcard { background: var(--panel-2); border: 2px solid var(--line); padding: 8px 10px; font-size: 12px; color: var(--text-dim); }
+  .fcard b { display: block; font: 14px var(--f-pixel); color: var(--text); margin-bottom: 4px; }
+  .rmeter { display: flex; gap: 2px; margin-top: 4px; } .rmeter i { flex: 1; height: 8px; background: #3a3354; } .rmeter i.on { background: var(--gold); }
+
+  /* ---------- V4 knobs ---------- */
+  .kn { display: grid; grid-template-columns: 420px 1fr 330px; gap: 16px; flex: 1; min-height: 0; }
+  .kpanel { background: #26213a; border: 3px solid var(--gold-dim); padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 8px; }
+  .knob { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0; border: 2px solid transparent; }
+  .knob.prio { border-color: var(--gold); background: rgba(217,180,90,.08); }
+  .knob svg { width: 108px; height: 92px; }
+  .knob b { font: 14px var(--f-pixel); } .knob span { font: 13px var(--f-num); }
+  .mapbox { background: var(--panel); border: 3px solid var(--gold-dim); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .mapbox h3 { margin: 0; font: 18px var(--f-pixel); }
+  .tiles { position: relative; height: 340px; }
+  .tile { position: absolute; width: 84px; height: 72px; display: flex; flex-direction: column; align-items: center; justify-content: center; font: 10px var(--f-pixel); color: #15121f; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); text-align: center; line-height: 1.05; }
+  .tile b { font: 13px var(--f-num); }
+  .groupsrow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .gface { background: var(--panel-2); border: 2px solid var(--line); padding: 6px 4px; text-align: center; font-size: 11px; }
+  .gface .face { font-size: 24px; line-height: 1; } .gface b { display: block; font: 13px var(--f-num); }
+
+  /* ---------- V5 focus ---------- */
+  .fo { display: grid; grid-template-columns: 560px 1fr; gap: 0; flex: 1; min-height: 0; position: relative; }
+  .rows { display: flex; flex-direction: column; gap: 4px; padding-right: 18px; }
+  .frow { display: grid; grid-template-columns: 22px 150px 1fr 56px; gap: 10px; align-items: center; padding: 4px 10px; background: var(--panel-2); border: 2px solid var(--line); }
+  .frow .nm { font: 15px var(--f-pixel); }
+  .frow.on { padding: 12px 10px 10px; background: #3a3256; border-color: var(--paper); grid-template-columns: 22px 150px 1fr 56px; }
+  .frow.on .nm { font-size: 19px; }
+  .frow .extra { grid-column: 2 / -1; display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); }
+  .frow.dim { opacity: .55; }
+  .wires { position: absolute; top: 0; pointer-events: none; overflow: visible; }
+  .fo .memo.fx { margin-left: 110px; }
+
+  /* ---------- V6 chamber ---------- */
+  .ch { display: grid; grid-template-columns: 400px 1fr 340px; gap: 16px; flex: 1; min-height: 0; }
+  .slist { background: var(--panel); border: 3px solid var(--gold-dim); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .sl { display: grid; grid-template-columns: 116px 1fr 40px; gap: 8px; align-items: center; font: 13px var(--f-pixel); }
+  .hemi { background: var(--panel); border: 3px solid var(--gold-dim); padding: 10px 14px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .hemi h3 { margin: 0; font: 18px var(--f-pixel); align-self: stretch; display: flex; justify-content: space-between; }
+  .odds { font: 52px/1 var(--f-num); color: var(--good); }
+  .swing { align-self: stretch; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+  .swing div { display: flex; justify-content: space-between; padding: 3px 8px; background: var(--panel-2); border-left: 4px solid var(--good); }
+  .swing div.b { border-left-color: var(--bad); }
+</style>
+</head>
+<body>
+
+<!-- ============ V1 MIXER: vertical faders ============ -->
+<section id="mixer"><div class="stage">
+  <div class="head"><div><h2>Roční rozpočet · mixážní pult</h2><p>Prosinec · vytáhni nebo stáhni oblasti. Zelená část dráhy = bezpečné pásmo, červená = poradce varuje.</p></div>
+    <div class="kpis"><span class="tag">Varianta 1</span><div class="kpi g"><span>Šance</span><b>64 %</b></div><button class="submit">Předložit sněmovně</button></div></div>
+  <div class="mix">
+    <div class="desk">
+      <div class="pool"><span>Volné prostředky</span><div class="leds" id="mixLeds"></div><span style="text-align:right;color:var(--gold)">3 / 12</span></div>
+      <div class="faders" id="faders"></div>
+      <div class="legend"><span>Pod každým jezdcem: <span class="sq" style="background:var(--fin)"></span><span class="sq" style="background:var(--sup)"></span><span class="sq" style="background:var(--coa)"></span><span class="sq" style="background:var(--pre)"></span>na co oblast nejvíc působí</span><span style="margin-left:auto">★ = priorita (zisky i škrty ×2)</span></div>
+    </div>
+    <div id="mixFx"></div>
+  </div>
+</div></section>
+
+<!-- ============ V2 SPLIT BAR: one bar, drag the dividers ============ -->
+<section id="splitbar"><div class="stage">
+  <div class="head"><div><h2>Roční rozpočet · jeden koláč</h2><p>Celé výdaje jsou jeden pruh. Tažením hranic bereš jedné oblasti a dáváš druhé. Tenký pruh pod ním = loňský rozpočet.</p></div>
+    <div class="kpis"><span class="tag">Varianta 2</span><div class="kpi g"><span>Šance</span><b>58 %</b></div><div class="kpi r"><span>Finance</span><b>−2</b></div><button class="submit">Předložit sněmovně</button></div></div>
+  <div style="padding-top:14px"><div class="split" id="split"></div><div class="lastyear" id="lastyear"></div></div>
+  <div class="sb-lower">
+    <div class="detail">
+      <h3><span><span class="star on">★</span> Školství</span><span class="val up">+2 kroky</span></h3>
+      <div class="zones"><span class="zc">škrt</span><span class="zs">bezpečné pásmo</span><span class="zo">přestřelení</span></div>
+      <div class="hs big" id="sbSlider"></div>
+      <p class="note">Hranice vlevo bere Důchodům, vpravo Zdravotnictví. Školství je 2 kroky nad loňskem, tedy za bezpečným pásmem.</p>
+      <div class="adv"><b>Poradce:</b> nad +1 krok začne Brusel chtít úspory jinde a EU zbystří. Jako priorita se ale zisky zdvojnásobí.</div>
+      <div class="adv"><b>Hranice:</b> Důchody −1 · Zdravotnictví 0 · zbytek beze změny</div>
+    </div>
+    <div class="memo fx" id="sbFx"></div>
+  </div>
+</div></section>
+
+<!-- ============ V3 ROUNDS: three phases, three shared sliders each ============ -->
+<section id="rounds"><div class="stage">
+  <div class="head"><div><h2>Roční rozpočet · tři kola</h2><p>Rozpočet se skládá ve třech kolech. V každém kole rozdělíš balík peněz mezi tři oblasti: posuvníky dávají vždy dohromady 100 %.</p></div>
+    <div class="kpis"><span class="tag">Varianta 3</span><div class="kpi g"><span>Šance</span><b>61 %</b></div><button class="submit" style="background:var(--panel-2);border-color:var(--line)">Další kolo ▸</button></div></div>
+  <div class="steps"><div class="st done"><i>✓</i>Sociální stát</div><div class="st act"><i>2</i>Bezpečnost a stát</div><div class="st"><i>3</i>Budoucnost</div></div>
+  <div class="rd">
+    <div class="rd__main">
+      <h3>Kolo 2 · balík 100 %, loni 34 / 33 / 33</h3>
+      <div class="share"><span class="nm">Obrana<small>NATO chce víc</small></span><div class="hs big" id="r1"></div><span class="pct">45 %</span></div>
+      <div class="share"><span class="nm">Doprava<small>dálnice, železnice</small></span><div class="hs big" id="r2"></div><span class="pct">35 %</span></div>
+      <div class="share"><span class="nm">Státní správa<small>úředníci, IT</small></span><div class="hs big" id="r3"></div><span class="pct">20 %</span></div>
+      <div class="sum"><i style="width:45%;background:#c98a5a">Obrana 45</i><i style="width:35%;background:#c9b25a">Doprava 35</i><i style="width:20%;background:#8f8aa8">Správa 20</i></div>
+      <div class="focus-grid">
+        <div class="fcard"><b>Kolo 1 · hotovo</b>Důchody 40 · Zdravotnictví 35 · Sociální služby 25<div class="rmeter"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+        <div class="fcard" style="border-color:var(--gold)"><b>Kolo 2 · teď</b>Posun proti loňsku: Obrana +11, Správa −13<div class="rmeter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div></div>
+        <div class="fcard"><b>Kolo 3 · čeká</b>Školství · Věda a výzkum · Životní prostředí<div class="rmeter"><i></i><i></i><i></i><i></i><i></i></div></div>
+      </div>
+      <p class="note">Ukazatel pod kolem = jak moc se rozpočet liší od loňska. Velké posuny dávají velké efekty, ale snižují šanci na schválení.</p>
+    </div>
+    <div class="memo fx" id="rdFx"></div>
+  </div>
+</div></section>
+
+<!-- ============ V4 KNOBS + LIVE REGION MAP ============ -->
+<section id="knobs"><div class="stage">
+  <div class="head"><div><h2>Roční rozpočet · ovládací panel</h2><p>Každá oblast je knoflík. Dopad na kraje se rovnou barví do mapy, nálada skupin do obličejů.</p></div>
+    <div class="kpis"><span class="tag">Varianta 4</span><div class="kpi g"><span>Šance</span><b>64 %</b></div><button class="submit">Předložit sněmovně</button></div></div>
+  <div class="kn">
+    <div class="kpanel" id="knobGrid"></div>
+    <div class="mapbox">
+      <h3>Kraje · jak to pocítí</h3>
+      <div class="tiles" id="tiles"></div>
+      <div class="groupsrow" id="faces"></div>
+    </div>
+    <div class="memo fx" id="knFx"></div>
+  </div>
+</div></section>
+
+<!-- ============ V5 FOCUS: one slider in hand, wires to what it moves ============ -->
+<section id="focus"><div class="stage">
+  <div class="head"><div><h2>Roční rozpočet · co s čím souvisí</h2><p>Když chytíš posuvník, zvětší se a čáry ukážou, které řádky dopadu hýbe. Rámeček v pruhu = jeho podíl, plná barva = celek.</p></div>
+    <div class="kpis"><span class="tag">Varianta 5</span><div class="kpi g"><span>Šance</span><b>60 %</b></div><button class="submit">Předložit sněmovně</button></div></div>
+  <div class="fo">
+    <div class="rows" id="foRows"></div>
+    <svg class="wires" id="wires"></svg>
+    <div class="memo fx" id="foFx"></div>
+  </div>
+</div></section>
+
+<!-- ============ V6 CHAMBER: sliders drive a live vote ============ -->
+<section id="chamber"><div class="stage">
+  <div class="head"><div><h2>Roční rozpočet · sněmovna naživo</h2><p>Každý posun hned přepočítá hlasování. Poslanci, kteří by přeběhli, blikají.</p></div>
+    <div class="kpis"><span class="tag">Varianta 6</span><button class="submit">Předložit sněmovně</button></div></div>
+  <div class="ch">
+    <div class="slist" id="chList"></div>
+    <div class="hemi">
+      <h3><span>Hlasování · odhad</span><span style="color:var(--text-dim);font-size:13px">potřeba 101</span></h3>
+      <svg id="hemi" viewBox="0 0 440 240" width="440" height="240"></svg>
+      <div class="odds">108 : 92</div>
+      <div class="swing">
+        <div><span>Koaliční poslanci (Bander Abis)</span><b>+4 za Školství</b></div>
+        <div class="b"><span>Venkovští poslanci</span><b>−3 za Zemědělství</b></div>
+        <div class="b"><span>Červená linie partnera: Důchody</span><b>na hraně</b></div>
+      </div>
+    </div>
+    <div class="memo fx" id="chFx"></div>
+  </div>
+</div></section>
+
+<script>
+  // ---- shared illustrative data ----
+  const RES = { fin: ['Finance', 'var(--fin)'], sup: ['Podpora', 'var(--sup)'], coa: ['Koalice', 'var(--coa)'], pre: ['Prestiž', 'var(--pre)'] };
+  const GRP = { pen: ['Důchodci', 'var(--pen)'], eu: ['EU', 'var(--eu)'], act: ['Aktivisté', 'var(--act)'], oli: ['Oligarchové', 'var(--oli)'], med: ['Média', 'var(--med)'] };
+  const AREAS = [
+    { n: 'Důchody', v: -1, prio: false, fx: ['sup', 'coa'] },
+    { n: 'Školství', v: 2, prio: true, fx: ['sup', 'fin'] },
+    { n: 'Zdravot­nictví', v: 1, fx: ['sup', 'fin'] },
+    { n: 'Obrana', v: 1, fx: ['pre', 'fin'] },
+    { n: 'Doprava', v: 0, fx: ['sup'] },
+    { n: 'Zeměděl­ství', v: -2, fx: ['coa', 'sup'] },
+    { n: 'Životní prostř.', v: -1, fx: ['pre'] },
+    { n: 'Státní správa', v: -2, fx: ['fin'] },
+    { n: 'Neziskovky', v: 0, fx: ['pre'] },
+  ];
+  const TOTAL = {
+    res: { fin: -3, sup: 4, coa: -1, pre: 2 },
+    grp: [['pen', 3], ['eu', -2], ['act', -4], ['oli', 1]], // anger change: negative = calmer (good)
+    kraje: [['Moravskoslezský', 2], ['Ústecký', 2], ['Vysočina', -2], ['Jihočeský', -1.5], ['Praha', 1], ['Olomoucký', 1]], more: 5,
+  };
+
+  const W = 6; // % of half-bar per point
+  function bar(v, col, part) {
+    const w = Math.min(Math.abs(v) * W, 50);
+    let s = v === 0 ? '' : `<i style="${v > 0 ? 'left' : 'right'}:50%;width:${w}%;background:${col}"></i>`;
+    if (part) { const pw = Math.min(Math.abs(part) * W, 50); s += `<i class="part" style="${part > 0 ? 'left' : 'right'}:50%;width:${pw}%"></i>`; }
+    return `<div class="fx-bar">${s}</div>`;
+  }
+  const sgn = (x) => (x > 0 ? '+' : x < 0 ? '−' : '') + String(Math.abs(x)).replace('.', ',');
+  function lanes(t, o = {}) {
+    const hl = o.hl || {}; const parts = o.parts || {};
+    const rowCls = (k) => (o.hl ? (hl[k] ? 'fx-row hl' : 'fx-row dim') : 'fx-row');
+    const res = Object.entries(RES).map(([k, [n, c]]) => { const v = t.res[k] ?? 0;
+      return `<div class="${rowCls(k)}"><span><span class="sq" style="background:${c}"></span>${n}</span>${bar(v, c, parts[k])}<span class="fx-num ${v > 0 ? 'g' : v < 0 ? 'b' : 'm'}">${v ? sgn(v) : '–'}</span></div>`; }).join('');
+    const grp = t.grp.map(([k, v]) => { const [n, c] = GRP[k];
+      return `<div class="${rowCls(k)}"><span><span class="sq" style="background:${c}"></span>${n}</span>${bar(-v, c, parts[k] && -parts[k])}<span class="fx-num ${v < 0 ? 'g' : 'b'}">${v < 0 ? '▼' : '▲'}${String(Math.abs(v)).replace('.', ',')}</span></div>`; }).join('');
+    const kr = t.kraje.map(([n, v]) => `<span class="fx-kraj ${v < 0 ? 'b' : ''}" style="${o.hl && !hl[n] ? 'opacity:.35' : ''}">${n} ${sgn(v)}</span>`).join('') + (t.more ? `<span class="fx-kraj more">+${t.more} další</span>` : '');
+    const L = (ico, h, body) => `<div class="fx-lane"><div class="fx-lane__h"><span class="fx-ico">${ico}</span>${h}</div>${body}</div>`;
+    const lanesHtml = L('$', 'Zdroje', res) + L('☺', 'Skupiny · naštvanost', grp) + L('⌖', 'Kraje', kr);
+    const head = `<div class="fx__title"><span>${o.title || 'Dopad rozpočtu'}</span><small>${o.sub || 'za celý rok'}</small></div>`;
+    const foot = `<div class="fx-foot"><span>Šance na schválení</span><b>${o.odds || '64 %'}</b></div>`;
+    return head + lanesHtml + foot;
+  }
+  const memo = (id, t, o) => { const el = document.getElementById(id); el.classList.add('memo', 'fx'); el.innerHTML = lanes(t, o); };
+
+  function hslider(id, v, o = {}) {
+    const min = o.min ?? -3, max = o.max ?? 3, band = o.band ?? [-1, 1];
+    const p = (x) => ((x - min) / (max - min)) * 100;
+    const el = typeof id === 'string' ? document.getElementById(id) : id;
+    let h = `<div class="hs__track"></div><div class="hs__band" style="left:${p(band[0])}%;width:${p(band[1]) - p(band[0])}%"></div>`;
+    for (let x = min; x <= max; x += o.step ?? 1) h += `<div class="hs__tick ${x === 0 ? 'z' : ''}" style="left:${p(x)}%"></div>`;
+    const z = o.zero ?? 0;
+    h += `<div class="hs__fill" style="left:${Math.min(p(z), p(v))}%;width:${Math.abs(p(v) - p(z))}%;background:${o.col || (v >= z ? 'var(--good)' : 'var(--bad)')}"></div>`;
+    if (o.ghost != null) h += `<div class="hs__ghost" style="left:${p(o.ghost)}%"></div>`;
+    h += `<div class="hs__knob" style="left:${p(v)}%"></div>`;
+    el.innerHTML = h; return el;
+  }
+  const valCls = (v) => (v > 0 ? 'up' : v < 0 ? 'dn' : 'z');
+
+  // ---- V1 mixer ----
+  document.getElementById('mixLeds').innerHTML = Array.from({ length: 12 }, (_, i) => `<i class="${i < 9 ? 'on' : ''}"></i>`).join('');
+  document.getElementById('faders').innerHTML = AREAS.map((a) => {
+    const p = (x) => ((3 - x) / 6) * 100; // top = +3
+    const ticks = [-3, -2, -1, 0, 1, 2, 3].map((x) => `<div class="fd__tick ${x === 0 ? 'z' : ''}" style="top:${p(x)}%"></div>`).join('');
+    const out = Math.abs(a.v) > 1;
+    return `<div class="fd ${a.prio ? 'prio' : ''}"><span class="star ${a.prio ? 'on' : ''}">${a.prio ? '★' : '☆'}</span><span class="fd__v val ${valCls(a.v)}">${a.v > 0 ? '+' : ''}${a.v}</span>
+      <div class="fd__slot"><div class="fd__red" style="top:0;height:${p(1)}%"></div><div class="fd__red" style="top:${p(-1)}%;bottom:0"></div><div class="fd__band" style="top:${p(1)}%;height:${p(-1) - p(1)}%"></div><div class="fd__track"></div>${ticks}<div class="fd__cap" style="top:${p(a.v)}%"></div></div>
+      <div class="fd__fx">${a.fx.map((k) => `<i style="background:${RES[k][1]}"></i>`).join('')}</div>
+      <span class="fd__n">${a.n}</span>${out ? '<span class="warn">mimo pásmo</span>' : '<span class="warn" style="visibility:hidden">.</span>'}</div>`;
+  }).join('');
+  memo('mixFx', TOTAL);
+
+  // ---- V2 split bar ----
+  const SEG = [['Důchody', 30, -1, '#c9a8a0'], ['Školství', 18, 2, '#d9b45a'], ['Zdravotnictví', 14, 0, '#8fc49b'], ['Obrana', 10, 1, '#c98a5a'], ['Doprava', 9, 0, '#c9b25a'], ['Zeměď.', 6, -1, '#a5b86a'], ['ŽP', 5, 0, '#6fae8f'], ['Správa', 5, -1, '#8f8aa8'], ['Ostatní', 3, 0, '#7d7790']];
+  const LAST = [31, 16, 14, 9, 9, 7, 5, 6, 3];
+  document.getElementById('split').innerHTML = SEG.map(([n, w, d, c], i) => `<div class="sgm ${i === 1 ? 'sel' : ''}" style="flex:${w} ${w} 0;background:${c}">${w >= 5 ? `<b>${n}</b><span>${w} %</span>` : ''}${d ? `<span class="dlt ${d < 0 ? 'dn' : ''}">${d > 0 ? '+' : '−'}${Math.abs(d)}</span>` : ''}</div>`).join('')
+    + '<div class="handle"></div><div class="handle"></div>';
+  document.fonts.ready.then(() => { const sp = document.getElementById('split'); const base = sp.getBoundingClientRect().left + sp.clientLeft; const segs = sp.querySelectorAll('.sgm'); const hs = sp.querySelectorAll('.handle');
+    [0, 1].forEach((i) => { hs[i].style.left = (segs[i].getBoundingClientRect().right - base - 1.5) + 'px'; }); });
+  document.getElementById('lastyear').innerHTML = LAST.map((w, i) => `<i style="width:${w}%;background:${SEG[i][3]}"></i>`).join('');
+  hslider('sbSlider', 2, { prio: true, ghost: 0 });
+  const sb = document.getElementById('sbFx');
+  sb.innerHTML = `<div class="fx__title"><span>Dopad rozpočtu</span><small>celý rok · Školství zvýrazněno rámečkem</small></div>`;
+  const tmp = document.createElement('div'); tmp.innerHTML = lanes(TOTAL, { parts: { sup: 3, fin: -2, act: -3 } });
+  const lanesEls = [...tmp.querySelectorAll('.fx-lane')];
+  sb.insertAdjacentHTML('beforeend', `<div class="fx-wide">${lanesEls.map((l) => l.outerHTML).join('')}</div><div class="fx-foot"><span>Šance na schválení</span><b>58 %</b></div>`);
+
+  // ---- V3 rounds ----
+  hslider('r1', 45, { min: 0, max: 100, step: 10, band: [24, 44], zero: 34, col: '#c98a5a' });
+  hslider('r2', 35, { min: 0, max: 100, step: 10, band: [23, 43], zero: 33, col: '#c9b25a' });
+  hslider('r3', 20, { min: 0, max: 100, step: 10, band: [23, 43], zero: 33, col: '#8f8aa8' });
+  memo('rdFx', { res: { fin: -1, sup: 3, coa: 1, pre: 3 }, grp: [['pen', -3], ['eu', -2], ['act', 2], ['oli', -1]], kraje: [['Moravskoslezský', 1.5], ['Plzeňský', 1], ['Praha', -1], ['Ústecký', 1], ['Pardubický', 0.5], ['Zlínský', 0.5]], more: 3 },
+    { sub: 'kola 1–2 · rámeček = toto kolo', parts: { pre: 2, fin: -1, eu: -2 }, odds: '61 %' });
+
+  // ---- V4 knobs ----
+  const KN = [['Důchody', -1], ['Školství', 2, 1], ['Zdravotnictví', 1], ['Obrana', 1], ['Doprava', 0], ['Zemědělství', -2], ['Životní prostř.', -1], ['Státní správa', -2], ['Neziskovky', 0]];
+  const arc = (a0, a1, r) => { const P = (a) => [54 + r * Math.cos((a - 90) * Math.PI / 180), 52 + r * Math.sin((a - 90) * Math.PI / 180)]; const [x0, y0] = P(a0), [x1, y1] = P(a1); return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`; };
+  document.getElementById('knobGrid').innerHTML = KN.map(([n, v, prio]) => {
+    const ang = v * 45; // -3..3 -> -135..135
+    const val = v * 45;
+    return `<div class="knob ${prio ? 'prio' : ''}"><svg viewBox="0 0 108 92">
+      <path d="${arc(-135, -45, 40)}" stroke="rgba(240,103,92,.5)" stroke-width="7" fill="none"/>
+      <path d="${arc(-45, 45, 40)}" stroke="rgba(111,194,127,.6)" stroke-width="7" fill="none"/>
+      <path d="${arc(45, 135, 40)}" stroke="rgba(240,103,92,.5)" stroke-width="7" fill="none"/>
+      ${v ? `<path d="${arc(Math.min(0, val), Math.max(0, val), 31)}" stroke="${v > 0 ? 'var(--good)' : 'var(--bad)'}" stroke-width="5" fill="none"/>` : ''}
+      <circle cx="54" cy="52" r="24" fill="#efe6cf" stroke="#15121f" stroke-width="3"/>
+      <line x1="54" y1="52" x2="${(54 + 20 * Math.sin(ang * Math.PI / 180)).toFixed(1)}" y2="${(52 - 20 * Math.cos(ang * Math.PI / 180)).toFixed(1)}" stroke="#2a2233" stroke-width="4"/>
+      ${prio ? '<text x="96" y="16" fill="#d9b45a" font-size="18">★</text>' : ''}
+    </svg><b>${n}</b><span class="val ${valCls(v)}">${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)} ${Math.abs(v) > 1 ? '<span class="warn">!</span>' : ''}</span></div>`;
+  }).join('');
+  const TL = [['Karlovarský', 0, 0, 0], ['Ústecký', 1, 0, 2], ['Liberecký', 2, 0, 0.5], ['Králové­hradecký', 3, 0, 0], ['Moravsko­slezský', 5, 0.5, 2], ['Plzeňský', 0, 1, 0.5], ['Středočeský', 1, 1, 0], ['Praha', 2, 1, 1], ['Pardubický', 3, 1, 0.5], ['Olomoucký', 4, 1, 1], ['Jihočeský', 1, 2, -1.5], ['Vysočina', 2, 2, -2], ['Jihomoravský', 3, 2, -0.5], ['Zlínský', 4, 2, 0]];
+  const heat = (v) => (v >= 1.5 ? '#5fa36a' : v > 0 ? '#9fcf96' : v === 0 ? '#bdb4a0' : v > -1 ? '#e6a99e' : '#d0675c');
+  document.getElementById('tiles').innerHTML = TL.map(([n, c, r, v]) => `<div class="tile" style="left:${c * 62 + 4}px;top:${r * 74 + (c % 2) * 37 + 4}px;background:${heat(v)}">${n}<b>${v ? sgn(v) : '–'}</b></div>`).join('');
+  document.getElementById('faces').innerHTML = [['pen', 3], ['eu', -2], ['act', -4], ['oli', 1], ['med', 0]].map(([k, v]) => `<div class="gface" style="border-top:4px solid ${GRP[k][1]}"><div class="face">${v > 1 ? '😠' : v > 0 ? '😒' : v < -1 ? '😊' : '😐'}</div>${GRP[k][0]}<b style="color:${v > 0 ? 'var(--bad)' : v < 0 ? 'var(--good)' : 'var(--text-dim)'}">${v ? (v < 0 ? '▼' : '▲') + Math.abs(v) : '–'}</b></div>`).join('');
+  memo('knFx', TOTAL);
+
+  // ---- V5 focus ----
+  const FO = [['Důchody', -1], ['Školství', 2, 1, true], ['Zdravotnictví', 1], ['Obrana', 1], ['Doprava', 0], ['Zemědělství', -2], ['Životní prostředí', -1], ['Státní správa', -2], ['Neziskovky', 0], ['Policie', 0], ['Věda a výzkum', 1]];
+  const rows = document.getElementById('foRows');
+  rows.innerHTML = FO.map(([n, v, prio, on]) => `<div class="frow ${on ? 'on' : 'dim'}"><span class="star ${prio ? 'on' : ''}">${prio ? '★' : '☆'}</span><span class="nm">${n}</span><div class="hs ${on ? 'big' : ''}" data-v="${v}" data-on="${on ? 1 : ''}"></div><span class="val ${valCls(v)}">${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</span>${on ? '<div class="extra"><span>loni ▢ 0 · teď +2 · bezpečné pásmo −1…+1</span><span style="color:#ff8d80">poradce: EU zbystří</span></div>' : ''}</div>`).join('');
+  rows.querySelectorAll('.hs').forEach((el) => hslider(el, +el.dataset.v, el.dataset.on ? { ghost: 0 } : {}));
+  memo('foFx', TOTAL, { title: 'Dopad rozpočtu', sub: 'rámeček = Školství', hl: { sup: 1, fin: 1, act: 1, eu: 1, 'Praha': 1, 'Olomoucký': 1 }, parts: { sup: 3, fin: -2, act: -3, eu: 1 }, odds: '60 %' });
+  // wires drawn after layout (pixel viewBox)
+  function drawWires() {
+    const svg = document.getElementById('wires'); const fo = svg.parentElement.getBoundingClientRect();
+    const memoEl = document.getElementById('foFx').getBoundingClientRect(); const from = rows.querySelector('.frow.on').getBoundingClientRect();
+    const x0 = from.right - fo.left, x1 = memoEl.left - fo.left, W = x1 - x0, H = fo.height;
+    svg.style.left = x0 + 'px'; svg.style.width = W + 'px'; svg.style.height = H + 'px'; svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const y0 = from.top + from.height / 2 - fo.top;
+    svg.innerHTML = [...document.querySelectorAll('#foFx .fx-row.hl, #foFx .fx-kraj:not([style*="opacity"])')].map((t) => {
+      const r = t.getBoundingClientRect(); const y1 = r.top + r.height / 2 - fo.top;
+      return `<path d="M0 ${y0} C${W / 2} ${y0} ${W / 2} ${y1} ${W - 4} ${y1}" stroke="#d9b45a" stroke-width="2" fill="none" stroke-dasharray="5 3"/><circle cx="${W - 4}" cy="${y1}" r="4" fill="#d9b45a"/>`;
+    }).join('') + `<circle cx="3" cy="${y0}" r="5" fill="#d9b45a"/>`;
+  }
+  document.fonts.ready.then(() => requestAnimationFrame(drawWires));
+
+  // ---- V6 chamber ----
+  document.getElementById('chList').innerHTML = FO.concat([['Bydlení', 0], ['Energetika', -1], ['Kultura', 0]]).map(([n, v, prio]) => `<div class="sl"><span>${prio ? '<span class="star on">★</span> ' : ''}${n}</span><div class="hs" data-v="${v}"></div><span class="val ${valCls(v)}">${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</span></div>`).join('');
+  document.querySelectorAll('#chList .hs').forEach((el) => hslider(el, +el.dataset.v));
+  (() => { // 200 seats in 8 rows
+    const rowsN = [16, 19, 22, 25, 27, 29, 30, 32]; let dots = ''; const seats = [];
+    rowsN.forEach((n, ri) => { const r = 70 + ri * 18; for (let i = 0; i < n; i++) { const a = Math.PI * (i / (n - 1)); seats.push([220 - r * Math.cos(a), 225 - r * Math.sin(a), a]); } });
+    seats.sort((p, q) => p[2] - q[2]);
+    seats.forEach(([x, y], i) => { const yes = i < 108; const flip = (i >= 100 && i < 108) || (i >= 108 && i < 113);
+      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="${yes ? '#6fc27f' : '#f0675c'}" ${flip ? 'stroke="#efe6cf" stroke-width="2.5"' : ''}/>`; });
+    document.getElementById('hemi').innerHTML = dots + '<line x1="220" y1="60" x2="220" y2="232" stroke="#d9b45a" stroke-width="2" stroke-dasharray="4 3"/>';
+  })();
+  memo('chFx', TOTAL, { odds: '108 hlasů' });
+</script>
+</body>
+</html>
