@@ -4,11 +4,13 @@ import { channelBlocked, channelMults, normScore, yearOf } from '@core/compromis
 import { t } from '@i18n/index';
 import { MINIGAMES } from '../minigames';
 import { pct } from '../format';
+import { PixelIcon, type PixelIconName } from '../pixelIcons';
 import { getStore, useStore } from '../store';
 import { PolicyCard } from './PolicyCard';
 import { RangeChips } from './RangeChips';
 
 const STAMP_MS = 520;
+const CHANNEL_ICON: Record<string, PixelIconName> = { press: 'newspaper', debate: 'tv', tour: 'bus' };
 
 type Step = { kind: 'deal' } | { kind: 'channel'; cardId: string } | { kind: 'play'; cardId: string; channelId: string } | { kind: 'result'; cardId: string; channelId: string; score: number; skipped: boolean };
 
@@ -122,7 +124,7 @@ function ChannelPicker({
             <article key={id} className={`memo memo--channel${blocked ? ' is-blocked' : ''}`} data-channel={id}>
               <h3 className="memo__title">
                 <span className="channel__icon" aria-hidden="true">
-                  {t(`channel.${id}.icon`)}
+                  <PixelIcon name={CHANNEL_ICON[id]} />
                 </span>{' '}
                 {t(`channel.${id}.name`)}
               </h3>

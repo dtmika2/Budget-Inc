@@ -1,5 +1,6 @@
 import { t } from '@i18n/index';
 import { DebugOverlay } from '../DebugOverlay';
+import { DockExtras } from '../hud/DockExtras';
 import { LeaderDock } from '../hud/LeaderDock';
 import { TopBar } from '../hud/TopBar';
 import { MapTempo } from '../hud/MapTempo';
@@ -46,7 +47,10 @@ export function Game() {
           <PausedBadge />
           <div className="game__dock">
             <LeaderDock />
-            <UpgradeButton />
+            <div className="game__dock-side">
+              <DockExtras />
+              <UpgradeButton />
+            </div>
           </div>
           <PopupStack />
         </main>

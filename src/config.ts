@@ -26,6 +26,11 @@ export const config = {
   /** Load generated `[FILLER]` content (files starting with `_`). Turn off once real content meets §5.3. */
   includeDevFiller: true,
 
+  /** Background music (0–1). */
+  music: { volume: 0.35 },
+  /** Opened only when the player clicks them. */
+  links: { coffee: 'https://buymeacoffee.com/budgetinc' },
+
   time: {
     daysPerQuarter: 91,
     quarters: 16,
@@ -134,6 +139,8 @@ export const config = {
       economy: ['industry', 'services', 'agriculture', 'tourism'],
       special: ['coal', 'border', 'university'],
     } as Record<'settlement' | 'economy' | 'special', string[]>,
+    /** Opacity of the Czech flag between the map's glass and its liquid (0–1). */
+    flagOpacity: 0.6,
     /** Hidden card tags that traits react to. */
     tags: ['agriculture', 'industry', 'transport', 'services', 'tourism', 'environment', 'education', 'social', 'coal', 'border'] as string[],
     /**
