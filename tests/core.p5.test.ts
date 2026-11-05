@@ -87,9 +87,9 @@ describe('endings', () => {
 
   it('fires immediately when a pick pushes Oligarchs to 100', () => {
     const sim = makeSim({ seed: 'olig2' });
-    sim.state.anger.oligarchs = 95;
-    sim.state.draft!.hand = ['dummy_oligarchs', ...sim.state.draft!.hand.slice(1)];
-    sim.dispatch({ kind: 'pickPolicy', cardId: 'dummy_oligarchs' });
+    sim.state.anger.oligarchs = 99;
+    sim.state.draft!.hand = ['dummy_ongoing', ...sim.state.draft!.hand.slice(1)]; // oligarchs +4
+    sim.dispatch({ kind: 'pickPolicy', cardId: 'dummy_ongoing' });
     expect(sim.state.phase).toBe('ending');
   });
 
