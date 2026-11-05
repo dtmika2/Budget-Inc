@@ -32,6 +32,7 @@
 - [x] P28 — Policy cards: draft under the top bar, distinct leaning colours, corner details, whole card visible on phones
 - [x] P29 — Skill tree rework: active abilities (kraj / group targets, cooldowns), stronger passives, new texts; tree with tinted quadrants and a fixed description panel
 - [x] P30 — Budget vote: coalition partners ask to raise / cut areas (big pass-chance effect), Koalice tab in the middle, chamber as a slim strip
+- [x] P31 — Budget screen filled top to bottom: 8 areas per vote, rows grow with the height, pass-chance breakdown, failed-vote box
 
 Every phase gate passed (`typecheck`, `lint`, `test` — 98 tests, `build`, and from P5 on `simulate --runs 200 --bot random`).
 

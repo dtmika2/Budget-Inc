@@ -229,7 +229,8 @@ export const config = {
     /** Budget sliders (phase 11): one step changes a category's spending by stepPct %. */
     sliders: { minSteps: -3, maxSteps: 3, stepPct: 10 },
     /** Categories shown per vote: `core` drawn from the core ones, `extra` from the rest (pledged ones forced in). */
-    hand: { core: 2, extra: 4 },
+    /** P31: 3 + 5 (was 2 + 4) so the slider column fills the screen and there are more areas to work with. */
+    hand: { core: 3, extra: 5 },
     /** Re-roll of the shown categories: costs baseCost x factor^rerolls PC (like the policy draft). */
     reroll: { baseCost: 1, factor: 2 },
     /** Multiplier on every category's effectsPerStep, angerPerStep and passPerStep. */

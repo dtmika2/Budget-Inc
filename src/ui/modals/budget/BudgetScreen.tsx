@@ -9,11 +9,12 @@ import { fmtSigned, t } from '@i18n/index';
 import { mid, pct } from '../../format';
 import { getStore, useStore } from '../../store';
 import { EffectLanes, metricId } from '../EffectLanes';
-import { areaName, metricName, stepText } from './adviceText';
+import { areaName, Chip, metricName, stepText } from './adviceText';
 import { BudgetCommentary } from './BudgetCommentary';
 import { BudgetSliders } from './BudgetSliders';
 import { ChamberEstimate } from './ChamberEstimate';
 import { CoalitionTab } from './CoalitionTab';
+import { PassBreakdown } from './PassBreakdown';
 
 /** What the player inspects: a slider step (hover / keyboard), an impact row, or nothing. */
 export type Focus = { kind: 'step'; item: string; to: number } | { kind: 'metric'; metric: MetricKey } | null;
@@ -118,7 +119,7 @@ export function BudgetScreen() {
             <h2 id="vote-title" className="h-display">
               {t('budgetVote.title')}
             </h2>
-            <p className="modal__sub">{t('budgetVote.lead', { pct: config.budgetVote.mandatoryGrowthPct })}</p>
+            <p className="modal__sub">{t('budgetVote.lead', { pct: config.budgetVote.mandatoryGrowthPct, n: items.length })}</p>
           </div>
           <div className="bscreen__kpis" aria-live="polite">
             <Kpi label={t('budgetVote.passShort')} value={pct(preview.passChance)} tone={preview.passChance >= 0.6 ? 'good' : preview.passChance >= 0.4 ? 'warn' : 'bad'} />
@@ -185,6 +186,15 @@ export function BudgetScreen() {
               ) : (
                 <BudgetCommentary sim={sim} sliders={sliders} presetId={presetId} focus={focus} />
               )}
+              <div className="bscreen__fail">
+                <h4>{t('budgetVote.failHead')}</h4>
+                <p className="bchips">
+                  {Object.entries(config.budgetVote.failEffects).map(([k, v]) => (
+                    <Chip key={k} text={`${t(`resource.short.${k}`)} ${fmtSigned(v ?? 0)}`} tone="bad" />
+                  ))}
+                </p>
+                <p className="bscreen__failnote">{t('budgetVote.failText', { pct: config.budgetVote.mandatoryGrowthPct })}</p>
+              </div>
             </div>
           </div>
 
@@ -205,6 +215,7 @@ export function BudgetScreen() {
               <b>{pct(shown.passChance)}</b>
               {Math.abs(fin) >= 0.05 && <span>{`${t('resource.short.finances')} ${fmtSigned(fin, 1)}`}</span>}
             </p>
+            <PassBreakdown sim={sim} sliders={focus?.kind === 'step' && inspected ? { ...sliders, [focus.item]: focus.to } : sliders} presetId={presetId} />
           </aside>
         </div>
       </section>

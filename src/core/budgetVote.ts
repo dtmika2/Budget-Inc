@@ -188,19 +188,40 @@ export function violations(sim: Simulation, sliders: Sliders): RedLine[] {
   return (sim.state.budgetVoteRedLines ?? []).filter((r) => (sliders[r.item] ?? 0) < -r.maxCutSteps);
 }
 
-export function passChance(sim: Simulation, sliders: Sliders, presetId: string | null): number {
+/** The pass chance in parts (P31: shown on the budget screen); `total` is the clamped chance. */
+export interface PassParts {
+  base: number;
+  coalition: number;
+  preset: number;
+  steps: number;
+  zones: number;
+  redLines: number;
+  requests: number;
+  total: number;
+}
+
+export function passChanceParts(sim: Simulation, sliders: Sliders, presetId: string | null): PassParts {
   const b = sim.cfg.budgetVote;
   const opt = presetId ? sim.data.budgetVote.find((o) => o.id === presetId) : undefined;
-  let p = b.passBase + (sim.state.resources.coalition - 50) / 100 + (opt?.passChanceMod ?? 0);
+  let steps = 0;
+  let zones = 0;
   for (const it of shownItems(sim)) {
     const s = sliders[it.id] ?? 0;
-    p += it.passPerStep * b.impact * s + (itemZone(it, s)?.pass ?? 0);
+    steps += it.passPerStep * b.impact * s;
+    zones += itemZone(it, s)?.pass ?? 0;
   }
   // Microbossing: the coalition forgives red lines (budgetVote.redLinePenalty x0)
-  p -= scalar(sim.pipeline(), 'budgetVote.redLinePenalty', b.redLines.passPenalty) * violations(sim, sliders).length;
+  const redLines = -scalar(sim.pipeline(), 'budgetVote.redLinePenalty', b.redLines.passPenalty) * violations(sim, sliders).length;
   // coalition partners' requests (P30): a big bonus when met, a bigger penalty when ignored
-  for (const r of sim.state.budgetVoteRequests ?? []) p += requestMet(r, sliders) ? b.requests.metBonus : -b.requests.missPenalty;
-  return Math.min(b.passMax, Math.max(b.passMin, p));
+  let requests = 0;
+  for (const r of sim.state.budgetVoteRequests ?? []) requests += requestMet(r, sliders) ? b.requests.metBonus : -b.requests.missPenalty;
+  const parts = { base: b.passBase, coalition: (sim.state.resources.coalition - 50) / 100, preset: opt?.passChanceMod ?? 0, steps, zones, redLines, requests };
+  const sum = parts.base + parts.coalition + parts.preset + parts.steps + parts.zones + parts.redLines + parts.requests;
+  return { ...parts, total: Math.min(b.passMax, Math.max(b.passMin, sum)) };
+}
+
+export function passChance(sim: Simulation, sliders: Sliders, presetId: string | null): number {
+  return passChanceParts(sim, sliders, presetId).total;
 }
 
 const addRange = (a: Range | undefined, v: number, r?: Range): Range => ({ min: (a?.min ?? 0) + v + (r?.min ?? 0), max: (a?.max ?? 0) + v + (r?.max ?? 0) });

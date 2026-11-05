@@ -711,7 +711,7 @@
   "ability.pick.ongoing": "Trvalý dopad",
   "ability.pick.angerNow": "{now} → {after}",
   "history.condemned": "Důrazně odsouzeno",
-  "budgetVote.lead": "Povinné výdaje už vzrostly o {pct} %. Posuň letošních šest oblastí, nebo začni předvolbou.",
+  "budgetVote.lead": "Povinné výdaje už vzrostly o {pct} %. Posuň letošních {n} oblastí, nebo začni předvolbou.",
   "budgetVote.rerollHint": "Nahradí letošní oblasti jinými (oblasti z tvých slibů zůstanou).",
   "budgetVote.areas": "Oblasti rozpočtu",
   "budgetVote.summary": "Co rozpočet udělá",
@@ -842,5 +842,17 @@
   "budgetVote.req.tagCut": "{party} chce −",
   "budgetVote.req.reasonMet": "Splníš požadavek strany {party} ({area}).",
   "budgetVote.req.reasonMissRaise": "{party} chce {area} navýšit: tohle požadavek nesplní.",
-  "budgetVote.req.reasonMissCut": "{party} chce {area} škrtnout: tohle požadavek nesplní."
+  "budgetVote.req.reasonMissCut": "{party} chce {area} škrtnout: tohle požadavek nesplní.",
+  "budgetVote.parts.title": "Z čeho se skládá šance",
+  "budgetVote.parts.base": "Základ",
+  "budgetVote.parts.coalition": "Stabilita koalice",
+  "budgetVote.parts.preset": "Předvolba",
+  "budgetVote.parts.steps": "Posuny oblastí",
+  "budgetVote.parts.zones": "Mimo bezpečné pásmo",
+  "budgetVote.parts.redLines": "Červené linie",
+  "budgetVote.parts.requests": "Požadavky koalice",
+  "budgetVote.parts.total": "Šance na schválení",
+  "budgetVote.parts.clamped": "Šance nikdy neklesne pod {min} % ani nepřesáhne {max} %.",
+  "budgetVote.failHead": "Když rozpočet neprojde",
+  "budgetVote.failText": "Stát pojede v rozpočtovém provizoriu: povinné výdaje (+{pct} %) zůstanou, žádná z tvých změn neplatí a koalice ti to dá pocítit."
 }
