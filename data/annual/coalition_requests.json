@@ -1,0 +1,13 @@
+{
+  "status": "DUMMY",
+  "partners": {
+    "mupka": ["kdu_csl", "top09"],
+    "abis": ["spd", "motoriste"]
+  },
+  "preferences": {
+    "kdu_csl": { "raise": ["social_care", "housing", "education", "agriculture", "health"], "cut": ["administration", "ngos", "sport"] },
+    "top09": { "raise": ["defence", "science", "digital", "foreign_aid", "education"], "cut": ["pensions", "administration", "agriculture", "regional_dev"] },
+    "spd": { "raise": ["police", "pensions", "defence", "firefighters", "health"], "cut": ["ngos", "foreign_aid", "environment", "culture"] },
+    "motoriste": { "raise": ["transport", "energy", "regional_dev", "sport"], "cut": ["environment", "ngos", "culture", "administration"] }
+  }
+}

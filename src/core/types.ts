@@ -451,6 +451,8 @@ export interface GameData {
   parties: PartyDef[];
   demands: DemandTemplate[];
   regionEvents: RegionEventTemplate[];
+  /** Coalition partners and their budget preferences (P30). */
+  coalitionRequests: CoalitionRequestsData;
   /** Kraj actions the player can choose (P26, regions workspace). */
   regionActions: RegionActionTemplate[];
   upgrades: UpgradeTree[];
@@ -599,6 +601,18 @@ export interface RegionActionTemplate {
   bundle: EffectBundle;
 }
 
+/** A coalition partner's request in the open budget vote (P30): raise (+1) or cut (-1) an area by at least a step. */
+export interface CoalitionRequest {
+  party: string;
+  item: string;
+  dir: 1 | -1;
+}
+
+export interface CoalitionRequestsData {
+  partners: Record<string, string[]>;
+  preferences: Record<string, { raise: string[]; cut: string[] }>;
+}
+
 export interface GameState {
   runId: string;
   seed: string;
@@ -626,6 +640,8 @@ export interface GameState {
   compromiseOffer: string[] | null;
   /** Coalition red lines of the open budget vote (drawn at vote open). */
   budgetVoteRedLines: RedLine[] | null;
+  /** Coalition partners' requests in the open budget vote (P30). */
+  budgetVoteRequests: CoalitionRequest[] | null;
   /** Budget categories shown in the open vote (2 core + 4 extra, pledged ones forced in); null = all. */
   budgetVoteItems: string[] | null;
   /** Re-rolls of the shown categories in the open vote (each costs more PC). */

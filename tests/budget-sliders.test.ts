@@ -105,6 +105,7 @@ describe('coalition red lines', () => {
     const sim = quietSim({}, cfg);
     openVote(sim);
     sim.state.resources.coalition = 50;
+    sim.state.budgetVoteRequests = [];
     sim.state.budgetVoteRedLines = [
       { item: 'pensions', maxCutSteps: 1 },
       { item: 'defence', maxCutSteps: 1 },

@@ -1,6 +1,6 @@
 import { config } from '@/config';
 import { zoneOf, type Sliders } from '@core/budgetVote';
-import type { BudgetItem, RedLine } from '@core/types';
+import type { BudgetItem, CoalitionRequest, RedLine } from '@core/types';
 import { t } from '@i18n/index';
 import { stepText } from './adviceText';
 import type { Focus } from './BudgetScreen';
@@ -15,6 +15,8 @@ interface Props {
   redLines: RedLine[];
   violations: string[];
   pledged: Set<string>;
+  /** Coalition partners' requests (P30): a tag per request on its area. */
+  requests: CoalitionRequest[];
   /** `now`: keyboard focus, applied without the hover delay. */
   onFocus: (f: Focus, now?: boolean) => void;
   onSet: (item: string, v: number) => void;
@@ -24,7 +26,7 @@ interface Props {
  * Left column: one slider per shown area. Each step is a cell; the safe band is tinted green. Hovering
  * (or arrow keys) shows a ghost step and drives the commentary; a click (or Enter) sets the slider.
  */
-export function BudgetSliders({ items, sliders, focus, redLines, violations, pledged, onFocus, onSet }: Props) {
+export function BudgetSliders({ items, sliders, focus, redLines, violations, pledged, requests, onFocus, onSet }: Props) {
   return (
     <ul className="bsl" aria-label={t('budgetVote.areas')} onPointerLeave={() => onFocus(null)}>
       {items.map((it) => {
@@ -50,6 +52,13 @@ export function BudgetSliders({ items, sliders, focus, redLines, violations, ple
               {it.core && <span className="bsl__tag">{t('budgetVote.core')}</span>}
               {rl && <span className={`bsl__tag bsl__tag--line${crossed ? ' is-bad' : ''}`} title={t('budgetVote.redLine', { pct: rl.maxCutSteps * stepPct })}>{t('budgetVote.redLineTag')}</span>}
               {pledged.has(it.id) && <span className="bsl__tag bsl__tag--pledge">{t('budgetVote.pledgeTag')}</span>}
+              {requests
+                .filter((r) => r.item === it.id)
+                .map((r) => (
+                  <span key={r.party} className={`bsl__tag bsl__tag--req${(v * r.dir >= 1) ? ' is-met' : ''}`}>
+                    {t(r.dir > 0 ? 'budgetVote.req.tagRaise' : 'budgetVote.req.tagCut', { party: t(`party.${r.party}`) })}
+                  </span>
+                ))}
             </span>
             <output className={`bsl__value bsl__value--${zone}`}>{stepText(v)}</output>
             <div

@@ -163,6 +163,7 @@ export class Simulation implements EffectHost {
       draft: null,
       compromiseOffer: null,
       budgetVoteRedLines: null,
+      budgetVoteRequests: null,
       budgetVoteItems: null,
       budgetVoteRerolls: 0,
       tourUsedInYear: null,

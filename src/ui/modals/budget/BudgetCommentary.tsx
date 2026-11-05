@@ -58,7 +58,7 @@ function build(sim: Simulation, sliders: Sliders, presetId: string | null, focus
       const adv = explainStep(sim, sliders, presetId, item.id, focus.to);
       const own = (k: AdviceReason['kind']) => adv.reasons.find((r) => r.kind === k && 'item' in r && r.item === item.id);
       const entered = own('zoneEnter');
-      const event = own('redLine') ?? own('zoneLeave') ?? adv.reasons.find((r) => r.kind === 'pledgeBroken' || r.kind === 'pledgeMet');
+      const event = own('redLine') ?? own('requestMissed') ?? own('requestMet') ?? own('zoneLeave') ?? adv.reasons.find((r) => r.kind === 'pledgeBroken' || r.kind === 'pledgeMet');
       const line =
         entered && entered.kind === 'zoneEnter' && item.advisor
           ? t(item.advisor[entered.zone])

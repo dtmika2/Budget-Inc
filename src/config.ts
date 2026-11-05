@@ -240,6 +240,13 @@ export const config = {
      * the pass chance by passPenalty.
      */
     redLines: { min: 1, max: 2, maxCutSteps: 1, passPenalty: 0.2 },
+    /**
+     * Coalition partners' requests (P30, Daniel: huge impact on passing): each partner asks for perParty.min..max
+     * of the shown areas to be raised or cut (data/annual/coalition_requests.json, `coalition` RNG stream). A met
+     * request adds metBonus to the pass chance, a missed one subtracts missPenalty; a passed vote gives Coalition
+     * coalitionPerMet per met request.
+     */
+    requests: { enabled: true, perParty: { min: 1, max: 2 }, metBonus: 0.1, missPenalty: 0.12, coalitionPerMet: 1 },
   },
 
   /**

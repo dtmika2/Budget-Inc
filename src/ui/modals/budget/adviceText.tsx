@@ -41,6 +41,10 @@ export function reasonText(sim: Simulation, r: AdviceReason): string {
       return t('budgetVote.advice.pledgeMet', { area: areaName(sim, r.item), region: t(`region.short.${r.region}`) });
     case 'pledgeBroken':
       return t('budgetVote.advice.pledgeBroken', { area: areaName(sim, r.item), region: t(`region.short.${r.region}`) });
+    case 'requestMet':
+      return t('budgetVote.req.reasonMet', { party: t(`party.${r.party}`), area: areaName(sim, r.item) });
+    case 'requestMissed':
+      return t(r.dir > 0 ? 'budgetVote.req.reasonMissRaise' : 'budgetVote.req.reasonMissCut', { party: t(`party.${r.party}`), area: areaName(sim, r.item) });
     case 'metric':
       return metricText(r.metric, r.delta);
   }

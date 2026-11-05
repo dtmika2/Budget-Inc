@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { config } from '../src/config';
 import { blamedBundle } from '../src/core/abilities';
+import { passChance, presetSliders, shownItems } from '../src/core/budgetVote';
 import { createBot } from '../src/core/bots';
 import { resolveSpecialForBot } from '../src/core/specialCards';
 import { drainPerDay, groupTargets, resourceSources, totalDrainPerDay } from '../src/core/groupPressure';
@@ -134,5 +135,64 @@ describe('budget areas (P27)', () => {
     const core = sim.data.budgetItems.filter((i) => i.core).map(size);
     const other = sim.data.budgetItems.filter((i) => !i.core).map(size);
     expect(avg(core)).toBeGreaterThan(avg(other));
+  });
+});
+
+describe('coalition budget requests (P30)', () => {
+  const open = (seed: string, leader: 'mupka' | 'abis' = 'mupka') => {
+    const sim = quietSim({ seed, leader });
+    sim.state.day = 74;
+    while (sim.state.phase === 'running') sim.tick();
+    return sim;
+  };
+
+  it('partners ask only for shown areas from their preferences, the same for the same seed', () => {
+    for (const leader of ['mupka', 'abis'] as const) {
+      const a = open('req', leader);
+      const b = open('req', leader);
+      const reqs = a.state.budgetVoteRequests!;
+      expect(reqs).toEqual(b.state.budgetVoteRequests);
+      const shown = new Set(shownItems(a).map((i) => i.id));
+      for (const r of reqs) {
+        expect(a.data.coalitionRequests.partners[leader]).toContain(r.party);
+        const pref = a.data.coalitionRequests.preferences[r.party];
+        expect(r.dir > 0 ? pref.raise : pref.cut).toContain(r.item);
+        expect(shown.has(r.item)).toBe(true);
+      }
+    }
+  });
+
+  it('each met request adds metBonus to the pass chance, each missed one subtracts missPenalty', () => {
+    const cfg = cfgWith((c) => {
+      c.budgetVote.passMin = -5;
+      c.budgetVote.passMax = 5;
+    });
+    const sim = quietSim({ seed: 'req2' }, cfg);
+    sim.state.day = 74;
+    while (sim.state.phase === 'running') sim.tick();
+    const it = shownItems(sim)[0].id;
+    sim.state.budgetVoteRequests = [{ party: 'x', item: it, dir: 1 }];
+    const s0 = { ...presetSliders(sim, null) };
+    const miss = passChance(sim, s0, null);
+    sim.state.budgetVoteRequests = [];
+    const none = passChance(sim, s0, null);
+    expect(none - miss).toBeCloseTo(cfg.budgetVote.requests.missPenalty, 9);
+    sim.state.budgetVoteRequests = [{ party: 'x', item: it, dir: 1 }];
+    const metP = passChance(sim, { ...s0, [it]: 1 }, null);
+    sim.state.budgetVoteRequests = [];
+    const metNone = passChance(sim, { ...s0, [it]: 1 }, null);
+    expect(metP - metNone).toBeCloseTo(cfg.budgetVote.requests.metBonus, 9);
+  });
+
+  it('a passed vote pleases the coalition for each met request; drawing uses only the coalition stream', () => {
+    const sim = open('req3');
+    const reqs = sim.state.budgetVoteRequests!;
+    expect(reqs.length).toBeGreaterThan(0);
+    const s = { ...presetSliders(sim, null) };
+    for (const r of reqs) s[r.item] = r.dir;
+    const p = sim.previewVote(s, null);
+    sim.state.budgetVoteRequests = [];
+    const q = sim.previewVote(s, null);
+    expect((p.resources.coalition?.min ?? 0) - (q.resources.coalition?.min ?? 0)).toBeCloseTo(reqs.length * config.budgetVote.requests.coalitionPerMet, 6);
   });
 });

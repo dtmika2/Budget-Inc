@@ -5,7 +5,7 @@
  * the greedy bot's vote value, so the advice and the bot agree on what "better" means.
  */
 import { budgetFailValue, voteValue } from './bots';
-import { presetSliders, sameSliders, shownItems, validateVote, violations, zoneOf, type Sliders } from './budgetVote';
+import { presetSliders, requestMet, sameSliders, shownItems, validateVote, violations, zoneOf, type Sliders } from './budgetVote';
 import { budgetConditionMet, pledgesForBudget } from './demands';
 import type { PreviewRanges } from './effects';
 import type { Simulation } from './simulation';
@@ -25,6 +25,8 @@ export type AdviceReason =
   | { kind: 'redLineFixed'; item: string }
   | { kind: 'pledgeMet'; item: string; region: string }
   | { kind: 'pledgeBroken'; item: string; region: string }
+  | { kind: 'requestMet'; item: string; party: string; dir: 1 | -1 }
+  | { kind: 'requestMissed'; item: string; party: string; dir: 1 | -1 }
   | { kind: 'metric'; metric: MetricKey; delta: number };
 
 /** A recommended setting: undo the inspected step, move one slider by one step, or take a preset. */
@@ -106,6 +108,11 @@ function changeReasons(sim: Simulation, from: Sliders, to: Sliders, before: Vote
     const m0 = budgetConditionMet(c, from);
     const m1 = budgetConditionMet(c, to);
     if (m0 !== m1) out.push({ kind: m1 ? 'pledgeMet' : 'pledgeBroken', item: p.item, region: p.pledge.region });
+  }
+  for (const r of sim.state.budgetVoteRequests ?? []) {
+    const m0 = requestMet(r, from);
+    const m1 = requestMet(r, to);
+    if (m0 !== m1) out.push({ kind: m1 ? 'requestMet' : 'requestMissed', item: r.item, party: r.party, dir: r.dir });
   }
   const dp = after.passChance - before.passChance;
   if (Math.abs(dp) >= sim.cfg.budgetAdvice.minPassDelta) out.push({ kind: 'pass', delta: dp });
@@ -206,6 +213,7 @@ export function summarizeBudget(sim: Simulation, sliders: Sliders, presetId: str
     const z = zoneOf(it, sliders[it.id] ?? 0);
     if (z !== 'safe') risks.push({ kind: 'zoneEnter', item: it.id, zone: z });
   }
+  for (const r of sim.state.budgetVoteRequests ?? []) if (!requestMet(r, sliders)) risks.push({ kind: 'requestMissed', item: r.item, party: r.party, dir: r.dir });
   for (const pl of pledgesForBudget(sim))
     if (!budgetConditionMet({ type: 'budget', item: pl.item, minSteps: pl.minSteps }, sliders)) risks.push({ kind: 'pledgeBroken', item: pl.item, region: pl.pledge.region });
   return { risks, passChance: p.passChance, best: suggestMoves(sim, sliders, presetId, undefined, 1)[0] ?? null };

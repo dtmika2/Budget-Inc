@@ -393,6 +393,15 @@ export const regionActionSchema = z
   })
   .strict();
 
+/** Coalition partners' budget requests (P30): each leader's partners and what each party wants raised or cut. */
+export const coalitionRequestsSchema = z
+  .object({
+    status: z.enum(['DUMMY', 'DRAFT', 'APPROVED']),
+    partners: z.record(z.string(), z.array(z.string()).min(1)),
+    preferences: z.record(z.string(), z.object({ raise: z.array(z.string()).default([]), cut: z.array(z.string()).default([]) }).strict()),
+  })
+  .strict();
+
 export const demandSchema = z
   .object({
     id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),

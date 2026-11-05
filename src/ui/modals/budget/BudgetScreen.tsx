@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { config } from '@/config';
 import { keptPreset, type MetricKey } from '@core/budgetAdvice';
-import { budgetRerollCost, presetSliders, shownItems, type Sliders } from '@core/budgetVote';
+import { budgetRerollCost, presetSliders, requestMet, shownItems, type Sliders } from '@core/budgetVote';
 import { pledgesForBudget } from '@core/demands';
 import type { PreviewRanges } from '@core/effects';
 import type { Range } from '@core/types';
@@ -9,10 +9,11 @@ import { fmtSigned, t } from '@i18n/index';
 import { mid, pct } from '../../format';
 import { getStore, useStore } from '../../store';
 import { EffectLanes, metricId } from '../EffectLanes';
-import { areaName, Chip, metricName, stepText } from './adviceText';
+import { areaName, metricName, stepText } from './adviceText';
 import { BudgetCommentary } from './BudgetCommentary';
 import { BudgetSliders } from './BudgetSliders';
 import { ChamberEstimate } from './ChamberEstimate';
+import { CoalitionTab } from './CoalitionTab';
 
 /** What the player inspects: a slider step (hover / keyboard), an impact row, or nothing. */
 export type Focus = { kind: 'step'; item: string; to: number } | { kind: 'metric'; metric: MetricKey } | null;
@@ -52,6 +53,7 @@ export function BudgetScreen() {
   const [presetId, setPresetId] = useState<string | null>(null);
   const [sliders, setSliders] = useState<Sliders>(() => presetSliders(sim, null));
   const [focus, setFocusNow] = useState<Focus>(null);
+  const [midTab, setMidTab] = useState<'coalition' | 'comment'>('coalition');
   const timer = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => clearTimeout(timer.current), []);
   // pointer hover settles before the commentary changes (no flicker while sweeping across the steps);
@@ -98,22 +100,9 @@ export function BudgetScreen() {
   const shown = inspected?.after ?? preview;
   const fin = mid(shown.resources.finances ?? zero);
 
+  const missed = (sim.state.budgetVoteRequests ?? []).filter((r) => !requestMet(r, sliders)).length;
   const budgetPledges = pledgesForBudget(sim);
   const pledged = new Set(budgetPledges.map((p) => p.item));
-  const chips = (
-    <>
-      {redLines.map((r) => (
-        <Chip
-          key={`rl-${r.item}`}
-          text={t('budgetVote.chamber.redLine', { area: areaName(sim, r.item), pct: r.maxCutSteps * config.budgetVote.sliders.stepPct })}
-          tone={shown.violations.includes(r.item) ? 'bad' : 'none'}
-        />
-      ))}
-      {budgetPledges.map((p, i) => (
-        <Chip key={`pl-${i}`} text={t('budgetVote.chamber.pledge', { area: areaName(sim, p.item), region: t(`region.short.${p.pledge.region}`) })} tone="none" />
-      ))}
-    </>
-  );
   const focusLabel =
     focus?.kind === 'step' && inspected
       ? `${areaName(sim, focus.item)} ${stepText(focus.to)}`
@@ -172,6 +161,7 @@ export function BudgetScreen() {
               redLines={redLines}
               violations={shown.violations}
               pledged={pledged}
+              requests={sim.state.budgetVoteRequests ?? []}
               onFocus={setFocus}
               onSet={setOne}
             />
@@ -179,10 +169,22 @@ export function BudgetScreen() {
 
           <div className="bscreen__mid">
             <div className="bpanel bscreen__chamber">
-              <ChamberEstimate chance={preview.passChance} next={inspected ? inspected.after.passChance : null} chips={chips} />
+              <ChamberEstimate chance={preview.passChance} next={inspected ? inspected.after.passChance : null} compact />
             </div>
-            <div className="bpanel bpanel--gold">
-              <BudgetCommentary sim={sim} sliders={sliders} presetId={presetId} focus={focus} />
+            <div className="bpanel bpanel--gold bscreen__tabs">
+              <nav className="bscreen__tablist" role="tablist">
+                {(['coalition', 'comment'] as const).map((id) => (
+                  <button key={id} role="tab" aria-selected={midTab === id} className={`bscreen__tab${midTab === id ? ' is-on' : ''}`} onClick={() => setMidTab(id)}>
+                    {t(`budgetVote.tab.${id}`)}
+                    {id === 'coalition' && missed > 0 && <span className="bscreen__tabbadge">{missed}</span>}
+                  </button>
+                ))}
+              </nav>
+              {midTab === 'coalition' ? (
+                <CoalitionTab sim={sim} sliders={sliders} next={focus?.kind === 'step' && inspected ? { ...sliders, [focus.item]: focus.to } : null} />
+              ) : (
+                <BudgetCommentary sim={sim} sliders={sliders} presetId={presetId} focus={focus} />
+              )}
             </div>
           </div>
 
