@@ -5,7 +5,6 @@ import { GROUP_IDS, RESOURCE_IDS } from '@core/types';
 import { fmtSigned, t } from '@i18n/index';
 import { GROUP_COLOR, RESOURCE_COLOR } from '../colors';
 import { mid, rangeText, tone } from '../format';
-import { PixelIcon } from '../pixelIcons';
 
 interface Props {
   preview: PreviewRanges;
@@ -67,7 +66,7 @@ export function RangeChips({ preview, all = false, compact = false, groupRegions
       {preview.ongoing.map((o, i) => (
         <p key={i} className="ranges__ongoing">
           <span className="ongoing-icon" aria-hidden="true">
-            <PixelIcon name="repeat" size={10} />
+            {'↻'}
           </span>
           {t('draft.ongoingLine', {
             target: o.target.startsWith('anger.') ? t(`group.${o.target.slice(6)}`) : t(`resource.short.${o.target}`),

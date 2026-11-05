@@ -259,7 +259,8 @@ describe('fulfilling a pledge', () => {
   });
 
   it('fails exactly once after the deadline, and cannot be fulfilled afterwards', () => {
-    const sim = accepted({}, 'f-dead');
+    // a condition no draft can meet: advanceQuiet picks cards, and a matching one would fulfil the pledge
+    const sim = accepted({ fulfil: [{ type: 'policy', cardIds: ['never_drafted'] }] }, 'f-dead');
     const pledge = sim.state.pledges[0];
     sim.state.schedule = sim.state.schedule.filter((e) => e.kind !== 'budgetVote');
     advanceQuiet(sim, pledge.deadlineAbsDay - sim.absDay + 3);

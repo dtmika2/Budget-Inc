@@ -26,6 +26,11 @@ export const config = {
   /** Load generated `[FILLER]` content (files starting with `_`). Turn off once real content meets §5.3. */
   includeDevFiller: true,
 
+  /** Background music (0–1). */
+  music: { volume: 0.35 },
+  /** Opened only when the player clicks them. */
+  links: { coffee: 'https://buymeacoffee.com/budgetinc' },
+
   time: {
     daysPerQuarter: 91,
     quarters: 16,

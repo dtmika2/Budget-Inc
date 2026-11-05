@@ -30,11 +30,11 @@ exports[`budget advice > the greedy bot vote is unchanged by sharing its scoring
     "kind": "voteBudget",
     "presetId": null,
     "sliders": {
-      "defence": 2,
+      "defence": 0,
       "digital": 2,
       "firefighters": 2,
       "ngos": -1,
-      "pensions": 2,
+      "pensions": 3,
       "sport": 2,
     },
   },

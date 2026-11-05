@@ -17,7 +17,6 @@ const PALETTE: Record<string, string> = {
   Y: '#e2c47c',
   E: '#4f9a4a',
   B: '#6fb7e8',
-  C: 'currentColor',
   P: 'var(--party, #2f6fe4)',
   L: 'var(--party-light, #9fc0ff)',
 };
