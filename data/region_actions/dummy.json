@@ -1,0 +1,150 @@
+[
+  {
+    "id": "school",
+    "status": "DUMMY",
+    "base": 1,
+    "regionWeights": {
+      "university": 2,
+      "urban": 1
+    },
+    "title": "regionAction.school.title",
+    "text": "regionAction.school.text",
+    "bundle": {
+      "effects": {
+        "financesExtra": {
+          "min": -5,
+          "max": -5
+        }
+      },
+      "regions": {
+        "self": {
+          "min": 8,
+          "max": 10
+        }
+      },
+      "anger": {
+        "activists": {
+          "min": -1.5,
+          "max": -1
+        }
+      }
+    }
+  },
+  {
+    "id": "hospital",
+    "status": "DUMMY",
+    "base": 1,
+    "regionWeights": {
+      "rural": 2,
+      "mixed": 1
+    },
+    "title": "regionAction.hospital.title",
+    "text": "regionAction.hospital.text",
+    "bundle": {
+      "effects": {
+        "financesExtra": {
+          "min": -6,
+          "max": -6
+        }
+      },
+      "regions": {
+        "self": {
+          "min": 8,
+          "max": 11
+        }
+      },
+      "anger": {
+        "pensioners": {
+          "min": -2,
+          "max": -1.5
+        }
+      }
+    }
+  },
+  {
+    "id": "road",
+    "status": "DUMMY",
+    "base": 1,
+    "regionWeights": {
+      "rural": 1,
+      "agriculture": 1.5,
+      "industry": 1
+    },
+    "title": "regionAction.road.title",
+    "text": "regionAction.road.text",
+    "bundle": {
+      "effects": {
+        "financesExtra": {
+          "min": -4,
+          "max": -4
+        }
+      },
+      "regions": {
+        "self": {
+          "min": 6,
+          "max": 8
+        }
+      },
+      "anger": {
+        "oligarchs": {
+          "min": -1,
+          "max": -0.5
+        }
+      }
+    }
+  },
+  {
+    "id": "factory",
+    "status": "DUMMY",
+    "base": 0,
+    "regionWeights": {
+      "industry": 2,
+      "coal": 2
+    },
+    "title": "regionAction.factory.title",
+    "text": "regionAction.factory.text",
+    "bundle": {
+      "pc": -1,
+      "effects": {
+        "financesExtra": {
+          "min": -3,
+          "max": -3
+        }
+      },
+      "regions": {
+        "self": {
+          "min": 6,
+          "max": 9
+        }
+      },
+      "anger": {
+        "oligarchs": {
+          "min": -2,
+          "max": -1.5
+        },
+        "eu": {
+          "min": 0.5,
+          "max": 1
+        }
+      }
+    }
+  },
+  {
+    "id": "visit",
+    "status": "DUMMY",
+    "base": 1,
+    "always": true,
+    "regionWeights": {},
+    "title": "regionAction.visit.title",
+    "text": "regionAction.visit.text",
+    "bundle": {
+      "pc": -1,
+      "regions": {
+        "self": {
+          "min": 4,
+          "max": 5
+        }
+      }
+    }
+  }
+]

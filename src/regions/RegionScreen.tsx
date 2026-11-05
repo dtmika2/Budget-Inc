@@ -17,10 +17,11 @@ import { historyTitle } from '@ui/panel/SidePanel';
 import { DeltaList } from '@ui/popups/DeltaList';
 import { getStore, useStore, type RegionTab } from '@ui/store';
 import { markerShape, RegionChart, type ChartMarker } from './RegionChart';
+import { RegionActions } from './RegionActions';
 import { RegionDemands } from './RegionDemands';
 import { RegionEventHistory, RegionEvents } from './RegionEvents';
 
-const TABS: RegionTab[] = ['main', 'events', 'data'];
+const TABS: RegionTab[] = ['main', 'actions', 'events', 'data'];
 const RESOURCE_SERIES: Series[] = RESOURCE_IDS.map((id) => ({ id, label: '', color: RESOURCE_COLOR[id], get: (p: TrendPoint) => p.resources[id] }));
 
 /** Source type of a log entry for the impact list and chart markers. */
@@ -119,6 +120,7 @@ function RegionScreenBody({ code, onClose, onStep }: { code: string; onClose: ()
       </nav>
 
       {tab === 'main' && <MainTab code={code} support={support} />}
+      {tab === 'actions' && <RegionActions code={code} />}
       {tab === 'events' && (
         <div className="rs-body rs-body--events">
           <div className="rs-col">

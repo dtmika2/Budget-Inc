@@ -49,7 +49,11 @@ export const PolicyCard = memo(function PolicyCard({
       <h3 className="memo__title">{topic ?? t(card.title)}</h3>
       {topic && <p className="memo__flavor">{t(card.title)}</p>}
       {desc && <p className="memo__desc">{desc}</p>}
-      <EffectLanes preview={preview} chaos={card.chaosEvents?.length ?? 0} />
+      <EffectLanes
+        preview={preview}
+        chaos={card.chaosEvents?.length ?? 0}
+        base={{ resources: sim.state.resources, anger: sim.state.anger, regions: sim.state.projection.regionSupport }}
+      />
       {pledges.map((p) => (
         <p key={p.id} className="memo__pledge">
           {t('pledge.badge', { region: t(`region.short.${p.region}`) })}
