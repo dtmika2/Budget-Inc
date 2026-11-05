@@ -147,6 +147,7 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 - P25 policy cards — every lane row shows "today → after" (midpoint of the range, clamped 0–100; kraje use the projected regional support); a "Teď máš" strip (four attributes + projection) sits above the draft so the cards no longer hide the top bar; optional `base` prop on EffectLanes, so the budget screen is unchanged
 - P26 kraj actions — data/region_actions/ (5 [DUMMY] actions: škola, nemocnice, silnice, továrna, návštěva); each kraj offers its 3 best by traits plus the `always` visit; costs Finance and/or PC (PC is shared with the skill tree, as the stakeholder suggested); one action per kraj per year, 2 per quarter; kraj effects +4…+11 (the first values, +2…+6, moved national seat-weighted support by only ~0,3 and were not worth their cost); region events 3 → 1 a year (alone this barely changes win rates: greedy 18,5 % / 32,1 %)
 - P26 bots — greedy does the best kraj action when it adds value, keeps a Finance reserve of 40 and prices Finance (0,004) and PC (0,03) per point (without that it spent all PC on visits instead of upgrades and lost); random tries one now and then
+- P26 balance (1000 runs/row, Normal, greedy) — with kraj actions and the bot Finance price 0,004: Mupka 16,5 %, Abis 32,2 %; with price 0,008 (kept): Mupka 18,9 %, Abis 32,1 % (without kraj actions: 18,4 % / 32,1 %). Daniel's new target: both leaders at least 33 % greedy win rate on Normal; tuning the daily Podpora drift (−0,07) is in progress
 
 ## Blockers
 _None._

@@ -488,7 +488,7 @@ export const config = {
     pledgeFulfilEstimate: 0.6,
     /** Kraj actions (P26): the greedy bot keeps this much Finance and prices each Finance point it spends. */
     regionActionFinanceReserve: 40,
-    regionActionFinancePrice: 0.004,
+    regionActionFinancePrice: 0.008,
     /** ...and each PC (PC also buys upgrades, which the bot otherwise undervalues). */
     regionActionPcPrice: 0.03,
   },
