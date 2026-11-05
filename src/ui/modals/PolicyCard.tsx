@@ -2,17 +2,18 @@ import { memo } from 'react';
 import type { CompromiseCard, PolicyCard as Card } from '@core/types';
 import { t } from '@i18n/index';
 import { pledgesForCard, pledgesForCompromise } from '@core/demands';
+import { PixelIcon, type PixelIconName } from '../pixelIcons';
 import { getStore } from '../store';
 import { EffectLanes } from './EffectLanes';
 
-const LEANING_GLYPH: Record<string, string> = {
-  libertarianism: '⚖',
-  conservatism: '⌂',
-  populism: '☺',
-  socialism: '⚒',
-  progressivism: '✿',
-  fascism: '☠',
-  communism: '★',
+const LEANING_ICON: Record<string, PixelIconName> = {
+  libertarianism: 'scales',
+  conservatism: 'house',
+  populism: 'smiley',
+  socialism: 'tools',
+  progressivism: 'flower',
+  fascism: 'skull',
+  communism: 'redStar',
 };
 
 /**
@@ -40,7 +41,7 @@ export const PolicyCard = memo(function PolicyCard({
       <header className="memo__head">
         <span className="memo__leaning">
           <span className="memo__glyph" aria-hidden="true">
-            {isCompromise ? '⇄' : LEANING_GLYPH[card.leaning]}
+            <PixelIcon name={isCompromise ? 'swap' : LEANING_ICON[card.leaning]} />
           </span>
           {isCompromise ? t('draft.compromiseTag') : t(`leaning.${card.leaning}`)}
         </span>
@@ -49,7 +50,11 @@ export const PolicyCard = memo(function PolicyCard({
       <h3 className="memo__title">{topic ?? t(card.title)}</h3>
       {topic && <p className="memo__flavor">{t(card.title)}</p>}
       {desc && <p className="memo__desc">{desc}</p>}
-      <EffectLanes preview={preview} chaos={card.chaosEvents?.length ?? 0} />
+      <EffectLanes
+        preview={preview}
+        chaos={card.chaosEvents?.length ?? 0}
+        base={{ resources: sim.state.resources, anger: sim.state.anger, regions: sim.state.projection.regionSupport }}
+      />
       {pledges.map((p) => (
         <p key={p.id} className="memo__pledge">
           {t('pledge.badge', { region: t(`region.short.${p.region}`) })}

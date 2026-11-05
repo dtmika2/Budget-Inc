@@ -72,7 +72,10 @@ export type ModifierSource =
   | 'compromise'
   | 'demand'
   | 'region_event'
+  | 'region_action'
   | 'special'
+  | 'pressure'
+  | 'prestige'
   | 'any';
 
 /** Where a value change comes from (a modifier `source` other than `any`). */
@@ -251,6 +254,11 @@ export interface AbilityDef {
   action: AbilityAction | null;
   /** halveAnger: modifiers on the chosen group, `{group}` in the target is replaced (e.g. anger.{group}.gain). */
   targetModifiers: ModifierDef[];
+  /**
+   * Blame the coalition partner (STB, P24): the next `policies` picked policies that would cost Support or
+   * Prestige do not; Coalition loses `coalitionFactor` x that loss instead.
+   */
+  blame: { policies: number; coalitionFactor: number } | null;
 }
 
 export interface LeaderDef {
@@ -440,6 +448,8 @@ export interface GameData {
   parties: PartyDef[];
   demands: DemandTemplate[];
   regionEvents: RegionEventTemplate[];
+  /** Kraj actions the player can choose (P26, regions workspace). */
+  regionActions: RegionActionTemplate[];
   upgrades: UpgradeTree[];
   /** Catastrophes and special agents (catastrophes workspace, core/specialCards.ts). */
   specialCards: SpecialCardDef[];
@@ -465,6 +475,7 @@ export type Input =
   | { kind: 'rejectDemand'; demandId: string }
   | { kind: 'rerollBudget' }
   | { kind: 'interveneRegionEvent'; eventId: string }
+  | { kind: 'regionAction'; region: string; actionId: string }
   | { kind: 'ignoreRegionEvent'; eventId: string }
   | { kind: 'acceptSpecial' }
   | { kind: 'closeSpecial' };
@@ -572,6 +583,18 @@ export interface LogEntry {
   [extra: string]: unknown;
 }
 
+/** A kraj action (P26, regions workspace): its bundle may use the region key `self`; a negative `pc` is its PC cost. */
+export interface RegionActionTemplate {
+  id: string;
+  status: 'DUMMY' | 'DRAFT' | 'APPROVED';
+  base: number;
+  always: boolean;
+  regionWeights: Record<string, number>;
+  title: string;
+  text: string;
+  bundle: EffectBundle;
+}
+
 export interface GameState {
   runId: string;
   seed: string;
@@ -610,6 +633,8 @@ export interface GameState {
   /** Open regional events (regions workspace), at most one per kraj. */
   regionEvents: OpenRegionEvent[];
   regionEventSeq: number;
+  /** Kraj actions done (P26): which, where and in which quarter. */
+  regionActionsDone: { region: string; actionId: string; quarter: number }[];
   /** Weekly regional support s_r (phase 13 history), first point at the run start. */
   regionHistory: { absDay: number; s: Record<string, number>; national: number }[];
   /** Game year (1-4) in which a once-per-year compromise channel (the regional tour) was last used. */
@@ -623,6 +648,8 @@ export interface GameState {
   eventSeq: number;
   /** Abilities already used this run (each works once per game). */
   abilitiesUsed: string[];
+  /** Blame on the coalition partner (STB): policies left and the Coalition share of their losses. */
+  blame: { left: number; coalitionFactor: number; origin: string } | null;
   ownedUpgrades: string[];
   /** Catastrophes and special agents: drawn cards, the open card (core/specialCards.ts). */
   specials: SpecialsState;

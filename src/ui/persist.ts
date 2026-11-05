@@ -33,6 +33,10 @@ export function loadSettings(defaultSpeed: number): Settings {
 
 export const saveSettings = (s: Settings) => write('settings', s);
 
+/** Budget vote commentary in compact mode (before / after table). */
+export const budgetCompact = () => read<boolean>('budgetCompact', false);
+export const setBudgetCompact = (v: boolean) => write('budgetCompact', v);
+
 export const tutorialSeen = () => read<boolean>('tutorialSeen', false);
 export const setTutorialSeen = (v: boolean) => write('tutorialSeen', v);
 

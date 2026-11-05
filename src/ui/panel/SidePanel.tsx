@@ -8,6 +8,7 @@ import { GROUP_COLOR, RESOURCE_COLOR, targetColor } from '../colors';
 import { fmt, fmtSigned, t } from '@i18n/index';
 import { Floaters } from '../popups/Floaters';
 import { HoverCard, type HoverInfo } from '../HoverCard';
+import { GroupPressure } from '../hud/PressureInfo';
 import { getStore, targetOf, useStore, type PanelTab } from '../store';
 import { Paged } from './Paged';
 import { DeltaList } from '../popups/DeltaList';
@@ -32,6 +33,7 @@ const AngerMeter = memo(function AngerMeter({ g }: { g: GroupId }) {
     value: fmt(value),
     valueColor: critical ? 'var(--bad)' : hot ? '#e0952c' : undefined,
     status: t(critical ? 'hover.anger.critical' : hot ? 'hover.anger.hot' : 'hover.anger.calm', { n: ending?.threshold ?? 100 }),
+    extra: <GroupPressure g={g} />,
     hint: t('hover.anger.scale'),
   };
   return (

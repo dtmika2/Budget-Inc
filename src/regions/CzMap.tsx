@@ -6,6 +6,7 @@
  */
 import { memo, useState } from 'react';
 import { t } from '@i18n/index';
+import { PixelIcon } from '@ui/pixelIcons';
 import { getStore, useStore } from '@ui/store';
 import { LiquidDefs, LiquidRegion } from './Liquid';
 import { MapLife } from './MapLife';
@@ -90,7 +91,7 @@ function Pins() {
         if (!r) return null;
         return (
           <span key={`pl-${code}`} className="pledge-mark" style={{ left: `${((r.labelX - 22) / MAP_WIDTH) * 100}%`, top: `${((r.labelY - 26) / MAP_HEIGHT) * 100}%` }} aria-hidden="true">
-            {'⏳'}
+            <PixelIcon name="hourglass" />
           </span>
         );
       })}

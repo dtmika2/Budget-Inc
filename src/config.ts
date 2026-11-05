@@ -52,6 +52,41 @@ export const config = {
     max: 100,
   },
 
+  /**
+   * Interest-group pressure (P24, stakeholder feedback): a group's anger above `from` drains the key
+   * attributes every day. Drain per day = perDayAtMax x weight x (anger - from) / (100 - from), so a 1x link
+   * costs perDayAtMax per day at anger 100 and nothing at `from` or below.
+   */
+  groupPressure: {
+    from: 50,
+    perDayAtMax: 0.05,
+    weights: {
+      oligarchs: { finances: 1, support: 0.5 },
+      pensioners: { support: 1, prestige: 0.33 },
+      media: { support: 1, coalition: 0.33, prestige: 0.5 },
+      eu: { finances: 1.3, prestige: 0.33 },
+      activists: { prestige: 1.33 },
+    } as Record<GroupId, Partial<Record<ResourceId, number>>>,
+  },
+
+  /**
+   * Prestige bonuses (P24): every `everyDays` days, with Prestige >= `from`, a chance of a bonus (own RNG
+   * stream `prestige`). chance = chanceAtFrom + (prestige - from) x chancePerPoint, at most chanceMax. The bonus
+   * kind is drawn by weight: Support, Coalition (the partner likes you), or the angriest group calms down.
+   */
+  prestigeBonus: {
+    from: 60,
+    everyDays: 30,
+    chanceAtFrom: 0.2,
+    chancePerPoint: 0.01,
+    chanceMax: 0.6,
+    kinds: {
+      support: { weight: 1, value: 1.5 },
+      coalition: { weight: 1, value: 2 },
+      group: { weight: 1, value: -6 },
+    },
+  },
+
   zeroPenalty: {
     exitAt: 3,
     isolationFinanceCap: -15,
@@ -198,6 +233,28 @@ export const config = {
      * the pass chance by passPenalty.
      */
     redLines: { min: 1, max: 2, maxCutSteps: 1, passPenalty: 0.2 },
+  },
+
+  /**
+   * Budget vote commentary (phase 23): explanations and recommendations next to the sliders. Advice is
+   * computed from previews only (no RNG). Recommendations are scored like the greedy bot's vote.
+   */
+  budgetAdvice: {
+    /** Recommendation cards shown at most. */
+    maxSuggestions: 3,
+    /** A recommendation must beat the inspected setting by at least this much expected value. */
+    minGain: 0.001,
+    /** Largest resource / group deltas named in an explanation, and kraje on top of them. */
+    topDeltas: 3,
+    topKraje: 2,
+    /** Deltas smaller than this are not mentioned. */
+    minDelta: 0.25,
+    /** Pass-chance changes smaller than this (fraction) are not mentioned. */
+    minPassDelta: 0.005,
+    /** Hover settles after this many ms before the commentary changes (no flicker while sweeping). */
+    hoverDelayMs: 120,
+    /** Seats drawn in the chamber estimate (display only; the vote is one pass chance). */
+    chamberSeats: 200,
   },
 
   draft: {
@@ -369,13 +426,25 @@ export const config = {
   /** Regional events (regions workspace): a few a year in random kraje, whole-kraj animation + "!" pin. */
   regionEvents: {
     enabled: true,
-    /** Events per game year, spread evenly over the year, each in a random kraj. */
-    perYear: 3,
+    /** Events per game year, spread evenly over the year, each in a random kraj. P26: 3 -> 1 (stakeholder: fewer random kraj events, more player choice). */
+    perYear: 1,
     /** Spawn window inside the year (days from the year's start / before its end). */
     spawnFromDay: 5,
     spawnBeforeYearEnd: 20,
     /** Days the event (and its animation) stays open before it counts as ignored. */
     responseDays: 30,
+  },
+
+  /**
+   * Kraj actions (P26, regions workspace): the player picks where to work. Each kraj offers up to
+   * `offered` actions (best by its traits, plus the `always` ones); one action per kraj per year and at most
+   * `perQuarter` actions in a quarter.
+   */
+  regionActions: {
+    enabled: true,
+    offered: 3,
+    perKrajPerYear: 1,
+    perQuarter: 2,
   },
 
   /** Catastrophes and special agents (catastrophes workspace, core/specialCards.ts). */
@@ -417,6 +486,11 @@ export const config = {
     greedyMinigameScore: 0.75,
     /** Greedy bot's estimate of the chance to fulfil a pledge it accepts. */
     pledgeFulfilEstimate: 0.6,
+    /** Kraj actions (P26): the greedy bot keeps this much Finance and prices each Finance point it spends. */
+    regionActionFinanceReserve: 40,
+    regionActionFinancePrice: 0.008,
+    /** ...and each PC (PC also buys upgrades, which the bot otherwise undervalues). */
+    regionActionPcPrice: 0.03,
   },
 
   /** Simulator targets on Normal (§13). */
