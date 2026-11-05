@@ -1,12 +1,14 @@
 /**
- * Liquid fill for map regions: each kraj is a mustard-beige glass clipped to its own shape, filled up to
- * its support level (0–100 % of the region's height): red wine in Moravia, foamy beer everywhere else. The
+ * Liquid fill for map regions: each kraj is a mustard-beige glass clipped to its own shape, with a faint
+ * national flag on it (one flag across the whole country, so neighbours line up), filled up to its support
+ * level (0–100 % of the region's height): red wine in Moravia, foamy beer everywhere else. The
  * surface is a two-layer pixel wave with an irregular profile (several harmonics + occasional spray pixels
  * or foam bubbles) that scrolls in whole-pixel steps; each region gets its own offset, speed and phase so
  * neighbours never move in lockstep. The level steps up/down when support changes. Reduced motion stops
  * all of it (global CSS).
  */
 import { memo, type CSSProperties } from 'react';
+import { config } from '@/config';
 import { REGION_PATHS } from './regionsPath';
 
 export const PX = 6; // pixel size in map units
@@ -58,6 +60,10 @@ export function pathBox(d: string): Box {
 }
 
 export const REGION_BOXES: Record<string, Box> = Object.fromEntries(REGION_PATHS.map((r) => [r.code, pathBox(r.d)]));
+
+/** The Czech flag's official colours; the flag is stretched over the bounding box of all kraje. */
+const FLAG = { white: '#ffffff', red: '#d7141a', blue: '#11457e' };
+const COUNTRY: Box = pathBox(REGION_PATHS.map((r) => r.d).join(' '));
 
 /** Surface y for a support value: 0 = empty (below the region), 100 = brim. */
 export function levelY(box: Box, support: number): number {
@@ -140,6 +146,14 @@ export const LiquidDefs = memo(function LiquidDefs({ prefix }: { prefix: string 
           <rect key={i} x={i * PX} y={TILE_H - n * PX} width={PX} height={n * PX} fill={BEER.back} />
         ))}
       </pattern>
+      <g id={`${prefix}-flag`}>
+        <rect x={COUNTRY.x} y={COUNTRY.y} width={COUNTRY.w} height={COUNTRY.h / 2} fill={FLAG.white} />
+        <rect x={COUNTRY.x} y={COUNTRY.y + COUNTRY.h / 2} width={COUNTRY.w} height={COUNTRY.h / 2} fill={FLAG.red} />
+        <polygon
+          points={`${COUNTRY.x},${COUNTRY.y} ${COUNTRY.x + COUNTRY.w / 2},${COUNTRY.y + COUNTRY.h / 2} ${COUNTRY.x},${COUNTRY.y + COUNTRY.h}`}
+          fill={FLAG.blue}
+        />
+      </g>
       {REGION_PATHS.map((r) => (
         <clipPath key={r.code} id={`${prefix}-clip-${r.code}`}>
           <path d={r.d} fillRule="evenodd" />
@@ -166,6 +180,7 @@ export const LiquidRegion = memo(function LiquidRegion({ prefix, code, d, suppor
   return (
     <g clipPath={`url(#${prefix}-clip-${code})`}>
       <path d={d} fillRule="evenodd" className="glass" />
+      <use href={`#${prefix}-flag`} opacity={config.regions.flagOpacity} />
       <g className="liquid" style={{ transform: `translateY(${y}px)` }} shapeRendering="crispEdges">
         <rect className="wave wave--back" style={backStyle} x={backX} y={-TILE_H} width={box.w + 3 * backLen} height={TILE_H} fill={`url(#${prefix}-${pattern}-back)`} />
         <rect className="wave wave--front" style={frontStyle} x={frontX} y={-TILE_H} width={box.w + 3 * frontLen} height={TILE_H} fill={`url(#${prefix}-${pattern}-front)`} />
