@@ -426,13 +426,25 @@ export const config = {
   /** Regional events (regions workspace): a few a year in random kraje, whole-kraj animation + "!" pin. */
   regionEvents: {
     enabled: true,
-    /** Events per game year, spread evenly over the year, each in a random kraj. */
-    perYear: 3,
+    /** Events per game year, spread evenly over the year, each in a random kraj. P26: 3 -> 1 (stakeholder: fewer random kraj events, more player choice). */
+    perYear: 1,
     /** Spawn window inside the year (days from the year's start / before its end). */
     spawnFromDay: 5,
     spawnBeforeYearEnd: 20,
     /** Days the event (and its animation) stays open before it counts as ignored. */
     responseDays: 30,
+  },
+
+  /**
+   * Kraj actions (P26, regions workspace): the player picks where to work. Each kraj offers up to
+   * `offered` actions (best by its traits, plus the `always` ones); one action per kraj per year and at most
+   * `perQuarter` actions in a quarter.
+   */
+  regionActions: {
+    enabled: true,
+    offered: 3,
+    perKrajPerYear: 1,
+    perQuarter: 2,
   },
 
   /** Catastrophes and special agents (catastrophes workspace, core/specialCards.ts). */
@@ -474,6 +486,11 @@ export const config = {
     greedyMinigameScore: 0.75,
     /** Greedy bot's estimate of the chance to fulfil a pledge it accepts. */
     pledgeFulfilEstimate: 0.6,
+    /** Kraj actions (P26): the greedy bot keeps this much Finance and prices each Finance point it spends. */
+    regionActionFinanceReserve: 40,
+    regionActionFinancePrice: 0.004,
+    /** ...and each PC (PC also buys upgrades, which the bot otherwise undervalues). */
+    regionActionPcPrice: 0.03,
   },
 
   /** Simulator targets on Normal (§13). */

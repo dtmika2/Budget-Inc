@@ -114,7 +114,7 @@ export interface UiState {
   isMobile: boolean;
 }
 
-export type RegionTab = 'main' | 'events' | 'data';
+export type RegionTab = 'main' | 'actions' | 'events' | 'data';
 
 type Listener = () => void;
 
@@ -481,6 +481,11 @@ export class Store {
           deltas: e.deltas,
         });
         return;
+      case 'region_action': {
+        const a = sim.data.regionActions.find((x) => x.id === e.actionId);
+        if (a) add({ kind: 'news', titleKey: a.title, textKey: 'regionAction.done', keyParams: { region: `region.${e.region}` }, tone: 'good', deltas: e.deltas });
+        return;
+      }
       case 'blame_shifted':
         add({ kind: 'news', titleKey: 'ability.stb.name', textKey: 'blame.shifted', params: { left: Number(e.left) }, tone: 'good' });
         return;

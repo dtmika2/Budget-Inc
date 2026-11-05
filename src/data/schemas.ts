@@ -38,7 +38,7 @@ export const budgetChangeSchema = z
   .strict();
 
 const modifierSourceSchema = z.enum([
-  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'demand', 'region_event', 'special', 'pressure', 'prestige', 'any',
+  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'demand', 'region_event', 'region_action', 'special', 'pressure', 'prestige', 'any',
 ]);
 
 export const modifierSchema = z
@@ -359,6 +359,22 @@ export const regionEventSchema = z
     variants: z.array(z.object({ id: z.string().regex(/^[a-z0-9_]+$/), text: z.string() }).strict()).default([]),
     onIntervene: bundleSchema,
     onIgnore: bundleSchema,
+  })
+  .strict();
+
+/** A kraj action the player can choose (P26, regions workspace). Offered by the kraj's traits. */
+export const regionActionSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9_]+$/, 'id must be snake_case'),
+    status: z.enum(['DUMMY', 'DRAFT', 'APPROVED']),
+    /** Offer score in every kraj; + the weight of each trait the kraj has. */
+    base: z.number().min(0).default(1),
+    /** Offered in every kraj, on top of the best-scoring ones. */
+    always: z.boolean().default(false),
+    regionWeights: z.record(z.string(), z.number().min(0)).default({}),
+    title: z.string(),
+    text: z.string(),
+    bundle: bundleSchema,
   })
   .strict();
 

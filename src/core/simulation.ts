@@ -40,6 +40,7 @@ import { electionNight, projection } from './election';
 import { triggeredEnding } from './endings';
 import { makeEntry } from './log';
 import { applyGroupPressure } from './groupPressure';
+import { canDoRegionAction, doRegionAction, regionActionBundle, regionActionTemplate } from './regionActions';
 import { rollPrestigeBonus } from './prestigeBonus';
 import { scalar, tickModifiers, type PipelineCtx } from './modifiers';
 import { collectPin, expirePin, scheduleQuarterPins, spawnPin } from './opportunities';
@@ -171,6 +172,7 @@ export class Simulation implements EffectHost {
       demandSeq: 0,
       regionEvents: [],
       regionEventSeq: 0,
+      regionActionsDone: [],
       picked: [],
       schedule: [],
       scheduleSeq: 0,
@@ -548,6 +550,8 @@ export class Simulation implements EffectHost {
       case 'interveneRegionEvent':
       case 'ignoreRegionEvent':
         return canAnswerRegionEvent(this, input.eventId, input.kind === 'interveneRegionEvent');
+      case 'regionAction':
+        return canDoRegionAction(this, input.region, input.actionId);
       case 'acceptSpecial':
         return canAcceptSpecial(this);
       case 'closeSpecial':
@@ -612,6 +616,9 @@ export class Simulation implements EffectHost {
         break;
       case 'rejectDemand':
         rejectDemand(this, input.demandId);
+        break;
+      case 'regionAction':
+        doRegionAction(this, input.region, input.actionId);
         break;
       case 'interveneRegionEvent':
         interveneRegionEvent(this, input.eventId);
@@ -682,6 +689,11 @@ export class Simulation implements EffectHost {
     const it = this.data.budgetItems.find((i) => i.id === itemId)!;
     const z = (zone: typeof it.onCut) => ({ ...this.preview(zoneBundle(this, zone), 'budget_vote'), pass: zone.pass ?? 0 });
     return { cut: z(it.onCut), overspend: z(it.onOverspend) };
+  }
+
+  /** Ranges of a kraj action in that kraj (P26). */
+  previewRegionAction(actionId: string, region: string): PreviewRanges {
+    return this.preview(regionActionBundle(regionActionTemplate(this, actionId)!, region), 'region_action');
   }
 
   /** Ranges of a region event's two outcomes in its kraj. */

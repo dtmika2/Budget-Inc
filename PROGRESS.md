@@ -27,6 +27,7 @@
 - [x] P23 — Budget vote in three columns: sliders, chamber estimate + live advisor commentary (why + recommendations), impact lanes
 - [x] P24 — Stakeholder feedback, block 1: interest groups drain attributes (shown on hover), prestige bonuses, Abis abilities reworked
 - [x] P25 — Policy cards show today → after for every value; status strip above the draft
+- [x] P26 — Kraj actions (pick where to work: 2–4 actions per kraj for Finance / PC), region events 3 → 1 a year
 
 Every phase gate passed (`typecheck`, `lint`, `test` — 98 tests, `build`, and from P5 on `simulate --runs 200 --bot random`).
 

@@ -13,6 +13,7 @@ import type {
   ChaosEventDef,
   DemandTemplate,
   RegionEventTemplate,
+  RegionActionTemplate,
   EffectBundle,
   EndingDef,
   GameData,
@@ -29,6 +30,7 @@ import { GROUP_IDS, RESOURCE_IDS } from '../core/types';
 import {
   demandSchema,
   regionEventSchema,
+  regionActionSchema,
   budgetItemSchema,
   budgetSchema,
   budgetVoteOptionSchema,
@@ -176,6 +178,8 @@ export function loadGameData(
   const demandsAll = many(demandSchema, 'data/demands');
   const regionEventsAll = many(regionEventSchema, 'data/region_events');
   const regionEvents = regionEventsAll.filter((e) => e.item.status !== 'DRAFT' || includeFiller);
+  const regionActionsAll = many(regionActionSchema, 'data/region_actions');
+  const regionActions = regionActionsAll.filter((e) => e.item.status !== 'DRAFT' || includeFiller);
   const specialsAll = many(specialCardSchema, 'data/catastrophes');
   // DRAFT demands (drafted from programmes, not yet approved) only load with includeDevFiller
   const demands = demandsAll.filter((d) => d.item.status !== 'DRAFT' || includeFiller);
@@ -209,12 +213,13 @@ export function loadGameData(
   const leaderIds = new Set(leadersRaw?.map((l) => l.id) ?? []);
 
   const knownTags = new Set(config.regions.tags);
-  const checkBundle = (b: EffectBundle, file: string, path: string) => {
+  // `self` (the bundle's own kraj) is allowed in demand / region-event outcomes (`.on…`) and kraj actions
+  const checkBundle = (b: EffectBundle, file: string, path: string, allowSelf = path.includes('.on')) => {
     b.tags?.forEach((tag, i) => {
       if (!knownTags.has(tag)) err('unknownTag', file, `${path}.tags[${i}]`, tag);
     });
     for (const code of Object.keys(b.regions ?? {})) {
-      if (code === 'self' && path.includes('.on')) continue; // demand bundles: the demand's own region
+      if (code === 'self' && allowSelf) continue;
       if (regions && !regionCodes.has(code)) err('unknownRegion', file, `${path}.regions.${code}`, code);
     }
     b.budgetChanges?.forEach((bc, i) => {
@@ -459,6 +464,15 @@ export function loadGameData(
     for (const k of ['onIntervene', 'onIgnore'] as const) checkBundle(e[k], file, `${p}.${k}`);
     for (const tr of Object.keys(e.regionWeights)) if (!knownTraits.has(tr)) err('unknownTrait', file, `${p}.regionWeights.${tr}`, tr);
   }
+  // kraj actions (regions workspace, P26)
+  dupCheck(regionActionsAll.map((e) => ({ id: e.item.id, file: e.file, path: `[${e.idx}]` })));
+  for (const { item: a, file, idx } of regionActionsAll) {
+    const p = `[${idx}]`;
+    locKey(a.title, file, `${p}.title`);
+    locKey(a.text, file, `${p}.text`);
+    checkBundle(a.bundle, file, `${p}.bundle`, true);
+    for (const tr of Object.keys(a.regionWeights)) if (!knownTraits.has(tr)) err('unknownTrait', file, `${p}.regionWeights.${tr}`, tr);
+  }
 
   dupCheck(opportunities.map((o) => ({ id: o.item.id, file: o.file, path: `[${o.idx}]` })));
   for (const { item: o, file, idx } of opportunities) {
@@ -573,6 +587,7 @@ export function loadGameData(
     parties: partiesRaw as PartyDef[],
     demands: demands.map((d) => d.item) as DemandTemplate[],
     regionEvents: regionEvents.map((e) => ({ ...e.item, onIntervene: normalise(e.item.onIntervene), onIgnore: normalise(e.item.onIgnore) })) as RegionEventTemplate[],
+    regionActions: regionActions.map((e) => ({ ...e.item, bundle: normalise(e.item.bundle) })) as RegionActionTemplate[],
     upgrades: trees.map((t) => t.item) as UpgradeTree[],
     specialCards: specialsAll.map((d) => {
       const c = d.item as SpecialCardDef;

@@ -14,6 +14,7 @@ import { channelBlocked } from './compromise';
 import { budgetConditionMet, pledgesForCard, pledgesForCompromise, templateOf } from './demands';
 import type { PreviewRanges } from './effects';
 import { canAnswerRegionEvent } from './regionEvents';
+import { canDoRegionAction, offeredActions, regionActionPcCost } from './regionActions';
 import { Rng } from './rng';
 import type { Simulation } from './simulation';
 import type { GroupId, Range, ResourceId } from './types';
@@ -92,6 +93,27 @@ function pledgeBonus(sim: Simulation, pledges: { templateId: string; region: str
     v += gain(sim, pr.fulfil) - gain(sim, pr.fail);
   }
   return v;
+}
+
+/** Best kraj action now (value gain minus a small PC price), or null when none helps (P26). */
+export function greedyRegionAction(sim: Simulation): { region: string; actionId: string } | null {
+  const now = stateValue(sim, sim.state.resources, sim.state.anger);
+  let best: { region: string; actionId: string } | null = null;
+  let bestV = 0;
+  for (const r of sim.data.regions.regions) {
+    for (const a of offeredActions(sim, r.code)) {
+      if (canDoRegionAction(sim, r.code, a.id)) continue;
+      const p = sim.previewRegionAction(a.id, r.code);
+      const fin = -mid(p.resources.finances);
+      if (fin > 0 && sim.state.resources.finances - fin < sim.cfg.bots.regionActionFinanceReserve) continue;
+      const v = valueAfter(sim, p) - now - regionActionPcCost(a) * sim.cfg.bots.regionActionPcPrice - Math.max(0, fin) * sim.cfg.bots.regionActionFinancePrice;
+      if (v > bestV) {
+        bestV = v;
+        best = { region: r.code, actionId: a.id };
+      }
+    }
+  }
+  return best;
 }
 
 /** Greedy answer to a demand: accept when its expected value beats rejecting. */
@@ -277,6 +299,11 @@ export function createBot(kind: BotKind, seed: string): Bot {
           pinDecided.add(pin.id);
           if (rng.next() < 0.5) sim.dispatch({ kind: 'collectOpportunity', pinId: pin.id });
         }
+        if (rng.next() < 0.02) {
+          const region = rng.pick(sim.data.regions.regions).code;
+          const acts = offeredActions(sim, region);
+          if (acts.length) sim.dispatch({ kind: 'regionAction', region, actionId: rng.pick(acts).id });
+        }
         if (rng.next() < 0.01) {
           const nodes = availableNodes(sim).filter((n) => n.cost <= s.pc);
           if (nodes.length) sim.dispatch({ kind: 'buyUpgrade', nodeId: rng.pick(nodes).id });
@@ -349,6 +376,11 @@ export function createBot(kind: BotKind, seed: string): Bot {
       for (const d of [...s.demands])
         sim.dispatch({ kind: greedyAccepts(sim, d.templateId, d.region) ? 'acceptDemand' : 'rejectDemand', demandId: d.id });
       for (const e of [...s.regionEvents]) sim.dispatch({ kind: greedyIntervenes(sim, e.id) ? 'interveneRegionEvent' : 'ignoreRegionEvent', eventId: e.id });
+      // kraj actions (P26): the best one when it adds value, checked once a week
+      if (sim.absDay % 7 === 0) {
+        const best = greedyRegionAction(sim);
+        if (best) sim.dispatch({ kind: 'regionAction', ...best });
+      }
       // cheapest available upgrade
       const avail = availableNodes(sim).sort((a, b) => a.cost - b.cost);
       if (avail.length && avail[0].cost <= s.pc) sim.dispatch({ kind: 'buyUpgrade', nodeId: avail[0].id });
