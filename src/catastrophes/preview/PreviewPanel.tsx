@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { forceOpenSpecial } from '@core/specialCards';
 import { t } from '@i18n/index';
+import { PixelIcon } from '@ui/pixelIcons';
 import { getStore } from '@ui/store';
 
 /** Open `cardId` now (restarting its animation) and put it in the address bar. */
@@ -29,7 +30,9 @@ export function PreviewPanel() {
         {cards.map((c) => (
           <li key={c.id}>
             <button className={`special-preview__card special-preview__card--${c.kind}${c.id === current ? ' is-on' : ''}`} onClick={() => open(c.id)}>
-              <span aria-hidden="true">{c.kind === 'catastrophe' ? '!' : '★'}</span>
+              <span aria-hidden="true">
+                <PixelIcon name={c.kind === 'catastrophe' ? 'alert' : 'star'} />
+              </span>
               {t(c.title)}
             </button>
           </li>

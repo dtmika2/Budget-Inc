@@ -9,6 +9,7 @@ import { consequenceOf, specialCard } from '@core/specialCards';
 import { t } from '@i18n/index';
 import { DeltaList } from '@ui/popups/DeltaList';
 import { RangeChips } from '@ui/modals/RangeChips';
+import { PixelIcon } from '@ui/pixelIcons';
 import { getStore, useStore } from '@ui/store';
 import { AgentCardBack, AgentFx } from './AgentFx';
 import { CatastropheFx } from './CatastropheFx';
@@ -54,7 +55,7 @@ export function SpecialCard() {
     <div className="special-face special-face--front">
       <header className="special-card__banner">
         <span className="special-card__icon" aria-hidden="true">
-          {kind === 'catastrophe' ? '!' : '★'}
+          <PixelIcon name={kind === 'catastrophe' ? 'alert' : 'star'} />
         </span>
         {t(`special.kind.${kind}`)}
       </header>

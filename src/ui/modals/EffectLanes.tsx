@@ -15,6 +15,8 @@ import { GROUP_IDS, RESOURCE_IDS } from '@core/types';
 import { fmtSigned, t } from '@i18n/index';
 import { GROUP_COLOR, RESOURCE_COLOR } from '../colors';
 import { mid, rangeText } from '../format';
+import { ResourceIcon } from '../hud/resourceIcons';
+import { PixelIcon } from '../pixelIcons';
 
 const MAX_KRAJE = 6;
 
@@ -77,7 +79,7 @@ const clamp100 = (v: number) => Math.max(0, Math.min(100, v));
 const partOf = (p: PreviewRanges | undefined, m: MetricKey): Range | undefined =>
   !p ? undefined : m.kind === 'resource' ? p.resources[m.id] : m.kind === 'group' ? p.anger[m.id] : p.regions[m.id];
 
-function Lane({ icon, title, rows, extra, ins }: { icon: string; title: string; rows: Row[]; extra?: React.ReactNode; ins: Inspect }) {
+function Lane({ icon, title, rows, extra, ins }: { icon: React.ReactNode; title: string; rows: Row[]; extra?: React.ReactNode; ins: Inspect }) {
   const scale = Math.max(6, ...rows.map((r) => (r.range ? Math.max(Math.abs(r.range.min), Math.abs(r.range.max)) : 0)));
   return (
     <div className="lane">
@@ -122,7 +124,7 @@ export function EffectLanes({ preview, chaos = 0, ...ins }: { preview: PreviewRa
       .filter((o) => o.target === target)
       .map((o, i) => (
         <p key={`${target}${i}`} className="lane__ongoing">
-          {'↻'} {t('lanes.ongoing', { what: target.startsWith('anger.') ? t(`group.${target.slice(6)}`) : t(`resource.short.${target}`), v: fmtSigned(o.perDay, 2), days: o.days })}
+          <PixelIcon name="repeat" size={10} /> {t('lanes.ongoing', { what: target.startsWith('anger.') ? t(`group.${target.slice(6)}`) : t(`resource.short.${target}`), v: fmtSigned(o.perDay, 2), days: o.days })}
         </p>
       ));
   const resources: Row[] = RESOURCE_IDS.map((r) => ({ key: r, metric: { kind: 'resource', id: r }, label: t(`resource.short.${r}`), color: RESOURCE_COLOR[r], range: preview.resources[r] }));
@@ -141,9 +143,9 @@ export function EffectLanes({ preview, chaos = 0, ...ins }: { preview: PreviewRa
   const more = kraje.length - shown.length;
   return (
     <div className={`lanes${ins.base ? ' lanes--base' : ''}`}>
-      <Lane icon="$" title={t('lanes.resources')} rows={resources} ins={ins} extra={RESOURCE_IDS.flatMap((r) => ongoing(r))} />
+      <Lane icon={<ResourceIcon id="finances" />} title={t('lanes.resources')} rows={resources} ins={ins} extra={RESOURCE_IDS.flatMap((r) => ongoing(r))} />
       <Lane
-        icon="☺"
+        icon={<PixelIcon name="people" />}
         title={t('lanes.groups')}
         rows={groups}
         ins={ins}
@@ -155,7 +157,7 @@ export function EffectLanes({ preview, chaos = 0, ...ins }: { preview: PreviewRa
         }
       />
       <Lane
-        icon="⌖"
+        icon={<PixelIcon name="pin" />}
         title={t('lanes.kraje')}
         rows={shown}
         ins={ins}

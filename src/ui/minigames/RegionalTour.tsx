@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { config } from '@/config';
 import { t } from '@i18n/index';
+import { PixelIcon } from '../pixelIcons';
 import { clamp01, MinigameFrame, useCountdown, useFrameClock, type MinigameProps } from './common';
 
 interface Pop {
@@ -83,7 +84,7 @@ export function RegionalTour({ onDone }: MinigameProps) {
                     tap(p);
                   }}
                 >
-                  {p.hand ? '🤝' : p.kind === 0 ? '🥚' : '🍅'}
+                  <PixelIcon name={p.hand ? 'handshake' : p.kind === 0 ? 'egg' : 'tomato'} size={40} />
                 </button>
               )}
             </div>

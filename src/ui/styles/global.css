@@ -956,7 +956,8 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .lanes { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
 .lane { border-top: 2px dashed rgba(42, 34, 51, 0.18); padding: 7px 0 5px; }
 .lane__head { margin: 0 0 4px; display: flex; align-items: center; gap: 6px; font: 12px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
-.lane__icon { width: 16px; height: 16px; display: inline-grid; place-items: center; font: 11px var(--f-pixel); color: var(--paper); background: var(--ink); }
+.lane__icon { width: 20px; height: 20px; margin: -2px 0; display: inline-grid; place-items: center; }
+.pixel-icon { display: inline-block; flex: none; vertical-align: middle; }
 .lane__row { display: grid; grid-template-columns: 7.2em minmax(0, 1fr) 5.2em; gap: 8px; align-items: center; font-size: 14px; min-height: 22px; }
 .lane__label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lane__key { display: inline-block; width: 9px; height: 9px; margin-right: 6px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); }
