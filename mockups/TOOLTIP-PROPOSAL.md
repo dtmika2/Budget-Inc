@@ -64,7 +64,7 @@ Suggestion: ship **A** as the default with a toggle to **B** (compact mode); add
 
 ## 6. Open questions for Daniel
 
-1. Default variant: A, or A with B as compact mode?
+1. ~~Default variant~~ — decided: **A** by default, **B** as compact mode.
 2. Should recommendations be allowed to move sliders other than the hovered one ("pay for it from Státní správa")?
 3. One advisor voice, or two (F) for big decisions?
 4. Does the goal mode belong in the first version or later?
