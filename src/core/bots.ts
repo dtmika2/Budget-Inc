@@ -167,7 +167,7 @@ export function presetVote(sim: Simulation, presetId: string): { kind: 'voteBudg
 }
 
 /** Expected value of a slider setting: pass chance x value after + fail chance x value after failing. */
-function voteValue(sim: Simulation, sliders: Sliders, presetId: string | null, failV: number): number {
+export function voteValue(sim: Simulation, sliders: Sliders, presetId: string | null, failV: number): number {
   const p = sim.previewVote(sliders, presetId);
   const kept = sim.state.pledges.filter((pl) =>
     templateOf(sim, pl.templateId).fulfil.some((c) => c.type === 'budget' && budgetConditionMet(c, sliders)),
@@ -176,8 +176,11 @@ function voteValue(sim: Simulation, sliders: Sliders, presetId: string | null, f
 }
 
 /** Greedy vote: best preset, then a bounded deterministic hill-climb over the sliders. */
+/** Value after a failed vote (the baseline of voteValue). */
+export const budgetFailValue = (sim: Simulation) => valueAfter(sim, sim.preview(failBundle(sim), 'budget_vote'));
+
 export function greedyVote(sim: Simulation, maxPasses = 2): { kind: 'voteBudget'; sliders: Sliders; presetId: string | null } {
-  const failV = valueAfter(sim, sim.preview(failBundle(sim), 'budget_vote'));
+  const failV = budgetFailValue(sim);
   let presetId: string | null = sim.data.budgetVote[0].id;
   let bestV = -Infinity;
   for (const o of sim.data.budgetVote) {

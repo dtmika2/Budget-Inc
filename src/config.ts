@@ -200,6 +200,28 @@ export const config = {
     redLines: { min: 1, max: 2, maxCutSteps: 1, passPenalty: 0.2 },
   },
 
+  /**
+   * Budget vote commentary (phase 23): explanations and recommendations next to the sliders. Advice is
+   * computed from previews only (no RNG). Recommendations are scored like the greedy bot's vote.
+   */
+  budgetAdvice: {
+    /** Recommendation cards shown at most. */
+    maxSuggestions: 3,
+    /** A recommendation must beat the inspected setting by at least this much expected value. */
+    minGain: 0.001,
+    /** Largest resource / group deltas named in an explanation, and kraje on top of them. */
+    topDeltas: 3,
+    topKraje: 2,
+    /** Deltas smaller than this are not mentioned. */
+    minDelta: 0.25,
+    /** Pass-chance changes smaller than this (fraction) are not mentioned. */
+    minPassDelta: 0.005,
+    /** Hover settles after this many ms before the commentary changes (no flicker while sweeping). */
+    hoverDelayMs: 120,
+    /** Seats drawn in the chamber estimate (display only; the vote is one pass chance). */
+    chamberSeats: 200,
+  },
+
   draft: {
     handSize: 3,
     repeatCooldownQuarters: 4,
