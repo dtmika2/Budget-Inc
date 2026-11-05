@@ -25,6 +25,7 @@
 - [x] P21 — Slim top bar, compact timeline, Vylepšení in leader colours
 - [x] P22 — Full-page draft, effects as three lanes on policy cards
 - [x] P23 — Budget vote in three columns: sliders, chamber estimate + live advisor commentary (why + recommendations), impact lanes
+- [x] P24 — Stakeholder feedback, block 1: interest groups drain attributes (shown on hover), prestige bonuses, Abis abilities reworked
 
 Every phase gate passed (`typecheck`, `lint`, `test` — 98 tests, `build`, and from P5 on `simulate --runs 200 --bot random`).
 

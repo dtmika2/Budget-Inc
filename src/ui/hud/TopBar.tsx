@@ -7,6 +7,8 @@ import { historyTitle, originLabel } from '../panel/SidePanel';
 import { Floaters } from '../popups/Floaters';
 import { HoverCard, type HoverInfo } from '../HoverCard';
 import { getStore, useStore } from '../store';
+import { PressureNote } from './PressureNote';
+import { ResourcePressure } from './PressureInfo';
 import { RESOURCE_ACCENT, ResourceIcon } from './resourceIcons';
 
 /**
@@ -49,6 +51,12 @@ const ResourceTile = memo(function ResourceTile({ id, open, onToggle }: { id: Re
     value: fmt(value),
     valueColor: valueColor(value),
     status: t(`resource.zone.${zoneOf(value)}`),
+    extra: (
+      <>
+        <ResourcePressure id={id} />
+        {id === 'prestige' && <PressureNote />}
+      </>
+    ),
     hint: t('hover.details'),
   };
   return (

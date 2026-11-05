@@ -38,7 +38,7 @@ export const budgetChangeSchema = z
   .strict();
 
 const modifierSourceSchema = z.enum([
-  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'demand', 'region_event', 'special', 'any',
+  'policy', 'chaos', 'response', 'opportunity', 'budget_vote', 'ongoing', 'drift', 'penalty', 'ability', 'compromise', 'demand', 'region_event', 'special', 'pressure', 'prestige', 'any',
 ]);
 
 export const modifierSchema = z
@@ -246,6 +246,11 @@ export const leaderSchema = z
               .default(null),
             action: z.enum(['cancelEvent', 'halveAnger']).nullable().default(null),
             targetModifiers: z.array(modifierSchema).default([]),
+            blame: z
+              .object({ policies: z.number().int().positive(), coalitionFactor: z.number().min(0) })
+              .strict()
+              .nullable()
+              .default(null),
           })
           .strict(),
       )

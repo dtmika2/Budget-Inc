@@ -8,7 +8,7 @@ import { applyBundle } from './effects';
 import { instantiate } from './modifiers';
 import { removeWhere, schedule } from './scheduler';
 import type { Simulation } from './simulation';
-import type { AbilityDef, GroupId, ScheduledEntry } from './types';
+import type { AbilityDef, EffectBundle, GroupId, Range, ScheduledEntry } from './types';
 import { GROUP_IDS } from './types';
 
 export const abilityOf = (sim: Simulation, id: string): AbilityDef | undefined => sim.leaderDef.abilities.find((a) => a.id === id);
@@ -63,6 +63,7 @@ export function activateAbility(sim: Simulation, abilityId: string, target?: str
     state.anger[g] -= cut;
     deltas.anger[g] = (deltas.anger[g] ?? 0) - cut;
   }
+  if (a.blame) state.blame = { left: a.blame.policies, coalitionFactor: a.blame.coalitionFactor, origin };
   if (a.pulses) {
     const last = sim.absDayOf(cfg.time.quarters, cfg.time.daysPerQuarter);
     for (let n = 1; n <= a.pulses.times; n++) {
@@ -72,6 +73,34 @@ export function activateAbility(sim: Simulation, abilityId: string, target?: str
   }
   sim.log('ability_used', { abilityId: a.id, target: target ?? null, rolled }, deltas);
   if (a.action === 'cancelEvent' && target) cancelTarget(sim, target);
+}
+
+/**
+ * A policy bundle with the STB blame applied: Support and Prestige losses are dropped (the gain part of a
+ * range stays) and Coalition loses coalitionFactor x those losses instead. `blamed` is false when the card
+ * has no such loss (then it does not use up a blamed policy).
+ */
+export function blamedBundle(sim: Simulation, bundle: EffectBundle): { bundle: EffectBundle; blamed: boolean } {
+  const b = sim.state.blame;
+  if (!b || b.left <= 0) return { bundle, blamed: false };
+  const effects = { ...(bundle.effects ?? {}) };
+  let lossMin = 0;
+  let lossMax = 0;
+  for (const r of ['support', 'prestige'] as const) {
+    const x = effects[r];
+    if (!x || x.min >= 0) continue;
+    // the loss part of the range: [min, min(max, 0)]
+    lossMin += x.min;
+    lossMax += Math.min(x.max, 0);
+    effects[r] = { min: Math.max(0, x.min), max: Math.max(0, x.max) };
+    if (effects[r]!.max === 0) delete effects[r];
+  }
+  if (lossMin === 0 && lossMax === 0) return { bundle, blamed: false };
+  const f = b.coalitionFactor;
+  const c: Range | undefined = effects.coalition;
+  // a bigger loss is a lower value: min pairs with min
+  effects.coalition = { min: (c?.min ?? 0) + f * lossMin, max: (c?.max ?? 0) + f * lossMax };
+  return { bundle: { ...bundle, effects }, blamed: true };
 }
 
 /** A scheduled monthly pulse of an ability. */

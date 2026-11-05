@@ -3,7 +3,7 @@
  * every player decision goes through dispatch(input) and is recorded for replay (spec §10.2).
  */
 import type { Config, DifficultyPreset } from '../config';
-import { abilityOf, activateAbility, canUseAbility, firePulse } from './abilities';
+import { abilityOf, activateAbility, blamedBundle, canUseAbility, firePulse } from './abilities';
 import { computeFinances, initPct } from './budget';
 import {
   canRerollBudget,
@@ -39,6 +39,8 @@ import { applyBundle, applyDaily, previewBundle, type EffectHost, type PreviewRa
 import { electionNight, projection } from './election';
 import { triggeredEnding } from './endings';
 import { makeEntry } from './log';
+import { applyGroupPressure } from './groupPressure';
+import { rollPrestigeBonus } from './prestigeBonus';
 import { scalar, tickModifiers, type PipelineCtx } from './modifiers';
 import { collectPin, expirePin, scheduleQuarterPins, spawnPin } from './opportunities';
 import { applyStandInPenalties, applyZeroPenalties, updateZeroPenalties } from './penalties';
@@ -177,6 +179,7 @@ export class Simulation implements EffectHost {
       pendingResponses: [],
       eventSeq: 0,
       abilitiesUsed: [],
+      blame: null,
       ownedUpgrades: [],
       specials: initialSpecials(),
       projection: { S: 0, T: 0, P: 0, regionSupport: {} },
@@ -403,6 +406,7 @@ export class Simulation implements EffectHost {
     }
     for (const o of s.ongoing) applyDaily(this, o.target, o.perDay, 'ongoing');
     applyZeroPenalties(this);
+    applyGroupPressure(this);
     applyStandInPenalties(this);
     checkPledgeDeadlines(this);
     const pull = this.cfg.anger.pullPerDay;
@@ -414,6 +418,7 @@ export class Simulation implements EffectHost {
         s.anger[g] = a + Math.sign(diff) * Math.min(Math.abs(diff), pull);
       }
     }
+    rollPrestigeBonus(this);
     for (const o of s.ongoing) o.daysLeft -= 1;
     s.ongoing = s.ongoing.filter((o) => o.daysLeft > 0);
     s.modifiers = tickModifiers(s.modifiers);
@@ -561,7 +566,13 @@ export class Simulation implements EffectHost {
         break;
       case 'pickPolicy': {
         const card = this.cardById.get(input.cardId)!;
-        const { rolled, deltas } = applyBundle(this, card, 'policy', `policy:${card.id}`, this.rng.effects);
+        const blame = blamedBundle(this, card);
+        const { rolled, deltas } = applyBundle(this, blame.bundle, 'policy', `policy:${card.id}`, this.rng.effects);
+        if (blame.blamed && s.blame) {
+          s.blame.left -= 1;
+          this.log('blame_shifted', { cardId: card.id, left: s.blame.left });
+          if (s.blame.left <= 0) s.blame = null;
+        }
         s.picked.push({ cardId: card.id, quarter: s.quarter });
         s.draft = null;
         s.phase = 'running';
@@ -630,7 +641,7 @@ export class Simulation implements EffectHost {
   previewCard(cardId: string): PreviewRanges {
     const comp = this.compromiseById.get(cardId);
     if (comp) return this.preview(comp, 'compromise');
-    return this.preview(this.cardById.get(cardId)!, 'policy');
+    return this.preview(blamedBundle(this, this.cardById.get(cardId)!).bundle, 'policy');
   }
 
   /** Preview of a compromise sold through a channel with a given mini-game score. */

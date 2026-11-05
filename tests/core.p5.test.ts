@@ -8,6 +8,7 @@ import { Rng } from '../src/core/rng';
 import { computeScore, keyDecisions } from '../src/core/score';
 import type { LogEntry } from '../src/core/types';
 import { gameData, makeSim, quietSim } from './helpers';
+import { totalDrainPerDay } from '../src/core/groupPressure';
 
 const regions = () => gameData().regions;
 const calmAnger = { oligarchs: 40, pensioners: 40, media: 40, eu: 40, activists: 40 };
@@ -106,9 +107,11 @@ describe('endings', () => {
     sim.state.ongoing = [];
     sim.state.anger.media = 100;
     const s0 = sim.state.resources.support;
+    const pressure = totalDrainPerDay(config, { ...sim.state.anger }, 'support');
     sim.tick();
     expect(sim.state.phase).toBe('running');
-    expect(s0 - sim.state.resources.support).toBeCloseTo(-config.drift.support + 0.3);
+    // drift + stand-in penalty + interest-group pressure (P24)
+    expect(s0 - sim.state.resources.support).toBeCloseTo(-config.drift.support + 0.3 + pressure);
     expect(sim.state.anger.media).toBe(100);
   });
 });

@@ -471,6 +471,19 @@ export class Store {
         add({ kind: 'news', titleKey: 'popup.opportunity', textKey: opp?.text, tone: 'good', deltas: e.deltas });
         return;
       }
+      case 'prestige_bonus':
+        add({
+          kind: 'news',
+          titleKey: 'prestigeBonus.title',
+          textKey: `prestigeBonus.${e.kind}`,
+          keyParams: e.group ? { group: `group.${e.group}` } : undefined,
+          tone: 'good',
+          deltas: e.deltas,
+        });
+        return;
+      case 'blame_shifted':
+        add({ kind: 'news', titleKey: 'ability.stb.name', textKey: 'blame.shifted', params: { left: Number(e.left) }, tone: 'good' });
+        return;
       case 'zero_penalty_started':
         add({ kind: 'news', titleKey: `penalty.${e.resource}`, textKey: 'popup.zeroStarted', keyParams: { name: `resource.${e.resource}` }, tone: 'bad' });
         return;

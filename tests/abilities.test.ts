@@ -107,15 +107,20 @@ describe('Kartin Mupka', () => {
 });
 
 describe('Bander Abiš', () => {
-  it('Dotace doubles budget changes both ways', () => {
+  it('Dotace: Finances +2 and EU anger +1.5 every month for 12 months (P24)', () => {
     const sim = quietSim({ leader: 'abis' });
-    const bundle = (pct: number) => ({ budgetChanges: [{ chapter: '313', type: 'expenditure' as const, changePct: pct }] });
-    const up = sim.preview(bundle(-5), 'policy').resources.finances!.min;
-    const down = sim.preview(bundle(5), 'policy').resources.finances!.min;
-    use(sim, 'subsidies');
-    // budget-driven Finances move only through budget.change: exactly twice as much, both ways
-    expect(sim.preview(bundle(-5), 'policy').resources.finances!.min).toBeCloseTo(up * 2, 6);
-    expect(sim.preview(bundle(5), 'policy').resources.finances!.min).toBeCloseTo(down * 2, 6);
+    expect(use(sim, 'subsidies').ok).toBe(true);
+    const pulses = sim.state.schedule.filter((e) => e.kind === 'abilityPulse' && e.payload.abilityId === 'subsidies');
+    expect(pulses.length).toBe(12);
+    const x0 = sim.state.financesExtra;
+    const eu0 = sim.state.anger.eu;
+    for (let i = 0; i < config.abilities.monthDays + 2 && !sim.state.log.some((l) => l.type === 'ability_pulse'); i++) sim.tick();
+    const log = sim.state.log.filter((l) => l.type === 'ability_pulse' && l.abilityId === 'subsidies');
+    expect(log.length).toBe(1);
+    expect(log[0].deltas!.resources.finances).toBeGreaterThan(0);
+    expect(sim.state.financesExtra - x0).toBeGreaterThan(1);
+    expect(log[0].deltas!.anger.eu).toBeCloseTo(1.5, 6);
+    expect(sim.state.anger.eu).toBeGreaterThan(eu0);
   });
 
   it('Microbossing: coalition only rises, party demands only help, red lines are free', () => {

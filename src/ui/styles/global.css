@@ -658,6 +658,17 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 @media (max-width: 760px) {
 }
 
+/* interest-group pressure in hover cards (P24) */
+.press { margin-top: 6px; border-top: 1px dashed var(--line); padding-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+.press__head { margin: 0; font-size: 12px; color: var(--text-dim); }
+.press__rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.press__rows li { display: grid; grid-template-columns: 10px minmax(0, 1fr) 3.4em 3.6em; gap: 6px; align-items: center; font-size: 13px; opacity: 0.6; }
+.press__rows li.is-active { opacity: 1; }
+.press__key { width: 9px; height: 9px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); }
+.press__w { font: 12px var(--f-num); color: var(--text-dim); text-align: right; }
+.press__v { font: 12px var(--f-num); text-align: right; color: #ff8d80; }
+.press__total { margin: 0; font-size: 12px; color: var(--text-dim); }
+
 /* ------------------------------------------------------------ budget vote (phase 23: three columns) */
 /* sliders | small chamber estimate + live commentary | impact lanes */
 .modal--budget { width: min(1360px, 100%); height: calc(100vh - 2 * var(--gutter)); max-height: none; overflow: hidden; gap: 10px; }

@@ -52,6 +52,41 @@ export const config = {
     max: 100,
   },
 
+  /**
+   * Interest-group pressure (P24, stakeholder feedback): a group's anger above `from` drains the key
+   * attributes every day. Drain per day = perDayAtMax x weight x (anger - from) / (100 - from), so a 1x link
+   * costs perDayAtMax per day at anger 100 and nothing at `from` or below.
+   */
+  groupPressure: {
+    from: 50,
+    perDayAtMax: 0.05,
+    weights: {
+      oligarchs: { finances: 1, support: 0.5 },
+      pensioners: { support: 1, prestige: 0.33 },
+      media: { support: 1, coalition: 0.33, prestige: 0.5 },
+      eu: { finances: 1.3, prestige: 0.33 },
+      activists: { prestige: 1.33 },
+    } as Record<GroupId, Partial<Record<ResourceId, number>>>,
+  },
+
+  /**
+   * Prestige bonuses (P24): every `everyDays` days, with Prestige >= `from`, a chance of a bonus (own RNG
+   * stream `prestige`). chance = chanceAtFrom + (prestige - from) x chancePerPoint, at most chanceMax. The bonus
+   * kind is drawn by weight: Support, Coalition (the partner likes you), or the angriest group calms down.
+   */
+  prestigeBonus: {
+    from: 60,
+    everyDays: 30,
+    chanceAtFrom: 0.2,
+    chancePerPoint: 0.01,
+    chanceMax: 0.6,
+    kinds: {
+      support: { weight: 1, value: 1.5 },
+      coalition: { weight: 1, value: 2 },
+      group: { weight: 1, value: -6 },
+    },
+  },
+
   zeroPenalty: {
     exitAt: 3,
     isolationFinanceCap: -15,

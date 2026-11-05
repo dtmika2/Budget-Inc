@@ -73,6 +73,8 @@ export type ModifierSource =
   | 'demand'
   | 'region_event'
   | 'special'
+  | 'pressure'
+  | 'prestige'
   | 'any';
 
 /** Where a value change comes from (a modifier `source` other than `any`). */
@@ -251,6 +253,11 @@ export interface AbilityDef {
   action: AbilityAction | null;
   /** halveAnger: modifiers on the chosen group, `{group}` in the target is replaced (e.g. anger.{group}.gain). */
   targetModifiers: ModifierDef[];
+  /**
+   * Blame the coalition partner (STB, P24): the next `policies` picked policies that would cost Support or
+   * Prestige do not; Coalition loses `coalitionFactor` x that loss instead.
+   */
+  blame: { policies: number; coalitionFactor: number } | null;
 }
 
 export interface LeaderDef {
@@ -623,6 +630,8 @@ export interface GameState {
   eventSeq: number;
   /** Abilities already used this run (each works once per game). */
   abilitiesUsed: string[];
+  /** Blame on the coalition partner (STB): policies left and the Coalition share of their losses. */
+  blame: { left: number; coalitionFactor: number; origin: string } | null;
   ownedUpgrades: string[];
   /** Catastrophes and special agents: drawn cards, the open card (core/specialCards.ts). */
   specials: SpecialsState;

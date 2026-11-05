@@ -4,7 +4,8 @@ import { explainMetric, explainStep, metricValue, suggestMoves, summarizeBudget,
 import type { Sliders } from '@core/budgetVote';
 import type { Simulation } from '@core/simulation';
 import { GROUP_IDS, RESOURCE_IDS } from '@core/types';
-import { fmtSigned, t } from '@i18n/index';
+import { fmt, fmtSigned, t } from '@i18n/index';
+import { groupTargets, resourceSources } from '@core/groupPressure';
 import { mid, pct } from '../../format';
 import { areaName, Chip, isGood, metricName, MetricChips, reasonGood, reasonText, stepText, suggestionTitle } from './adviceText';
 import type { Focus } from './BudgetScreen';
@@ -242,6 +243,14 @@ function build(sim: Simulation, sliders: Sliders, presetId: string | null, focus
     const why: Why[] = e.parts.map((p) => ({ text: t('budgetVote.advice.part', { area: areaName(sim, p.item), v: fmtSigned(p.delta, 1) }), tone: isGood(m, p.delta) ? 'good' : 'bad' }));
     if (Math.abs(e.rest) >= 0.05) why.push({ text: t('budgetVote.advice.partRest', { v: fmtSigned(e.rest, 1) }), tone: isGood(m, e.rest) ? 'good' : 'bad' });
     if (why.length === 0) why.push({ text: t('budgetVote.advice.partNone') });
+    // P24: which attributes this group drains / which groups drain this attribute
+    const links =
+      m.kind === 'group'
+        ? groupTargets(config, m.id).map((x) => `${t(`resource.short.${x.resource}`)} ×${fmt(x.weight, 2)}`)
+        : m.kind === 'resource'
+          ? resourceSources(config, m.id).map((x) => `${t(`group.${x.group}`)} ×${fmt(x.weight, 2)}`)
+          : [];
+    if (links.length) why.push({ text: t(m.kind === 'group' ? 'budgetVote.advice.groupDrains' : 'budgetVote.advice.drainedBy', { from: config.groupPressure.from, list: links.join(', ') }) });
     const recs: Rec[] = [];
     if (e.tip) {
       const s = { ...sliders, [e.tip.item]: (sliders[e.tip.item] ?? 0) + e.tip.dir };
