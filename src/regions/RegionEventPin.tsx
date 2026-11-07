@@ -10,7 +10,7 @@ export const RegionEventPin = memo(function RegionEventPin({ ev, x, y }: { ev: O
   const life = Math.max(0, Math.min(1, (ev.expireAbsDay - absDay) / (ev.expireAbsDay - ev.spawnAbsDay)));
   return (
     <button
-      className={`dpin${life < 0.3 ? ' dpin--expiring' : ''}`}
+      className={`dpin dpin--event${life < 0.3 ? ' dpin--expiring' : ''}`}
       style={{ left: `${x}%`, top: `${y}%`, ['--life' as string]: life }}
       onClick={() => getStore().setUi({ selectedRegion: ev.region, regionTab: 'events' })}
       aria-label={`${t(title)}: ${t(`region.${ev.region}`)}`}
