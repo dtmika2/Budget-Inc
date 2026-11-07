@@ -33,11 +33,14 @@ export function HoverCard({
   children,
   className,
   as: Tag = 'span',
+  focusable = false,
 }: {
   info: HoverInfo;
   children: ReactNode;
   className?: string;
   as?: 'span' | 'li' | 'div';
+  /** The wrapper itself takes keyboard focus (for content with no button or link of its own). */
+  focusable?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
   const card = useRef<HTMLDivElement>(null);
@@ -63,6 +66,7 @@ export function HoverCard({
     <Tag
       ref={ref as never}
       className={`hc${className ? ` ${className}` : ''}`}
+      tabIndex={focusable ? 0 : undefined}
       onPointerEnter={(e) => e.pointerType === 'mouse' && show()}
       onPointerLeave={hide}
       onFocus={show}

@@ -981,6 +981,13 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .lane__to b { font-weight: 400; }
 .lane__to--good b { color: var(--good-on-paper); }
 .lane__to--bad b { color: var(--bad-on-paper); }
+/* the two number columns of a row share one hover card (subgrid keeps them on the row's tracks) */
+.lane__tip { grid-column: 3 / -1; display: grid; grid-template-columns: subgrid; align-items: center; min-width: 0; cursor: help; }
+.lane__tip:hover { background: rgba(42, 34, 51, 0.08); }
+.lane__tip:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.lanetip { display: flex; flex-direction: column; gap: 2px; border-top: 1px dashed var(--line); padding-top: 5px; }
+.lanetip__head { font: 12px var(--f-pixel); color: var(--gold); text-transform: uppercase; letter-spacing: 0.04em; }
+.lanetip__line { margin: 0; font-size: 13px; line-height: 1.35; }
 .draft-status { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 6px 10px; background: var(--panel-2); border: 2px solid var(--line); font-size: 14px; }
 .draft-status__label { font: 12px var(--f-pixel); color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
 .draft-status__item { display: inline-flex; align-items: baseline; gap: 6px; }

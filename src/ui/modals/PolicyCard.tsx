@@ -58,6 +58,7 @@ export const PolicyCard = memo(function PolicyCard({
           preview={preview}
           chaos={card.chaosEvents?.length ?? 0}
           base={{ resources: sim.state.resources, anger: sim.state.anger, regions: sim.state.projection.regionSupport }}
+          tipHint={isCompromise ? t('lanes.tip.hintCompromise') : undefined}
         />
         {pledges.map((p) => (
           <p key={p.id} className="memo__pledge">

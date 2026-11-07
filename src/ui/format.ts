@@ -34,6 +34,9 @@ export function tone(value: number, isAnger: boolean): 'good' | 'bad' | 'neutral
   return value > 0 !== isAnger ? 'good' : 'bad';
 }
 
+/** The band a 0-100 resource value sits in (the `resource.zone.*` labels). */
+export const resourceZone = (v: number) => (v < 20 ? 'critical' : v < 40 ? 'weak' : v < 70 ? 'ok' : 'strong');
+
 export function mid(r: Range): number {
   return (r.min + r.max) / 2;
 }
