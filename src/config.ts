@@ -142,7 +142,12 @@ export const config = {
     /** Opacity of the Czech flag between the map's glass and its liquid (0–1). */
     flagOpacity: 0.6,
     /** Length of the flag's fade in and out after a decision, at 1x (the map's animations follow the game speed). */
-    flagPulseMs: 4000,
+    flagPulseMs: 6000,
+    /** The flag's wave: strip width and how far a strip bobs (map units), one wave's time, the delay between strips. */
+    flagColumnWidth: 18,
+    flagWaveAmp: 10,
+    flagWaveMs: 1400,
+    flagWavePhaseMs: 90,
     /** Hidden card tags that traits react to. */
     tags: ['agriculture', 'industry', 'transport', 'services', 'tourism', 'environment', 'education', 'social', 'coal', 'border'] as string[],
     /**

@@ -9,11 +9,16 @@
 /* liquid regions: glass + party-coloured liquid with a stepped pixel wave */
 .glass { fill: #d6bc6c; } /* mustard-beige glass */
 .liquid { transition: transform 1.2s steps(12); }
-/* the flag after a decision: fades in, holds, fades out (duration from config.regions.flagPulseMs) */
-.flag-pulse { opacity: 0; animation: flag-pulse 4s linear both; }
+/* the flag after a decision: fades in, holds, fades out, waving all the while (durations from config.regions.flag*) */
+.flag-pulse { opacity: 0; animation: flag-pulse 6s linear both; }
 @keyframes flag-pulse {
   0%, 100% { opacity: 0; }
-  20%, 70% { opacity: var(--flag-o); }
+  15%, 75% { opacity: var(--flag-o); }
+}
+.flag-column { animation: flag-wave 1.4s ease-in-out; }
+@keyframes flag-wave {
+  0%, 100% { transform: translateY(calc(var(--a) * -1)); }
+  50% { transform: translateY(var(--a)); }
 }
 .wave--front { animation: wave-front 4.6s steps(48) infinite; }
 .wave--back { animation: wave-back 7s steps(40) infinite; }

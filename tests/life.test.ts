@@ -10,10 +10,34 @@ import { SPRITES, spriteRects } from '../src/regions/sprites';
 import { initStore } from '../src/ui/store';
 import { createBot, runToEnd } from '../src/core/bots';
 import { isDecisionEntry } from '../src/regions/flagPulse';
+import { FLAG_COLUMNS } from '../src/regions/Liquid';
 import { gameData, makeSim } from './helpers';
 
+describe('waving flag', () => {
+  it('its strips draw the flag: the triangle narrows to nothing at the middle, then only white and red', () => {
+    const first = FLAG_COLUMNS[0];
+    const last = FLAG_COLUMNS[FLAG_COLUMNS.length - 1];
+    const middleOf = (c: typeof first) => (c.blueTop + c.blueBottom) / 2;
+    expect(first.blueBottom - first.blueTop).toBeGreaterThan(0);
+    expect(last.blueBottom - last.blueTop).toBe(0);
+    expect(middleOf(first)).toBeCloseTo(middleOf(last));
+    const halfway = FLAG_COLUMNS[Math.ceil(FLAG_COLUMNS.length / 2)];
+    expect(halfway.blueBottom - halfway.blueTop).toBe(0);
+    for (const [i, c] of FLAG_COLUMNS.entries()) {
+      if (i > 0) expect(c.blueBottom - c.blueTop).toBeLessThanOrEqual(FLAG_COLUMNS[i - 1].blueBottom - FLAG_COLUMNS[i - 1].blueTop);
+    }
+  });
+
+  it('the strips reach both ends of the map', () => {
+    const xs = REGION_PATHS.flatMap((r) => (r.d.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number).filter((_, i) => i % 2 === 0));
+    const last = FLAG_COLUMNS[FLAG_COLUMNS.length - 1];
+    expect(FLAG_COLUMNS[0].x).toBeLessThanOrEqual(Math.min(...xs));
+    expect(last.x + config.regions.flagColumnWidth).toBeGreaterThanOrEqual(Math.max(...xs));
+  });
+});
+
 describe('flag fade after a decision', () => {
-  const entry = (type: string, extra: Record<string, unknown> = {}) => ({ type, ...extra }) as LogEntry;
+  const entry =(type: string, extra: Record<string, unknown> = {}) => ({ type, ...extra }) as LogEntry;
 
   it('plays for choices the player made', () => {
     for (const type of ['policy_picked', 'compromise_made', 'budget_vote', 'event_response', 'demand_accepted', 'demand_rejected', 'region_event_intervened', 'region_event_ignored', 'region_action', 'ability_used', 'upgrade_action', 'upgrade_bought']) {
