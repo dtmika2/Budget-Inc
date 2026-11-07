@@ -145,14 +145,29 @@
 .tree-panel__groups .chip-btn.is-on { color: var(--ground); }
 .tree-panel__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 /* quadrant colours (panel tags, box edges, list markers) */
-.tree-panel__node--lp, .tree-panel__quad--lp, .node--q-lp { --q: #c42f86; }
-.tree-panel__node--rp, .tree-panel__quad--rp, .node--q-rp { --q: #2b56c9; }
-.tree-panel__node--lt, .tree-panel__quad--lt, .node--q-lt { --q: #a8141c; }
-.tree-panel__node--rt, .tree-panel__quad--rt, .node--q-rt { --q: #b58a00; }
-.tree-panel__node--p, .tree-panel__quad--p, .node--q-p,
-.tree-panel__node--t, .tree-panel__quad--t, .node--q-t,
-.tree-panel__node--l, .tree-panel__quad--l, .node--q-l,
-.tree-panel__node--r, .tree-panel__quad--r, .node--q-r { --q: #6b6080; }
+.tree-panel__node--lp, .tree-ability--lp, .node--q-lp { --q: #c42f86; }
+.tree-panel__node--rp, .tree-ability--rp, .node--q-rp { --q: #2b56c9; }
+.tree-panel__node--lt, .tree-ability--lt, .node--q-lt { --q: #a8141c; }
+.tree-panel__node--rt, .tree-ability--rt, .node--q-rt { --q: #b58a00; }
+.tree-panel__node--p, .tree-ability--p, .node--q-p,
+.tree-panel__node--t, .tree-ability--t, .node--q-t,
+.tree-panel__node--l, .tree-ability--l, .node--q-l,
+.tree-panel__node--r, .tree-ability--r, .node--q-r { --q: #6b6080; }
+/* owned active abilities: a row above the leader's abilities, in the map's free corner; quadrant colours */
+.tree-abilities {
+  position: absolute; left: 0; bottom: 100%; z-index: 2; margin-bottom: 6px; max-width: calc(100% - 230px);
+  display: flex; flex-wrap: wrap-reverse; gap: 6px;
+}
+.tree-ability { --party: var(--q); min-height: 44px; max-width: 170px; animation: tree-card-in 0.2s steps(4); }
+.tree-ability__icon { flex: none; display: inline-grid; place-items: center; width: 28px; height: 28px; background: var(--paper); color: var(--q); }
+.tree-ability--rt.is-ready, .tree-ability--rt.is-ready small { color: #2a2233; }
+/* the hover card is dark; the effect chips are coloured for paper */
+.tree-ability__fx .chip { background: rgba(255, 255, 255, 0.08); }
+.tree-ability__fx .chip--good .chip__value { color: var(--good); }
+.tree-ability__fx .chip--bad .chip__value { color: var(--bad); }
+@media (max-width: 760px) {
+  .tree-abilities { max-width: 100%; }
+}
 /* the four compass quadrants: tinted backgrounds with their own pattern and a corner label */
 .tree-quad { position: absolute; width: 50%; height: 50%; z-index: 0; pointer-events: none; }
 .tree-quad--lp { left: 0; top: 0; background: repeating-linear-gradient(45deg, rgba(196, 47, 134, 0.16) 0 2px, transparent 2px 14px), rgba(196, 47, 134, 0.1); }

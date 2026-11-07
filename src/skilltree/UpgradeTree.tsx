@@ -51,7 +51,7 @@ function JointIcon() {
 }
 
 /** Pixel bolt: an active ability. */
-function BoltIcon() {
+export function BoltIcon() {
   return (
     <svg viewBox="0 0 6 8" width="10" height="13" aria-hidden="true" shapeRendering="crispEdges">
       <path d="M3 0h3L4 3h2L1 8l1-4H0z" fill="currentColor" />
@@ -78,17 +78,33 @@ function LockIcon() {
   );
 }
 
+const columnsOf = (tree: Tree) => Math.max(...tree.nodes.map((n) => n.pos.col)) + 1;
+
+/** The half of the tree a box's card covers; a middle-column box belongs to neither half (null). */
+function coveredSide(tree: Tree, node: UpgradeNode): 'left' | 'right' | null {
+  const mid = (columnsOf(tree) - 1) / 2;
+  return node.pos.col === mid ? null : node.pos.col < mid ? 'right' : 'left';
+}
+
 export function UpgradeTree() {
   const store = getStore();
   const sim = store.sim!;
   const owned = useStore((s) => (s.sim ? [...s.sim.state.ownedUpgrades] : []));
   const pc = useStore((s) => s.sim?.state.pc ?? 0);
   const trees = treesFor(sim);
-  const [treeId, setTreeId] = useState(trees[0]?.id);
+  // opened from an ability button above the leader: start on that box's card
+  const focus = store.ui.treeFocus;
+  const [treeId, setTreeId] = useState(() => trees.find((x) => x.nodes.some((n) => n.id === focus))?.id ?? trees[0]?.id);
   const tree = trees.find((x) => x.id === treeId) ?? trees[0];
-  const [selected, setSelected] = useState<string | null>(null);
-  // the half of the tree the card covers; a middle-column box belongs to neither half and keeps the last side
-  const [side, setSide] = useState<'left' | 'right'>('right');
+  const [selected, setSelected] = useState<string | null>(focus);
+  // a middle-column box keeps the last side
+  const [side, setSide] = useState<'left' | 'right'>(() => {
+    const node = tree?.nodes.find((n) => n.id === focus);
+    return (tree && node && coveredSide(tree, node)) || 'right';
+  });
+  useEffect(() => {
+    if (getStore().ui.treeFocus) getStore().setUi({ treeFocus: null });
+  }, []);
   const [target, setTarget] = useState<string>('');
   // re-render after using an ability (cooldowns, PC)
   useStore((s) => s.sim?.state.log.length ?? 0);
@@ -113,7 +129,7 @@ export function UpgradeTree() {
   }, [confirming]);
   if (!tree) return null;
 
-  const cols = Math.max(...tree.nodes.map((n) => n.pos.col)) + 1;
+  const cols = columnsOf(tree);
   const rows = Math.max(...tree.nodes.map((n) => n.pos.row)) + 1;
   const byId = new Map(tree.nodes.map((n) => [n.id, n]));
   const pct = (n: UpgradeNode) => ({
@@ -134,9 +150,8 @@ export function UpgradeTree() {
       setSelected(null);
       return;
     }
-    const col = byId.get(id)!.pos.col;
-    const mid = (cols - 1) / 2;
-    if (col !== mid) setSide(col < mid ? 'right' : 'left');
+    const covered = coveredSide(tree, byId.get(id)!);
+    if (covered) setSide(covered);
     setSelected(id);
   };
 
