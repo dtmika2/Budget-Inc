@@ -11,7 +11,7 @@ merge conflicts. Region work edits only the files below; other work does not edi
 | `data/regions.json` | the 14 kraje: codes, seats, support offsets, reveal order |
 | `data/region_profiles.json` | per kraj: traits, demographics, regional coalition |
 | `locales/regions.cs.json` | Czech texts: region names (`region.*`), traits (`trait.*`), parties (`party.*`), demographics (`demo.*`), map labels (`map.*`) and the region screen (`region.screen.*`) |
-| `src/regions/` | map (`CzMap.tsx`, `Liquid.tsx`, `MapLife.tsx`, `lifeDirector.ts`, `sprites.ts`, `regionsPath.ts`), region-event layer and pin (`RegionEventLayer.tsx`, `RegionEventPin.tsx`), map pins (`DemandPin.tsx`, `OpportunityPin.tsx`), region screen (`RegionScreen.tsx`, `RegionChart.tsx`, `RegionDemands.tsx`, `RegionEvents.tsx`), styles (`regions.css`), entry point (`index.ts`) |
+| `src/regions/` | map (`CzMap.tsx`, `Liquid.tsx`, `MapLife.tsx`, `lifeDirector.ts`, `sprites.ts`, `regionsPath.ts`), region-event layer and pin (`RegionEventLayer.tsx`, `RegionEventPin.tsx`), map-click paw (`RegionPaw.tsx`), map pins (`DemandPin.tsx`, `OpportunityPin.tsx`), region screen (`RegionScreen.tsx`, `RegionChart.tsx`, `RegionDemands.tsx`, `RegionEvents.tsx`), styles (`regions.css`), entry point (`index.ts`) |
 | `data/region_actions/*.json` | kraj actions the player chooses (P26): škola, nemocnice, silnice, továrna, návštěva (`[DUMMY]` texts) |
 | `src/core/regionActions.ts`, `src/regions/RegionActions.tsx`, `tests/region-actions.test.ts` | kraj actions: offer by traits, limits, the region screen's Akce tab |
 | `data/region_events/*.json` | region events: flood, blackout, demonstrations, factory shutdown, Ikonické duo (`[DUMMY]` effects) |
@@ -51,7 +51,7 @@ then to pick up the other work.
 `config.regionEvents.perYear` (3) times a year, spread evenly over the year, a random kraj without an open
 event gets one; the event is drawn by its traits (`regionWeights`). While it is open (30 days), an
 animation covers the whole kraj and a red "!" pin sits on it; the pin and a click on the kraj itself open
-the region screen on the Události tab. An open demand does the same with its amber megaphone pin. Intervene applies `onIntervene` (a negative `pc` there is its PC cost), ignore or timeout applies
+the region screen on the Události tab (skipping the paw). An open demand does the same with its amber megaphone pin. Intervene applies `onIntervene` (a negative `pc` there is its PC cost), ignore or timeout applies
 `onIgnore`. Both bundles may use the region key `"self"`. Texts: `regionEvent.*` in `locales/regions.cs.json`.
 
 ## Check your changes
@@ -59,7 +59,8 @@ the region screen on the Události tab. An open demand does the same with its am
 ```bash
 npm run dev
 ```
-Open the game and click a kraj on the map to open the region screen (Hlavní, Události, Data).
+Open the game and click a kraj on the map: a paw of four pads opens at the click (Hlavní under it; Akce,
+Události and Data above, Akce and Události with a count in the corner), and each pad opens the region screen on its tab.
 
 ```bash
 npm test

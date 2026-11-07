@@ -4,8 +4,11 @@
  * glass and liquid for a few seconds after each decision (`ui.flagPulse`). The core updates s_r
  * weekly, so the level moves weekly. Outlines on top take the taps.
  * Opportunity pins are HTML buttons laid over the SVG so they stay >= 44 px at any map size.
+ * A click on a kraj opens the region paw (RegionPaw.tsx) at the click point; a kraj with an open event or
+ * demand skips the paw and opens the region screen on Udalosti, like its pin.
  */
-import { memo, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
+import { config } from '@/config';
 import { t } from '@i18n/index';
 import { PixelIcon } from '@ui/pixelIcons';
 import { getStore, useStore } from '@ui/store';
@@ -16,11 +19,14 @@ import { DemandPin } from './DemandPin';
 import { RegionEventLayer } from './RegionEventLayer';
 import { RegionEventPin } from './RegionEventPin';
 import { OpportunityPin } from './OpportunityPin';
+import { RegionPaw, type Paw } from './RegionPaw';
 import { MAP_HEIGHT, MAP_WIDTH, REGION_PATHS } from './regionsPath';
 
 const LABEL_BY_CODE = new Map(REGION_PATHS.map((r) => [r.code, r]));
 
-const Regions = memo(function Regions({ support, selected, flagPulse }: { support: Record<string, number>; selected: string | null; flagPulse: number }) {
+type Pick = (code: string, clientX: number, clientY: number) => void;
+
+const Regions = memo(function Regions({ support, selected, flagPulse, onPick }: { support: Record<string, number>; selected: string | null; flagPulse: number; onPick: Pick }) {
   const store = getStore();
   const [hovered, setHovered] = useState<string | null>(null);
   // SVG has no z-index: a highlighted outline drawn in list order is covered by later neighbours'
@@ -39,11 +45,12 @@ const Regions = memo(function Regions({ support, selected, flagPulse }: { suppor
           className="region region--outline"
           fill="transparent"
           fillRule="evenodd"
-          // a kraj with an open event or demand acts like its map pin
-          onClick={() => {
+          // a kraj with an open event or demand acts like its map pin; any other kraj opens the paw
+          onClick={(e) => {
             const open = store.sim?.state;
-            const waiting = open?.regionEvents.some((e) => e.region === r.code) || open?.demands.some((d) => d.region === r.code);
-            store.setUi({ selectedRegion: r.code, regionTab: waiting ? 'events' : 'main' });
+            const waiting = open?.regionEvents.some((ev) => ev.region === r.code) || open?.demands.some((d) => d.region === r.code);
+            if (waiting) store.setUi({ selectedRegion: r.code, regionTab: 'events' });
+            else onPick(r.code, e.clientX, e.clientY);
           }}
           onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(r.code)}
           onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered((h) => (h === r.code ? null : h))}
@@ -134,15 +141,30 @@ export function CzMap() {
   const support = useStore((s) => s.sim?.state.projection.regionSupport ?? {});
   const selected = useStore((s) => s.ui.selectedRegion);
   const flagPulse = useStore((s) => s.ui.flagPulse);
+  const frame = useRef<HTMLDivElement>(null);
+  const [paw, setPaw] = useState<Paw | null>(null);
+  // the paw sits at the click point, kept inside the map so its toes and pad stay on screen
+  const pick = useCallback<Pick>((code, clientX, clientY) => {
+    const box = frame.current?.getBoundingClientRect();
+    if (!box) return;
+    const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(Math.max(lo, hi), v));
+    setPaw({
+      code,
+      x: clamp(clientX - box.left, config.regions.paw.marginX, box.width - config.regions.paw.marginX),
+      y: clamp(clientY - box.top, config.regions.paw.marginTop, box.height - config.regions.paw.marginBottom),
+    });
+  }, []);
+  const closePaw = useCallback(() => setPaw(null), []);
   return (
     <div className="map" data-tut-target="map">
-      <div className="map__frame" style={{ aspectRatio: `${MAP_WIDTH} / ${MAP_HEIGHT}` }}>
+      <div ref={frame} className="map__frame" style={{ aspectRatio: `${MAP_WIDTH} / ${MAP_HEIGHT}` }}>
         <svg viewBox={`-6 -6 ${MAP_WIDTH + 12} ${MAP_HEIGHT + 12}`} className="map__svg" role="img" aria-label={t('hud.projection')}>
-          <Regions support={support} selected={selected} flagPulse={flagPulse} />
+          <Regions support={support} selected={selected ?? paw?.code ?? null} flagPulse={flagPulse} onPick={pick} />
         </svg>
         <RegionFloaters />
         <QuarterBanner />
         <Pins />
+        {paw && <RegionPaw key={`${paw.code}:${paw.x}:${paw.y}`} paw={paw} onClose={closePaw} />}
       </div>
     </div>
   );

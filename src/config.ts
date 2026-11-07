@@ -140,6 +140,8 @@ export const config = {
       economy: ['industry', 'services', 'agriculture', 'tourism'],
       special: ['coal', 'border', 'university'],
     } as Record<'settlement' | 'economy' | 'special', string[]>,
+    /** Region paw (map click): how close to the map's edges its centre may sit, in px, so the toes and pad stay inside. */
+    paw: { marginX: 90, marginTop: 106, marginBottom: 60 },
     /** Opacity of the Czech flag between the map's glass and its liquid (0–1). */
     flagOpacity: 0.6,
     /** Length of the flag's fade in and out after a decision, at 1x (the map's animations follow the game speed). */

@@ -57,6 +57,49 @@
 .pin:hover .pin__icon { background: #fff; }
 @keyframes pin-in { from { transform: scale(0.2); } to { transform: scale(1); } }
 
+/* region paw (RegionPaw.tsx): a big pad under the click and three toes above it, pixel-rounded pads with a
+   2 px dark outline drawn by drop-shadows (box-shadow would be cut off by the clip-path) */
+.paw { position: absolute; width: 0; height: 0; z-index: 4; }
+.paw__pad {
+  position: absolute; padding: 0; border: 0; background: none; cursor: pointer; color: var(--ink);
+  filter: drop-shadow(2px 0 0 #0c0a14) drop-shadow(-2px 0 0 #0c0a14) drop-shadow(0 2px 0 #0c0a14) drop-shadow(0 -2px 0 #0c0a14) drop-shadow(3px 3px 0 rgba(12, 10, 20, 0.55));
+  animation: paw-in 0.18s steps(3) both;
+}
+.paw__face {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  width: 100%; height: 100%; background: var(--paper);
+  clip-path: polygon(6px 0, calc(100% - 6px) 0, calc(100% - 6px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 6px, 100% 6px,
+    100% calc(100% - 6px), calc(100% - 3px) calc(100% - 6px), calc(100% - 3px) calc(100% - 3px), calc(100% - 6px) calc(100% - 3px),
+    calc(100% - 6px) 100%, 6px 100%, 6px calc(100% - 3px), 3px calc(100% - 3px), 3px calc(100% - 6px), 0 calc(100% - 6px),
+    0 6px, 3px 6px, 3px 3px, 6px 3px);
+}
+.paw__pad:hover .paw__face, .paw__pad:focus-visible .paw__face { background: var(--gold); }
+.paw__pad:active .paw__face { transform: translate(2px, 2px); }
+.paw__pad:focus-visible { outline: none; }
+.paw__main { left: -48px; top: -20px; width: 96px; height: 52px; }
+.paw__main .paw__face { font: 700 18px var(--f-pixel); }
+.paw__toe { width: 52px; height: 46px; }
+.paw__toe--actions { left: -86px; top: -78px; animation-delay: 0.04s; }
+.paw__toe--events { left: -26px; top: -98px; animation-delay: 0.08s; }
+.paw__toe--data { left: 34px; top: -78px; animation-delay: 0.12s; }
+.paw__icon { display: block; }
+.paw__label { font: 10px/1 var(--f-body); white-space: nowrap; }
+.paw__badge {
+  position: absolute; top: -7px; right: -7px; min-width: 18px; height: 18px; padding: 0 3px; box-sizing: border-box;
+  display: grid; place-items: center; font: 12px/1 var(--f-num); background: var(--gold); color: var(--ground);
+}
+.paw__badge--events { background: var(--stamp); color: var(--paper); }
+.paw__badge.is-zero { background: #5d5a68; color: var(--paper); }
+.paw__caption {
+  position: absolute; left: 0; top: 38px; transform: translateX(-50%); padding: 1px 6px; white-space: nowrap; pointer-events: none;
+  font: 12px var(--f-pixel); background: var(--ink); color: var(--paper); box-shadow: 2px 2px 0 #0c0a14;
+  animation: paw-in 0.18s steps(3) both;
+}
+@keyframes paw-in { from { transform: scale(0.3); opacity: 0; } to { opacity: 1; } }
+.paw__caption { animation-name: paw-caption-in; }
+@keyframes paw-caption-in { from { transform: translateX(-50%) scale(0.3); opacity: 0; } to { transform: translateX(-50%); opacity: 1; } }
+[data-reduced-motion] .paw__pad, [data-reduced-motion] .paw__caption { animation: none; }
+
 /* floating numbers over map regions */
 .region-floaters { position: absolute; inset: 0; pointer-events: none; }
 .region-floater { position: absolute; width: 0; height: 0; }
