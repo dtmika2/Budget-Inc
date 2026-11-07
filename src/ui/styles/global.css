@@ -255,7 +255,10 @@ h1, h2, h3 { margin: 0; }
 .dock-extra:hover { border-color: var(--gold); }
 .dock { display: flex; align-items: flex-end; gap: 10px; }
 .dock__info { display: flex; flex-direction: column; gap: 4px; }
+.dock__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
 .dock__name { font-family: var(--f-pixel); font-size: 16px; }
+.dock__note { font-size: 13px; font-style: italic; color: var(--text-dim); }
+.hovercard__once { margin: 0; padding: 3px 8px; background: var(--gold); color: var(--ground); font: 700 14px var(--f-pixel); text-align: center; text-transform: uppercase; letter-spacing: 0.04em; }
 .btn--ability { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; border-color: var(--party); }
 .btn--ability small { font-family: var(--f-body); font-size: 12px; color: var(--text-dim); }
 .btn--ability.is-ready { background: var(--party); color: #fff; }
@@ -582,7 +585,7 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
   .btn--drawer { display: inline-block; position: absolute; left: var(--gutter); top: 10px; z-index: 2; }
   .game__stage { padding: 56px 12px 12px; }
   .game__dock { flex-wrap: wrap; }
-  .dock__name { display: none; }
+  .dock__head { display: none; }
   .ability-btn__text { display: none; }
   .ability-btn { padding: 4px; min-height: 48px; }
 

@@ -15,7 +15,10 @@ export function LeaderDock() {
     <div className="dock" style={{ ['--party' as string]: leader.color, ['--party-light' as string]: leader.colorLight }}>
       <LeaderSprite sprite={leader.sprite} color={leader.color} scale={3} initials={initials(leader)} />
       <div className="dock__info">
-        <b className="dock__name">{t(leader.name)}</b>
+        <div className="dock__head">
+          <b className="dock__name">{t(leader.name)}</b>
+          <span className="dock__note">{t('ability.note')}</span>
+        </div>
         <div className="abilities">
           {leader.abilities.map((a) => (
             <AbilityButton key={a.id} a={a} />
@@ -53,6 +56,7 @@ function AbilityButton({ a }: { a: AbilityDef }) {
     accent: sim.leaderDef.colorLight,
     desc: t(a.description),
     status: status,
+    extra: used ? undefined : <p className="hovercard__once">{t('hover.ability.once')}</p>,
     hint: usable ? t(a.action ? 'hover.ability.pick' : 'hover.ability.use') : undefined,
   };
   return (
