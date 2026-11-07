@@ -45,6 +45,9 @@ export function PauseMenu() {
           <button className="btn" onClick={() => store.openModal('settings')}>
             {t('pause.settings')}
           </button>
+          <button className="btn" onClick={() => store.openModal('cheats')}>
+            {t('pause.cheats')}
+          </button>
         </nav>
       </section>
     </div>

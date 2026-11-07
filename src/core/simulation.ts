@@ -78,6 +78,7 @@ import type {
   ResourceId,
 } from './types';
 import { GROUP_IDS, RESOURCE_IDS } from './types';
+import { cheatReward, normalizeCheat } from './cheats';
 import { buyUpgrade, canBuy, canUseUpgradeAction, grantStartNodes, upgradeActionBundle, applyUpgradeAction } from './upgrades';
 import { acceptSpecial, canAcceptSpecial, canCloseSpecial, closeSpecial, initialSpecials, openSpecial, scheduleYearSpecials } from './specialCards';
 
@@ -524,6 +525,8 @@ export class Simulation implements EffectHost {
     const s = this.state;
     if (this.isOver) return 'run is over';
     switch (input.kind) {
+      case 'cheat':
+        return cheatReward(this.cfg, input.code) ? null : 'unknown cheat code';
       case 'pickPolicy':
         if (s.phase !== 'draft' || !s.draft) return 'no draft open';
         return s.draft.hand.includes(input.cardId) ? null : 'card not in hand';
@@ -569,6 +572,12 @@ export class Simulation implements EffectHost {
     const s = this.state;
     s.inputs.push({ tick: s.tickCount, quarter: s.quarter, day: s.day, input });
     switch (input.kind) {
+      case 'cheat': {
+        const { pc } = cheatReward(this.cfg, input.code)!;
+        s.pc += pc;
+        this.log('cheat_used', { code: normalizeCheat(input.code), pc }, { resources: {}, anger: {}, pc });
+        break;
+      }
       case 'makeCompromise':
         makeCompromise(this, input.cardId, input.channelId, input.score);
         break;

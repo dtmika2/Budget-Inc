@@ -375,6 +375,14 @@ h1, h2, h3 { margin: 0; }
 }
 .modal--small { width: min(420px, 100%); }
 .modal--small .h-display { font-size: 26px; }
+.cheats__form { display: flex; gap: 8px; }
+.cheats__input { flex: 1; min-width: 0; min-height: 44px; padding: 4px 10px; background: var(--paper); color: var(--ink); border: 3px solid var(--gold-dim); font: 18px var(--f-num); text-transform: uppercase; }
+.cheats__input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.cheats__input::placeholder { color: var(--ink-soft); text-transform: none; }
+.cheats__result { margin: 0; font-weight: 700; }
+.cheats__result--ok { color: var(--good); }
+.cheats__result--bad { color: var(--bad); }
+.cheats__note { margin: 0; font-size: 13px; color: var(--text-dim); }
 .modal__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .modal__head .h-display { font-size: 28px; }
 .modal__sub { margin: 4px 0 0; color: var(--text-dim); }

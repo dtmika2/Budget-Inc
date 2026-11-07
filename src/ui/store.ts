@@ -15,10 +15,11 @@ import { t } from '@i18n/index';
 import { Clock } from './clock';
 import { planLife, type ActorSpawn } from '@/regions/lifeDirector';
 import { REGION_PATHS } from '@/regions/regionsPath';
+import { usedCheats } from '@core/cheats';
 import { loadSettings, recordScore, saveSettings, setTutorialSeen, tutorialSeen, type Settings } from './persist';
 
 export type Screen = 'menu' | 'howto' | 'settings' | 'select' | 'game' | 'final' | 'dataError';
-export type Modal = null | 'upgrades' | 'pause' | 'settings' | 'confirmRestart' | 'confirmMenu' | 'ability';
+export type Modal = null | 'upgrades' | 'pause' | 'cheats' | 'settings' | 'confirmRestart' | 'confirmMenu' | 'ability';
 export type TutorialStep = 'draft' | 'topbar' | 'map' | 'panel' | 'pin' | 'upgrades';
 export const TUTORIAL_STEPS: TutorialStep[] = ['draft', 'topbar', 'map', 'panel', 'pin', 'upgrades'];
 
@@ -261,7 +262,7 @@ export class Store {
   /** The run is over and its presentation (ending card / election night) has finished. */
   finishPresentation(): void {
     const s = this.sim?.state;
-    if (s && s.score !== null) this.ui.newBest = recordScore(s.leader, s.difficulty, s.score);
+    if (s && s.score !== null && !usedCheats(s)) this.ui.newBest = recordScore(s.leader, s.difficulty, s.score);
     this.go('final');
   }
 

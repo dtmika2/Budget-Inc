@@ -508,6 +508,13 @@ export const config = {
     regionActionPcPrice: 0.03,
   },
 
+  /** Cheat codes for the pause menu's Podvody window: code (upper case) -> reward. */
+  cheats: {
+    codes: {
+      PK1000: { pc: 1000 },
+    } as Record<string, { pc: number }>,
+  },
+
   /** Simulator targets on Normal (§13). */
   simulatorTargets: {
     randomMaxWinRate: 0.15,
