@@ -404,10 +404,11 @@ function NodePanel({
       <div className="tree-panel__scroll">
         <h3 className="tree-panel__name">{t(node.name)}</h3>
         <p className="tree-panel__desc">{t(node.description)}</p>
-        {node.modifiers.length > 0 && (
+        {(a || node.modifiers.length > 0) && (
           <section className="tree-panel__box">
             <h4 className="tree-panel__h">{t('upgrades.effects')}</h4>
             <ul className="tree-panel__fx">
+              {a && <li>{t('upgrades.fx.unlocksActive', { name: t(node.name) })}</li>}
               {node.modifiers.map((m, i) => (
                 <li key={i}>{modifierLine(m)}</li>
               ))}

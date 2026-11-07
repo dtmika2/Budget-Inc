@@ -90,6 +90,7 @@
   "upgrades.kind.passive": "Trvalý efekt",
   "upgrades.kind.active": "Aktivní schopnost",
   "upgrades.effects": "Účinek",
+  "upgrades.fx.unlocksActive": "Odemyká aktivní schopnost {name} k použití.",
   "upgrades.activeEffects": "Při použití",
   "upgrades.cooldown": "Lze použít jednou za {d} dní.",
   "upgrades.readyIn": "Znovu za {d} dní",
