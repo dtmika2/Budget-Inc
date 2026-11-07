@@ -27,7 +27,7 @@ export function RegionDemands({ code }: { code: string }) {
           <section key={d.id} className="rs-card demand demand--ask" aria-labelledby={`dem-${d.id}`}>
             <p className="demand__tag">
               <span className="demand__bang" aria-hidden="true">
-                <PixelIcon name="petition" />
+                <PixelIcon name="megaphone" />
               </span>
               {t('demand.title')}
             </p>

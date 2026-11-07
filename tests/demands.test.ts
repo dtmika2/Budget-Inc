@@ -97,10 +97,10 @@ describe('demand data', () => {
     expect(readFileSync('sources/programmes/README.md', 'utf8')).toContain('programmeRef');
   });
 
-  it('only the region event pin shows "!"; the demand pin has its petition icon', () => {
+  it('only the region event pin shows "!"; the demand pin has its megaphone icon', () => {
     expect(readFileSync('src/regions/OpportunityPin.tsx', 'utf8')).not.toMatch(/>\s*!\s*</);
     expect(readFileSync('src/regions/DemandPin.tsx', 'utf8')).not.toMatch(/>\s*!\s*</);
-    expect(readFileSync('src/regions/DemandPin.tsx', 'utf8')).toContain('name="petition"');
+    expect(readFileSync('src/regions/DemandPin.tsx', 'utf8')).toContain('name="megaphone"');
     expect(readFileSync('src/regions/RegionEventPin.tsx', 'utf8')).toMatch(/>\s*!\s*</);
   });
 });

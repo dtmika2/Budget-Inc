@@ -4,7 +4,7 @@ import { t } from '@i18n/index';
 import { PixelIcon } from '@ui/pixelIcons';
 import { getStore, useStore } from '@ui/store';
 
-/** Regional demand pin: an amber speech bubble with a petition. Opens the region on its events tab. */
+/** Regional demand pin: an amber speech bubble with a megaphone. Opens the region on its events tab. */
 export const DemandPin = memo(function DemandPin({ demand, x, y }: { demand: OpenDemand; x: number; y: number }) {
   const absDay = useStore((s) => (s.sim ? s.sim.absDay : 0));
   const life = Math.max(0, Math.min(1, (demand.expireAbsDay - absDay) / (demand.expireAbsDay - demand.spawnAbsDay)));
@@ -16,7 +16,7 @@ export const DemandPin = memo(function DemandPin({ demand, x, y }: { demand: Ope
       aria-label={`${t('map.demand')}: ${t(`region.${demand.region}`)}`}
     >
       <span className="dpin__bubble" aria-hidden="true">
-        <PixelIcon name="petition" />
+        <PixelIcon name="megaphone" />
       </span>
       <span className="dpin__life" aria-hidden="true" />
     </button>
