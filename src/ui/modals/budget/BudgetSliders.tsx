@@ -71,7 +71,8 @@ export function BudgetSliders({ items, sliders, focus, redLines, violations, ple
               aria-valuenow={v * stepPct}
               aria-valuetext={stepText(v)}
               onKeyDown={key}
-              onFocus={() => onFocus({ kind: 'step', item: it.id, to: v }, true)}
+              // only keyboard focus on the track itself: a click focuses the cell and must not flash a ghost on the old value
+              onFocus={(e) => e.target === e.currentTarget && onFocus({ kind: 'step', item: it.id, to: v }, true)}
             >
               {STEPS.map((s) => {
                 const inBand = s >= it.band.min && s <= it.band.max;
