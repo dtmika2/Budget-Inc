@@ -248,7 +248,12 @@
   content: ''; position: absolute; left: 8px; bottom: -10px; border: 6px solid transparent;
   border-top-color: var(--paper); border-left-color: var(--paper);
 }
-.dpin__life { width: 34px; height: 4px; background: linear-gradient(90deg, var(--paper) calc(var(--life) * 100%), rgba(239, 230, 207, 0.25) 0); box-shadow: 0 0 0 1px var(--ground); }
+/* the timer is striped like the fascism card's band; dark and light stripes show on any kraj, so no outline */
+.dpin__life { position: relative; width: 34px; height: 6px; background: rgba(239, 230, 207, 0.25); }
+.dpin__life::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--life) * 100%);
+  background: repeating-linear-gradient(-45deg, #2a2a2a 0 3px, var(--paper) 3px 6px);
+}
 .dpin--expiring .dpin__bubble { animation: pulse 0.5s steps(2) infinite; }
 .dpin:hover .dpin__bubble { background: #e0443c; }
 .pledge-mark { position: absolute; transform: translate(-50%, -50%); font-size: 16px; filter: drop-shadow(1px 1px 0 #0c0a14); }
@@ -301,12 +306,6 @@
 @keyframes rev-rise { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-9px); opacity: 0.2; } }
 .rev-wave-hand { animation: rev-bob 1.2s steps(2) infinite; }
 
-/* region event pin: its timer is striped like the fascism card's band; dark and light stripes show on any kraj, so no outline */
-.dpin--event .dpin__life { position: relative; height: 6px; background: rgba(239, 230, 207, 0.25); box-shadow: none; }
-.dpin--event .dpin__life::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--life) * 100%);
-  background: repeating-linear-gradient(-45deg, #2a2a2a 0 3px, var(--paper) 3px 6px);
-}
 /* regional demand pin: amber, so it reads apart from the red event bubble */
 .dpin--demand .dpin__bubble { background: #e0952c; }
 .dpin--demand:hover .dpin__bubble { background: #f2ac46; }
