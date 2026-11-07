@@ -147,7 +147,15 @@ export function EffectLanes({ preview, chaos = 0, ...ins }: { preview: PreviewRa
           {'↻'} {t('lanes.ongoing', { what: target.startsWith('anger.') ? t(`group.${target.slice(6)}`) : t(`resource.short.${target}`), v: fmtSigned(o.perDay, 2), days: o.days })}
         </p>
       ));
-  const resources: Row[] = RESOURCE_IDS.map((r) => ({ key: r, metric: { kind: 'resource', id: r }, label: t(`resource.short.${r}`), color: RESOURCE_COLOR[r], range: preview.resources[r] }));
+  // a card that touches no resource collapses the lane; the budget screen keeps all four, so its rows never jump
+  const touchesResources = RESOURCE_IDS.some((r) => {
+    const range = preview.resources[r];
+    return (range && (Math.abs(range.min) > 1e-9 || Math.abs(range.max) > 1e-9)) || preview.ongoing.some((o) => o.target === r);
+  });
+  const collapseResources = !!ins.base && !touchesResources;
+  const resources: Row[] = collapseResources
+    ? []
+    : RESOURCE_IDS.map((r) => ({ key: r, metric: { kind: 'resource', id: r }, label: t(`resource.short.${r}`), color: RESOURCE_COLOR[r], range: preview.resources[r] }));
   const groups: Row[] = GROUP_IDS.filter((g) => preview.anger[g] || preview.ongoing.some((o) => o.target === `anger.${g}`)).map((g) => ({
     key: g,
     metric: { kind: 'group', id: g },
@@ -163,7 +171,19 @@ export function EffectLanes({ preview, chaos = 0, ...ins }: { preview: PreviewRa
   const more = kraje.length - shown.length;
   return (
     <div className={`lanes${ins.base ? ' lanes--base' : ''}`}>
-      <Lane icon="$" title={t('lanes.resources')} rows={resources} ins={ins} ongoing={preview.ongoing} extra={RESOURCE_IDS.flatMap((r) => ongoing(r))} />
+      <Lane
+        icon="$"
+        title={t('lanes.resources')}
+        rows={resources}
+        ins={ins}
+        ongoing={preview.ongoing}
+        extra={
+          <>
+            {collapseResources && <p className="lane__empty">{t('lanes.noResources')}</p>}
+            {RESOURCE_IDS.flatMap((r) => ongoing(r))}
+          </>
+        }
+      />
       <Lane
         icon="☺"
         title={t('lanes.groups')}

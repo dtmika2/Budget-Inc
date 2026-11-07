@@ -897,6 +897,17 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .mg-result__score { margin: 0; font-family: var(--f-num); font-size: 18px; }
 .mg-result__tour { margin: 0; font-weight: 700; }
 .mg-result__memo { width: min(520px, 100%); text-align: left; }
+.mg-result__base { margin: -6px 0 0; font-family: var(--f-num); font-size: 15px; color: var(--text-dim); }
+.mg-compare { gap: 6px; }
+.mg-compare__title { margin: 0; font: 13px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+.mg-compare__same { margin: 0; font-size: 14px; color: var(--ink-soft); }
+.mg-compare__table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.mg-compare__table th, .mg-compare__table td { padding: 3px 0 3px 10px; text-align: right; white-space: nowrap; border-top: 2px dashed rgba(42, 34, 51, 0.18); }
+.mg-compare__table thead th { border-top: 0; font: 12px var(--f-pixel); color: var(--ink-soft); }
+.mg-compare__table th:first-child { padding-left: 0; text-align: left; white-space: normal; font-weight: 400; }
+.mg-compare__table td { font: 13px var(--f-num); font-variant-numeric: tabular-nums; }
+.mg-compare__table td.mg-compare__diff--good { color: var(--good-on-paper); }
+.mg-compare__table td.mg-compare__diff--bad { color: var(--bad-on-paper); }
 .mg-result__go { min-width: 200px; min-height: 48px; }
 
 @media (max-width: 760px) {
