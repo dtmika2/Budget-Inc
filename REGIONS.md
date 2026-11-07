@@ -59,7 +59,7 @@ the region screen on the Události tab (skipping the paw). An open demand does t
 ```bash
 npm run dev
 ```
-Open the game and click a kraj on the map: a paw of four pads opens at the click (Hlavní under it; Akce,
+Open the game and click a kraj on the map: a paw of four pads opens at the click (Přehled under it; Akce,
 Události and Data above, Akce and Události with a count in the corner), and each pad opens the region screen on its tab.
 
 ```bash

@@ -1,6 +1,6 @@
 /**
  * Region paw (regions workspace): a click on a kraj without an open event or demand opens four pads over the
- * click point instead of the region screen. The big pad under the click opens the Hlavni tab, the three toes
+ * click point instead of the region screen. The big pad under the click opens the Prehled tab, the three toes
  * above open Akce, Udalosti and Data. Akce and Udalosti carry a count in the corner: the kraj actions that can
  * be done right now, and the open events, demands and pledges here. Esc or a press outside closes it.
  */

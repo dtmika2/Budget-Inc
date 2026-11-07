@@ -116,7 +116,7 @@
   "regionEvent.wasIntervened": "vláda zasáhla",
   "regionEvent.wasIgnored": "vláda nezasáhla",
   "regionEvent.wasTimedOut": "vláda nestihla zareagovat",
-  "region.screen.tab.main": "Hlavní",
+  "region.screen.tab.main": "Přehled",
   "region.screen.tab.events": "Události",
   "region.screen.cohorts": "Zájmové skupiny v kraji",
   "region.screen.cohortsNote": "Podíl příznivců, neutrálních a naštvaných v každé skupině.",

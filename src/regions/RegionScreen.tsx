@@ -1,6 +1,6 @@
 /**
  * Full-window region screen (phase 13, regions workspace). Opens when a region is clicked; the game is
- * paused while it is open (store.effectivePaused). Tabs: Hlavni (interest-group cohorts, support and
+ * paused while it is open (store.effectivePaused). Tabs: Prehled (interest-group cohorts, support and
  * resource charts, the events with the biggest impact), Udalosti (open region events, demands and
  * pledges with their choices, past events) and Data (traits, regional coalition, demographics).
  */
