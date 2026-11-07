@@ -10,7 +10,7 @@ files below; other work does not edit them.
 |---|---|
 | `data/upgrades/compass.json` | the Political Compass tree every leader has (28 boxes: written names and quotes, placeholder effect sizes) |
 | `locales/skilltree.cs.json` | Czech texts: tree and node names/descriptions and the tree screen's UI chrome (`upgrades.*`, `hud.upgrades`) |
-| `src/skilltree/` | tree screen (`UpgradeTree.tsx`, box card and active-ability strip inside), effect lines and quadrants (`nodeText.ts`), HUD button (`UpgradeButton.tsx`), styles (`skilltree.css`) |
+| `src/skilltree/` | tree screen (`UpgradeTree.tsx`, box card and active-ability strip inside), effect lines and quadrants (`nodeText.ts`), the card's quadrant emblems (`quadrantArt.tsx`), HUD button (`UpgradeButton.tsx`), styles (`skilltree.css`) |
 | `src/core/upgrades.ts` | buying rules: node status, which trees a leader has, `buyUpgrade` |
 | `tests/skilltree.test.ts` | skill-tree tests |
 | `tests/fixtures/support-tree.json`, `tests/fixtures/trees.ts` | the old Public Support tree, kept as a fixture for the engine / modifier tests |

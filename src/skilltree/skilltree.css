@@ -87,25 +87,54 @@
 .tree-body { position: relative; min-height: 0; }
 .tree-panel {
   position: absolute; z-index: 5; top: 0; bottom: 0; width: calc(100% * var(--half, 0.44));
-  display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; overflow-y: auto;
-  background: var(--paper); color: var(--ink); box-shadow: var(--shadow); border-top: 6px solid var(--gold-dim);
+  display: flex; animation: tree-card-in 0.2s steps(4);
 }
+@keyframes tree-card-in { from { transform: translateY(14px) scale(0.96); opacity: 0; } }
 .tree-panel--left { left: 0; }
 .tree-panel--right { right: 0; }
-.tree-panel__close {
-  position: sticky; top: 0; z-index: 1; flex: none; align-self: flex-end; width: 28px; height: 28px; margin-bottom: -28px; padding: 0; cursor: pointer;
-  background: var(--paper); color: var(--ink); border: 2px solid rgba(42, 34, 51, 0.3); font: 14px/1 var(--f-pixel);
+/* the card, in the special cards' style: banner, dark art panel, body, footer; framed in the quadrant's colour */
+.tree-panel__node {
+  --q-ink: #fff;
+  position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--paper); color: var(--ink); border: 4px solid var(--q, var(--ink)); box-shadow: var(--shadow);
 }
-.tree-panel__close:hover { border-color: var(--ink); }
-.tree-panel__node { display: flex; flex-direction: column; gap: 6px; }
-.tree-panel__tags { margin: 0; padding-right: 34px; display: flex; flex-wrap: wrap; gap: 6px; }
-.tree-panel__quad, .tree-panel__kind { font: 11px var(--f-pixel); padding: 2px 7px; text-transform: uppercase; letter-spacing: 0.04em; }
-.tree-panel__quad { color: #fff; background: var(--q, var(--ink-soft)); }
-.tree-panel__kind { color: var(--ink-soft); border: 1px solid rgba(42, 34, 51, 0.3); display: inline-flex; align-items: center; gap: 4px; }
-.tree-panel__kind.is-active { color: #6b4a00; background: #f3d36b; border-color: #c9a227; }
-.tree-panel__name { margin: 2px 0 0; font: 22px/1.1 var(--f-pixel); }
+.tree-panel__node--rt { --q-ink: #2a2233; }
+.tree-panel__banner {
+  flex: none; display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 12px; background: var(--q, var(--ink)); color: var(--q-ink);
+}
+.tree-panel__icon { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; background: var(--paper); color: var(--q, var(--ink)); }
+.tree-panel__kind { min-width: 0; font: 700 16px/1.1 var(--f-pixel); letter-spacing: 0.05em; text-transform: uppercase; }
+.tree-panel__quad { min-width: 0; margin-left: auto; font: 11px/1.1 var(--f-pixel); letter-spacing: 0.04em; text-transform: uppercase; text-align: right; }
+.tree-panel__close {
+  flex: none; width: 26px; height: 26px; padding: 0; cursor: pointer; background: transparent; color: inherit;
+  border: 2px solid currentColor; font: 14px/1 var(--f-pixel);
+}
+.tree-panel__close:hover { background: rgba(12, 10, 20, 0.25); }
+.tree-panel__art { position: relative; flex: none; padding: 10px 14px 6px; background: #2a2440; border-bottom: 4px solid var(--q, var(--ink)); }
+.tree-panel__art svg { display: block; width: 100%; height: clamp(56px, 16dvh, 120px); }
+.tree-panel__stamp {
+  position: absolute; right: 10px; bottom: 8px; padding: 1px 8px; border: 3px solid currentColor; pointer-events: none;
+  font: 700 18px var(--f-pixel); text-transform: uppercase; background: rgba(239, 230, 207, 0.9); transform: rotate(-8deg);
+  animation: tree-stamp-in 0.28s steps(4) 0.1s both;
+}
+.tree-panel__stamp--owned { color: var(--good-on-paper); }
+.tree-panel__stamp--excluded { color: var(--stamp); }
+@keyframes tree-stamp-in { from { transform: rotate(-8deg) scale(2); opacity: 0; } to { transform: rotate(-8deg); opacity: 1; } }
+.tree-panel__scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; }
+.tree-panel__box { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; border: 3px dashed var(--ink-soft); }
+.tree-panel__foot { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 8px 14px 12px; border-top: 2px dashed rgba(42, 34, 51, 0.18); }
+.tree-panel__foot .tree-panel__actions { margin: 0 0 0 auto; }
+.tree-panel__foot .tree-panel__actions:empty { display: none; }
+/* an active ability's card shines once as it opens, like an agent card */
+.tree-panel__shine {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none; transform: translateX(-130%);
+  background: linear-gradient(115deg, transparent 36%, rgba(255, 246, 200, 0.7) 44%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 246, 200, 0.7) 56%, transparent 64%);
+  animation: tree-shine 0.9s steps(12) 0.2s both;
+}
+@keyframes tree-shine { from { transform: translateX(-130%); } to { transform: translateX(130%); } }
+.tree-panel__name { margin: 0; font: 700 22px/1.1 var(--f-pixel); }
 .tree-panel__desc { margin: 0; font-size: 14px; line-height: 1.45; }
-.tree-panel__h { margin: 6px 0 0; font: 12px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; border-top: 2px dashed rgba(42, 34, 51, 0.18); padding-top: 6px; }
+.tree-panel__h { margin: 0; font: 12px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
 .tree-panel__fx { margin: 0; padding: 0 0 0 16px; font-size: 14px; line-height: 1.45; }
 .tree-panel__fx li::marker { color: var(--q, var(--ink-soft)); }
 .tree-panel__meta { margin: 0; font-size: 13px; color: var(--ink-soft); }
@@ -151,7 +180,8 @@
 .node--owned .node__bolt { background: var(--ground); color: #f3d36b; }
 /* a half of a narrow tree is too small for the card: it sits under the tree instead */
 @media (max-width: 1000px) {
-  .tree-panel { position: static; width: auto; margin-top: 14px; overflow-y: visible; }
+  .tree-panel { position: static; width: auto; margin-top: 14px; }
+  .tree-panel__scroll { overflow-y: visible; }
   .tree { height: min(calc(100dvh - 300px), 520px); }
 }
 

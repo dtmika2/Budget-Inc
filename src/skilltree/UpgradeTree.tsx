@@ -10,6 +10,7 @@ import { canUseUpgradeAction, isForkLink, neighboursOf, nodeStatus, rivalsOf, st
 import { GROUP_IDS } from '@core/types';
 import { RangeChips } from '@ui/modals/RangeChips';
 import { modifierLine, quadrantOf } from './nodeText';
+import { QuadrantArt } from './quadrantArt';
 import type { UpgradeNode, UpgradeTree as Tree } from '@core/types';
 import { t } from '@i18n/index';
 import { getStore, useStore } from '@ui/store';
@@ -54,6 +55,15 @@ function BoltIcon() {
   return (
     <svg viewBox="0 0 6 8" width="10" height="13" aria-hidden="true" shapeRendering="crispEdges">
       <path d="M3 0h3L4 3h2L1 8l1-4H0z" fill="currentColor" />
+    </svg>
+  );
+}
+
+/** Pixel diamond: a permanent effect. */
+function PassiveIcon() {
+  return (
+    <svg viewBox="0 0 7 7" width="14" height="14" aria-hidden="true" shapeRendering="crispEdges">
+      <path d="M3 0h1v1h1v1h1v1h1v1H6v1H5v1H4v1H3V6H2V5H1V4H0V3h1V2h1V1h1z" fill="currentColor" />
     </svg>
   );
 }
@@ -288,11 +298,9 @@ export function UpgradeTree() {
           </div>
         </div>
         {sel && (
-          <aside className={`tree-panel tree-panel--${side}`} style={{ ['--half' as string]: Math.floor(cols / 2) / cols }}>
-            <button className="tree-panel__close" onClick={() => setSelected(null)} aria-label={t('common.close')}>
-              {'✕'}
-            </button>
-            <NodePanel node={sel} status={selStatus!} isStart={sel.id === start} pc={pc} target={target} onTarget={setTarget} onBuy={() => buy(sel)} meta={meta(sel)} />
+          // keyed by box, so the opening animation replays when the card switches to another box
+          <aside key={sel.id} className={`tree-panel tree-panel--${side}`} style={{ ['--half' as string]: Math.floor(cols / 2) / cols }}>
+            <NodePanel node={sel} status={selStatus!} isStart={sel.id === start} pc={pc} target={target} onTarget={setTarget} onBuy={() => buy(sel)} onClose={() => setSelected(null)} meta={meta(sel)} />
           </aside>
         )}
         </div>
@@ -327,7 +335,10 @@ export function UpgradeTree() {
   );
 }
 
-/** The selected box's card: quadrant, kind, description, effects, price and the buy / use controls. */
+/**
+ * The selected box's card, in the special cards' style: a banner and an art panel in the quadrant's colour,
+ * then a scrolling middle (description, effects, target) and a fixed footer with the price and the buttons.
+ */
 function NodePanel({
   node,
   status,
@@ -336,6 +347,7 @@ function NodePanel({
   target,
   onTarget,
   onBuy,
+  onClose,
   meta,
 }: {
   node: UpgradeNode;
@@ -345,6 +357,7 @@ function NodePanel({
   target: string;
   onTarget: (v: string) => void;
   onBuy: () => void;
+  onClose: () => void;
   meta: string[];
 }) {
   const store = getStore();
@@ -367,71 +380,84 @@ function NodePanel({
   const pcCost = a ? Math.max(0, -(a.bundle.pc ?? 0)) : 0;
   return (
     <div className={`tree-panel__node tree-panel__node--${q}`}>
-      <p className="tree-panel__tags">
-        <span className={`tree-panel__quad tree-panel__quad--${q}`}>{t(`upgrades.quadrant.${q}`)}</span>
-        <span className={`tree-panel__kind${a ? ' is-active' : ''}`}>
-          {a && <BoltIcon />} {t(a ? 'upgrades.kind.active' : 'upgrades.kind.passive')}
+      <header className="tree-panel__banner">
+        <span className="tree-panel__icon" aria-hidden="true">
+          {a ? <BoltIcon /> : <PassiveIcon />}
         </span>
-      </p>
-      <h3 className="tree-panel__name">{t(node.name)}</h3>
-      <p className="tree-panel__desc">{t(node.description)}</p>
-      {node.modifiers.length > 0 && (
-        <>
-          <h4 className="tree-panel__h">{t('upgrades.effects')}</h4>
-          <ul className="tree-panel__fx">
-            {node.modifiers.map((m, i) => (
-              <li key={i}>{modifierLine(m)}</li>
-            ))}
-          </ul>
-        </>
-      )}
-      {a && (
-        <>
-          <h4 className="tree-panel__h">{t('upgrades.activeEffects')}</h4>
-          {a.target === 'region' && (
-            <label className="tree-panel__pick">
-              {t('upgrades.pickRegion')}
-              <select value={tgt} onChange={(e) => onTarget(e.target.value)}>
-                {regions.map((r) => (
-                  <option key={r.code} value={r.code}>
-                    {t(`region.short.${r.code}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          {a.target === 'group' && (
-            <div className="tree-panel__groups" role="group" aria-label={t('upgrades.pickGroup')}>
-              {GROUP_IDS.map((g) => (
-                <button key={g} className={`chip-btn${tgt === g ? ' is-on' : ''}`} aria-pressed={tgt === g} onClick={() => onTarget(g)}>
-                  {t(`group.${g}`)}
-                </button>
-              ))}
-            </div>
-          )}
-          <RangeChips preview={sim.previewUpgradeAction(node.id, tgt)} compact />
-          <p className="tree-panel__meta">{t('upgrades.cooldown', { d: a.cooldownDays })}</p>
-        </>
-      )}
-      <p className="tree-panel__meta">{isStart ? t('upgrades.start') : `${t('upgrades.cost', { n: node.cost })} · ${t(`upgrades.${status}`)}`}</p>
-      {meta.map((m) => (
-        <p key={m} className="tree-panel__meta">
-          {m}
-        </p>
-      ))}
-      <div className="tree-panel__actions">
-        {status !== 'owned' && status !== 'excluded' && (
-          <button className="btn btn--stamp" disabled={status !== 'available' || pc < node.cost} onClick={onBuy}>
-            {t('upgrades.buy')} ({t('common.pc', { n: node.cost })})
-          </button>
-        )}
-        {a && status === 'owned' && (
-          <button className="btn btn--compromise" disabled={why !== null} onClick={() => store.dispatch({ kind: 'useUpgradeAction', nodeId: node.id, target: tgt })}>
-            {left > 0 ? t('upgrades.readyIn', { d: left }) : t('upgrades.use')}
-            {left === 0 && pcCost > 0 && ` (${t('common.pc', { n: pcCost })})`}
-          </button>
-        )}
+        <span className="tree-panel__kind">{t(a ? 'upgrades.kind.active' : 'upgrades.kind.passive')}</span>
+        <span className="tree-panel__quad">{t(`upgrades.quadrant.${q}`)}</span>
+        <button className="tree-panel__close" onClick={onClose} aria-label={t('common.close')}>
+          {'✕'}
+        </button>
+      </header>
+      <div className="tree-panel__art">
+        <QuadrantArt quadrant={q} />
+        {(status === 'owned' || status === 'excluded') && <span className={`tree-panel__stamp tree-panel__stamp--${status}`}>{t(`upgrades.${status}`)}</span>}
       </div>
+      <div className="tree-panel__scroll">
+        <h3 className="tree-panel__name">{t(node.name)}</h3>
+        <p className="tree-panel__desc">{t(node.description)}</p>
+        {node.modifiers.length > 0 && (
+          <section className="tree-panel__box">
+            <h4 className="tree-panel__h">{t('upgrades.effects')}</h4>
+            <ul className="tree-panel__fx">
+              {node.modifiers.map((m, i) => (
+                <li key={i}>{modifierLine(m)}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {a && (
+          <section className="tree-panel__box">
+            <h4 className="tree-panel__h">{t('upgrades.activeEffects')}</h4>
+            {a.target === 'region' && (
+              <label className="tree-panel__pick">
+                {t('upgrades.pickRegion')}
+                <select value={tgt} onChange={(e) => onTarget(e.target.value)}>
+                  {regions.map((r) => (
+                    <option key={r.code} value={r.code}>
+                      {t(`region.short.${r.code}`)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {a.target === 'group' && (
+              <div className="tree-panel__groups" role="group" aria-label={t('upgrades.pickGroup')}>
+                {GROUP_IDS.map((g) => (
+                  <button key={g} className={`chip-btn${tgt === g ? ' is-on' : ''}`} aria-pressed={tgt === g} onClick={() => onTarget(g)}>
+                    {t(`group.${g}`)}
+                  </button>
+                ))}
+              </div>
+            )}
+            <RangeChips preview={sim.previewUpgradeAction(node.id, tgt)} compact />
+            <p className="tree-panel__meta">{t('upgrades.cooldown', { d: a.cooldownDays })}</p>
+          </section>
+        )}
+        {meta.map((m) => (
+          <p key={m} className="tree-panel__meta">
+            {m}
+          </p>
+        ))}
+      </div>
+      <footer className="tree-panel__foot">
+        <p className="tree-panel__meta">{isStart ? t('upgrades.start') : `${t('upgrades.cost', { n: node.cost })} · ${t(`upgrades.${status}`)}`}</p>
+        <div className="tree-panel__actions">
+          {status !== 'owned' && status !== 'excluded' && (
+            <button className="btn btn--stamp" disabled={status !== 'available' || pc < node.cost} onClick={onBuy}>
+              {t('upgrades.buy')} ({t('common.pc', { n: node.cost })})
+            </button>
+          )}
+          {a && status === 'owned' && (
+            <button className="btn btn--compromise" disabled={why !== null} onClick={() => store.dispatch({ kind: 'useUpgradeAction', nodeId: node.id, target: tgt })}>
+              {left > 0 ? t('upgrades.readyIn', { d: left }) : t('upgrades.use')}
+              {left === 0 && pcCost > 0 && ` (${t('common.pc', { n: pcCost })})`}
+            </button>
+          )}
+        </div>
+      </footer>
+      {a && <span className="tree-panel__shine" aria-hidden="true" />}
     </div>
   );
 }
