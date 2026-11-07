@@ -19,7 +19,7 @@ import { MAP_HEIGHT, MAP_WIDTH, REGION_PATHS } from './regionsPath';
 
 const LABEL_BY_CODE = new Map(REGION_PATHS.map((r) => [r.code, r]));
 
-const Regions = memo(function Regions({ support, selected }: { support: Record<string, number>; selected: string | null }) {
+const Regions = memo(function Regions({ support, selected, flagPulse }: { support: Record<string, number>; selected: string | null; flagPulse: number }) {
   const store = getStore();
   const [hovered, setHovered] = useState<string | null>(null);
   // SVG has no z-index: a highlighted outline drawn in list order is covered by later neighbours'
@@ -29,7 +29,7 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
     <>
       <LiquidDefs prefix="game" />
       {REGION_PATHS.map((r) => (
-        <LiquidRegion key={r.code} prefix="game" code={r.code} d={r.d} support={support[r.code] ?? 0} />
+        <LiquidRegion key={r.code} prefix="game" code={r.code} d={r.d} support={support[r.code] ?? 0} flagPulse={flagPulse} />
       ))}
       {REGION_PATHS.map((r) => (
         <path
@@ -132,11 +132,12 @@ function QuarterBanner() {
 export function CzMap() {
   const support = useStore((s) => s.sim?.state.projection.regionSupport ?? {});
   const selected = useStore((s) => s.ui.selectedRegion);
+  const flagPulse = useStore((s) => s.ui.flagPulse);
   return (
     <div className="map" data-tut-target="map">
       <div className="map__frame" style={{ aspectRatio: `${MAP_WIDTH} / ${MAP_HEIGHT}` }}>
         <svg viewBox={`-6 -6 ${MAP_WIDTH + 12} ${MAP_HEIGHT + 12}`} className="map__svg" role="img" aria-label={t('hud.projection')}>
-          <Regions support={support} selected={selected} />
+          <Regions support={support} selected={selected} flagPulse={flagPulse} />
         </svg>
         <RegionFloaters />
         <QuarterBanner />

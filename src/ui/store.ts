@@ -16,6 +16,7 @@ import { Clock } from './clock';
 import { planLife, type ActorSpawn } from '@/regions/lifeDirector';
 import { REGION_PATHS } from '@/regions/regionsPath';
 import { usedCheats } from '@core/cheats';
+import { isDecisionEntry } from '@/regions/flagPulse';
 import { loadSettings, recordScore, saveSettings, setTutorialSeen, tutorialSeen, type Settings } from './persist';
 
 export type Screen = 'menu' | 'howto' | 'settings' | 'select' | 'game' | 'final' | 'dataError';
@@ -109,6 +110,8 @@ export interface UiState {
   panelTab: PanelTab;
   /** Ability whose target picker is open (modal 'ability'). */
   abilityPick: string | null;
+  /** Counts the player's decisions in this run: each one plays the map's flag fade once. */
+  flagPulse: number;
   setup: { leader: LeaderId; difficulty: DifficultyId };
   newBest: boolean;
   electionRevealed: boolean;
@@ -170,6 +173,7 @@ export class Store {
       resourceDetail: null,
       panelTab: 'trend',
       abilityPick: null,
+      flagPulse: 0,
       setup: { leader: this.data?.leaders[0]?.id ?? 'mupka', difficulty: config.defaultDifficulty },
       newBest: false,
       electionRevealed: false,
@@ -239,6 +243,7 @@ export class Store {
       resourceDetail: null,
       panelTab: 'trend',
       abilityPick: null,
+      flagPulse: 0,
       newBest: false,
       electionRevealed: false,
     };
@@ -361,7 +366,8 @@ export class Store {
     const pending = new Set(sim.state.pendingResponses.map((p) => p.instanceId));
     popups = popups.filter((p) => p.kind !== 'response' || pending.has(p.instanceId!));
     const actors = this.planActors(newEntries, this.mapClock);
-    this.ui = { ...this.ui, popups, floaters: floaters.slice(-40), actors };
+    const flagPulse = this.ui.flagPulse + (newEntries.some(isDecisionEntry) ? 1 : 0);
+    this.ui = { ...this.ui, popups, floaters: floaters.slice(-40), actors, flagPulse };
     this.advanceTutorial();
     this.emit();
   }

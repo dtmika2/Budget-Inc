@@ -9,7 +9,37 @@ import { REGION_PATHS } from '../src/regions/regionsPath';
 import { SPRITES, spriteRects } from '../src/regions/sprites';
 import { initStore } from '../src/ui/store';
 import { createBot, runToEnd } from '../src/core/bots';
+import { isDecisionEntry } from '../src/regions/flagPulse';
 import { gameData, makeSim } from './helpers';
+
+describe('flag fade after a decision', () => {
+  const entry = (type: string, extra: Record<string, unknown> = {}) => ({ type, ...extra }) as LogEntry;
+
+  it('plays for choices the player made', () => {
+    for (const type of ['policy_picked', 'compromise_made', 'budget_vote', 'event_response', 'demand_accepted', 'demand_rejected', 'region_event_intervened', 'region_event_ignored', 'region_action', 'ability_used', 'upgrade_action', 'upgrade_bought']) {
+      expect(isDecisionEntry(entry(type)), type).toBe(true);
+    }
+  });
+
+  it('does not play for a timer running out', () => {
+    expect(isDecisionEntry(entry('event_response', { timedOut: true }))).toBe(false);
+    expect(isDecisionEntry(entry('region_event_ignored', { timedOut: true }))).toBe(false);
+  });
+
+  it('does not play for what happens on its own', () => {
+    for (const type of ['quarter_started', 'chaos_fired', 'demand_ignored', 'region_event_spawned', 'ability_pulse', 'draft_shown']) {
+      expect(isDecisionEntry(entry(type)), type).toBe(false);
+    }
+  });
+
+  it('a played run logs policy picks and budget votes under these names', () => {
+    const sim = makeSim({ seed: 'flag', leader: 'mupka' });
+    runToEnd(sim, createBot('greedy', 'flag'));
+    const types = new Set(sim.state.log.filter(isDecisionEntry).map((e) => e.type));
+    expect(types).toContain('policy_picked');
+    expect(types).toContain('budget_vote');
+  });
+});
 
 const REGIONS = REGION_PATHS.map((r) => r.code);
 const L = config.life;

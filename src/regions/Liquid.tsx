@@ -163,8 +163,12 @@ export const LiquidDefs = memo(function LiquidDefs({ prefix }: { prefix: string 
   );
 });
 
-/** One region's glass + liquid. `support` drives the level. */
-export const LiquidRegion = memo(function LiquidRegion({ prefix, code, d, support }: { prefix: string; code: string; d: string; support: number }) {
+/**
+ * One region's glass + liquid. `support` drives the level. Without `flagPulse` the flag stays on; with it the
+ * flag only fades in and out, once each time the number changes (0: not yet). The fade is a CSS animation
+ * inside `.map`, so MapTempo runs it at the game speed.
+ */
+export const LiquidRegion = memo(function LiquidRegion({ prefix, code, d, support, flagPulse }: { prefix: string; code: string; d: string; support: number; flagPulse?: number }) {
   const box = REGION_BOXES[code];
   const y = levelY(box, support);
   const h = hash(code);
@@ -180,7 +184,18 @@ export const LiquidRegion = memo(function LiquidRegion({ prefix, code, d, suppor
   return (
     <g clipPath={`url(#${prefix}-clip-${code})`}>
       <path d={d} fillRule="evenodd" className="glass" />
-      <use href={`#${prefix}-flag`} opacity={config.regions.flagOpacity} />
+      {flagPulse === undefined ? (
+        <use href={`#${prefix}-flag`} opacity={config.regions.flagOpacity} />
+      ) : (
+        flagPulse > 0 && (
+          <use
+            key={flagPulse}
+            href={`#${prefix}-flag`}
+            className="flag-pulse"
+            style={{ animationDuration: `${config.regions.flagPulseMs}ms`, ['--flag-o' as string]: config.regions.flagOpacity }}
+          />
+        )
+      )}
       <g className="liquid" style={{ transform: `translateY(${y}px)` }} shapeRendering="crispEdges">
         <rect className="wave wave--back" style={backStyle} x={backX} y={-TILE_H} width={box.w + 3 * backLen} height={TILE_H} fill={`url(#${prefix}-${pattern}-back)`} />
         <rect className="wave wave--front" style={frontStyle} x={frontX} y={-TILE_H} width={box.w + 3 * frontLen} height={TILE_H} fill={`url(#${prefix}-${pattern}-front)`} />
