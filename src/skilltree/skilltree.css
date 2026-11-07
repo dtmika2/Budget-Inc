@@ -139,7 +139,12 @@
 .tree-panel__fx li::marker { color: var(--q, var(--ink-soft)); }
 .tree-panel__meta { margin: 0; font-size: 13px; color: var(--ink-soft); }
 .tree-panel__pick { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-.tree-panel__pick select { flex: 1; min-height: 32px; font: 14px var(--f-body); }
+/* the card is paper in a dark-themed game: without explicit colours the browser pairs its dark control with our dark ink */
+.tree-panel__pick select {
+  flex: 1; min-width: 0; min-height: 32px; padding: 2px 6px; font: 14px var(--f-body); cursor: pointer;
+  color-scheme: light; background: var(--paper); color: var(--ink); border: 2px solid var(--ink-soft);
+}
+.tree-panel__pick option { background: var(--paper); color: var(--ink); }
 .tree-panel__groups { display: flex; flex-wrap: wrap; gap: 4px; }
 .tree-panel__groups .chip-btn { min-height: 28px; padding: 0 8px; font-size: 13px; color: var(--ink); border-color: rgba(42, 34, 51, 0.3); }
 .tree-panel__groups .chip-btn.is-on { color: var(--ground); }
