@@ -18,7 +18,8 @@ import { PopupStack } from '@/catastrophes';
 import { PledgeTracker } from '../demands/PledgeTracker';
 import { getStore, useStore } from '../store';
 import { Tutorial } from '../tutorial/Tutorial';
-import { UpgradeButton, UpgradeTree } from '@/skilltree';
+import { CheatsModal } from '../modals/CheatsModal';
+import { TreeAbilities, UpgradeButton, UpgradeTree } from '@/skilltree';
 
 const DEBUG = typeof location !== 'undefined' && new URLSearchParams(location.search).get('debug') === '1';
 
@@ -46,6 +47,7 @@ export function Game() {
           <PledgeTracker />
           <PausedBadge />
           <div className="game__dock">
+            <TreeAbilities />
             <LeaderDock />
             <div className="game__dock-side">
               <DockExtras />
@@ -64,6 +66,7 @@ export function Game() {
       {phase === 'election' && <ElectionNight />}
       {modal === 'upgrades' && <UpgradeTree />}
       {modal === 'ability' && <AbilityPicker />}
+      {modal === 'cheats' && <CheatsModal />}
       {(modal === 'pause' || modal === 'confirmRestart' || modal === 'confirmMenu') && <PauseMenu />}
       {modal === 'settings' && <SettingsModal />}
       <Tutorial />

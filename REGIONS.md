@@ -50,8 +50,8 @@ then to pick up the other work.
 
 `config.regionEvents.perYear` (3) times a year, spread evenly over the year, a random kraj without an open
 event gets one; the event is drawn by its traits (`regionWeights`). While it is open (30 days), an
-animation covers the whole kraj and an amber "!" pin sits on it; the pin opens the region screen on the
-Události tab. Intervene applies `onIntervene` (a negative `pc` there is its PC cost), ignore or timeout applies
+animation covers the whole kraj and a red "!" pin sits on it; the pin and a click on the kraj itself open
+the region screen on the Události tab. An open demand does the same with its amber megaphone pin. Intervene applies `onIntervene` (a negative `pc` there is its PC cost), ignore or timeout applies
 `onIgnore`. Both bundles may use the region key `"self"`. Texts: `regionEvent.*` in `locales/regions.cs.json`.
 
 ## Check your changes

@@ -6,15 +6,18 @@
  *
  * Optional (budget vote, phase 23): `highlight` dims the rows not in it, `part` outlines one share of each
  * value, `selected` marks a row, and `onRowHover` makes rows inspectable (pointer or keyboard focus).
- * With `base` (P24, policy cards) each row also shows where the value ends up from today's state.
+ * With `base` (P24, policy cards) each row also shows where the value ends up from today's state, and its
+ * numbers explain themselves in a hover card (see laneTip.tsx).
  */
 import type { MetricKey } from '@core/budgetAdvice';
 import type { PreviewRanges } from '@core/effects';
-import type { Range } from '@core/types';
+import type { OngoingDef, Range } from '@core/types';
 import { GROUP_IDS, RESOURCE_IDS } from '@core/types';
 import { fmtSigned, t } from '@i18n/index';
 import { GROUP_COLOR, RESOURCE_COLOR } from '../colors';
 import { mid, rangeText } from '../format';
+import { HoverCard } from '../HoverCard';
+import { laneTipInfo } from './laneTip';
 
 const MAX_KRAJE = 6;
 
@@ -64,6 +67,8 @@ export interface LaneBase {
 
 interface Inspect {
   base?: LaneBase;
+  /** Footnote of the number hover cards, when the default does not fit the card. */
+  tipHint?: string;
   highlight?: Set<string>;
   part?: PreviewRanges;
   selected?: string;
@@ -77,7 +82,7 @@ const clamp100 = (v: number) => Math.max(0, Math.min(100, v));
 const partOf = (p: PreviewRanges | undefined, m: MetricKey): Range | undefined =>
   !p ? undefined : m.kind === 'resource' ? p.resources[m.id] : m.kind === 'group' ? p.anger[m.id] : p.regions[m.id];
 
-function Lane({ icon, title, rows, extra, ins }: { icon: string; title: string; rows: Row[]; extra?: React.ReactNode; ins: Inspect }) {
+function Lane({ icon, title, rows, extra, ins, ongoing }: { icon: string; title: string; rows: Row[]; extra?: React.ReactNode; ins: Inspect; ongoing: readonly OngoingDef[] }) {
   const scale = Math.max(6, ...rows.map((r) => (r.range ? Math.max(Math.abs(r.range.min), Math.abs(r.range.max)) : 0)));
   return (
     <div className="lane">
@@ -91,6 +96,16 @@ function Lane({ icon, title, rows, extra, ins }: { icon: string; title: string; 
         const v = row.range ? mid(row.range) : 0;
         const good = row.anger ? v < 0 : v > 0;
         const tone = !row.range || Math.abs(v) < 0.05 ? 'none' : good ? 'good' : 'bad';
+        const now = baseOf(ins.base, row.metric);
+        const numbers = (
+          <>
+            <span className={`lane__num lane__num--${tone}`}>
+              {!row.range ? '–' : `${row.anger ? (v > 0 ? '▲' : '▼') : ''}${rangeText(row.range)}`}
+            </span>
+            {ins.base && <BaseTo now={now} delta={row.range ? mid(row.range) : 0} tone={tone} />}
+          </>
+        );
+        const target = row.metric.kind === 'group' ? `anger.${row.metric.id}` : row.metric.id;
         return (
           <div
             key={row.key}
@@ -104,10 +119,17 @@ function Lane({ icon, title, rows, extra, ins }: { icon: string; title: string; 
               {row.label}
             </span>
             <Bar r={row.range} part={partOf(ins.part, row.metric)} anger={row.anger} color={row.color ?? (good ? 'var(--good-on-paper)' : 'var(--bad-on-paper)')} scale={scale} />
-            <span className={`lane__num lane__num--${tone}`}>
-              {!row.range ? '–' : `${row.anger ? (v > 0 ? '▲' : '▼') : ''}${rangeText(row.range)}`}
-            </span>
-            {ins.base && <BaseTo now={baseOf(ins.base, row.metric)} delta={row.range ? mid(row.range) : 0} tone={tone} />}
+            {ins.base ? (
+              <HoverCard
+                className="lane__tip"
+                focusable
+                info={laneTipInfo({ metric: row.metric, label: row.label, accent: row.color, range: row.range, now, ongoing: ongoing.filter((o) => o.target === target), tone, hint: ins.tipHint })}
+              >
+                {numbers}
+              </HoverCard>
+            ) : (
+              numbers
+            )}
           </div>
         );
       })}
@@ -125,7 +147,15 @@ export function EffectLanes({ preview, chaos = 0, ...ins }: { preview: PreviewRa
           {'↻'} {t('lanes.ongoing', { what: target.startsWith('anger.') ? t(`group.${target.slice(6)}`) : t(`resource.short.${target}`), v: fmtSigned(o.perDay, 2), days: o.days })}
         </p>
       ));
-  const resources: Row[] = RESOURCE_IDS.map((r) => ({ key: r, metric: { kind: 'resource', id: r }, label: t(`resource.short.${r}`), color: RESOURCE_COLOR[r], range: preview.resources[r] }));
+  // a card that touches no resource collapses the lane; the budget screen keeps all four, so its rows never jump
+  const touchesResources = RESOURCE_IDS.some((r) => {
+    const range = preview.resources[r];
+    return (range && (Math.abs(range.min) > 1e-9 || Math.abs(range.max) > 1e-9)) || preview.ongoing.some((o) => o.target === r);
+  });
+  const collapseResources = !!ins.base && !touchesResources;
+  const resources: Row[] = collapseResources
+    ? []
+    : RESOURCE_IDS.map((r) => ({ key: r, metric: { kind: 'resource', id: r }, label: t(`resource.short.${r}`), color: RESOURCE_COLOR[r], range: preview.resources[r] }));
   const groups: Row[] = GROUP_IDS.filter((g) => preview.anger[g] || preview.ongoing.some((o) => o.target === `anger.${g}`)).map((g) => ({
     key: g,
     metric: { kind: 'group', id: g },
@@ -141,12 +171,25 @@ export function EffectLanes({ preview, chaos = 0, ...ins }: { preview: PreviewRa
   const more = kraje.length - shown.length;
   return (
     <div className={`lanes${ins.base ? ' lanes--base' : ''}`}>
-      <Lane icon="$" title={t('lanes.resources')} rows={resources} ins={ins} extra={RESOURCE_IDS.flatMap((r) => ongoing(r))} />
+      <Lane
+        icon="$"
+        title={t('lanes.resources')}
+        rows={resources}
+        ins={ins}
+        ongoing={preview.ongoing}
+        extra={
+          <>
+            {collapseResources && <p className="lane__empty">{t('lanes.noResources')}</p>}
+            {RESOURCE_IDS.flatMap((r) => ongoing(r))}
+          </>
+        }
+      />
       <Lane
         icon="☺"
         title={t('lanes.groups')}
         rows={groups}
         ins={ins}
+        ongoing={preview.ongoing}
         extra={
           <>
             {groups.length === 0 && <p className="lane__empty">{t('lanes.noGroups')}</p>}
@@ -159,6 +202,7 @@ export function EffectLanes({ preview, chaos = 0, ...ins }: { preview: PreviewRa
         title={t('lanes.kraje')}
         rows={shown}
         ins={ins}
+        ongoing={preview.ongoing}
         extra={
           <>
             {kraje.length === 0 && <p className="lane__empty">{t('lanes.noKraje')}</p>}

@@ -1,6 +1,7 @@
 /**
  * Static SVG map of the 14 kraje (spec §12.4). Each region is a mustard glass filled with wine or beer
- * up to its regional support s_r, with a pixel wave on the surface (Liquid.tsx). The core updates s_r
+ * up to its regional support s_r, with a pixel wave on the surface (Liquid.tsx). The Czech flag waves between
+ * glass and liquid for a few seconds after each decision (`ui.flagPulse`). The core updates s_r
  * weekly, so the level moves weekly. Outlines on top take the taps.
  * Opportunity pins are HTML buttons laid over the SVG so they stay >= 44 px at any map size.
  */
@@ -19,7 +20,7 @@ import { MAP_HEIGHT, MAP_WIDTH, REGION_PATHS } from './regionsPath';
 
 const LABEL_BY_CODE = new Map(REGION_PATHS.map((r) => [r.code, r]));
 
-const Regions = memo(function Regions({ support, selected }: { support: Record<string, number>; selected: string | null }) {
+const Regions = memo(function Regions({ support, selected, flagPulse }: { support: Record<string, number>; selected: string | null; flagPulse: number }) {
   const store = getStore();
   const [hovered, setHovered] = useState<string | null>(null);
   // SVG has no z-index: a highlighted outline drawn in list order is covered by later neighbours'
@@ -29,7 +30,7 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
     <>
       <LiquidDefs prefix="game" />
       {REGION_PATHS.map((r) => (
-        <LiquidRegion key={r.code} prefix="game" code={r.code} d={r.d} support={support[r.code] ?? 0} />
+        <LiquidRegion key={r.code} prefix="game" code={r.code} d={r.d} support={support[r.code] ?? 0} flagPulse={flagPulse} />
       ))}
       {REGION_PATHS.map((r) => (
         <path
@@ -38,7 +39,12 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
           className="region region--outline"
           fill="transparent"
           fillRule="evenodd"
-          onClick={() => store.setUi({ selectedRegion: r.code, regionTab: 'main' })}
+          // a kraj with an open event or demand acts like its map pin
+          onClick={() => {
+            const open = store.sim?.state;
+            const waiting = open?.regionEvents.some((e) => e.region === r.code) || open?.demands.some((d) => d.region === r.code);
+            store.setUi({ selectedRegion: r.code, regionTab: waiting ? 'events' : 'main' });
+          }}
           onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(r.code)}
           onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered((h) => (h === r.code ? null : h))}
         >
@@ -127,11 +133,12 @@ function QuarterBanner() {
 export function CzMap() {
   const support = useStore((s) => s.sim?.state.projection.regionSupport ?? {});
   const selected = useStore((s) => s.ui.selectedRegion);
+  const flagPulse = useStore((s) => s.ui.flagPulse);
   return (
     <div className="map" data-tut-target="map">
       <div className="map__frame" style={{ aspectRatio: `${MAP_WIDTH} / ${MAP_HEIGHT}` }}>
         <svg viewBox={`-6 -6 ${MAP_WIDTH + 12} ${MAP_HEIGHT + 12}`} className="map__svg" role="img" aria-label={t('hud.projection')}>
-          <Regions support={support} selected={selected} />
+          <Regions support={support} selected={selected} flagPulse={flagPulse} />
         </svg>
         <RegionFloaters />
         <QuarterBanner />

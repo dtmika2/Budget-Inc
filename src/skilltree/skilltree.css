@@ -70,49 +70,130 @@
   .node__cost { font-size: 13px; }
   .tree-axis { font-size: 14px; }
 }
-/* P29: the tree on the left, a fixed description panel on the right */
-.tree-body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: start; min-height: 0; }
-.tree-panel {
-  position: relative; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; min-height: 0;
-  max-height: calc(100dvh - 190px); overflow-y: auto; background: var(--paper); color: var(--ink); box-shadow: var(--shadow-sm);
-  border-top: 6px solid var(--gold-dim);
+/* one thin line above the tree: the owned active abilities */
+.tree-strip { display: flex; align-items: center; gap: 10px; min-height: 40px; overflow-x: auto; white-space: nowrap; }
+.tree-strip__h { flex: none; margin: 0; font: 12px var(--f-pixel); color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; }
+.tree-strip__note, .tree-strip__hint { margin: 0; font-size: 13px; color: var(--text-dim); }
+.tree-strip__hint { margin-left: auto; padding-left: 12px; }
+.tree-strip ul { list-style: none; display: flex; gap: 6px; margin: 0; padding: 0; }
+.tree-strip__active {
+  display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 2px 8px; cursor: pointer;
+  background: var(--panel-2); border: 2px solid var(--line); font: 13px var(--f-body); color: var(--text);
 }
-.tree-panel__hint { margin: 0; font-size: 14px; color: var(--ink-soft); }
-.tree-panel__node { display: flex; flex-direction: column; gap: 6px; }
-.tree-panel__tags { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.tree-panel__quad, .tree-panel__kind { font: 11px var(--f-pixel); padding: 2px 7px; text-transform: uppercase; letter-spacing: 0.04em; }
-.tree-panel__quad { color: #fff; background: var(--q, var(--ink-soft)); }
-.tree-panel__kind { color: var(--ink-soft); border: 1px solid rgba(42, 34, 51, 0.3); display: inline-flex; align-items: center; gap: 4px; }
-.tree-panel__kind.is-active { color: #6b4a00; background: #f3d36b; border-color: #c9a227; }
-.tree-panel__name { margin: 2px 0 0; font: 22px/1.1 var(--f-pixel); }
+.tree-strip__active:hover { border-color: var(--gold-dim); }
+.tree-strip__active span { font-size: 12px; color: var(--text-dim); }
+.tree-strip__active span.is-ready { color: var(--good); font-weight: 700; }
+/* the tree takes the full width; the card opens over the half the selected box is not in, leaving the middle column free */
+.tree-body { position: relative; min-height: 0; }
+.tree-panel {
+  position: absolute; z-index: 5; top: 0; bottom: 0; width: calc(100% * var(--half, 0.44));
+  display: flex; animation: tree-card-in 0.2s steps(4);
+}
+@keyframes tree-card-in { from { transform: translateY(14px) scale(0.96); opacity: 0; } }
+.tree-panel--left { left: 0; }
+.tree-panel--right { right: 0; }
+/* the card, in the special cards' style: banner, dark art panel, body, footer; framed in the quadrant's colour */
+.tree-panel__node {
+  --q-ink: #fff;
+  position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--paper); color: var(--ink); border: 4px solid var(--q, var(--ink)); box-shadow: var(--shadow);
+}
+.tree-panel__node--rt { --q-ink: #2a2233; }
+.tree-panel__banner {
+  flex: none; display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 12px; background: var(--q, var(--ink)); color: var(--q-ink);
+}
+.tree-panel__icon { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; background: var(--paper); color: var(--q, var(--ink)); }
+.tree-panel__kind { min-width: 0; font: 700 16px/1.1 var(--f-pixel); letter-spacing: 0.05em; text-transform: uppercase; }
+.tree-panel__quad { min-width: 0; margin-left: auto; font: 11px/1.1 var(--f-pixel); letter-spacing: 0.04em; text-transform: uppercase; text-align: right; }
+.tree-panel__close {
+  flex: none; width: 26px; height: 26px; padding: 0; cursor: pointer; background: transparent; color: inherit;
+  border: 2px solid currentColor; font: 14px/1 var(--f-pixel);
+}
+.tree-panel__close:hover { background: rgba(12, 10, 20, 0.25); }
+.tree-panel__art { position: relative; flex: none; padding: 10px 14px 6px; background: #2a2440; border-bottom: 4px solid var(--q, var(--ink)); }
+.tree-panel__art svg { display: block; width: 100%; height: clamp(56px, 16dvh, 120px); }
+.tree-panel__stamp {
+  position: absolute; right: 10px; bottom: 8px; padding: 1px 8px; border: 3px solid currentColor; pointer-events: none;
+  font: 700 18px var(--f-pixel); text-transform: uppercase; background: rgba(239, 230, 207, 0.9); transform: rotate(-8deg);
+  animation: tree-stamp-in 0.28s steps(4) 0.1s both;
+}
+.tree-panel__stamp--owned { color: var(--good-on-paper); }
+.tree-panel__stamp--excluded { color: var(--stamp); }
+@keyframes tree-stamp-in { from { transform: rotate(-8deg) scale(2); opacity: 0; } to { transform: rotate(-8deg); opacity: 1; } }
+.tree-panel__scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; }
+.tree-panel__box { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; border: 3px dashed var(--ink-soft); }
+.tree-panel__foot { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 8px 14px 12px; border-top: 2px dashed rgba(42, 34, 51, 0.18); }
+.tree-panel__foot .tree-panel__actions { margin: 0 0 0 auto; }
+.tree-panel__foot .tree-panel__actions:empty { display: none; }
+/* an active ability's card shines once as it opens, like an agent card */
+.tree-panel__shine {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none; transform: translateX(-130%);
+  background: linear-gradient(115deg, transparent 36%, rgba(255, 246, 200, 0.7) 44%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 246, 200, 0.7) 56%, transparent 64%);
+  animation: tree-shine 0.9s steps(12) 0.2s both;
+}
+@keyframes tree-shine { from { transform: translateX(-130%); } to { transform: translateX(130%); } }
+.tree-panel__name { margin: 0; font: 700 22px/1.1 var(--f-pixel); }
 .tree-panel__desc { margin: 0; font-size: 14px; line-height: 1.45; }
-.tree-panel__h { margin: 6px 0 0; font: 12px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; border-top: 2px dashed rgba(42, 34, 51, 0.18); padding-top: 6px; }
+.tree-panel__h { margin: 0; font: 12px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
 .tree-panel__fx { margin: 0; padding: 0 0 0 16px; font-size: 14px; line-height: 1.45; }
 .tree-panel__fx li::marker { color: var(--q, var(--ink-soft)); }
 .tree-panel__meta { margin: 0; font-size: 13px; color: var(--ink-soft); }
 .tree-panel__pick { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-.tree-panel__pick select { flex: 1; min-height: 32px; font: 14px var(--f-body); }
+/* the card is paper in a dark-themed game: without explicit colours the browser pairs its dark control with our dark ink */
+.tree-panel__pick select {
+  flex: 1; min-width: 0; min-height: 32px; padding: 2px 6px; font: 14px var(--f-body); cursor: pointer;
+  color-scheme: light; background: var(--paper); color: var(--ink); border: 2px solid var(--ink-soft);
+}
+.tree-panel__pick option { background: var(--paper); color: var(--ink); }
 .tree-panel__groups { display: flex; flex-wrap: wrap; gap: 4px; }
 .tree-panel__groups .chip-btn { min-height: 28px; padding: 0 8px; font-size: 13px; color: var(--ink); border-color: rgba(42, 34, 51, 0.3); }
 .tree-panel__groups .chip-btn.is-on { color: var(--ground); }
 .tree-panel__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-.tree-panel__list { margin-top: auto; }
-.tree-panel__list ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.tree-panel__active {
-  width: 100%; display: flex; align-items: center; gap: 6px; padding: 5px 8px; cursor: pointer; text-align: left;
-  background: rgba(42, 34, 51, 0.06); border: 1px solid rgba(42, 34, 51, 0.2); font: 14px var(--f-body); color: var(--ink);
-}
-.tree-panel__active span { margin-left: auto; font-size: 12px; color: var(--ink-soft); }
-.tree-panel__active span.is-ready { color: var(--good-on-paper); font-weight: 700; }
 /* quadrant colours (panel tags, box edges, list markers) */
-.tree-panel__node--lp, .tree-panel__quad--lp, .node--q-lp { --q: #c42f86; }
-.tree-panel__node--rp, .tree-panel__quad--rp, .node--q-rp { --q: #2b56c9; }
-.tree-panel__node--lt, .tree-panel__quad--lt, .node--q-lt { --q: #a8141c; }
-.tree-panel__node--rt, .tree-panel__quad--rt, .node--q-rt { --q: #b58a00; }
-.tree-panel__node--p, .tree-panel__quad--p, .node--q-p,
-.tree-panel__node--t, .tree-panel__quad--t, .node--q-t,
-.tree-panel__node--l, .tree-panel__quad--l, .node--q-l,
-.tree-panel__node--r, .tree-panel__quad--r, .node--q-r { --q: #6b6080; }
+.tree-panel__node--lp, .tree-ability--lp, .node--q-lp { --q: #c42f86; }
+.tree-panel__node--rp, .tree-ability--rp, .node--q-rp { --q: #2b56c9; }
+.tree-panel__node--lt, .tree-ability--lt, .node--q-lt { --q: #a8141c; }
+.tree-panel__node--rt, .tree-ability--rt, .node--q-rt { --q: #b58a00; }
+.tree-panel__node--p, .tree-ability--p, .node--q-p,
+.tree-panel__node--t, .tree-ability--t, .node--q-t,
+.tree-panel__node--l, .tree-ability--l, .node--q-l,
+.tree-panel__node--r, .tree-ability--r, .node--q-r { --q: #6b6080; }
+/* owned active abilities: a row above the leader's abilities, in the map's free corner; quadrant colours */
+.tree-abilities {
+  position: absolute; left: 0; bottom: 100%; z-index: 7; margin-bottom: 6px; max-width: calc(100% - 230px);
+  display: flex; flex-wrap: wrap-reverse; gap: 6px;
+}
+.tree-ability.is-picking { outline: 2px solid var(--gold); outline-offset: 1px; }
+/* the target picker: above the row, dark like the hover cards; the preview line keeps its height, so nothing jumps */
+.tree-picker {
+  position: absolute; left: 0; bottom: calc(100% + 6px); width: min(340px, calc(100vw - 24px)); max-height: min(70dvh, 460px); overflow-y: auto;
+  display: flex; flex-direction: column; gap: 6px; padding: 10px 12px;
+  background: #1b1729; color: var(--text); border: 2px solid var(--gold); border-top-width: 4px; box-shadow: var(--shadow);
+  animation: tree-card-in 0.15s steps(3);
+}
+.tree-picker__title { margin: 0; font: 16px var(--f-pixel); color: var(--gold); }
+.tree-picker__head { margin: 0; font-size: 12px; color: var(--text-dim); }
+.tree-picker__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.tree-picker__list--regions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tree-picker__item {
+  width: 100%; min-height: 32px; display: flex; align-items: center; gap: 6px; padding: 2px 8px; cursor: pointer; text-align: left;
+  background: var(--panel-2); color: var(--text); border: 2px solid var(--line); font: 13px var(--f-body);
+}
+.tree-picker__item:hover, .tree-picker__item:focus-visible { border-color: var(--gold); outline: 0; }
+.tree-picker__key { flex: none; width: 9px; height: 9px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); }
+.tree-picker__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-picker__value { flex: none; font: 400 14px var(--f-num); color: var(--text-dim); }
+.tree-picker__preview { min-height: 44px; }
+.tree-ability { --party: var(--q); min-height: 44px; max-width: 170px; animation: tree-card-in 0.2s steps(4); }
+.tree-ability__icon { flex: none; display: inline-grid; place-items: center; width: 28px; height: 28px; background: var(--paper); color: var(--q); }
+.tree-ability--rt.is-ready, .tree-ability--rt.is-ready small { color: #2a2233; }
+/* the hover card is dark; the effect chips are coloured for paper */
+.tree-ability__fx .chip { background: rgba(255, 255, 255, 0.08); }
+.tree-ability__fx .chip--good .chip__value { color: var(--good); }
+.tree-ability__fx .chip--bad .chip__value { color: var(--bad); }
+@media (max-width: 760px) {
+  .tree-abilities { max-width: 100%; }
+}
 /* the four compass quadrants: tinted backgrounds with their own pattern and a corner label */
 .tree-quad { position: absolute; width: 50%; height: 50%; z-index: 0; pointer-events: none; }
 .tree-quad--lp { left: 0; top: 0; background: repeating-linear-gradient(45deg, rgba(196, 47, 134, 0.16) 0 2px, transparent 2px 14px), rgba(196, 47, 134, 0.1); }
@@ -138,9 +219,10 @@
   background: #f3d36b; color: #6b4a00; box-shadow: 1px 1px 0 #0c0a14;
 }
 .node--owned .node__bolt { background: var(--ground); color: #f3d36b; }
+/* a half of a narrow tree is too small for the card: it sits under the tree instead */
 @media (max-width: 1000px) {
-  .tree-body { grid-template-columns: 1fr; }
-  .tree-panel { max-height: none; }
+  .tree-panel { position: static; width: auto; margin-top: 14px; }
+  .tree-panel__scroll { overflow-y: visible; }
   .tree { height: min(calc(100dvh - 300px), 520px); }
 }
 

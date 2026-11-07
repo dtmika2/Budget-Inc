@@ -468,6 +468,7 @@ export interface GameData {
 export type Phase = 'running' | 'draft' | 'budgetVote' | 'compromise' | 'special' | 'ending' | 'election' | 'finished';
 
 export type Input =
+  | { kind: 'cheat'; code: string }
   | { kind: 'pickPolicy'; cardId: string }
   | { kind: 'reroll' }
   | { kind: 'respond'; eventInstanceId: string; responseId: string; timedOut: boolean }
@@ -646,7 +647,7 @@ export interface GameState {
   budgetVoteItems: string[] | null;
   /** Re-rolls of the shown categories in the open vote (each costs more PC). */
   budgetVoteRerolls: number;
-  /** Open regional demands ("!" pins) and accepted pledges (phase 14). */
+  /** Open regional demands (map pins) and accepted pledges (phase 14). */
   demands: OpenDemand[];
   pledges: Pledge[];
   demandSeq: number;

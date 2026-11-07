@@ -141,6 +141,13 @@ export const config = {
     } as Record<'settlement' | 'economy' | 'special', string[]>,
     /** Opacity of the Czech flag between the map's glass and its liquid (0–1). */
     flagOpacity: 0.6,
+    /** Length of the flag's fade in and out after a decision, at 1x (the map's animations follow the game speed). */
+    flagPulseMs: 6000,
+    /** The flag's wave: strip width and how far a strip bobs (map units), one wave's time, the delay between strips. */
+    flagColumnWidth: 13,
+    flagWaveAmp: 10,
+    flagWaveMs: 1400,
+    flagWavePhaseMs: 65,
     /** Hidden card tags that traits react to. */
     tags: ['agriculture', 'industry', 'transport', 'services', 'tourism', 'environment', 'education', 'social', 'coal', 'border'] as string[],
     /**
@@ -419,16 +426,16 @@ export const config = {
     tickerWeeks: 26,
   },
 
-  /** Phase 14: regional demands ("!") and pledges. */
+  /** Phase 14: regional demands and pledges. */
   demands: {
     /** Demands spawned per game year (spawn days drawn at the year's first quarter from the `demands` stream). */
     perYear: 3,
     /** Spawn window inside the year (days from the year's start / before its end). */
     spawnFromDay: 10,
     spawnBeforeYearEnd: 30,
-    /** At most this many open "!" pins; at most one demand or pledge per region. */
+    /** At most this many open demand pins; at most one demand or pledge per region. */
     maxOpen: 2,
-    /** Days a "!" pin waits for an answer before it expires (counts as ignored). */
+    /** Days a demand pin waits for an answer before it expires (counts as ignored). */
     responseDays: 30,
     /** Time to fulfil an accepted demand. */
     deadlineQuarters: 4,
@@ -506,6 +513,13 @@ export const config = {
     regionActionFinancePrice: 0.008,
     /** ...and each PC (PC also buys upgrades, which the bot otherwise undervalues). */
     regionActionPcPrice: 0.03,
+  },
+
+  /** Cheat codes for the pause menu's Podvody window: code (upper case) -> reward. */
+  cheats: {
+    codes: {
+      PK1000: { pc: 1000 },
+    } as Record<string, { pc: number }>,
   },
 
   /** Simulator targets on Normal (§13). */

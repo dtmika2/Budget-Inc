@@ -15,10 +15,12 @@ import { t } from '@i18n/index';
 import { Clock } from './clock';
 import { planLife, type ActorSpawn } from '@/regions/lifeDirector';
 import { REGION_PATHS } from '@/regions/regionsPath';
+import { usedCheats } from '@core/cheats';
+import { isDecisionEntry } from '@/regions/flagPulse';
 import { loadSettings, recordScore, saveSettings, setTutorialSeen, tutorialSeen, type Settings } from './persist';
 
 export type Screen = 'menu' | 'howto' | 'settings' | 'select' | 'game' | 'final' | 'dataError';
-export type Modal = null | 'upgrades' | 'pause' | 'settings' | 'confirmRestart' | 'confirmMenu' | 'ability';
+export type Modal = null | 'upgrades' | 'pause' | 'cheats' | 'settings' | 'confirmRestart' | 'confirmMenu' | 'ability';
 export type TutorialStep = 'draft' | 'topbar' | 'map' | 'panel' | 'pin' | 'upgrades';
 export const TUTORIAL_STEPS: TutorialStep[] = ['draft', 'topbar', 'map', 'panel', 'pin', 'upgrades'];
 
@@ -108,6 +110,8 @@ export interface UiState {
   panelTab: PanelTab;
   /** Ability whose target picker is open (modal 'ability'). */
   abilityPick: string | null;
+  /** Counts the player's decisions in this run: each one plays the map's flag fade once. */
+  flagPulse: number;
   setup: { leader: LeaderId; difficulty: DifficultyId };
   newBest: boolean;
   electionRevealed: boolean;
@@ -169,6 +173,7 @@ export class Store {
       resourceDetail: null,
       panelTab: 'trend',
       abilityPick: null,
+      flagPulse: 0,
       setup: { leader: this.data?.leaders[0]?.id ?? 'mupka', difficulty: config.defaultDifficulty },
       newBest: false,
       electionRevealed: false,
@@ -238,6 +243,7 @@ export class Store {
       resourceDetail: null,
       panelTab: 'trend',
       abilityPick: null,
+      flagPulse: 0,
       newBest: false,
       electionRevealed: false,
     };
@@ -257,7 +263,7 @@ export class Store {
   /** The run is over and its presentation (ending card / election night) has finished. */
   finishPresentation(): void {
     const s = this.sim?.state;
-    if (s && s.score !== null) this.ui.newBest = recordScore(s.leader, s.difficulty, s.score);
+    if (s && s.score !== null && !usedCheats(s)) this.ui.newBest = recordScore(s.leader, s.difficulty, s.score);
     this.go('final');
   }
 
@@ -360,7 +366,8 @@ export class Store {
     const pending = new Set(sim.state.pendingResponses.map((p) => p.instanceId));
     popups = popups.filter((p) => p.kind !== 'response' || pending.has(p.instanceId!));
     const actors = this.planActors(newEntries, this.mapClock);
-    this.ui = { ...this.ui, popups, floaters: floaters.slice(-40), actors };
+    const flagPulse = this.ui.flagPulse + (newEntries.some(isDecisionEntry) ? 1 : 0);
+    this.ui = { ...this.ui, popups, floaters: floaters.slice(-40), actors, flagPulse };
     this.advanceTutorial();
     this.emit();
   }

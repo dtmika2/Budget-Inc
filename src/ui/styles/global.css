@@ -247,7 +247,7 @@ h1, h2, h3 { margin: 0; }
 .sparkline__dot { fill: var(--res-c); }
 
 /* dock */
-.game__dock { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-top: 8px; }
+.game__dock { position: relative; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-top: 8px; }
 /* mute and coffee float above the upgrades button, so they take no height from the map */
 .game__dock-side { position: relative; }
 .dock-extras { position: absolute; right: 0; bottom: 100%; z-index: 2; margin-bottom: 6px; display: flex; gap: 6px; }
@@ -255,7 +255,11 @@ h1, h2, h3 { margin: 0; }
 .dock-extra:hover { border-color: var(--gold); }
 .dock { display: flex; align-items: flex-end; gap: 10px; }
 .dock__info { display: flex; flex-direction: column; gap: 4px; }
+.dock__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
 .dock__name { font-family: var(--f-pixel); font-size: 16px; }
+.dock__note { font-family: var(--f-pixel); font-size: 14px; font-weight: 700; }
+.dock__note::before { content: '•'; margin-right: 10px; }
+.hovercard__once { margin: 0; padding: 3px 8px; background: #c42f86; color: #fff; font: 700 14px var(--f-pixel); text-align: center; text-transform: uppercase; letter-spacing: 0.04em; }
 .btn--ability { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; border-color: var(--party); }
 .btn--ability small { font-family: var(--f-body); font-size: 12px; color: var(--text-dim); }
 .btn--ability.is-ready { background: var(--party); color: #fff; }
@@ -375,6 +379,14 @@ h1, h2, h3 { margin: 0; }
 }
 .modal--small { width: min(420px, 100%); }
 .modal--small .h-display { font-size: 26px; }
+.cheats__form { display: flex; gap: 8px; }
+.cheats__input { flex: 1; min-width: 0; min-height: 44px; padding: 4px 10px; background: var(--paper); color: var(--ink); border: 3px solid var(--gold-dim); font: 18px var(--f-num); text-transform: uppercase; }
+.cheats__input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.cheats__input::placeholder { color: var(--ink-soft); text-transform: none; }
+.cheats__result { margin: 0; font-weight: 700; }
+.cheats__result--ok { color: var(--good); }
+.cheats__result--bad { color: var(--bad); }
+.cheats__note { margin: 0; font-size: 13px; color: var(--text-dim); }
 .modal__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .modal__head .h-display { font-size: 28px; }
 .modal__sub { margin: 4px 0 0; color: var(--text-dim); }
@@ -410,7 +422,8 @@ h1, h2, h3 { margin: 0; }
 .btn--reroll { align-self: center; }
 /* regional compromise decision: two cards facing each other with an "or" between them */
 .modal--compromise { width: min(820px, 100%); }
-.versus { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; }
+.versus { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: stretch; }
+.versus > .versus__or { align-self: center; }
 .versus__or {
   font-family: var(--f-pixel); font-weight: 700; font-size: 22px; color: var(--ground);
   background: #d6bc6c; padding: 6px 10px; box-shadow: var(--shadow-sm); align-self: center;
@@ -573,7 +586,7 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
   .btn--drawer { display: inline-block; position: absolute; left: var(--gutter); top: 10px; z-index: 2; }
   .game__stage { padding: 56px 12px 12px; }
   .game__dock { flex-wrap: wrap; }
-  .dock__name { display: none; }
+  .dock__head { display: none; }
   .ability-btn__text { display: none; }
   .ability-btn { padding: 4px; min-height: 48px; }
 
@@ -897,6 +910,17 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .mg-result__score { margin: 0; font-family: var(--f-num); font-size: 18px; }
 .mg-result__tour { margin: 0; font-weight: 700; }
 .mg-result__memo { width: min(520px, 100%); text-align: left; }
+.mg-result__base { margin: -6px 0 0; font-family: var(--f-num); font-size: 15px; color: var(--text-dim); }
+.mg-compare { gap: 6px; }
+.mg-compare__title { margin: 0; font: 13px var(--f-pixel); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+.mg-compare__same { margin: 0; font-size: 14px; color: var(--ink-soft); }
+.mg-compare__table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.mg-compare__table th, .mg-compare__table td { padding: 3px 0 3px 10px; text-align: right; white-space: nowrap; border-top: 2px dashed rgba(42, 34, 51, 0.18); }
+.mg-compare__table thead th { border-top: 0; font: 12px var(--f-pixel); color: var(--ink-soft); white-space: normal; vertical-align: bottom; }
+.mg-compare__table th:first-child { padding-left: 0; text-align: left; white-space: normal; font-weight: 400; }
+.mg-compare__table td { font: 13px var(--f-num); font-variant-numeric: tabular-nums; }
+.mg-compare__table td.mg-compare__diff--good { color: var(--good-on-paper); }
+.mg-compare__table td.mg-compare__diff--bad { color: var(--bad-on-paper); }
 .mg-result__go { min-width: 200px; min-height: 48px; }
 
 @media (max-width: 760px) {
@@ -953,8 +977,8 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .delta--key::before { content: ''; display: inline-block; width: 6px; height: 6px; margin-right: 4px; background: var(--chip-c); vertical-align: 1px; }
 
 /* ------------------------------------------------------------ full-page draft + effect lanes (phase 22) */
-.modal.modal--draft { width: calc(100vw - 32px); max-width: 1500px; min-height: calc(100dvh - 32px); display: flex; flex-direction: column; }
-.modal--draft .carousel { flex: 1; align-items: stretch; gap: 20px; }
+.modal.modal--draft { width: calc(100vw - 32px); max-width: 1500px; display: flex; flex-direction: column; }
+.modal--draft .carousel { align-items: stretch; gap: 20px; }
 .modal--draft .memo { padding: 18px 20px 16px; gap: 10px; }
 .modal--draft .memo__title { font-size: 24px; }
 .modal--draft .memo__flavor { font-size: 16px; }
@@ -981,6 +1005,13 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .lane__to b { font-weight: 400; }
 .lane__to--good b { color: var(--good-on-paper); }
 .lane__to--bad b { color: var(--bad-on-paper); }
+/* the two number columns of a row share one hover card (subgrid keeps them on the row's tracks) */
+.lane__tip { grid-column: 3 / -1; display: grid; grid-template-columns: subgrid; align-items: center; min-width: 0; cursor: help; }
+.lane__tip:hover { background: rgba(42, 34, 51, 0.08); }
+.lane__tip:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.lanetip { display: flex; flex-direction: column; gap: 2px; border-top: 1px dashed var(--line); padding-top: 5px; }
+.lanetip__head { font: 12px var(--f-pixel); color: var(--gold); text-transform: uppercase; letter-spacing: 0.04em; }
+.lanetip__line { margin: 0; font-size: 13px; line-height: 1.35; }
 .draft-status { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 6px 10px; background: var(--panel-2); border: 2px solid var(--line); font-size: 14px; }
 .draft-status__label { font: 12px var(--f-pixel); color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
 .draft-status__item { display: inline-flex; align-items: baseline; gap: 6px; }
@@ -1031,7 +1062,6 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 /* the draft opens under the top bar on wide screens, so the bar stays readable */
 @media (min-width: 761px) {
   .modal-backdrop--under-bar { top: 63px; }
-  .modal-backdrop--under-bar .modal.modal--draft { min-height: calc(100dvh - 63px - 32px); }
   .modal--draft .draft-status { display: none; }
 }
 @media (max-width: 760px) {

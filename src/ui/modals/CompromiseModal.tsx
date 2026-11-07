@@ -6,6 +6,7 @@ import { MINIGAMES } from '../minigames';
 import { pct } from '../format';
 import { PixelIcon, type PixelIconName } from '../pixelIcons';
 import { getStore, useStore } from '../store';
+import { CompareScore, CompareTable } from './CompromiseCompare';
 import { PolicyCard } from './PolicyCard';
 import { RangeChips } from './RangeChips';
 
@@ -174,10 +175,12 @@ function Result({ cardId, channelId, score, skipped, onContinue }: { cardId: str
     <div className={`mg-result mg-result--${tier}`}>
       <p className="mg-result__tier">{t(skipped ? 'minigame.result.skipped' : `minigame.result.${tier}`)}</p>
       <p className="mg-result__score">{t('minigame.result.score', { pct: pct(score) })}</p>
+      {!skipped && <CompareScore channelId={channelId} score={score} />}
       {tour && <p className="mg-result__tour">{t(gainMult >= 1 ? 'minigame.result.tourHelped' : gainMult > 0 ? 'minigame.result.tourWeak' : 'minigame.result.tourHurt')}</p>}
       <div className="memo memo--compromise mg-result__memo">
         <RangeChips preview={preview} all />
       </div>
+      {!skipped && <CompareTable cardId={cardId} channelId={channelId} after={preview} />}
       <button className="btn btn--compromise mg-result__go" onClick={onContinue} autoFocus>
         {t('minigame.result.continue')}
       </button>

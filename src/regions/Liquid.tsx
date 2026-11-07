@@ -65,6 +65,19 @@ export const REGION_BOXES: Record<string, Box> = Object.fromEntries(REGION_PATHS
 const FLAG = { white: '#ffffff', red: '#d7141a', blue: '#11457e' };
 const COUNTRY: Box = pathBox(REGION_PATHS.map((r) => r.d).join(' '));
 
+/**
+ * The flag cut into vertical strips for the waving version: in each one, white above the blue triangle's
+ * edge and red below it, so the triangle comes out as a pixel staircase. `along` is 0 at the hoist, 1 at the end.
+ */
+const FLAG_COLUMN_COUNT = Math.ceil(COUNTRY.w / config.regions.flagColumnWidth);
+export const FLAG_COLUMNS = Array.from({ length: FLAG_COLUMN_COUNT }, (_, i) => {
+  const width = config.regions.flagColumnWidth;
+  const t = Math.min(1, ((i + 0.5) * width) / (COUNTRY.w / 2));
+  const middle = COUNTRY.y + COUNTRY.h / 2;
+  const half = (COUNTRY.h / 2) * (1 - t);
+  return { i, x: COUNTRY.x + i * width, blueTop: middle - half, blueBottom: middle + half, along: (i + 0.5) / FLAG_COLUMN_COUNT };
+});
+
 /** Surface y for a support value: 0 = empty (below the region), 100 = brim. */
 export function levelY(box: Box, support: number): number {
   const s = Math.min(100, Math.max(0, support)) / 100;
@@ -163,8 +176,44 @@ export const LiquidDefs = memo(function LiquidDefs({ prefix }: { prefix: string 
   );
 });
 
-/** One region's glass + liquid. `support` drives the level. */
-export const LiquidRegion = memo(function LiquidRegion({ prefix, code, d, support }: { prefix: string; code: string; d: string; support: number }) {
+/**
+ * The part of the flag over one kraj, fading in and out while it waves: each strip bobs a little out of step
+ * with its neighbours, so a wave runs away from the hoist, where the flag moves least. Everything is a finite
+ * CSS animation inside `.map`, so MapTempo runs it at the game speed and nothing keeps running afterwards.
+ */
+const WavingFlag = memo(function WavingFlag({ box }: { box: Box }) {
+  const { flagColumnWidth: width, flagPulseMs, flagWaveMs, flagWaveAmp, flagOpacity } = config.regions;
+  const top = COUNTRY.y - flagWaveAmp;
+  const bottom = COUNTRY.y + COUNTRY.h + flagWaveAmp;
+  // one wave more than the fade needs, so no strip stops before the flag has gone
+  const iterations = Math.ceil(flagPulseMs / flagWaveMs) + 1;
+  return (
+    <g className="flag-pulse" shapeRendering="crispEdges" style={{ animationDuration: `${flagPulseMs}ms`, ['--flag-o' as string]: flagOpacity }}>
+      {FLAG_COLUMNS.filter((c) => c.x < box.x + box.w && c.x + width > box.x).map((c) => (
+        <g
+          key={c.i}
+          className="flag-column"
+          style={{
+            animationDuration: `${flagWaveMs}ms`,
+            animationIterationCount: iterations,
+            animationDelay: `${-(flagWaveMs - ((c.i * config.regions.flagWavePhaseMs) % flagWaveMs))}ms`,
+            ['--a' as string]: `${flagWaveAmp * (0.3 + 0.7 * c.along)}px`,
+          }}
+        >
+          <rect x={c.x} y={top} width={width + 1} height={c.blueTop - top} fill={FLAG.white} />
+          <rect x={c.x} y={c.blueTop} width={width + 1} height={c.blueBottom - c.blueTop} fill={FLAG.blue} />
+          <rect x={c.x} y={c.blueBottom} width={width + 1} height={bottom - c.blueBottom} fill={FLAG.red} />
+        </g>
+      ))}
+    </g>
+  );
+});
+
+/**
+ * One region's glass + liquid. `support` drives the level. Without `flagPulse` a still flag stays on; with it
+ * the flag only waves in and fades out, once each time the number changes (0: not yet).
+ */
+export const LiquidRegion = memo(function LiquidRegion({ prefix, code, d, support, flagPulse }: { prefix: string; code: string; d: string; support: number; flagPulse?: number }) {
   const box = REGION_BOXES[code];
   const y = levelY(box, support);
   const h = hash(code);
@@ -180,7 +229,11 @@ export const LiquidRegion = memo(function LiquidRegion({ prefix, code, d, suppor
   return (
     <g clipPath={`url(#${prefix}-clip-${code})`}>
       <path d={d} fillRule="evenodd" className="glass" />
-      <use href={`#${prefix}-flag`} opacity={config.regions.flagOpacity} />
+      {flagPulse === undefined ? (
+        <use href={`#${prefix}-flag`} opacity={config.regions.flagOpacity} />
+      ) : (
+        flagPulse > 0 && <WavingFlag key={flagPulse} box={box} />
+      )}
       <g className="liquid" style={{ transform: `translateY(${y}px)` }} shapeRendering="crispEdges">
         <rect className="wave wave--back" style={backStyle} x={backX} y={-TILE_H} width={box.w + 3 * backLen} height={TILE_H} fill={`url(#${prefix}-${pattern}-back)`} />
         <rect className="wave wave--front" style={frontStyle} x={frontX} y={-TILE_H} width={box.w + 3 * frontLen} height={TILE_H} fill={`url(#${prefix}-${pattern}-front)`} />

@@ -3,6 +3,7 @@ import { config } from '@/config';
 import type { ResourceId } from '@core/types';
 import { RESOURCE_IDS } from '@core/types';
 import { fmt, fmtSigned, t } from '@i18n/index';
+import { resourceZone as zoneOf } from '../format';
 import { historyTitle, originLabel } from '../panel/SidePanel';
 import { Floaters } from '../popups/Floaters';
 import { HoverCard, type HoverInfo } from '../HoverCard';
@@ -26,9 +27,6 @@ export function valueColor(v: number): string {
   const hue = x < 75 ? (x / 75) * 120 : 120;
   return `hsl(${Math.round(hue)} 72% ${x < 20 ? 58 : 52}%)`;
 }
-
-/** Zone of a value for the label in the detail panel. */
-const zoneOf = (v: number) => (v < 20 ? 'critical' : v < 40 ? 'weak' : v < 70 ? 'ok' : 'strong');
 
 const ResourceTile = memo(function ResourceTile({ id, open, onToggle }: { id: ResourceId; open: boolean; onToggle: (id: ResourceId) => void }) {
   const value = useStore((s) => Math.round((s.sim?.state.resources[id] ?? 0) * 10) / 10);

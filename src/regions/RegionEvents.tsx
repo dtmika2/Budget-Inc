@@ -21,9 +21,9 @@ export function RegionEvents({ code }: { code: string }) {
         const exp = dateParts(sim, ev.expireAbsDay);
         const cost = interveneCost(tpl);
         return (
-          <section key={ev.id} className="rs-card demand rs-event" aria-labelledby={`rev-${ev.id}`}>
+          <section key={ev.id} className="rs-card demand" aria-labelledby={`rev-${ev.id}`}>
             <p className="demand__tag">
-              <span className="demand__bang rs-event__bang" aria-hidden="true">
+              <span className="demand__bang" aria-hidden="true">
                 !
               </span>
               {t('regionEvent.tag')}

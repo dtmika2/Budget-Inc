@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { canBuy, isForkLink, nodeStatus, treesFor, upgradeCooldownLeft } from '../src/core/upgrades';
 import { loadGameData } from '../src/data/loader';
 import { readDataFiles, readLocale } from '../scripts/lib/nodeData';
+import { QUADRANT_ART } from '../src/skilltree/quadrantArt';
+import { iconRects } from '../src/ui/abilityIcons';
 import { quietSim } from './helpers';
 
 const TREE = 'data/upgrades/compass.json';
@@ -17,6 +19,14 @@ function loadWith(patch: (tree: AnyObj) => void) {
   patch(tree);
   return loadGameData({ ...files, [TREE]: tree }, readLocale());
 }
+
+describe('card emblems', () => {
+  it.each(Object.entries(QUADRANT_ART))('%s is a 24 x 14 grid of known pixels', (_quadrant, grid) => {
+    expect(grid).toHaveLength(14);
+    for (const row of grid) expect(row).toHaveLength(24);
+    expect(iconRects(grid).length).toBeGreaterThan(0);
+  });
+});
 
 describe('political compass tree', () => {
   it('each leader starts on their own box, with its effect active', () => {
