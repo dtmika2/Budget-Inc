@@ -35,7 +35,9 @@ export function resolveSelf(b: EffectBundle, region: string): EffectBundle {
   const regions = { ...b.regions };
   const self = regions.self!;
   delete regions.self;
-  regions[region] = self;
+  // a bundle that also names the chosen kraj itself gets both (Tramvaj into Praha: +8 and +2)
+  const own = regions[region];
+  regions[region] = own ? { min: own.min + self.min, max: own.max + self.max } : self;
   return { ...b, regions };
 }
 

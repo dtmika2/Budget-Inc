@@ -259,7 +259,7 @@ export const leaderSchema = z
               .strict()
               .nullable()
               .default(null),
-            action: z.enum(['cancelEvent', 'halveAnger']).nullable().default(null),
+            action: z.enum(['cancelEvent', 'halveAnger', 'regionTarget']).nullable().default(null),
             targetModifiers: z.array(modifierSchema).default([]),
             blame: z
               .object({ policies: z.number().int().positive(), coalitionFactor: z.number().min(0) })

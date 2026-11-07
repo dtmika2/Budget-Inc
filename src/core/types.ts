@@ -240,7 +240,7 @@ export interface EndingDef {
 }
 
 /** Special action of an ability (beyond its modifiers, bundle and pulses). */
-export type AbilityAction = 'cancelEvent' | 'halveAnger';
+export type AbilityAction = 'cancelEvent' | 'halveAnger' | 'regionTarget';
 
 /** A leader ability (phase 17): usable once per game. */
 export interface AbilityDef {
@@ -253,7 +253,10 @@ export interface AbilityDef {
   bundle: EffectBundle;
   /** Repeated effect: `bundle` every `everyDays` days, `times` times (the first one month after use). */
   pulses: { everyDays: number; times: number; bundle: EffectBundle; label: string } | null;
-  /** cancelEvent: cancel one open item (target "kind:id"); halveAnger: halve one group's anger (target = group). */
+  /**
+   * cancelEvent: cancel one open item (target "kind:id"); halveAnger: halve one group's anger (target = group);
+   * regionTarget: apply `bundle` with its region key `self` replaced by the chosen kraj (target = kraj code).
+   */
   action: AbilityAction | null;
   /** halveAnger: modifiers on the chosen group, `{group}` in the target is replaced (e.g. anger.{group}.gain). */
   targetModifiers: ModifierDef[];

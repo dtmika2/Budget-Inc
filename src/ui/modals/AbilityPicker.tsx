@@ -10,8 +10,15 @@ import { RangeChips } from './RangeChips';
 
 /**
  * Target picker of an ability with an action (phase 17): Durazne odsouzeni lists everything currently
- * happening that can be cancelled; STB lists the interest groups with their anger now and after halving.
+ * happening that can be cancelled; STB lists the interest groups with their anger now and after halving;
+ * a regionTarget ability (Tramvaj do kazdeho kraje) lists the kraje with their support now and after.
  */
+
+const PICK_TEXT = {
+  cancelEvent: ['ability.pick.condemn', 'ability.pick.condemnNote'],
+  halveAnger: ['ability.pick.stb', 'ability.pick.stbNote'],
+  regionTarget: ['ability.pick.region', 'ability.pick.regionNote'],
+} as const;
 export function AbilityPicker() {
   const store = getStore();
   const sim = store.sim!;
@@ -27,6 +34,7 @@ export function AbilityPicker() {
   };
   const leader = sim.leaderDef;
   const items = a.action === 'cancelEvent' ? condemnTargets(sim) : [];
+  const [sub, note] = PICK_TEXT[a.action ?? 'cancelEvent'];
   return (
     <div className="modal-backdrop" onClick={close}>
       <section
@@ -43,8 +51,8 @@ export function AbilityPicker() {
             <h2 id="ability-title" className="h-display">
               {t(a.name)}
             </h2>
-            <p className="modal__sub">{t(a.action === 'cancelEvent' ? 'ability.pick.condemn' : 'ability.pick.stb')}</p>
-            <p className="modal__note">{t(a.action === 'cancelEvent' ? 'ability.pick.condemnNote' : 'ability.pick.stbNote')}</p>
+            <p className="modal__sub">{t(sub)}</p>
+            <p className="modal__note">{t(note)}</p>
           </div>
         </header>
 
@@ -76,6 +84,23 @@ export function AbilityPicker() {
                 </button>
               </li>
             ))}
+          </ul>
+        )}
+
+        {a.action === 'regionTarget' && (
+          <ul className="ability-picker__list ability-picker__list--regions">
+            {sim.data.regions.regions.map((r) => {
+              const now = sim.state.projection.regionSupport[r.code] ?? 0;
+              const shift = sim.previewAbility(a.id, r.code).regions[r.code]?.min ?? 0;
+              return (
+                <li key={r.code}>
+                  <button className="ability-picker__item" onClick={() => choose(r.code)}>
+                    <b>{t(`region.short.${r.code}`)}</b>
+                    <span className="ability-picker__anger">{t('ability.pick.angerNow', { now: fmt(now), after: fmt(now + shift) })}</span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
 

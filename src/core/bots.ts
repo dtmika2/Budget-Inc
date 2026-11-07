@@ -180,14 +180,32 @@ export function greedyAbility(sim: Simulation): { kind: 'useAbility'; abilityId:
     }
     // year-long effects pay off most when used early; the rest wait for their moment
     const early = s.quarter >= 2;
+    if (a.action === 'regionTarget') {
+      // a permanent shift: once the first quarter is in, on the swing kraj with the most seats
+      if (early || lastYear) return tryUse(swingRegion(sim));
+      continue;
+    }
     const trigger =
       (a.id === 'press_release' && (s.anger.media >= 40 || early)) ||
       (a.id === 'godfathers' && (s.anger.oligarchs >= 40 || early)) ||
       (a.id === 'microbossing' && s.resources.coalition < 45) ||
-      (a.id === 'subsidies' && s.resources.finances >= 55);
+      (a.id === 'subsidies' && s.resources.finances >= 55) ||
+      (a.id === 'taiwan_trip' && (early || s.resources.prestige < 55)) ||
+      (a.id === 'digital_permit' && early) ||
+      (a.id === 'cheap_fuel' && s.resources.support < 50) ||
+      (a.id === 'climate_commissioner' && s.anger.eu >= 55) ||
+      (a.id === 'castle_rejection' && s.resources.support < 45);
     if (trigger || lastYear) return tryUse();
   }
   return null;
+}
+
+/** The kraj with the most seats among those within 8 points of national support (else the one with the most seats). */
+export function swingRegion(sim: Simulation): string {
+  const s = sim.state;
+  const regions = [...sim.data.regions.regions].sort((a, b) => b.seats - a.seats);
+  const near = regions.find((r) => Math.abs((s.projection.regionSupport[r.code] ?? s.resources.support) - s.resources.support) <= 8);
+  return (near ?? regions[0]).code;
 }
 
 /** Value change if an open item ran its default course (what condemning it saves, negative = it hurts). */
@@ -345,7 +363,14 @@ export function createBot(kind: BotKind, seed: string): Bot {
           const unused = sim.leaderDef.abilities.filter((a) => !s.abilitiesUsed.includes(a.id));
           if (unused.length) {
             const a = rng.pick(unused);
-            const targets = a.action === 'cancelEvent' ? condemnTargets(sim).map((c) => c.target) : a.action === 'halveAnger' ? [...GROUP_IDS] : [undefined];
+            const targets =
+              a.action === 'cancelEvent'
+                ? condemnTargets(sim).map((c) => c.target)
+                : a.action === 'halveAnger'
+                  ? [...GROUP_IDS]
+                  : a.action === 'regionTarget'
+                    ? sim.data.regions.regions.map((r) => r.code)
+                    : [undefined];
             if (targets.length) sim.dispatch({ kind: 'useAbility', abilityId: a.id, target: rng.pick(targets) });
           }
         }

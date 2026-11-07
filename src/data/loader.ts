@@ -272,7 +272,9 @@ export function loadGameData(
         locKey(a.name, f, `${p}.name`);
         locKey(a.description, f, `${p}.description`);
         checkModifiers(a.modifiers, f, p);
-        checkBundle(a.bundle, f, `${p}.bundle`);
+        // regionTarget: the bundle names the chosen kraj as `self` (it must), other keys are real kraje
+        checkBundle(a.bundle, f, `${p}.bundle`, a.action === 'regionTarget');
+        if (a.action === 'regionTarget' && !a.bundle.regions?.self) err('badTarget', f, `${p}.bundle.regions`, 'regionTarget needs regions.self');
         if (a.pulses) {
           checkBundle(a.pulses.bundle, f, `${p}.pulses.bundle`);
           locKey(a.pulses.label, f, `${p}.pulses.label`);

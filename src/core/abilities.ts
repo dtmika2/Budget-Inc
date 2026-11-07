@@ -1,9 +1,11 @@
 /**
  * Leader abilities (spec §5.2, phase 17): every leader has three, each usable once per game. An ability is
  * data: modifiers (usually for 12 "months"), an instant bundle, optional monthly pulses, and optionally an
- * action: cancelEvent (Durazne odsouzeni: cancel one open item without its effects) or halveAnger (STB:
- * halve one group's anger, plus modifiers on that group).
+ * action: cancelEvent (Durazne odsouzeni: cancel one open item without its effects), halveAnger (STB:
+ * halve one group's anger, plus modifiers on that group) or regionTarget (Tramvaj do kazdeho kraje: the
+ * bundle's region key `self` becomes the chosen kraj).
  */
+import { resolveSelf } from './demands';
 import { applyBundle } from './effects';
 import { instantiate } from './modifiers';
 import { removeWhere, schedule } from './scheduler';
@@ -12,6 +14,11 @@ import type { AbilityDef, EffectBundle, GroupId, Range, ScheduledEntry } from '.
 import { GROUP_IDS } from './types';
 
 export const abilityOf = (sim: Simulation, id: string): AbilityDef | undefined => sim.leaderDef.abilities.find((a) => a.id === id);
+
+/** The instant bundle on a target: a regionTarget ability's `self` is the chosen kraj. */
+export function abilityBundle(a: AbilityDef, target?: string): EffectBundle {
+  return a.action === 'regionTarget' && target ? resolveSelf(a.bundle, target) : a.bundle;
+}
 
 /** One item the cancelEvent action can cancel; `target` is what the input carries. */
 export interface CondemnTarget {
@@ -42,6 +49,7 @@ export function canUseAbility(sim: Simulation, abilityId: string, target?: strin
   if (sim.state.phase !== 'running' && sim.state.phase !== 'draft') return 'not now';
   if (a.action === 'cancelEvent' && !condemnTargets(sim).some((c) => c.target === target)) return 'nothing to cancel';
   if (a.action === 'halveAnger' && !(GROUP_IDS as readonly string[]).includes(target ?? '')) return 'choose a group';
+  if (a.action === 'regionTarget' && !sim.data.regions.regions.some((r) => r.code === target)) return 'choose a kraj';
   return null;
 }
 
@@ -51,7 +59,7 @@ export function activateAbility(sim: Simulation, abilityId: string, target?: str
   const origin = `ability:${a.id}`;
   state.abilitiesUsed.push(a.id);
   // the instant bundle first, so the ability's own modifiers do not scale it (Kmotri: exactly -20)
-  const { rolled, deltas } = applyBundle(sim, a.bundle, 'ability', origin, sim.rng.effects);
+  const { rolled, deltas } = applyBundle(sim, abilityBundle(a, target), 'ability', origin, sim.rng.effects);
   state.modifiers.push(...instantiate(a.modifiers, origin));
   if (a.action === 'halveAnger') {
     const g = target as GroupId;

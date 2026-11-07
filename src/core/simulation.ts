@@ -3,7 +3,7 @@
  * every player decision goes through dispatch(input) and is recorded for replay (spec §10.2).
  */
 import type { Config, DifficultyPreset } from '../config';
-import { abilityOf, activateAbility, blamedBundle, canUseAbility, firePulse } from './abilities';
+import { abilityBundle, abilityOf, activateAbility, blamedBundle, canUseAbility, firePulse } from './abilities';
 import { computeFinances, initPct } from './budget';
 import {
   canRerollBudget,
@@ -731,10 +731,10 @@ export class Simulation implements EffectHost {
     return this.rng.demands;
   }
 
-  /** Instant effect of an ability (STB adds halving the chosen group's anger). */
+  /** Instant effect of an ability (STB adds halving the chosen group's anger; a regionTarget one lands on the kraj). */
   previewAbility(abilityId: string, target?: string): PreviewRanges {
     const a = abilityOf(this, abilityId)!;
-    const p = this.preview(a.bundle, 'ability');
+    const p = this.preview(abilityBundle(a, target), 'ability');
     if (a.action === 'halveAnger' && target && target in this.state.anger) {
       const g = target as GroupId;
       const cut = -this.state.anger[g] / 2;
