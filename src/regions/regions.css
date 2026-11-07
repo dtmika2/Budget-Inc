@@ -138,9 +138,10 @@
 .cohort__key--neutral::before { background: #8d879e; }
 .cohort__key--anger::before { background: var(--bad); }
 
-/* region event card on the events tab: amber like its map pin */
-.demand.rs-event { border-color: #e0952c; }
-.rs-event .rs-event__bang { background: #e0952c; color: var(--ground); }
+/* open demand card on the events tab: amber like its map pin (a region event keeps the red base) */
+.demand.demand--ask { border-color: #e0952c; }
+.demand--ask .demand__tag { color: #7a4c0c; }
+.demand--ask .demand__bang { background: #e0952c; }
 .rs-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .rs-data { grid-column: 1 / -1; }
 .rs-card { background: var(--panel); border: 2px solid var(--line); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
@@ -289,7 +290,6 @@
 @keyframes rev-rise { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-9px); opacity: 0.2; } }
 .rev-wave-hand { animation: rev-bob 1.2s steps(2) infinite; }
 
-/* region event pin: amber, so it reads apart from the red demand bubble */
-.dpin--event .dpin__bubble { background: #e0952c; color: var(--ground); }
-.dpin--event:hover .dpin__bubble { background: #f2ac46; }
-.dpin--event .dpin__bubble::after { border-top-color: var(--paper); border-left-color: var(--paper); }
+/* regional demand pin: amber, so it reads apart from the red event bubble */
+.dpin--demand .dpin__bubble { background: #e0952c; }
+.dpin--demand:hover .dpin__bubble { background: #f2ac46; }

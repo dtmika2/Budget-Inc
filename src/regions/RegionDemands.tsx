@@ -1,5 +1,5 @@
 /**
- * Demands and pledges in a region (phase 14): the open "!" demand card with the impact of every choice,
+ * Demands and pledges in a region (phase 14): the open demand card with the impact of every choice,
  * and the region's active pledges with their deadline.
  */
 import { config } from '@/config';
@@ -7,6 +7,7 @@ import { templateOf } from '@core/demands';
 import { t } from '@i18n/index';
 import { dateParts, requesterLabel } from '@ui/demands/labels';
 import { RangeChips } from '@ui/modals/RangeChips';
+import { PixelIcon } from '@ui/pixelIcons';
 import { getStore, useStore } from '@ui/store';
 
 export function RegionDemands({ code }: { code: string }) {
@@ -23,10 +24,10 @@ export function RegionDemands({ code }: { code: string }) {
         const pr = sim.previewDemand(d.templateId, d.region);
         const exp = dateParts(sim, d.expireAbsDay);
         return (
-          <section key={d.id} className="rs-card demand" aria-labelledby={`dem-${d.id}`}>
+          <section key={d.id} className="rs-card demand demand--ask" aria-labelledby={`dem-${d.id}`}>
             <p className="demand__tag">
               <span className="demand__bang" aria-hidden="true">
-                !
+                <PixelIcon name="petition" />
               </span>
               {t('demand.title')}
             </p>

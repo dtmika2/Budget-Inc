@@ -1,5 +1,5 @@
 /**
- * Regional demands ("!" pins) and pledges (phase 14). A party from the region's coalition or an interest
+ * Regional demands (map pins) and pledges (phase 14). A party from the region's coalition or an interest
  * group asks for something in a region. Accept -> a pledge with a one-year deadline, fulfilled by a
  * matching policy card, a compromise that helps the region, or a budget slider; reject -> onReject;
  * ignore (pin expires) -> onReject x ignoreFactor. Uses its own RNG stream (`demands`).

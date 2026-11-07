@@ -419,16 +419,16 @@ export const config = {
     tickerWeeks: 26,
   },
 
-  /** Phase 14: regional demands ("!") and pledges. */
+  /** Phase 14: regional demands and pledges. */
   demands: {
     /** Demands spawned per game year (spawn days drawn at the year's first quarter from the `demands` stream). */
     perYear: 3,
     /** Spawn window inside the year (days from the year's start / before its end). */
     spawnFromDay: 10,
     spawnBeforeYearEnd: 30,
-    /** At most this many open "!" pins; at most one demand or pledge per region. */
+    /** At most this many open demand pins; at most one demand or pledge per region. */
     maxOpen: 2,
-    /** Days a "!" pin waits for an answer before it expires (counts as ignored). */
+    /** Days a demand pin waits for an answer before it expires (counts as ignored). */
     responseDays: 30,
     /** Time to fulfil an accepted demand. */
     deadlineQuarters: 4,

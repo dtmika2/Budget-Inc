@@ -7,6 +7,8 @@ import { memo } from 'react';
 import { iconRects } from './abilityIcons';
 
 export const PIXEL_ICONS = {
+  // regional demands: a petition with lines of text and a red seal
+  petition: ['.KKKKKKK..', '.KWWWWWKK.', '.KWXXXWWK.', '.KWWWWWWK.', '.KWXXXXWK.', '.KWWWWWWK.', '.KWXXXXWK.', '.KWWWWRRK.', '.KWWWWRRK.', '.KKKKKKKK.'],
   // pledges on the map
   hourglass: ['.TTTTTTTT.', '..KWWWWK..', '..KGGGGK..', '...KGGK...', '....KK....', '....KK....', '...KWGK...', '..KWGGGK..', '..KGGGGK..', '.TTTTTTTT.'],
   // regional-tour mini-game
