@@ -44,7 +44,8 @@ export const config = {
 
   /** Baseline drift per day (§4.2). */
   // P9 balance: support -0.05 -> -0.07, coalition -0.03 -> -0.015 (see DECISIONS.md Balance log)
-  drift: { finances: 0, support: -0.07, coalition: -0.015, prestige: 0 } as Record<ResourceId, number>,
+  // P32 balance: support -0.07 -> -0.10 (coalition requests, 8 areas and the new skill tree made greedy play win ~90 %)
+  drift: { finances: 0, support: -0.1, coalition: -0.015, prestige: 0 } as Record<ResourceId, number>,
 
   anger: {
     /** Daily pull toward the leader's starting value (§4.3). 0 disables. */
