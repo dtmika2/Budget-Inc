@@ -34,6 +34,7 @@
 - [x] P30 — Budget vote: coalition partners ask to raise / cut areas (big pass-chance effect), Koalice tab in the middle, chamber as a slim strip
 - [x] P31 — Budget screen filled top to bottom: 8 areas per vote, rows grow with the height, pass-chance breakdown, failed-vote box
 - [x] P32 — Balance retune: Podpora drift −0,07 → −0,10 (greedy Mupka 38,4 %, Abis 46,4 %)
+- [x] P33 — Two new leaders, Dezněk Břich (Piráti) and Flipflip Motůrek (Motoristé): data, abilities (new `regionTarget` kraj picker), signature cards, sprites, icons; greedy 46 / 55 / 49 / 51 %
 
 Every phase gate passed (`typecheck`, `lint`, `test` — 98 tests, `build`, and from P5 on `simulate --runs 200 --bot random`).
 

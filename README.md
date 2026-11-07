@@ -204,6 +204,26 @@ every non-`DUMMY` party demand needs a `programmeRef`; `DRAFT` demands only load
 Cards, compromises and demands may carry hidden `tags` (list in `config.regions.tags`); region traits react
 to them through `config.regions.traitResponse`.
 
+### A leader
+
+The game has four leaders: Kartin Mupka (ODS), Bander Abis (ANO), Dezněk Břich (Piráti) and Flipflip
+Motůrek (Motoristé). To add one:
+
+1. `data/leaders.json`: an entry with start values, start anger, leaning weights (sum 100), party colour
+   (check contrast on the dark UI), three abilities (modifiers, instant `bundle`, monthly `pulses`, and an
+   optional `action`: `cancelEvent`, `halveAnger` or `regionTarget`, whose bundle names the chosen kraj as
+   `regions.self`) and a `sprite` key.
+2. `locales/cs.json`: `leader.<id>.name / .party / .profile` and `ability.<id>.name / .desc / .pulse`.
+3. `src/ui/LeaderSprite.tsx`: a 16 x 18 placeholder sprite and a hair colour; `src/ui/abilityIcons.tsx`: a
+   16 x 16 icon per ability.
+4. `data/regions.json`: the leader's `offsets` per kraj (missing = 0; regions workspace).
+5. `data/upgrades/compass.json`: the leader's `start` box (skill-tree workspace; the loader requires it).
+6. `data/annual/coalition_requests.json`: the leader's coalition `partners`, and `preferences` for any new party.
+7. Cards: add the leader id to `availableFor` of the shared pools (`data/policies/_filler.json`,
+   `dummy.json`, `data/compromises/*.json`) and give them signature cards (e.g.
+   `data/policies/leaders_brich_moturek.json`).
+8. `src/core/bots.ts` (`greedyAbility`): a trigger per new ability, then re-run the simulator.
+
 ### Other data
 | File | Contents |
 |---|---|
@@ -270,5 +290,5 @@ the game. If the download is unavailable, the script writes a schematic placehol
 
 ## Satire guardrail
 
-Real politicians appear only under parody names (Kartin Mupka, Bander Abis, Lursula von der Eyen). No
+Real politicians appear only under parody names (Kartin Mupka, Bander Abis, Dezněk Břich, Flipflip Motůrek, Lursula von der Eyen). No
 real names or likenesses in the repo; the placeholder pixel sprites are generic caricatures.

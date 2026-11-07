@@ -228,3 +228,24 @@ Difficulty direction (1000 runs/row): greedy Mupka easy 89.4 % → normal 29.7 %
 - P26 — the Akce tab is a compass rose: offered actions on the tips in offeredActions order (N, E, S, W; the always-on visit lands west), limits in the centre disc, a needle that turns to the hovered tip; scenes keyed by action id in src/regions/actionArt.tsx (no data field) — user request, make the tab feel special
 - P26 — kraj action benefits tripled (regional support gain and anger relief ×3; Finance/PC costs and downsides such as the factory's EU anger unchanged) — user request, make the mechanic worth using; greedy win rate 35.8→42.3 % Mupka, 46.3→54.0 % Abis (400 runs, Normal), random 0.8→~3–5 %, all inside targets
 - P26 — every kraj action leaves a passive for config.regionActions.passiveQuarters (4) quarters from its quarter: škola noDemands, nemocnice noRegionEvents, silnice +0.25 support/week, továrna +3 Finance each later quarter, návštěva halves support losses; the active action's scene sits on the map under the kraj label — user request (passives like 'no demands in this region'); the assignment and values are my choice, data-tunable
+- §5 — two new leaders, Dezněk Břich (Piráti) and Flipflip Motůrek (Motoristé), from assignment-new-leaders-brich-moturek.md: data, texts, abilities and signature cards as written by Daniel — assignment
+- §5.2 — new ability action `regionTarget` (Tramvaj do každého kraje): the bundle's `regions.self` becomes the chosen kraj, the loader requires `regions.self` on such an ability; kraj picker in the ability modal (two columns, support now → after) — assignment part C
+- §5.2 — `resolveSelf` stays in src/core/demands.ts (it already lives in a shared module, not in upgrades.ts) and abilities.ts imports it from there; moving it to effects.ts would have touched the regions and skill-tree workspaces for no gain — assignment C3 assumed it was in upgrades.ts
+- §5.2 — `resolveSelf` adds the `self` range to an existing key for the same kraj instead of overwriting it, so Tramvaj into Praha gives +8 and +2 = +10 as the assignment asks; no existing bundle had both keys, so demands and region events are unchanged — assignment B3 note
+- §5.2 — Tramvaj keeps its `transport` tag (it is in config.regions.tags), so the kraj's +8 / Praha's +2 are scaled by region traits and support.gain modifiers like every other regional shift; the description says +8 / +2 as Daniel wrote it — assignment B3 "drop a tag only if unknown"
+- §5.2 — Hrad mě nechce: the dock shows "Běží ještě n měs." only for the 12-month modifiers and then "Použito"; the permanent election.T_base −1 is not counted (activeMonths already skips modifiers without days) — assignment B3 note
+- §5.2 — Digitální stavebák's +1 PC per quarter lasts 360 days, so it covers 3 or 4 quarter starts (91-day quarters) depending on when in the quarter it is used — numbers as written; noted for the team
+- §5.1 — Břich's party colour is #a1a1aa instead of #52525b: #52525b is 1.9:1 on the panel colour (below 3:1 for UI parts), #a1a1aa is 5.8:1; colorLight stays #d4d4d8 — assignment part E fallback
+- §5.3 — both new leaders draw from the shared pools: "brich" and "moturek" added to availableFor of every card in data/policies/_filler.json, dummy.json and data/compromises/*.json (no gen:filler run); signature cards in data/policies/leaders_brich_moturek.json (6 each, devOnly false) — assignment D1/D2
+- §8 — compass start boxes in the middle column: Břich c_prog, Motůrek c_trad, so each can grow to either side — assignment D5
+- §13 — Motůrek's start coalition 40 → 50 (balance step 1, start resources): at 40 greedy won 41.0 % with 38.7 % snap elections, 13.8 points under Abis; at 45 43.6 %, at 50 51.0 % (snaps 18.2 %). Břich needed no change. Mupka and Abis untouched — assignment part G
+- §13 — greedyAbility triggers for the new abilities as in assignment G; Tramvaj (regionTarget) fires from quarter 2 on the kraj with the most seats among those within 8 points of national support (else the most seats); the random bot picks a random kraj — assignment C7/G
+
+**After Břich and Motůrek** (1000 runs/row, Normal, seed "sim"; simulator targets random ≤ 15 %, greedy 33–55 %):
+
+| bot | Mupka | Abis | Břich | Motůrek |
+|---|---|---|---|---|
+| random | 3.0 % | 4.3 % | 3.1 % | 5.4 % |
+| greedy | 46.1 % | 54.8 % | 49.1 % | 51.0 % |
+
+All four inside the targets; greedy spread 8.7 points. (The assignment quotes greedy 20–40 %, the simulator's current target band is 33–55 % after the kraj-action retune; Mupka and Abis were already at 46 / 55.)

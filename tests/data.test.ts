@@ -22,7 +22,7 @@ describe('data loader', () => {
     if (!r.ok) return;
     expect(r.data.budget.source).toBe('MOCK DATA');
     expect(r.data.regions.regions).toHaveLength(14);
-    expect(r.data.leaders.map((l) => l.id).sort()).toEqual(['abis', 'mupka']);
+    expect(r.data.leaders.map((l) => l.id).sort()).toEqual(['abis', 'brich', 'moturek', 'mupka']);
     // dummy content per spec §11
     expect(r.data.policies.filter((c) => c.id.startsWith('dummy_'))).toHaveLength(6);
     expect(r.data.events.filter((e) => e.id.startsWith('dummy_'))).toHaveLength(4);
@@ -30,10 +30,37 @@ describe('data loader', () => {
     expect(r.data.opportunities).toHaveLength(3);
     expect(r.data.budgetVote).toHaveLength(3);
     // filler loaded by default, >= 22 per leader
-    for (const l of ['mupka', 'abis'])
+    for (const l of r.data.leaders.map((x) => x.id))
       expect(r.data.policies.filter((c) => c.devOnly && c.availableFor.includes(l)).length).toBeGreaterThanOrEqual(22);
     // warns (but loads) with fewer than 18 non-filler cards
     expect(r.warnings.some((w) => w.code === 'tooFewCards')).toBe(true);
+  });
+
+  it('every leader is complete: 3 abilities, a compass start box, coalition partners with preferences, enough cards', () => {
+    const { files, locale } = base();
+    const on = loadGameData(files, locale);
+    const off = loadGameData(files, locale, { includeDevFiller: false });
+    expect(on.ok && off.ok).toBe(true);
+    if (!on.ok || !off.ok) return;
+    const { coalitionRequests: cr } = on.data;
+    for (const l of on.data.leaders) {
+      expect(l.abilities, l.id).toHaveLength(3);
+      for (const t of on.data.upgrades) if (Object.keys(t.start).length) expect(t.start[l.id], `${t.id} ${l.id}`).toBeDefined();
+      expect(cr.partners[l.id]?.length, l.id).toBeGreaterThan(0);
+      for (const p of cr.partners[l.id]) expect(cr.preferences[p], p).toBeDefined();
+      expect(on.data.policies.filter((c) => c.availableFor.includes(l.id)).length, l.id).toBeGreaterThanOrEqual(19);
+      expect(off.data.policies.filter((c) => c.availableFor.includes(l.id)).length, l.id).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it('rejects a regionTarget ability without regions.self', () => {
+    const { files, locale } = base();
+    const leaders = structuredClone(files['data/leaders.json']) as { abilities: { action: string | null; bundle: { regions?: Record<string, unknown> } }[] }[];
+    const tram = leaders.flatMap((l) => l.abilities).find((a) => a.action === 'regionTarget')!;
+    delete tram.bundle.regions!.self;
+    const r = loadGameData({ ...files, 'data/leaders.json': leaders }, locale);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.errors.some((e) => e.code === 'badTarget' && e.detail.includes('regionTarget'))).toBe(true);
   });
 
   it('excludes filler files when includeDevFiller is false', () => {

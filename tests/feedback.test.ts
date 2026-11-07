@@ -8,7 +8,7 @@ import { drainPerDay, groupTargets, resourceSources, totalDrainPerDay } from '..
 import { prestigeBonusChance } from '../src/core/prestigeBonus';
 import { STREAM_NAMES } from '../src/core/rng';
 import { GROUP_IDS } from '../src/core/types';
-import { cfgWith, quietSim } from './helpers';
+import { cfgWith, gameData, quietSim } from './helpers';
 
 /** Interest-group pressure, prestige bonuses and the STB blame (P24, stakeholder feedback). */
 describe('interest-group pressure', () => {
@@ -139,7 +139,7 @@ describe('budget areas (P27)', () => {
 });
 
 describe('coalition budget requests (P30)', () => {
-  const open = (seed: string, leader: 'mupka' | 'abis' = 'mupka') => {
+  const open = (seed: string, leader = 'mupka') => {
     const sim = quietSim({ seed, leader });
     sim.state.day = 74;
     while (sim.state.phase === 'running') sim.tick();
@@ -147,7 +147,7 @@ describe('coalition budget requests (P30)', () => {
   };
 
   it('partners ask only for shown areas from their preferences, the same for the same seed', () => {
-    for (const leader of ['mupka', 'abis'] as const) {
+    for (const leader of gameData().leaders.map((l) => l.id)) {
       const a = open('req', leader);
       const b = open('req', leader);
       const reqs = a.state.budgetVoteRequests!;

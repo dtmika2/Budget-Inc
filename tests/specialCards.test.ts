@@ -177,7 +177,7 @@ describe('special cards: resolution', () => {
   });
 
   it('bots play through a whole run with special cards', () => {
-    for (const leader of ['mupka', 'abis']) {
+    for (const leader of fullGameData().leaders.map((l) => l.id)) {
       const s = makeSim({ seed: `bot-${leader}`, leader }, config, fullGameData());
       const summary = runToEnd(s, createBot('greedy', `bot-${leader}`));
       expect(summary.outcome).not.toBe('unfinished');

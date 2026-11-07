@@ -171,8 +171,8 @@ describe('replay', () => {
 });
 
 describe('bots', () => {
-  it('greedy and random bots finish runs for both leaders on every difficulty', () => {
-    for (const leader of ['mupka', 'abis'])
+  it('greedy and random bots finish runs for every leader on every difficulty', () => {
+    for (const leader of gameData().leaders.map((l) => l.id))
       for (const difficulty of ['easy', 'normal', 'hard'] as const)
         for (const bot of ['random', 'greedy'] as const) {
           const sim = makeSim({ seed: `b-${leader}-${difficulty}-${bot}`, leader, difficulty });

@@ -5,7 +5,8 @@ import { createBot, runToEnd } from '../src/core/bots';
 import { passChance, presetSliders } from '../src/core/budgetVote';
 import { comparableState, replay } from '../src/core/replay';
 import type { Simulation } from '../src/core/simulation';
-import type { GameData, RegionEventTemplate } from '../src/core/types';
+import { scalar } from '../src/core/modifiers';
+import type { EffectBundle, GameData, RegionEventTemplate } from '../src/core/types';
 import { advanceQuiet, cfgWith, gameData, makeSim, quietSim } from './helpers';
 
 const use = (sim: Simulation, abilityId: string, target?: string) => sim.dispatch({ kind: 'useAbility', abilityId, target });
@@ -160,13 +161,141 @@ describe('Bander Abiš', () => {
   });
 });
 
+/** The log entry of the last ability use. */
+const lastUse = (sim: Simulation) => sim.state.log.filter((l) => l.type === 'ability_used').at(-1)!;
+/** Preview of a fixed bundle now. */
+const now = (sim: Simulation, b: EffectBundle) => sim.preview(b, 'ability');
+const pulsesOf = (sim: Simulation, id: string) => sim.state.log.filter((e) => e.type === 'ability_pulse' && e.abilityId === id);
+const rolledOf = (e: object) => (e as { rolled: Record<string, number> }).rolled;
+/** Pulses still scheduled (the quiet helpers clear the schedule at each modal, so count right after use). */
+const scheduledPulses = (sim: Simulation, id: string) => sim.state.schedule.filter((e) => e.kind === 'abilityPulse' && e.payload.abilityId === id);
+
+describe('Dezněk Břich', () => {
+  it('Cesta na Tchaj-wan: the exact instant bundle, 12 pulses of +0.75 prestige, prestige gains x1.25 for 360 days', () => {
+    const sim = quietSim({ leader: 'brich' });
+    const p = sim.previewAbility('taiwan_trip');
+    const gain = () => now(sim, { effects: { prestige: { min: 4, max: 4 } } }).resources.prestige!.min;
+    const g0 = gain();
+    expect(use(sim, 'taiwan_trip').ok).toBe(true);
+    const d = lastUse(sim).deltas!;
+    // the instant bundle goes through the start box but not the ability's own modifiers
+    expect(d.resources.prestige).toBeCloseTo(p.resources.prestige!.min);
+    expect(p.resources.prestige!.min).toBeCloseTo(now(quietSim({ leader: 'brich' }), { effects: { prestige: { min: 10, max: 10 } } }).resources.prestige!.min);
+    expect(d.anger.eu).toBeCloseTo(-8);
+    expect(d.anger.oligarchs).toBeCloseTo(6);
+    expect(rolledOf(lastUse(sim)).financesExtra).toBeCloseTo(-4);
+    expect(gain()).toBeCloseTo(g0 * 1.25);
+    expect(sim.state.modifiers.find((m) => m.origin === 'ability:taiwan_trip' && m.target === 'prestige.gain')!.daysLeft).toBe(360);
+    expect(sim.state.schedule.filter((e) => e.kind === 'abilityPulse' && e.payload.abilityId === 'taiwan_trip')).toHaveLength(12);
+    const expected = now(sim, { effects: { prestige: { min: 0.75, max: 0.75 } } }).resources.prestige!.min;
+    const from = sim.state.log.length;
+    advanceQuiet(sim, config.abilities.monthDays + 1);
+    const pulse = sim.state.log.slice(from).find((e) => e.type === 'ability_pulse')!;
+    expect(pulse.deltas!.resources.prestige).toBeCloseTo(expected);
+    advanceQuiet(sim, YEAR);
+    expect(sim.state.modifiers.some((m) => m.origin === 'ability:taiwan_trip')).toBe(false);
+  });
+
+  it('Digitální stavebák: support -4 now, +1 PC per quarter while it runs, then back to normal', () => {
+    const sim = quietSim({ leader: 'brich' });
+    const pcBase = () => scalar(sim.pipeline(), 'pc.perQuarter', config.pc.perQuarter);
+    const base = pcBase();
+    advanceQuiet(sim, 60);
+    const s0 = sim.state.resources.support;
+    expect(use(sim, 'digital_permit').ok).toBe(true);
+    expect(sim.state.resources.support - s0).toBeCloseTo(-4);
+    expect(lastUse(sim).deltas!.anger.media).toBeCloseTo(6);
+    expect(pcBase()).toBe(base + 1);
+    expect(scheduledPulses(sim, 'digital_permit')).toHaveLength(12);
+    // used on day 60, the next four quarter starts fall inside the 360 days
+    const from = sim.state.log.length;
+    advanceQuiet(sim, 4 * config.time.daysPerQuarter - 60);
+    expect(sim.state.log.slice(from).filter((e) => e.type === 'quarter_started')).toHaveLength(4);
+    expect(pcBase()).toBe(base + 1);
+    advanceQuiet(sim, 360);
+    expect(pcBase()).toBe(base);
+  });
+
+  it('Tramvaj do každého kraje: refuses without a kraj, lands on the chosen one (+2 Praha), preview equals applied', () => {
+    const sim = quietSim({ leader: 'brich' });
+    expect(use(sim, 'tram_everywhere').ok).toBe(false);
+    expect(use(sim, 'tram_everywhere', 'CZ999').ok).toBe(false);
+    const plain = (s: Simulation, code: string, v: number) => now(s, { regions: { [code]: { min: v, max: v } }, tags: ['transport'] }).regions[code]!.min;
+    const p = sim.previewAbility('tram_everywhere', 'CZ042');
+    expect(p.regions.CZ042!.min).toBeCloseTo(plain(sim, 'CZ042', 8));
+    expect(p.regions.CZ010!.min).toBeCloseTo(plain(sim, 'CZ010', 2));
+    const shift0 = { ...sim.state.regionShift };
+    expect(use(sim, 'tram_everywhere', 'CZ042').ok).toBe(true);
+    for (const code of ['CZ042', 'CZ010']) expect((sim.state.regionShift[code] ?? 0) - (shift0[code] ?? 0)).toBeCloseTo(p.regions[code]!.min);
+    expect(lastUse(sim).target).toBe('CZ042');
+    expect(use(sim, 'tram_everywhere', 'CZ041').ok).toBe(false); // once per game
+    // Praha as the target gets both keys
+    const praha = quietSim({ leader: 'brich', seed: 'praha' });
+    const pp = praha.previewAbility('tram_everywhere', 'CZ010');
+    expect(pp.regions.CZ010!.min).toBeCloseTo(plain(praha, 'CZ010', 10));
+    const before = praha.state.regionShift.CZ010 ?? 0;
+    use(praha, 'tram_everywhere', 'CZ010');
+    expect((praha.state.regionShift.CZ010 ?? 0) - before).toBeCloseTo(pp.regions.CZ010!.min);
+    // permanent: still there a year later
+    advanceQuiet(praha, YEAR + 5);
+    expect((praha.state.regionShift.CZ010 ?? 0) - before).toBeCloseTo(pp.regions.CZ010!.min);
+  });
+});
+
+describe('Flipflip Motůrek', () => {
+  it('Zmocněnec pro klima: EU anger gains halved, activists calm down half as easily, 12 pulses of +2 finances', () => {
+    const sim = quietSim({ leader: 'moturek' });
+    const eu = () => now(sim, { anger: { eu: { min: 4, max: 4 } } }).anger.eu!.min;
+    const act = () => now(sim, { anger: { activists: { min: -4, max: -4 } } }).anger.activists!.min;
+    const [eu0, act0] = [eu(), act()];
+    expect(use(sim, 'climate_commissioner').ok).toBe(true);
+    expect(lastUse(sim).deltas!.anger.eu).toBeCloseTo(-10);
+    expect(lastUse(sim).deltas!.anger.activists).toBeCloseTo(10);
+    expect(eu()).toBeCloseTo(eu0 * 0.5);
+    expect(act()).toBeCloseTo(act0 * 0.5);
+    expect(scheduledPulses(sim, 'climate_commissioner')).toHaveLength(12);
+    advanceQuiet(sim, config.abilities.monthDays + 1);
+    const pulses = pulsesOf(sim, 'climate_commissioner');
+    expect(pulses.length).toBeGreaterThan(0);
+    for (const e of pulses) expect(rolledOf(e).financesExtra).toBeCloseTo(2);
+  });
+
+  it('Hrad mě nechce: the election threshold is 1 lower until the election, still after day 360', () => {
+    const sim = quietSim({ leader: 'moturek' });
+    const t0 = sim.effectiveTBase();
+    expect(use(sim, 'castle_rejection').ok).toBe(true);
+    expect(sim.effectiveTBase()).toBe(t0 - 1);
+    expect(sim.state.modifiers.find((m) => m.origin === 'ability:castle_rejection' && m.target === 'election.T_base')!.daysLeft).toBeUndefined();
+    advanceQuiet(sim, YEAR + 30);
+    expect(sim.effectiveTBase()).toBe(t0 - 1);
+    // the 12-month part is over
+    expect(sim.state.modifiers.filter((m) => m.origin === 'ability:castle_rejection').map((m) => m.target)).toEqual(['election.T_base']);
+  });
+
+  it('Benzín za 29,90: support +8 now, 12 pulses of +0.5 support and -1 finances', () => {
+    const sim = quietSim({ leader: 'moturek' });
+    const p = sim.previewAbility('cheap_fuel');
+    expect(use(sim, 'cheap_fuel').ok).toBe(true);
+    expect(lastUse(sim).deltas!.resources.support).toBeCloseTo(p.resources.support!.min);
+    expect(lastUse(sim).deltas!.anger.pensioners).toBeCloseTo(p.anger.pensioners!.min);
+    expect(scheduledPulses(sim, 'cheap_fuel')).toHaveLength(12);
+    advanceQuiet(sim, config.abilities.monthDays + 1);
+    const pulses = pulsesOf(sim, 'cheap_fuel');
+    expect(rolledOf(pulses[0]).financesExtra).toBeLessThan(0);
+    expect(rolledOf(pulses[0]).support).toBeGreaterThan(0);
+  });
+});
+
 describe('bots and replay with abilities', () => {
   it('random and greedy runs use abilities and replay to the same final state', () => {
-    for (const leader of ['mupka', 'abis'] as const)
+    for (const leader of gameData().leaders.map((l) => l.id))
       for (const kind of ['random', 'greedy'] as const) {
         const sim = makeSim({ seed: `ab-${leader}-${kind}`, leader });
         runToEnd(sim, createBot(kind, `ab-${leader}-${kind}`));
         if (kind === 'greedy') expect(sim.state.log.some((l) => l.type === 'ability_used')).toBe(true);
+        // the replay covers a kraj-targeted ability use
+        if (leader === 'brich' && kind === 'greedy')
+          expect(sim.state.inputs.some((i) => i.input.kind === 'useAbility' && i.input.abilityId === 'tram_everywhere' && !!i.input.target)).toBe(true);
         const again = replay(gameData(), config, { seed: sim.state.seed, leader, difficulty: sim.state.difficulty, inputs: sim.state.inputs });
         expect(comparableState(again.state)).toEqual(comparableState(sim.state));
       }

@@ -341,14 +341,16 @@ The player picks a leader on the start screen. Each leader differs in:
 All values are proposals. Keep them in `data/leaders.json`.
 
 ### 5.1 Leader table
-| | **Kartin Mupka (ODS)** | **Bander Abis (ANO)** |
-|---|---|---|
-| Profile | Right-wing conservative | Populist, left-leaning conservative |
-| Party colour | blue | light blue/teal (distinct from ODS) |
-| Start: finances / support / coalition / prestige | 60 / 40 / 55 / 60 | 50 / 55 / 45 / 40 |
-| Start anger: oligarchs / media / eu / activists / pensioners | 35 / 30 / 20 / 40 / 45 | 25 / 50 / 45 / 35 / 20 |
-| Unique ability (once per year, button in UI) | **Austerity Freeze** (see §5.2) | **Campaign Mode:** instantly `support +10`, `media` anger +5. |
-| Leader tree theme (later) | Fiscal discipline & coalition craft | Campaigning & direct appeal |
+| | **Kartin Mupka (ODS)** | **Bander Abis (ANO)** | **Dezněk Břich (Piráti)** | **Flipflip Motůrek (Motoristé)** |
+|---|---|---|---|---|
+| Profile | Right-wing conservative | Populist, left-leaning conservative | Liberal progressive, a mayor with a global reach | Right-wing libertarian with petrol in his veins |
+| Party colour | blue | light blue/teal (distinct from ODS) | Pirate grey `#a1a1aa` | racing orange `#f97316` |
+| Start: finances / support / coalition / prestige | 60 / 40 / 55 / 60 | 50 / 55 / 45 / 40 | 45 / 45 / 50 / 70 | 55 / 55 / 50 / 35 |
+| Start anger: oligarchs / media / eu / activists / pensioners | 35 / 30 / 20 / 40 / 45 | 25 / 50 / 45 / 35 / 20 | 45 / 25 / 15 / 25 / 60 | 15 / 50 / 55 / 60 / 30 |
+| Unique ability (once per year, button in UI) | **Austerity Freeze** (see §5.2) | **Campaign Mode:** instantly `support +10`, `media` anger +5. | Cesta na Tchaj-wan · Digitální stavebák · Tramvaj do každého kraje | Benzín za 29,90 · Zmocněnec pro klima · Hrad mě nechce |
+| Leader tree theme (later) | Fiscal discipline & coalition craft | Campaigning & direct appeal | Transparentnost & digitalizace | Plný plyn & deregulace |
+
+The two later leaders (Břich, Motůrek) follow `assignment-new-leaders-brich-moturek.md`; their abilities are the once-per-game kind (phase 17) and their live values are in `data/leaders.json`.
 
 ### 5.2 Abilities
 - Each leader has **1 charge per game year**. The charge is available from day 1 and recharges at the start of quarters 5, 9 and 13. Unused charges do not stack.
@@ -363,15 +365,15 @@ All values are proposals. Keep them in `data/leaders.json`.
 ### 5.3 Draft algorithm
 **Policy leaning weights** set the probability that a drawn card belongs to each category.
 
-| Leaning (`leaning` id) | Mupka | Abis |
-|---|---|---|
-| libertarianism | **35** | 8 |
-| conservatism | **35** | 15 |
-| populism | 10 | **35** |
-| socialism | 7 | **30** |
-| progressivism | 8 | 5 |
-| fascism | 3 | 3 |
-| communism | 2 | 4 |
+| Leaning (`leaning` id) | Mupka | Abis | Břich | Motůrek |
+|---|---|---|---|---|
+| libertarianism | **35** | 8 | 25 | **38** |
+| conservatism | **35** | 15 | 8 | 27 |
+| populism | 10 | **35** | 10 | 25 |
+| socialism | 7 | **30** | 17 | 3 |
+| progressivism | 8 | 5 | **35** | 2 |
+| fascism | 3 | 3 | 2 | 4 |
+| communism | 2 | 4 | 3 | 1 |
 
 A card is **eligible** when:
 - it is available for the current leader,
@@ -394,7 +396,7 @@ A card is **eligible** when:
 - Pixel-art portrait and a small idle animation for each leader. Art is made by the human developer.
 - Until then, use placeholder sprites: coloured blocks with initials.
 - Render with `image-rendering: pixelated` at integer scale.
-- **Satire guardrail:** real people appear **only** under the swapped-letter parody names (Kartin Mupka, Bander Abis, Lursula von der Eyen). Never use their real names in game text.
+- **Satire guardrail:** real people appear **only** under the swapped-letter parody names (Kartin Mupka, Bander Abis, Dezněk Břich, Flipflip Motůrek, Lursula von der Eyen). Never use their real names in game text.
 
 ---
 
