@@ -259,7 +259,7 @@ h1, h2, h3 { margin: 0; }
 .dock__name { font-family: var(--f-pixel); font-size: 16px; }
 .dock__note { font-family: var(--f-pixel); font-size: 14px; font-weight: 700; }
 .dock__note::before { content: '•'; margin-right: 10px; }
-.hovercard__once { margin: 0; padding: 3px 8px; background: var(--gold); color: var(--ground); font: 700 14px var(--f-pixel); text-align: center; text-transform: uppercase; letter-spacing: 0.04em; }
+.hovercard__once { margin: 0; padding: 3px 8px; background: #c42f86; color: #fff; font: 700 14px var(--f-pixel); text-align: center; text-transform: uppercase; letter-spacing: 0.04em; }
 .btn--ability { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; border-color: var(--party); }
 .btn--ability small { font-family: var(--f-body); font-size: 12px; color: var(--text-dim); }
 .btn--ability.is-ready { background: var(--party); color: #fff; }
