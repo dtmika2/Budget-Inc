@@ -237,7 +237,7 @@
   content: ''; position: absolute; left: 8px; bottom: -10px; border: 6px solid transparent;
   border-top-color: var(--paper); border-left-color: var(--paper);
 }
-.dpin__life { width: 34px; height: 4px; background: linear-gradient(90deg, var(--paper) calc(var(--life) * 100%), rgba(239, 230, 207, 0.25) 0); }
+.dpin__life { width: 34px; height: 4px; background: linear-gradient(90deg, var(--paper) calc(var(--life) * 100%), rgba(239, 230, 207, 0.25) 0); box-shadow: 0 0 0 1px var(--ground); }
 .dpin--expiring .dpin__bubble { animation: pulse 0.5s steps(2) infinite; }
 .dpin:hover .dpin__bubble { background: #e0443c; }
 .pledge-mark { position: absolute; transform: translate(-50%, -50%); font-size: 16px; filter: drop-shadow(1px 1px 0 #0c0a14); }
