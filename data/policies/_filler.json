@@ -3,7 +3,9 @@
     "id": "filler_mupka_01",
     "leaning": "libertarianism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_01.title",
     "description": "policy.filler_mupka_01.desc",
@@ -45,7 +47,9 @@
     "id": "filler_mupka_02",
     "leaning": "conservatism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_02.title",
     "description": "policy.filler_mupka_02.desc",
@@ -92,7 +96,9 @@
     "id": "filler_mupka_03",
     "leaning": "populism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_03.title",
     "description": "policy.filler_mupka_03.desc",
@@ -151,7 +157,9 @@
     "id": "filler_mupka_04",
     "leaning": "socialism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_04.title",
     "description": "policy.filler_mupka_04.desc",
@@ -198,7 +206,9 @@
     "id": "filler_mupka_05",
     "leaning": "progressivism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_05.title",
     "description": "policy.filler_mupka_05.desc",
@@ -253,7 +263,9 @@
     "id": "filler_mupka_06",
     "leaning": "fascism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_06.title",
     "description": "policy.filler_mupka_06.desc",
@@ -299,7 +311,9 @@
     "id": "filler_mupka_07",
     "leaning": "communism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_07.title",
     "description": "policy.filler_mupka_07.desc",
@@ -341,7 +355,9 @@
     "id": "filler_mupka_08",
     "leaning": "libertarianism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_08.title",
     "description": "policy.filler_mupka_08.desc",
@@ -392,7 +408,9 @@
     "id": "filler_mupka_09",
     "leaning": "populism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_09.title",
     "description": "policy.filler_mupka_09.desc",
@@ -438,7 +456,9 @@
     "id": "filler_mupka_10",
     "leaning": "socialism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_10.title",
     "description": "policy.filler_mupka_10.desc",
@@ -488,7 +508,9 @@
     "id": "filler_mupka_11",
     "leaning": "fascism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "title": "policy.filler_mupka_11.title",
     "description": "policy.filler_mupka_11.desc",
@@ -530,7 +552,9 @@
     "id": "filler_mupka_12",
     "leaning": "libertarianism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_12.topic",
     "title": "policy.filler_mupka_12.title",
@@ -589,7 +613,9 @@
     "id": "filler_mupka_13",
     "leaning": "conservatism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_13.topic",
     "title": "policy.filler_mupka_13.title",
@@ -631,7 +657,9 @@
     "id": "filler_mupka_14",
     "leaning": "conservatism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_14.topic",
     "title": "policy.filler_mupka_14.title",
@@ -678,7 +706,9 @@
     "id": "filler_mupka_15",
     "leaning": "conservatism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_15.topic",
     "title": "policy.filler_mupka_15.title",
@@ -720,7 +750,9 @@
     "id": "filler_mupka_16",
     "leaning": "conservatism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_16.topic",
     "title": "policy.filler_mupka_16.title",
@@ -762,7 +794,9 @@
     "id": "filler_mupka_17",
     "leaning": "conservatism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_17.topic",
     "title": "policy.filler_mupka_17.title",
@@ -804,7 +838,9 @@
     "id": "filler_mupka_18",
     "leaning": "populism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_18.topic",
     "title": "policy.filler_mupka_18.title",
@@ -859,7 +895,9 @@
     "id": "filler_mupka_19",
     "leaning": "socialism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_19.topic",
     "title": "policy.filler_mupka_19.title",
@@ -909,7 +947,9 @@
     "id": "filler_mupka_20",
     "leaning": "progressivism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_20.topic",
     "title": "policy.filler_mupka_20.title",
@@ -964,7 +1004,9 @@
     "id": "filler_mupka_21",
     "leaning": "populism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_21.topic",
     "title": "policy.filler_mupka_21.title",
@@ -1019,7 +1061,9 @@
     "id": "filler_mupka_22",
     "leaning": "libertarianism",
     "availableFor": [
-      "mupka"
+      "mupka",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_mupka_22.topic",
     "title": "policy.filler_mupka_22.title",
@@ -1069,7 +1113,9 @@
     "id": "filler_abis_01",
     "leaning": "libertarianism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_01.topic",
     "title": "policy.filler_abis_01.title",
@@ -1120,7 +1166,9 @@
     "id": "filler_abis_02",
     "leaning": "conservatism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_02.topic",
     "title": "policy.filler_abis_02.title",
@@ -1167,7 +1215,9 @@
     "id": "filler_abis_03",
     "leaning": "populism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_03.topic",
     "title": "policy.filler_abis_03.title",
@@ -1214,7 +1264,9 @@
     "id": "filler_abis_04",
     "leaning": "socialism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_04.topic",
     "title": "policy.filler_abis_04.title",
@@ -1256,7 +1308,9 @@
     "id": "filler_abis_05",
     "leaning": "conservatism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_05.topic",
     "title": "policy.filler_abis_05.title",
@@ -1311,7 +1365,9 @@
     "id": "filler_abis_06",
     "leaning": "fascism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_06.topic",
     "title": "policy.filler_abis_06.title",
@@ -1366,7 +1422,9 @@
     "id": "filler_abis_07",
     "leaning": "communism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_07.topic",
     "title": "policy.filler_abis_07.title",
@@ -1413,7 +1471,9 @@
     "id": "filler_abis_08",
     "leaning": "libertarianism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_08.topic",
     "title": "policy.filler_abis_08.title",
@@ -1459,7 +1519,9 @@
     "id": "filler_abis_09",
     "leaning": "conservatism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_09.topic",
     "title": "policy.filler_abis_09.title",
@@ -1501,7 +1563,9 @@
     "id": "filler_abis_10",
     "leaning": "conservatism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_10.topic",
     "title": "policy.filler_abis_10.title",
@@ -1548,7 +1612,9 @@
     "id": "filler_abis_11",
     "leaning": "populism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_11.topic",
     "title": "policy.filler_abis_11.title",
@@ -1590,7 +1656,9 @@
     "id": "filler_abis_12",
     "leaning": "populism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_12.topic",
     "title": "policy.filler_abis_12.title",
@@ -1644,7 +1712,9 @@
     "id": "filler_abis_13",
     "leaning": "populism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_13.topic",
     "title": "policy.filler_abis_13.title",
@@ -1691,7 +1761,9 @@
     "id": "filler_abis_14",
     "leaning": "populism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_14.topic",
     "title": "policy.filler_abis_14.title",
@@ -1746,7 +1818,9 @@
     "id": "filler_abis_15",
     "leaning": "populism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_15.topic",
     "title": "policy.filler_abis_15.title",
@@ -1805,7 +1879,9 @@
     "id": "filler_abis_16",
     "leaning": "socialism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_16.topic",
     "title": "policy.filler_abis_16.title",
@@ -1851,7 +1927,9 @@
     "id": "filler_abis_17",
     "leaning": "socialism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_17.topic",
     "title": "policy.filler_abis_17.title",
@@ -1901,7 +1979,9 @@
     "id": "filler_abis_18",
     "leaning": "socialism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_18.topic",
     "title": "policy.filler_abis_18.title",
@@ -1947,7 +2027,9 @@
     "id": "filler_abis_19",
     "leaning": "socialism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_19.topic",
     "title": "policy.filler_abis_19.title",
@@ -1994,7 +2076,9 @@
     "id": "filler_abis_20",
     "leaning": "progressivism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_20.topic",
     "title": "policy.filler_abis_20.title",
@@ -2044,7 +2128,9 @@
     "id": "filler_abis_21",
     "leaning": "communism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_21.topic",
     "title": "policy.filler_abis_21.title",
@@ -2086,7 +2172,9 @@
     "id": "filler_abis_22",
     "leaning": "socialism",
     "availableFor": [
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "topic": "policy.filler_abis_22.topic",
     "title": "policy.filler_abis_22.title",

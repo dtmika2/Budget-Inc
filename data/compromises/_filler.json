@@ -3,7 +3,9 @@
     "id": "filler_comp_01",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_01.title",
     "description": "compromise.filler_comp_01.desc",
@@ -25,7 +27,9 @@
     "id": "filler_comp_02",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_02.title",
     "description": "compromise.filler_comp_02.desc",
@@ -50,7 +54,9 @@
     "id": "filler_comp_03",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_03.title",
     "description": "compromise.filler_comp_03.desc",
@@ -76,7 +82,9 @@
     "id": "filler_comp_04",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_04.title",
     "description": "compromise.filler_comp_04.desc",
@@ -102,7 +110,9 @@
     "id": "filler_comp_05",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_05.title",
     "description": "compromise.filler_comp_05.desc",
@@ -124,7 +134,9 @@
     "id": "filler_comp_06",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_06.title",
     "description": "compromise.filler_comp_06.desc",
@@ -150,7 +162,9 @@
     "id": "filler_comp_07",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_07.title",
     "description": "compromise.filler_comp_07.desc",
@@ -176,7 +190,9 @@
     "id": "filler_comp_08",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_08.title",
     "description": "compromise.filler_comp_08.desc",
@@ -201,7 +217,9 @@
     "id": "filler_comp_09",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_09.title",
     "description": "compromise.filler_comp_09.desc",
@@ -226,7 +244,9 @@
     "id": "filler_comp_10",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_10.title",
     "description": "compromise.filler_comp_10.desc",
@@ -248,7 +268,9 @@
     "id": "filler_comp_11",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_11.title",
     "description": "compromise.filler_comp_11.desc",
@@ -274,7 +296,9 @@
     "id": "filler_comp_12",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_12.title",
     "description": "compromise.filler_comp_12.desc",
@@ -300,7 +324,9 @@
     "id": "filler_comp_13",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_13.title",
     "description": "compromise.filler_comp_13.desc",
@@ -325,7 +351,9 @@
     "id": "filler_comp_14",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_14.title",
     "description": "compromise.filler_comp_14.desc",
@@ -354,7 +382,9 @@
     "id": "filler_comp_15",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_15.title",
     "description": "compromise.filler_comp_15.desc",
@@ -379,7 +409,9 @@
     "id": "filler_comp_16",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "compromise.filler_comp_16.title",
     "description": "compromise.filler_comp_16.desc",

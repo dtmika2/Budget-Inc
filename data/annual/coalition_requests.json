@@ -2,12 +2,17 @@
   "status": "DUMMY",
   "partners": {
     "mupka": ["kdu_csl", "top09"],
-    "abis": ["spd", "motoriste"]
+    "abis": ["spd", "motoriste"],
+    "brich": ["stan", "zeleni"],
+    "moturek": ["ano", "spd"]
   },
   "preferences": {
     "kdu_csl": { "raise": ["social_care", "housing", "education", "agriculture", "health"], "cut": ["administration", "ngos", "sport"] },
     "top09": { "raise": ["defence", "science", "digital", "foreign_aid", "education"], "cut": ["pensions", "administration", "agriculture", "regional_dev"] },
     "spd": { "raise": ["police", "pensions", "defence", "firefighters", "health"], "cut": ["ngos", "foreign_aid", "environment", "culture"] },
-    "motoriste": { "raise": ["transport", "energy", "regional_dev", "sport"], "cut": ["environment", "ngos", "culture", "administration"] }
+    "motoriste": { "raise": ["transport", "energy", "regional_dev", "sport"], "cut": ["environment", "ngos", "culture", "administration"] },
+    "stan": { "raise": ["regional_dev", "digital", "education", "defence", "housing"], "cut": ["administration", "pensions", "agriculture"] },
+    "zeleni": { "raise": ["environment", "transport", "ngos", "culture", "science"], "cut": ["defence", "energy", "police"] },
+    "ano": { "raise": ["pensions", "agriculture", "transport", "regional_dev", "health"], "cut": ["ngos", "culture", "foreign_aid", "environment"] }
   }
 }

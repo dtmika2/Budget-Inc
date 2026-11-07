@@ -1,7 +1,7 @@
 [
   {
     "id": "dummy_comp_regions",
-    "availableFor": ["mupka", "abis"],
+    "availableFor": ["mupka", "abis", "brich", "moturek"],
     "title": "compromise.dummy_comp_regions.title",
     "description": "compromise.dummy_comp_regions.desc",
     "drivenBy": "compromise.dummy_comp_regions.drivenBy",
@@ -14,7 +14,7 @@
   },
   {
     "id": "dummy_comp_oligarchs",
-    "availableFor": ["mupka", "abis"],
+    "availableFor": ["mupka", "abis", "brich", "moturek"],
     "title": "compromise.dummy_comp_oligarchs.title",
     "description": "compromise.dummy_comp_oligarchs.desc",
     "drivenBy": "compromise.dummy_comp_oligarchs.drivenBy",
@@ -28,7 +28,7 @@
   {
     "id": "dummy_comp_finance",
     "tags": ["transport"],
-    "availableFor": ["mupka", "abis"],
+    "availableFor": ["mupka", "abis", "brich", "moturek"],
     "title": "compromise.dummy_comp_finance.title",
     "description": "compromise.dummy_comp_finance.desc",
     "drivenBy": "compromise.dummy_comp_finance.drivenBy",
@@ -41,7 +41,7 @@
   },
   {
     "id": "dummy_comp_oligarchs_reverse",
-    "availableFor": ["mupka", "abis"],
+    "availableFor": ["mupka", "abis", "brich", "moturek"],
     "title": "compromise.dummy_comp_oligarchs_reverse.title",
     "description": "compromise.dummy_comp_oligarchs_reverse.desc",
     "drivenBy": "compromise.dummy_comp_oligarchs_reverse.drivenBy",

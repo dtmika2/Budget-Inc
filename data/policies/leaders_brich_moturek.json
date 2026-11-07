@@ -1,0 +1,539 @@
+[
+  {
+    "id": "brich_taiwan_twin",
+    "leaning": "progressivism",
+    "availableFor": [
+      "brich"
+    ],
+    "title": "policy.brich_taiwan_twin.title",
+    "description": "policy.brich_taiwan_twin.desc",
+    "drivenBy": "policy.brich_taiwan_twin.drivenBy",
+    "effects": {
+      "support": {
+        "min": -1,
+        "max": 2
+      },
+      "prestige": {
+        "min": 4,
+        "max": 7
+      },
+      "financesExtra": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 4,
+        "max": 6
+      },
+      "eu": {
+        "min": -4,
+        "max": -2
+      }
+    },
+    "devOnly": false,
+    "topic": "policy.brich_taiwan_twin.topic"
+  },
+  {
+    "id": "brich_digital_permit",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "brich"
+    ],
+    "title": "policy.brich_digital_permit.title",
+    "description": "policy.brich_digital_permit.desc",
+    "drivenBy": "policy.brich_digital_permit.drivenBy",
+    "effects": {
+      "support": {
+        "min": -3,
+        "max": -1
+      },
+      "coalition": {
+        "min": -2,
+        "max": 0
+      },
+      "prestige": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": -4,
+        "max": -2
+      },
+      "media": {
+        "min": 2,
+        "max": 4
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "312",
+        "type": "expenditure",
+        "changePct": 8
+      }
+    ],
+    "ongoing": [
+      {
+        "target": "finances",
+        "perDay": 0.03,
+        "days": 360,
+        "label": "policy.brich_digital_permit.ongoing"
+      }
+    ],
+    "devOnly": false,
+    "topic": "policy.brich_digital_permit.topic"
+  },
+  {
+    "id": "brich_bike_lanes",
+    "tags": [
+      "transport",
+      "environment"
+    ],
+    "leaning": "progressivism",
+    "availableFor": [
+      "brich"
+    ],
+    "title": "policy.brich_bike_lanes.title",
+    "description": "policy.brich_bike_lanes.desc",
+    "drivenBy": "policy.brich_bike_lanes.drivenBy",
+    "effects": {
+      "support": {
+        "min": -2,
+        "max": 1
+      },
+      "prestige": {
+        "min": 1,
+        "max": 2
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": -6,
+        "max": -4
+      },
+      "pensioners": {
+        "min": 3,
+        "max": 5
+      },
+      "oligarchs": {
+        "min": 1,
+        "max": 2
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "327",
+        "type": "expenditure",
+        "changePct": 5
+      }
+    ],
+    "devOnly": false,
+    "topic": "policy.brich_bike_lanes.topic"
+  },
+  {
+    "id": "brich_open_contracts",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "brich"
+    ],
+    "title": "policy.brich_open_contracts.title",
+    "description": "policy.brich_open_contracts.desc",
+    "drivenBy": "policy.brich_open_contracts.drivenBy",
+    "effects": {
+      "support": {
+        "min": 2,
+        "max": 4
+      },
+      "coalition": {
+        "min": -4,
+        "max": -2
+      },
+      "prestige": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": 6,
+        "max": 9
+      },
+      "media": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "312",
+        "type": "expenditure",
+        "changePct": 3
+      }
+    ],
+    "devOnly": false,
+    "topic": "policy.brich_open_contracts.topic"
+  },
+  {
+    "id": "brich_hsr_brno",
+    "tags": [
+      "transport"
+    ],
+    "leaning": "socialism",
+    "availableFor": [
+      "brich"
+    ],
+    "title": "policy.brich_hsr_brno.title",
+    "description": "policy.brich_hsr_brno.desc",
+    "drivenBy": "policy.brich_hsr_brno.drivenBy",
+    "effects": {
+      "support": {
+        "min": 1,
+        "max": 3
+      },
+      "prestige": {
+        "min": 1,
+        "max": 3
+      },
+      "coalition": {
+        "min": 1,
+        "max": 2
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 2,
+        "max": 4
+      },
+      "pensioners": {
+        "min": -1,
+        "max": 1
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "327",
+        "type": "expenditure",
+        "changePct": 18
+      }
+    ],
+    "devOnly": false,
+    "topic": "policy.brich_hsr_brno.topic"
+  },
+  {
+    "id": "brich_health_app",
+    "leaning": "socialism",
+    "availableFor": [
+      "brich"
+    ],
+    "title": "policy.brich_health_app.title",
+    "description": "policy.brich_health_app.desc",
+    "drivenBy": "policy.brich_health_app.drivenBy",
+    "effects": {
+      "support": {
+        "min": 2,
+        "max": 4
+      },
+      "prestige": {
+        "min": 1,
+        "max": 2
+      }
+    },
+    "anger": {
+      "pensioners": {
+        "min": 1,
+        "max": 4
+      },
+      "activists": {
+        "min": -2,
+        "max": 0
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "335",
+        "type": "expenditure",
+        "changePct": 7
+      }
+    ],
+    "devOnly": false,
+    "topic": "policy.brich_health_app.topic"
+  },
+  {
+    "id": "moturek_ice_forever",
+    "tags": [
+      "transport"
+    ],
+    "leaning": "conservatism",
+    "availableFor": [
+      "moturek"
+    ],
+    "title": "policy.moturek_ice_forever.title",
+    "description": "policy.moturek_ice_forever.desc",
+    "drivenBy": "policy.moturek_ice_forever.drivenBy",
+    "effects": {
+      "support": {
+        "min": 3,
+        "max": 5
+      },
+      "prestige": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 8,
+        "max": 12
+      },
+      "activists": {
+        "min": 5,
+        "max": 7
+      },
+      "pensioners": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "devOnly": false,
+    "topic": "policy.moturek_ice_forever.topic"
+  },
+  {
+    "id": "moturek_speed_160",
+    "tags": [
+      "transport"
+    ],
+    "leaning": "libertarianism",
+    "availableFor": [
+      "moturek"
+    ],
+    "title": "policy.moturek_speed_160.title",
+    "description": "policy.moturek_speed_160.desc",
+    "drivenBy": "policy.moturek_speed_160.drivenBy",
+    "effects": {
+      "support": {
+        "min": 2,
+        "max": 4
+      },
+      "prestige": {
+        "min": -2,
+        "max": 0
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 4,
+        "max": 6
+      },
+      "eu": {
+        "min": 1,
+        "max": 3
+      },
+      "pensioners": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "327",
+        "type": "expenditure",
+        "changePct": 2
+      }
+    ],
+    "ongoing": [
+      {
+        "target": "support",
+        "perDay": -0.02,
+        "days": 90,
+        "label": "policy.moturek_speed_160.ongoing"
+      }
+    ],
+    "devOnly": false,
+    "topic": "policy.moturek_speed_160.topic"
+  },
+  {
+    "id": "moturek_green_deal_bin",
+    "tags": [
+      "industry",
+      "environment"
+    ],
+    "leaning": "populism",
+    "availableFor": [
+      "moturek"
+    ],
+    "title": "policy.moturek_green_deal_bin.title",
+    "description": "policy.moturek_green_deal_bin.desc",
+    "drivenBy": "policy.moturek_green_deal_bin.drivenBy",
+    "effects": {
+      "support": {
+        "min": 3,
+        "max": 6
+      },
+      "prestige": {
+        "min": -6,
+        "max": -3
+      },
+      "coalition": {
+        "min": -1,
+        "max": 1
+      }
+    },
+    "anger": {
+      "eu": {
+        "min": 10,
+        "max": 14
+      },
+      "activists": {
+        "min": 6,
+        "max": 9
+      },
+      "oligarchs": {
+        "min": -4,
+        "max": -2
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "315",
+        "type": "expenditure",
+        "changePct": -15
+      }
+    ],
+    "devOnly": false,
+    "topic": "policy.moturek_green_deal_bin.topic"
+  },
+  {
+    "id": "moturek_veteran_tax",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "moturek"
+    ],
+    "title": "policy.moturek_veteran_tax.title",
+    "description": "policy.moturek_veteran_tax.desc",
+    "drivenBy": "policy.moturek_veteran_tax.drivenBy",
+    "effects": {
+      "support": {
+        "min": -1,
+        "max": 1
+      },
+      "coalition": {
+        "min": -1,
+        "max": 1
+      },
+      "financesExtra": {
+        "min": -2,
+        "max": -1
+      }
+    },
+    "anger": {
+      "oligarchs": {
+        "min": -3,
+        "max": -1
+      },
+      "pensioners": {
+        "min": -1,
+        "max": 1
+      }
+    },
+    "devOnly": false,
+    "topic": "policy.moturek_veteran_tax.topic"
+  },
+  {
+    "id": "moturek_cut_offices",
+    "leaning": "libertarianism",
+    "availableFor": [
+      "moturek"
+    ],
+    "title": "policy.moturek_cut_offices.title",
+    "description": "policy.moturek_cut_offices.desc",
+    "drivenBy": "policy.moturek_cut_offices.drivenBy",
+    "effects": {
+      "support": {
+        "min": 1,
+        "max": 3
+      },
+      "coalition": {
+        "min": -5,
+        "max": -3
+      }
+    },
+    "anger": {
+      "media": {
+        "min": 2,
+        "max": 4
+      },
+      "pensioners": {
+        "min": 2,
+        "max": 4
+      },
+      "oligarchs": {
+        "min": -2,
+        "max": 0
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "314",
+        "type": "expenditure",
+        "changePct": -8
+      },
+      {
+        "chapter": "312",
+        "type": "expenditure",
+        "changePct": -6
+      }
+    ],
+    "devOnly": false,
+    "topic": "policy.moturek_cut_offices.topic"
+  },
+  {
+    "id": "moturek_coal_forever",
+    "tags": [
+      "industry",
+      "environment"
+    ],
+    "leaning": "conservatism",
+    "availableFor": [
+      "moturek"
+    ],
+    "title": "policy.moturek_coal_forever.title",
+    "description": "policy.moturek_coal_forever.desc",
+    "drivenBy": "policy.moturek_coal_forever.drivenBy",
+    "effects": {
+      "support": {
+        "min": 2,
+        "max": 4
+      },
+      "prestige": {
+        "min": -3,
+        "max": -1
+      }
+    },
+    "anger": {
+      "activists": {
+        "min": 6,
+        "max": 8
+      },
+      "eu": {
+        "min": 4,
+        "max": 6
+      },
+      "pensioners": {
+        "min": -4,
+        "max": -2
+      }
+    },
+    "budgetChanges": [
+      {
+        "chapter": "315",
+        "type": "expenditure",
+        "changePct": 6
+      }
+    ],
+    "devOnly": false,
+    "topic": "policy.moturek_coal_forever.topic"
+  }
+]

@@ -285,5 +285,368 @@
       }
     ],
     "sprite": "abis"
+  },
+  {
+    "id": "brich",
+    "name": "leader.brich.name",
+    "party": "leader.brich.party",
+    "profile": "leader.brich.profile",
+    "color": "#a1a1aa",
+    "colorLight": "#d4d4d8",
+    "start": {
+      "finances": 45,
+      "support": 45,
+      "coalition": 50,
+      "prestige": 70
+    },
+    "startAnger": {
+      "oligarchs": 45,
+      "media": 25,
+      "eu": 15,
+      "activists": 25,
+      "pensioners": 60
+    },
+    "leaningWeights": {
+      "libertarianism": 25,
+      "conservatism": 8,
+      "populism": 10,
+      "socialism": 17,
+      "progressivism": 35,
+      "fascism": 2,
+      "communism": 3
+    },
+    "abilities": [
+      {
+        "id": "taiwan_trip",
+        "name": "ability.taiwan_trip.name",
+        "description": "ability.taiwan_trip.desc",
+        "icon": "taiwan_trip",
+        "modifiers": [
+          {
+            "type": "multiplier",
+            "target": "prestige.gain",
+            "value": 1.25,
+            "days": 360
+          },
+          {
+            "type": "multiplier",
+            "target": "prestige.loss",
+            "value": 0.7,
+            "days": 360
+          }
+        ],
+        "bundle": {
+          "effects": {
+            "prestige": {
+              "min": 10,
+              "max": 10
+            },
+            "financesExtra": {
+              "min": -4,
+              "max": -4
+            }
+          },
+          "anger": {
+            "eu": {
+              "min": -8,
+              "max": -8
+            },
+            "oligarchs": {
+              "min": 6,
+              "max": 6
+            }
+          }
+        },
+        "pulses": {
+          "everyDays": 30,
+          "times": 12,
+          "bundle": {
+            "effects": {
+              "prestige": {
+                "min": 0.75,
+                "max": 0.75
+              }
+            }
+          },
+          "label": "ability.taiwan_trip.pulse"
+        },
+        "action": null,
+        "targetModifiers": []
+      },
+      {
+        "id": "digital_permit",
+        "name": "ability.digital_permit.name",
+        "description": "ability.digital_permit.desc",
+        "icon": "digital_permit",
+        "modifiers": [
+          {
+            "type": "multiplier",
+            "target": "finances.loss",
+            "value": 0.85,
+            "days": 360
+          },
+          {
+            "type": "add",
+            "target": "pc.perQuarter",
+            "value": 1,
+            "days": 360
+          }
+        ],
+        "bundle": {
+          "effects": {
+            "support": {
+              "min": -4,
+              "max": -4
+            }
+          },
+          "anger": {
+            "media": {
+              "min": 6,
+              "max": 6
+            }
+          }
+        },
+        "pulses": {
+          "everyDays": 30,
+          "times": 12,
+          "bundle": {
+            "effects": {
+              "financesExtra": {
+                "min": 2.5,
+                "max": 2.5
+              }
+            }
+          },
+          "label": "ability.digital_permit.pulse"
+        },
+        "action": null,
+        "targetModifiers": []
+      },
+      {
+        "id": "tram_everywhere",
+        "name": "ability.tram_everywhere.name",
+        "description": "ability.tram_everywhere.desc",
+        "icon": "tram_everywhere",
+        "modifiers": [],
+        "bundle": {
+          "effects": {
+            "financesExtra": {
+              "min": -6,
+              "max": -6
+            }
+          },
+          "anger": {
+            "activists": {
+              "min": -8,
+              "max": -8
+            }
+          },
+          "regions": {
+            "self": {
+              "min": 8,
+              "max": 8
+            },
+            "CZ010": {
+              "min": 2,
+              "max": 2
+            }
+          },
+          "tags": [
+            "transport"
+          ]
+        },
+        "pulses": null,
+        "action": "regionTarget",
+        "targetModifiers": []
+      }
+    ],
+    "sprite": "brich"
+  },
+  {
+    "id": "moturek",
+    "name": "leader.moturek.name",
+    "party": "leader.moturek.party",
+    "profile": "leader.moturek.profile",
+    "color": "#f97316",
+    "colorLight": "#fdba74",
+    "start": {
+      "finances": 55,
+      "support": 55,
+      "coalition": 50,
+      "prestige": 35
+    },
+    "startAnger": {
+      "oligarchs": 15,
+      "media": 50,
+      "eu": 55,
+      "activists": 60,
+      "pensioners": 30
+    },
+    "leaningWeights": {
+      "libertarianism": 38,
+      "conservatism": 27,
+      "populism": 25,
+      "socialism": 3,
+      "progressivism": 2,
+      "fascism": 4,
+      "communism": 1
+    },
+    "abilities": [
+      {
+        "id": "cheap_fuel",
+        "name": "ability.cheap_fuel.name",
+        "description": "ability.cheap_fuel.desc",
+        "icon": "cheap_fuel",
+        "modifiers": [],
+        "bundle": {
+          "effects": {
+            "support": {
+              "min": 8,
+              "max": 8
+            },
+            "financesExtra": {
+              "min": -6,
+              "max": -6
+            }
+          },
+          "anger": {
+            "pensioners": {
+              "min": -8,
+              "max": -8
+            },
+            "eu": {
+              "min": 8,
+              "max": 8
+            },
+            "activists": {
+              "min": 6,
+              "max": 6
+            }
+          },
+          "tags": [
+            "transport"
+          ]
+        },
+        "pulses": {
+          "everyDays": 30,
+          "times": 12,
+          "bundle": {
+            "effects": {
+              "support": {
+                "min": 0.5,
+                "max": 0.5
+              },
+              "financesExtra": {
+                "min": -1,
+                "max": -1
+              }
+            }
+          },
+          "label": "ability.cheap_fuel.pulse"
+        },
+        "action": null,
+        "targetModifiers": []
+      },
+      {
+        "id": "climate_commissioner",
+        "name": "ability.climate_commissioner.name",
+        "description": "ability.climate_commissioner.desc",
+        "icon": "climate_commissioner",
+        "modifiers": [
+          {
+            "type": "multiplier",
+            "target": "anger.eu.gain",
+            "value": 0.5,
+            "days": 360
+          },
+          {
+            "type": "multiplier",
+            "target": "anger.activists.loss",
+            "value": 0.5,
+            "days": 360
+          }
+        ],
+        "bundle": {
+          "anger": {
+            "eu": {
+              "min": -10,
+              "max": -10
+            },
+            "activists": {
+              "min": 10,
+              "max": 10
+            }
+          }
+        },
+        "pulses": {
+          "everyDays": 30,
+          "times": 12,
+          "bundle": {
+            "effects": {
+              "financesExtra": {
+                "min": 2,
+                "max": 2
+              }
+            }
+          },
+          "label": "ability.climate_commissioner.pulse"
+        },
+        "action": null,
+        "targetModifiers": []
+      },
+      {
+        "id": "castle_rejection",
+        "name": "ability.castle_rejection.name",
+        "description": "ability.castle_rejection.desc",
+        "icon": "castle_rejection",
+        "modifiers": [
+          {
+            "type": "multiplier",
+            "target": "support.loss",
+            "value": 0.7,
+            "days": 360,
+            "source": "chaos"
+          },
+          {
+            "type": "multiplier",
+            "target": "support.loss",
+            "value": 0.7,
+            "days": 360,
+            "source": "special"
+          },
+          {
+            "type": "add",
+            "target": "election.T_base",
+            "value": -1
+          }
+        ],
+        "bundle": {
+          "effects": {
+            "support": {
+              "min": 10,
+              "max": 10
+            },
+            "prestige": {
+              "min": -8,
+              "max": -8
+            },
+            "coalition": {
+              "min": -4,
+              "max": -4
+            }
+          },
+          "anger": {
+            "media": {
+              "min": 6,
+              "max": 6
+            }
+          }
+        },
+        "pulses": null,
+        "action": null,
+        "targetModifiers": []
+      }
+    ],
+    "sprite": "moturek"
   }
 ]

@@ -4,7 +4,9 @@
     "leaning": "populism",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "policy.dummy_revenue.title",
     "description": "policy.dummy_revenue.desc",
@@ -50,7 +52,9 @@
     "leaning": "socialism",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "policy.dummy_expenditure.title",
     "description": "policy.dummy_expenditure.desc",
@@ -101,7 +105,9 @@
     "leaning": "conservatism",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "policy.dummy_finances_extra.title",
     "description": "policy.dummy_finances_extra.desc",
@@ -133,7 +139,9 @@
     "leaning": "populism",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "policy.dummy_ongoing.title",
     "description": "policy.dummy_ongoing.desc",
@@ -187,7 +195,9 @@
     "leaning": "populism",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "policy.dummy_respondable.title",
     "description": "policy.dummy_respondable.desc",
@@ -223,7 +233,9 @@
     "leaning": "communism",
     "availableFor": [
       "mupka",
-      "abis"
+      "abis",
+      "brich",
+      "moturek"
     ],
     "title": "policy.dummy_oligarchs.title",
     "description": "policy.dummy_oligarchs.desc",
