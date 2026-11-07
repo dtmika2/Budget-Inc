@@ -12,7 +12,8 @@ merge conflicts. Region work edits only the files below; other work does not edi
 | `data/region_profiles.json` | per kraj: traits, demographics, regional coalition |
 | `locales/regions.cs.json` | Czech texts: region names (`region.*`), traits (`trait.*`), parties (`party.*`), demographics (`demo.*`), map labels (`map.*`) and the region screen (`region.screen.*`) |
 | `src/regions/` | map (`CzMap.tsx`, `Liquid.tsx`, `MapLife.tsx`, `lifeDirector.ts`, `sprites.ts`, `regionsPath.ts`), region-event layer and pin (`RegionEventLayer.tsx`, `RegionEventPin.tsx`), map-click paw (`RegionPaw.tsx`), map pins (`DemandPin.tsx`, `OpportunityPin.tsx`), region screen (`RegionScreen.tsx`, `RegionChart.tsx`, `RegionDemands.tsx`, `RegionEvents.tsx`), styles (`regions.css`), entry point (`index.ts`) |
-| `data/region_actions/*.json` | kraj actions the player chooses (P26): škola, nemocnice, silnice, továrna, návštěva (`[DUMMY]` texts) |
+| `data/region_actions/*.json` | kraj actions the player chooses (P26): škola, nemocnice, silnice, továrna, návštěva (`[DUMMY]` texts), each with a `passive` |
+| `src/core/regionPassives.ts` | kraj action passives: which are active (`activePassives`, `hasPassive`, `regionLossMult`) |
 | `src/core/regionActions.ts`, `src/regions/RegionActions.tsx`, `src/regions/actionArt.tsx`, `tests/region-actions.test.ts` | kraj actions: offer by traits, limits, the region screen's Akce tab (a compass rose: one action per tip, all four the same size with the scene on both sides, limits in the centre, history below; pixel scenes per action id in `actionArt.tsx`) |
 | `data/region_events/*.json` | region events: flood, blackout, demonstrations, factory shutdown, Ikonické duo (`[DUMMY]` effects) |
 | `src/core/regions.ts` | region trait multipliers (`traitMult`) and the region screen's group cohorts (`regionCohorts`) |
@@ -36,6 +37,10 @@ those changes small and tell the other side:
   `state.regionEvents`), the `regionEvents` RNG stream (`src/core/rng.ts`), `src/core/scheduler.ts` (two kinds),
   `src/core/bots.ts` (answers), `src/data/schemas.ts` / `loader.ts`, `config.regionEvents`, and one
   `popupFor` case plus `ui.regionTab` in `src/ui/store.ts`.
+- Kraj action passives: `spawnDemand` in `src/core/demands.ts` skips a kraj with `noDemands`; `src/core/effects.ts`
+  scales a kraj's losses by `regionLossMult` (apply and preview); `src/core/simulation.ts` calls
+  `tickRegionPassivesWeekly` with the weekly projection and `payRegionPassivesQuarterly` at quarter start;
+  `RegionPassive` in `src/core/types.ts`, its schema in `src/data/schemas.ts`, `config.regionActions.passiveQuarters`.
 - `src/core/effects.ts` applies `traitMult`; `src/core/types.ts` (`RegionsData`, region profile types),
   `src/data/schemas.ts` and `src/data/loader.ts` (region schemas and checks); `config.regions` in `src/config.ts`.
 - Regional demands: the rules (`src/core/demands.ts`, `data/demands/`) and the pledge tracker

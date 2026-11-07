@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { config } from '../src/config';
-import { canDoRegionAction, offeredActions, regionActionPcCost } from '../src/core/regionActions';
+import { spawnDemand } from '../src/core/demands';
+import { applyBundle, previewBundle } from '../src/core/effects';
+import { canDoRegionAction, offeredActions, payRegionPassivesQuarterly, regionActionPcCost, tickRegionPassivesWeekly } from '../src/core/regionActions';
+import { spawnRegionEvent } from '../src/core/regionEvents';
+import { activePassives } from '../src/core/regionPassives';
+import type { Simulation } from '../src/core/simulation';
+import type { RegionPassive } from '../src/core/types';
 import { quietSim } from './helpers';
+
+/** The data action carrying a passive of this type. */
+const withPassive = (sim: Simulation, type: RegionPassive['type']) => sim.data.regionActions.find((a) => a.passive?.type === type)!;
+/** Mark the action done in a kraj this quarter (its passive starts now). */
+const done = (sim: Simulation, region: string, actionId: string, quarter = sim.state.quarter) => sim.state.regionActionsDone.push({ region, actionId, quarter });
 
 /** Kraj actions (P26, regions workspace): the player picks where to work. */
 describe('kraj actions', () => {
@@ -58,5 +69,94 @@ describe('kraj actions', () => {
     sim.state.regionActionsDone.push({ region: r, actionId: id, quarter: 1 });
     sim.state.quarter = 5;
     expect(canDoRegionAction(sim, r, id)).toBeNull();
+  });
+
+  it('every data action carries a passive', () => {
+    const sim = quietSim();
+    for (const a of sim.data.regionActions) expect(a.passive, a.id).toBeDefined();
+  });
+
+  it('a passive lasts passiveQuarters quarters from the action', () => {
+    const sim = quietSim({ seed: 'pas-len' });
+    const r = sim.data.regions.regions[0].code;
+    done(sim, r, withPassive(sim, 'noDemands').id, 1);
+    for (let q = 1; q <= config.regionActions.passiveQuarters; q++) {
+      sim.state.quarter = q;
+      expect(activePassives(sim, r)).toHaveLength(1);
+    }
+    sim.state.quarter = config.regionActions.passiveQuarters + 1;
+    expect(activePassives(sim, r)).toHaveLength(0);
+  });
+
+  it('noDemands keeps demands out of the kraj', () => {
+    const sim = quietSim({ seed: 'pas-dem' });
+    const codes = sim.data.regions.regions.map((r) => r.code);
+    const id = withPassive(sim, 'noDemands').id;
+    for (const c of codes.slice(1)) done(sim, c, id);
+    for (let i = 0; i < 6; i++) {
+      spawnDemand(sim);
+      for (const d of sim.state.demands) expect(d.region).toBe(codes[0]);
+      sim.state.demands = [];
+    }
+    done(sim, codes[0], id);
+    spawnDemand(sim);
+    expect(sim.state.demands).toHaveLength(0);
+  });
+
+  it('noRegionEvents keeps region events out of the kraj', () => {
+    const sim = quietSim({ seed: 'pas-ev' });
+    const id = withPassive(sim, 'noRegionEvents').id;
+    for (const r of sim.data.regions.regions) done(sim, r.code, id);
+    spawnRegionEvent(sim, { seq: 0, kind: 'regionEventSpawn', absDay: sim.absDay, payload: {} });
+    expect(sim.state.regionEvents).toHaveLength(0);
+    sim.state.regionActionsDone = [];
+    spawnRegionEvent(sim, { seq: 0, kind: 'regionEventSpawn', absDay: sim.absDay, payload: {} });
+    expect(sim.state.regionEvents).toHaveLength(1);
+  });
+
+  it('weeklySupport adds its value every week while active', () => {
+    const sim = quietSim({ seed: 'pas-week' });
+    const r = sim.data.regions.regions[3].code;
+    const a = withPassive(sim, 'weeklySupport');
+    done(sim, r, a.id);
+    const before = sim.state.regionShift[r];
+    tickRegionPassivesWeekly(sim);
+    expect(sim.state.regionShift[r] - before).toBeCloseTo(a.passive!.type === 'weeklySupport' ? a.passive!.value : 0);
+    sim.state.quarter += config.regionActions.passiveQuarters;
+    const later = sim.state.regionShift[r];
+    tickRegionPassivesWeekly(sim);
+    expect(sim.state.regionShift[r]).toBe(later);
+  });
+
+  it('quarterlyFinances pays at the start of each later quarter, not in the action quarter', () => {
+    const sim = quietSim({ seed: 'pas-fin' });
+    const r = sim.data.regions.regions[4].code;
+    const a = withPassive(sim, 'quarterlyFinances');
+    const value = a.passive!.type === 'quarterlyFinances' ? a.passive!.value : 0;
+    done(sim, r, a.id);
+    const f0 = sim.state.financesExtra;
+    payRegionPassivesQuarterly(sim);
+    expect(sim.state.financesExtra).toBe(f0);
+    sim.state.quarter += 1;
+    payRegionPassivesQuarterly(sim);
+    expect(sim.state.financesExtra - f0).toBeCloseTo(value);
+    expect(sim.state.log.at(-1)?.type).toBe('region_passive');
+  });
+
+  it('shieldLosses scales losses in the kraj, in the preview too, and leaves gains alone', () => {
+    const sim = quietSim({ seed: 'pas-shield' });
+    const r = sim.data.regions.regions[5].code;
+    const a = withPassive(sim, 'shieldLosses');
+    const m = a.passive!.type === 'shieldLosses' ? a.passive!.value : 1;
+    const loss = { regions: { [r]: { min: -4, max: -4 } } };
+    const plain = previewBundle(sim, loss, 'chaos').regions[r]!;
+    done(sim, r, a.id);
+    const shielded = previewBundle(sim, loss, 'chaos').regions[r]!;
+    expect(shielded.min).toBeCloseTo(plain.min * m);
+    const before = sim.state.regionShift[r];
+    applyBundle(sim, loss, 'chaos', 'test', sim.rng.effects, true);
+    expect(sim.state.regionShift[r] - before).toBeCloseTo(plain.min * m);
+    const gain = { regions: { [r]: { min: 3, max: 3 } } };
+    expect(previewBundle(sim, gain, 'chaos').regions[r]!.min).toBeGreaterThan(0);
   });
 });

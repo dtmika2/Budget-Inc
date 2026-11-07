@@ -3,10 +3,12 @@
  * player chooses where to work. Each kraj offers up to config.regionActions.offered actions, picked by the
  * kraj's traits (deterministic, no RNG), plus the `always` ones. An action costs Finances and/or PC (a negative
  * `pc` in its bundle) and raises support in that kraj. Limits: one action per kraj per year, at most
- * `perQuarter` actions in a quarter.
+ * `perQuarter` actions in a quarter. An action may carry a passive (./regionPassives) that stays active in the kraj
+ * for config.regionActions.passiveQuarters quarters; the weekly and quarterly ones are paid out here.
  */
 import { resolveSelf } from './demands';
 import { applyBundle } from './effects';
+import { activePassives } from './regionPassives';
 import type { Simulation } from './simulation';
 import type { RegionActionTemplate } from './types';
 
@@ -61,6 +63,26 @@ export function canDoRegionAction(sim: Simulation, region: string, actionId: str
 
 /** The action's bundle in this kraj (`self` resolved). */
 export const regionActionBundle = (a: RegionActionTemplate, region: string) => resolveSelf(a.bundle, region);
+
+/** Weekly (with the projection): weeklySupport passives add their value to the kraj's support shift, capped like any shift. */
+export function tickRegionPassivesWeekly(sim: Simulation): void {
+  const cap = sim.cfg.regions.maxShift;
+  for (const p of activePassives(sim)) {
+    if (p.passive.type !== 'weeklySupport') continue;
+    const before = sim.state.regionShift[p.region] ?? 0;
+    sim.state.regionShift[p.region] = Math.min(cap, Math.max(-cap, before + p.passive.value));
+  }
+}
+
+/** Quarter start: quarterlyFinances passives pay out in every quarter after the action's own one. */
+export function payRegionPassivesQuarterly(sim: Simulation): void {
+  for (const p of activePassives(sim)) {
+    if (p.passive.type !== 'quarterlyFinances' || sim.state.quarter <= p.fromQuarter) continue;
+    const v = p.passive.value;
+    const { deltas } = applyBundle(sim, { effects: { financesExtra: { min: v, max: v } } }, 'region_action', `region_passive:${p.actionId}`, sim.rng.effects, true);
+    sim.log('region_passive', { region: p.region, actionId: p.actionId }, deltas);
+  }
+}
 
 export function doRegionAction(sim: Simulation, region: string, actionId: string): void {
   const a = regionActionTemplate(sim, actionId)!;

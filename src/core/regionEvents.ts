@@ -6,6 +6,7 @@
  */
 import { resolveSelf } from './demands';
 import { applyBundle } from './effects';
+import { hasPassive } from './regionPassives';
 import { removeWhere, schedule } from './scheduler';
 import type { Simulation } from './simulation';
 import type { OpenRegionEvent, RegionEventTemplate, ScheduledEntry } from './types';
@@ -41,8 +42,10 @@ export function regionEventText(sim: Simulation, ev: Pick<OpenRegionEvent, 'temp
 export function spawnRegionEvent(sim: Simulation, entry: ScheduledEntry): void {
   const { state, data, cfg } = sim;
   const rng = rngOf(sim);
-  // a random kraj without an open event (the payload may name one, e.g. in tests)
-  const free = data.regions.regions.map((r) => r.code).filter((code) => !state.regionEvents.some((e) => e.region === code));
+  // a random kraj without an open event and without a noRegionEvents passive (the payload may name one, e.g. in tests)
+  const free = data.regions.regions
+    .map((r) => r.code)
+    .filter((code) => !state.regionEvents.some((e) => e.region === code) && !hasPassive(sim, code, 'noRegionEvents'));
   const region = entry.payload.region ? String(entry.payload.region) : free.length ? rng.pick(free) : '';
   if (!region || !free.includes(region)) {
     sim.log('region_event_skipped', { region, reason: 'open' });

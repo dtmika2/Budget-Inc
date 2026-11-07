@@ -8,6 +8,7 @@ import { scaleBundle } from './compromise';
 import { applyBundle } from './effects';
 import { scalar, worsensBalance } from './modifiers';
 import { removeWhere, schedule } from './scheduler';
+import { hasPassive } from './regionPassives';
 import type { Simulation } from './simulation';
 import type { DemandTemplate, Deltas, EffectBundle, FulfilCondition, OpenDemand, Pledge, Range, Requester, ScheduledEntry } from './types';
 import { GROUP_IDS } from './types';
@@ -125,7 +126,8 @@ export function spawnDemand(sim: Simulation): void {
   }
   for (const ti of order) {
     const tpl = data.demands[ti];
-    const regions = data.regions.regions.filter((r) => !busy.has(r.code) && (!tpl.regions.length || tpl.regions.includes(r.code)));
+    // a kraj under a noDemands passive (kraj action) is left alone
+    const regions = data.regions.regions.filter((r) => !busy.has(r.code) && !hasPassive(sim, r.code, 'noDemands') && (!tpl.regions.length || tpl.regions.includes(r.code)));
     const weights = regions.map((r) => {
       let w = r.seats;
       for (const tr of data.regionProfiles.regions[r.code]?.traits ?? []) w *= tpl.regionWeights[tr] ?? 1;

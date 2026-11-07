@@ -390,6 +390,16 @@ export const regionActionSchema = z
     title: z.string(),
     text: z.string(),
     bundle: bundleSchema,
+    /** Passive in the kraj for config.regionActions.passiveQuarters quarters (see RegionPassive in core/types). */
+    passive: z
+      .discriminatedUnion('type', [
+        z.object({ type: z.literal('noDemands') }).strict(),
+        z.object({ type: z.literal('noRegionEvents') }).strict(),
+        z.object({ type: z.literal('weeklySupport'), value: z.number().positive() }).strict(),
+        z.object({ type: z.literal('quarterlyFinances'), value: z.number().positive() }).strict(),
+        z.object({ type: z.literal('shieldLosses'), value: z.number().min(0).max(1) }).strict(),
+      ])
+      .optional(),
   })
   .strict();
 

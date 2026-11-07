@@ -18,16 +18,19 @@
       },
       "regions": {
         "self": {
-          "min": 8,
-          "max": 10
+          "min": 24,
+          "max": 30
         }
       },
       "anger": {
         "activists": {
-          "min": -1.5,
-          "max": -1
+          "min": -4.5,
+          "max": -3
         }
       }
+    },
+    "passive": {
+      "type": "noDemands"
     }
   },
   {
@@ -49,16 +52,19 @@
       },
       "regions": {
         "self": {
-          "min": 8,
-          "max": 11
+          "min": 24,
+          "max": 33
         }
       },
       "anger": {
         "pensioners": {
-          "min": -2,
-          "max": -1.5
+          "min": -6,
+          "max": -4.5
         }
       }
+    },
+    "passive": {
+      "type": "noRegionEvents"
     }
   },
   {
@@ -81,16 +87,20 @@
       },
       "regions": {
         "self": {
-          "min": 6,
-          "max": 8
+          "min": 18,
+          "max": 24
         }
       },
       "anger": {
         "oligarchs": {
-          "min": -1,
-          "max": -0.5
+          "min": -3,
+          "max": -1.5
         }
       }
+    },
+    "passive": {
+      "type": "weeklySupport",
+      "value": 0.25
     }
   },
   {
@@ -113,20 +123,24 @@
       },
       "regions": {
         "self": {
-          "min": 6,
-          "max": 9
+          "min": 18,
+          "max": 27
         }
       },
       "anger": {
         "oligarchs": {
-          "min": -2,
-          "max": -1.5
+          "min": -6,
+          "max": -4.5
         },
         "eu": {
           "min": 0.5,
           "max": 1
         }
       }
+    },
+    "passive": {
+      "type": "quarterlyFinances",
+      "value": 3
     }
   },
   {
@@ -141,10 +155,14 @@
       "pc": -1,
       "regions": {
         "self": {
-          "min": 4,
-          "max": 5
+          "min": 12,
+          "max": 15
         }
       }
+    },
+    "passive": {
+      "type": "shieldLosses",
+      "value": 0.5
     }
   }
 ]

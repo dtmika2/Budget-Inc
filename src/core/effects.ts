@@ -7,6 +7,7 @@
 import type { Config } from '../config';
 import { applyPct, budgetTerm, clonePct } from './budget';
 import { angerChange, budgetChangePct, resourceChange, type PipelineCtx } from './modifiers';
+import { regionLossMult } from './regionPassives';
 import { traitMult } from './regions';
 import type { Rng } from './rng';
 import type {
@@ -116,7 +117,9 @@ export function applyBundle(
     for (const r of host.data.regions.regions) {
       const range = bundle.regions[r.code];
       if (!range) continue;
-      const v = resourceChange(ctx, 'support', roll(range), source) * traitMult(host.data, host.cfg, r.code, tags);
+      const raw = resourceChange(ctx, 'support', roll(range), source) * traitMult(host.data, host.cfg, r.code, tags);
+      // a kraj action's shieldLosses passive softens losses there
+      const v = raw < 0 ? raw * regionLossMult(host, r.code) : raw;
       rolled[`region.${r.code}`] = v;
       addShift(r.code, v);
     }
@@ -203,6 +206,11 @@ export function previewBundle(host: EffectHost, bundle: EffectBundle, source: Ch
     if (sup && m !== 1) {
       lo += sup.min * (m - 1);
       hi += sup.max * (m - 1);
+    }
+    const lm = regionLossMult(host, r.code);
+    if (lm !== 1 && range) {
+      if (lo < 0) lo *= lm;
+      if (hi < 0) hi *= lm;
     }
     if (range || (sup && m !== 1 && (Math.abs(lo) > 1e-9 || Math.abs(hi) > 1e-9))) out.regions[r.code] = ordered(lo, hi);
   }

@@ -9,6 +9,7 @@
  */
 import { memo, useCallback, useRef, useState } from 'react';
 import { config } from '@/config';
+import { activePassives } from '@core/regionPassives';
 import { t } from '@i18n/index';
 import { PixelIcon } from '@ui/pixelIcons';
 import { getStore, useStore } from '@ui/store';
@@ -20,6 +21,8 @@ import { RegionEventLayer } from './RegionEventLayer';
 import { RegionEventPin } from './RegionEventPin';
 import { OpportunityPin } from './OpportunityPin';
 import { RegionPaw, type Paw } from './RegionPaw';
+import { ActionArt } from './actionArt';
+import { passiveText } from './RegionActions';
 import { MAP_HEIGHT, MAP_WIDTH, REGION_PATHS } from './regionsPath';
 
 const LABEL_BY_CODE = new Map(REGION_PATHS.map((r) => [r.code, r]));
@@ -99,6 +102,7 @@ function Pins() {
         if (!r) return null;
         return <RegionEventPin key={e.id} ev={e} x={((r.labelX - 4) / MAP_WIDTH) * 100} y={((r.labelY - 40) / MAP_HEIGHT) * 100} />;
       })}
+      <ActionMarks />
       {pledgeRegions.map((code) => {
         const r = LABEL_BY_CODE.get(code);
         if (!r) return null;
@@ -109,6 +113,41 @@ function Pins() {
         );
       })}
     </div>
+  );
+}
+
+/**
+ * The scene of the kraj action whose passive is active in a kraj, under the kraj's label (the latest one when two
+ * overlap). A click opens the kraj's Akce tab.
+ */
+function ActionMarks() {
+  // a primitive key so the marks re-render only when the set of active passives changes
+  const key = useStore((s) => (s.sim ? activePassives(s.sim).map((p) => `${p.region}:${p.actionId}:${p.untilQuarter}`).join('|') : ''));
+  const sim = getStore().sim;
+  if (!key || !sim) return null;
+  const latest = new Map<string, ReturnType<typeof activePassives>[number]>();
+  for (const p of activePassives(sim)) latest.set(p.region, p);
+  return (
+    <>
+      {[...latest.values()].map((p) => {
+        const r = LABEL_BY_CODE.get(p.region);
+        const action = sim.data.regionActions.find((a) => a.id === p.actionId);
+        if (!r || !action) return null;
+        const title = t('regionAction.passive.mapTitle', { action: t(action.title), passive: passiveText(p.passive), q: p.untilQuarter });
+        return (
+          <button
+            key={p.region}
+            className="act-mark"
+            style={{ left: `${(r.labelX / MAP_WIDTH) * 100}%`, top: `${((r.labelY + 28) / MAP_HEIGHT) * 100}%` }}
+            onClick={() => getStore().setUi({ selectedRegion: p.region, regionTab: 'actions' })}
+            aria-label={title}
+            title={title}
+          >
+            <ActionArt id={p.actionId} />
+          </button>
+        );
+      })}
+    </>
   );
 }
 

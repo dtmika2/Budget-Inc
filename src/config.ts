@@ -470,6 +470,8 @@ export const config = {
     offered: 3,
     perKrajPerYear: 1,
     perQuarter: 2,
+    /** How long an action's passive lasts in its kraj: its own quarter and the following ones, this many in all. */
+    passiveQuarters: 4,
   },
 
   /** Catastrophes and special agents (catastrophes workspace, core/specialCards.ts). */

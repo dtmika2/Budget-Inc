@@ -1,19 +1,30 @@
 /**
  * Kraj actions on the region screen (P26, regions workspace), laid out as a compass rose: the kraj's actions sit
  * on the four tips (north first, in offeredActions order, so the best trait fit is north and the always-on visit
- * west), all four the same size: the scene on both sides (mirrored on the right), text, effects and cost between. The centre disc shows the limits (actions left this quarter,
+ * west), all four the same size: the scene on both sides (mirrored on the right), text, effects, the passive the
+ * action leaves in the kraj and cost between. The centre disc shows the limits (actions left this quarter,
  * one action per kraj per year). A needle on the disc turns toward the tip under the pointer and rests on the
  * action done this year. History of this kraj's actions below.
  */
 import { useState } from 'react';
 import { config } from '@/config';
 import { canDoRegionAction, offeredActions, regionActionLimits, regionActionPcCost, regionActionTemplate } from '@core/regionActions';
-import { t } from '@i18n/index';
+import { activePassives } from '@core/regionPassives';
+import type { RegionPassive } from '@core/types';
+import { fmt, t } from '@i18n/index';
 import { getStore, useStore } from '@ui/store';
 import { ActionArt, DiscArt, NeedleArt, RoseArt, type Dir } from './actionArt';
 import { Outcome } from './RegionDemands';
 
 const DIRS: Dir[] = ['n', 'e', 's', 'w'];
+
+/** What an action's passive does, in words (the tip and the map marker). */
+export function passiveText(p: RegionPassive): string {
+  if (p.type === 'weeklySupport') return t('regionAction.passive.weeklySupport', { v: fmt(p.value, 2) });
+  if (p.type === 'quarterlyFinances') return t('regionAction.passive.quarterlyFinances', { v: fmt(p.value) });
+  if (p.type === 'shieldLosses') return t('regionAction.passive.shieldLosses', { pct: fmt((1 - p.value) * 100) });
+  return t(`regionAction.passive.${p.type}`);
+}
 const yearOf = (quarter: number) => Math.ceil(quarter / 4);
 
 export function RegionActions({ code }: { code: string }) {
@@ -32,6 +43,7 @@ export function RegionActions({ code }: { code: string }) {
   const doneThisYear = new Set(sim.state.regionActionsDone.filter((d) => d.region === code && yearOf(d.quarter) === year).map((d) => d.actionId));
   const doneIdx = actions.findIndex((a) => doneThisYear.has(a.id));
   const history = sim.state.regionActionsDone.filter((d) => d.region === code).reverse();
+  const passivesHere = activePassives(sim, code);
 
   // the needle turns the short way round (its angle accumulates), toward the aimed tip or the done one
   const [aim, setAim] = useState<number | null>(null);
@@ -57,6 +69,7 @@ export function RegionActions({ code }: { code: string }) {
           const reason = canDoRegionAction(sim, code, a.id);
           const pcCost = regionActionPcCost(a);
           const isDone = doneThisYear.has(a.id);
+          const until = passivesHere.filter((p) => p.actionId === a.id).at(-1)?.untilQuarter ?? null;
           return (
             <section
               key={a.id}
@@ -76,6 +89,12 @@ export function RegionActions({ code }: { code: string }) {
                 </h3>
                 <p className="cmp__text">{t(a.text)}</p>
                 <Outcome label={t('regionAction.effects')} preview={sim.previewRegionAction(a.id, code)} tone="good" />
+                {a.passive && (
+                  <p className={`cmp__passive${until !== null ? ' is-active' : ''}`}>
+                    <b>{t('regionAction.passive.label', { n: config.regionActions.passiveQuarters })}</b> {passiveText(a.passive)}
+                    {until !== null && <em>{t('regionAction.passive.active', { q: until })}</em>}
+                  </p>
+                )}
                 <div className="cmp__foot">
                   <button className="btn btn--compromise" disabled={reason !== null} onClick={() => store.dispatch({ kind: 'regionAction', region: code, actionId: a.id })}>
                     {t('regionAction.do')}

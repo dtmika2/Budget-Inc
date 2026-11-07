@@ -40,7 +40,7 @@ import { electionNight, projection } from './election';
 import { triggeredEnding } from './endings';
 import { makeEntry } from './log';
 import { applyGroupPressure } from './groupPressure';
-import { canDoRegionAction, doRegionAction, regionActionBundle, regionActionTemplate } from './regionActions';
+import { canDoRegionAction, doRegionAction, payRegionPassivesQuarterly, regionActionBundle, regionActionTemplate, tickRegionPassivesWeekly } from './regionActions';
 import { rollPrestigeBonus } from './prestigeBonus';
 import { scalar, tickModifiers, type PipelineCtx } from './modifiers';
 import { collectPin, expirePin, scheduleQuarterPins, spawnPin } from './opportunities';
@@ -331,6 +331,7 @@ export class Simulation implements EffectHost {
     scheduleQuarterCompromise(this);
     scheduleYearDemands(this);
     scheduleYearRegionEvents(this);
+    payRegionPassivesQuarterly(this);
     scheduleYearSpecials(this);
     s.draft = { hand: [], shownThisQuarter: [], rerolls: 0 };
     s.phase = 'draft';
@@ -439,6 +440,7 @@ export class Simulation implements EffectHost {
     }
     // 6. weekly projection + trend
     if (abs % this.cfg.election.projectionEveryDays === 0) {
+      tickRegionPassivesWeekly(this);
       s.projection = this.computeProjection();
       this.pushTrend();
       this.pushRegionHistory();

@@ -590,6 +590,19 @@ export interface LogEntry {
   [extra: string]: unknown;
 }
 
+/**
+ * A kraj action's passive (regions workspace): active in that kraj for config.regionActions.passiveQuarters
+ * quarters from the action's quarter. noDemands / noRegionEvents keep demands / region events out of the kraj;
+ * weeklySupport adds `value` to the kraj's support shift every week; quarterlyFinances pays `value` Finances at
+ * the start of each later quarter; shieldLosses multiplies the kraj's support losses by `value`.
+ */
+export type RegionPassive =
+  | { type: 'noDemands' }
+  | { type: 'noRegionEvents' }
+  | { type: 'weeklySupport'; value: number }
+  | { type: 'quarterlyFinances'; value: number }
+  | { type: 'shieldLosses'; value: number };
+
 /** A kraj action (P26, regions workspace): its bundle may use the region key `self`; a negative `pc` is its PC cost. */
 export interface RegionActionTemplate {
   id: string;
@@ -600,6 +613,7 @@ export interface RegionActionTemplate {
   title: string;
   text: string;
   bundle: EffectBundle;
+  passive?: RegionPassive;
 }
 
 /** A coalition partner's request in the open budget vote (P30): raise (+1) or cut (-1) an area by at least a step. */
