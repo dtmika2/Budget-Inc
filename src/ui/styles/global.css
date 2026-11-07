@@ -965,8 +965,8 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .delta--key::before { content: ''; display: inline-block; width: 6px; height: 6px; margin-right: 4px; background: var(--chip-c); vertical-align: 1px; }
 
 /* ------------------------------------------------------------ full-page draft + effect lanes (phase 22) */
-.modal.modal--draft { width: calc(100vw - 32px); max-width: 1500px; min-height: calc(100dvh - 32px); display: flex; flex-direction: column; }
-.modal--draft .carousel { flex: 1; align-items: stretch; gap: 20px; }
+.modal.modal--draft { width: calc(100vw - 32px); max-width: 1500px; display: flex; flex-direction: column; }
+.modal--draft .carousel { align-items: stretch; gap: 20px; }
 .modal--draft .memo { padding: 18px 20px 16px; gap: 10px; }
 .modal--draft .memo__title { font-size: 24px; }
 .modal--draft .memo__flavor { font-size: 16px; }
@@ -1050,7 +1050,6 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 /* the draft opens under the top bar on wide screens, so the bar stays readable */
 @media (min-width: 761px) {
   .modal-backdrop--under-bar { top: 63px; }
-  .modal-backdrop--under-bar .modal.modal--draft { min-height: calc(100dvh - 63px - 32px); }
   .modal--draft .draft-status { display: none; }
 }
 @media (max-width: 760px) {
