@@ -166,6 +166,7 @@ Format: `- §ref — decision — why`. Every choice the spec did not dictate, p
 - policy card numbers — Hovering a row's numbers opens the shared `HoverCard` with what the value is, the card's range, the result and its effect, requested by the user. Only cards with `base` get it (policy and compromise), because the budget screen has its own commentary; the wrapper is also keyboard-focusable, so each row is a tab stop before the pick button. The result uses the same midpoint as the row and ignores the kraj shift cap
 - policy card lanes — A card with no resource effect and no ongoing resource effect collapses Zdroje to one line like Kraje, requested by the user; the budget screen keeps all four rows, so its layout does not jump while the sliders move
 - policy draft height — On desktop the draft no longer fills the screen (replaces that part of P22), requested by the user: the row is as tall as the tallest card and the others stretch to it. Phones keep the full-height layout, so the pick button stays visible while the card's middle scrolls
+- region events — Clicking a kraj with an open event opens the Události tab, like its pin, requested by the user; a demand alone still opens Hlavní, as only its own pin leads to Události
 - mini-game result — The result screen compares the score and the deal with not playing, requested by the user: press and debate against `skipScore`, through the same scaling; the regional tour cannot be skipped, so it compares with the plain deal (`neutralScore`) and says so. A skipped game shows no comparison
 
 ## Blockers

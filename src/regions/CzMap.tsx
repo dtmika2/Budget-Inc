@@ -38,7 +38,8 @@ const Regions = memo(function Regions({ support, selected }: { support: Record<s
           className="region region--outline"
           fill="transparent"
           fillRule="evenodd"
-          onClick={() => store.setUi({ selectedRegion: r.code, regionTab: 'main' })}
+          // a kraj with an open event acts like its event pin
+          onClick={() => store.setUi({ selectedRegion: r.code, regionTab: store.sim?.state.regionEvents.some((e) => e.region === r.code) ? 'events' : 'main' })}
           onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(r.code)}
           onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered((h) => (h === r.code ? null : h))}
         >
