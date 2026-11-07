@@ -46,9 +46,51 @@ const SPRITES: Record<string, string[]> = {
     '.CccccwttwccccC.',
     '.CccccccccccccC.',
   ],
+  // a black pirate-flag pin on the lapel
+  brich: [
+    '................',
+    '.....hhhhhh.....',
+    '....hhhhhhhh....',
+    '...hhhhhhhhhh...',
+    '...hssssssssh...',
+    '...ssbbssbbss...',
+    '...sseesseess...',
+    '...ssssssssss...',
+    '...sssssSssss...',
+    '....ssmmmmss....',
+    '.....ssssss.....',
+    '...CCwwtwwCC....',
+    '..CccwwtwwkxC...',
+    '.CcccwwtwwkkcC..',
+    '.CcccwwttwcccC..',
+    '.CccccwttwccccC.',
+    '.CccccwttwccccC.',
+    '.CccccccccccccC.',
+  ],
+  // an orange scarf and leather driving gloves
+  moturek: [
+    '................',
+    '....hhhhhhhh....',
+    '...hhhhhhhhhh...',
+    '...hhsssssshh...',
+    '...hssssssssh...',
+    '...sbbbssbbbs...',
+    '...sseesseess...',
+    '...ssssssssss...',
+    '...sssssSssss...',
+    '...sssmmmmsss...',
+    '....ssssssss....',
+    '...ffffffffff...',
+    '..CcffwtwwccC...',
+    '.CcccfwtwwcccC..',
+    '.CcccffttwcccC..',
+    '.CccccfttwccccC.',
+    'GCccccwttwccccCG',
+    'GGccccccccccccGG',
+  ],
 };
 
-const HAIR: Record<string, string> = { mupka: '#3b2a1f', abis: '#8d8a96' };
+const HAIR: Record<string, string> = { mupka: '#3b2a1f', abis: '#8d8a96', brich: '#2a2a2a', moturek: '#5a3a22' };
 
 function darken(hex: string, f: number): string {
   const n = parseInt(hex.slice(1), 16);
@@ -78,6 +120,10 @@ export const LeaderSprite = memo(function LeaderSprite({ sprite, color, scale = 
     t: '#c8352e',
     c: color,
     C: darken(color, 0.62),
+    k: '#111014',
+    x: '#f4f1ea',
+    f: '#fdba74',
+    G: '#3a2414',
   };
   const rects: JSX.Element[] = [];
   rows.forEach((row, y) =>
