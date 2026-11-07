@@ -144,10 +144,10 @@ export const config = {
     /** Length of the flag's fade in and out after a decision, at 1x (the map's animations follow the game speed). */
     flagPulseMs: 6000,
     /** The flag's wave: strip width and how far a strip bobs (map units), one wave's time, the delay between strips. */
-    flagColumnWidth: 9,
+    flagColumnWidth: 13,
     flagWaveAmp: 10,
     flagWaveMs: 1400,
-    flagWavePhaseMs: 45,
+    flagWavePhaseMs: 65,
     /** Hidden card tags that traits react to. */
     tags: ['agriculture', 'industry', 'transport', 'services', 'tourism', 'environment', 'education', 'social', 'coal', 'border'] as string[],
     /**
