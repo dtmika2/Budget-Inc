@@ -13,7 +13,7 @@ merge conflicts. Region work edits only the files below; other work does not edi
 | `locales/regions.cs.json` | Czech texts: region names (`region.*`), traits (`trait.*`), parties (`party.*`), demographics (`demo.*`), map labels (`map.*`) and the region screen (`region.screen.*`) |
 | `src/regions/` | map (`CzMap.tsx`, `Liquid.tsx`, `MapLife.tsx`, `lifeDirector.ts`, `sprites.ts`, `regionsPath.ts`), region-event layer and pin (`RegionEventLayer.tsx`, `RegionEventPin.tsx`), map-click paw (`RegionPaw.tsx`), map pins (`DemandPin.tsx`, `OpportunityPin.tsx`), region screen (`RegionScreen.tsx`, `RegionChart.tsx`, `RegionDemands.tsx`, `RegionEvents.tsx`), styles (`regions.css`), entry point (`index.ts`) |
 | `data/region_actions/*.json` | kraj actions the player chooses (P26): škola, nemocnice, silnice, továrna, návštěva (`[DUMMY]` texts) |
-| `src/core/regionActions.ts`, `src/regions/RegionActions.tsx`, `tests/region-actions.test.ts` | kraj actions: offer by traits, limits, the region screen's Akce tab |
+| `src/core/regionActions.ts`, `src/regions/RegionActions.tsx`, `src/regions/actionArt.tsx`, `tests/region-actions.test.ts` | kraj actions: offer by traits, limits, the region screen's Akce tab (a compass rose: one action per tip, limits in the centre; pixel scenes per action id in `actionArt.tsx`) |
 | `data/region_events/*.json` | region events: flood, blackout, demonstrations, factory shutdown, Ikonické duo (`[DUMMY]` effects) |
 | `src/core/regions.ts` | region trait multipliers (`traitMult`) and the region screen's group cohorts (`regionCohorts`) |
 | `src/core/regionEvents.ts` | region events: three a year in random kraje, intervene / ignore / timeout |
