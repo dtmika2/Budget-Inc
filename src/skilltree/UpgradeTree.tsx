@@ -92,19 +92,11 @@ export function UpgradeTree() {
   const owned = useStore((s) => (s.sim ? [...s.sim.state.ownedUpgrades] : []));
   const pc = useStore((s) => s.sim?.state.pc ?? 0);
   const trees = treesFor(sim);
-  // opened from an ability button above the leader: start on that box's card
-  const focus = store.ui.treeFocus;
-  const [treeId, setTreeId] = useState(() => trees.find((x) => x.nodes.some((n) => n.id === focus))?.id ?? trees[0]?.id);
+  const [treeId, setTreeId] = useState(trees[0]?.id);
   const tree = trees.find((x) => x.id === treeId) ?? trees[0];
-  const [selected, setSelected] = useState<string | null>(focus);
+  const [selected, setSelected] = useState<string | null>(null);
   // a middle-column box keeps the last side
-  const [side, setSide] = useState<'left' | 'right'>(() => {
-    const node = tree?.nodes.find((n) => n.id === focus);
-    return (tree && node && coveredSide(tree, node)) || 'right';
-  });
-  useEffect(() => {
-    if (getStore().ui.treeFocus) getStore().setUi({ treeFocus: null });
-  }, []);
+  const [side, setSide] = useState<'left' | 'right'>('right');
   const [target, setTarget] = useState<string>('');
   // re-render after using an ability (cooldowns, PC)
   useStore((s) => s.sim?.state.log.length ?? 0);

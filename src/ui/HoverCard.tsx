@@ -34,6 +34,7 @@ export function HoverCard({
   className,
   as: Tag = 'span',
   focusable = false,
+  muted = false,
 }: {
   info: HoverInfo;
   children: ReactNode;
@@ -41,6 +42,8 @@ export function HoverCard({
   as?: 'span' | 'li' | 'div';
   /** The wrapper itself takes keyboard focus (for content with no button or link of its own). */
   focusable?: boolean;
+  /** Hold the card back (something else explains the item right now). */
+  muted?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
   const card = useRef<HTMLDivElement>(null);
@@ -74,6 +77,7 @@ export function HoverCard({
     >
       {children}
       {open &&
+        !muted &&
         createPortal(
           <div
             ref={card}

@@ -12,6 +12,8 @@
   "upgrades.dock.use": "Klikni a použij.",
   "upgrades.dock.pick": "Klikni a vyber cíl.",
   "upgrades.dock.noPc": "Málo PK",
+  "upgrades.dock.pickRegion": "Vyber kraj. U každého je dnešní podpora.",
+  "upgrades.dock.pickGroup": "Vyber skupinu. U každé je dnešní naštvanost.",
   "upgrades.excluded": "Vyřazeno volbou",
   "upgrades.start": "Výchozí pole lídra",
   "upgrades.linksTo": "Navazuje na: {list}",

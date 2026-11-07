@@ -20,8 +20,7 @@ files below; other work does not edit them.
 The rest of the game touches the tree only here. Changing a seam means touching a shared file, so keep
 those changes small and tell the other side:
 
-- `src/ui/screens/Game.tsx` renders `TreeAbilities`, `UpgradeButton` and `UpgradeTree` from `@/skilltree`;
-  `ui.treeFocus` in `src/ui/store.ts` tells the tree which box's card to open on.
+- `src/ui/screens/Game.tsx` renders `TreeAbilities`, `UpgradeButton` and `UpgradeTree` from `@/skilltree`.
 - `src/core/simulation.ts` dispatches `buyUpgrade`; `src/core/bots.ts` buys nodes in simulations.
 - `src/core/types.ts` (`UpgradeNode`, `UpgradeTree`, `ownedUpgrades`), `src/data/schemas.ts` and
   `src/data/loader.ts` (tree schema and checks).

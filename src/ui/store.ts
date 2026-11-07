@@ -109,8 +109,6 @@ export interface UiState {
   panelTab: PanelTab;
   /** Ability whose target picker is open (modal 'ability'). */
   abilityPick: string | null;
-  /** Skill-tree box whose card the tree opens on (cleared by the tree once open). */
-  treeFocus: string | null;
   setup: { leader: LeaderId; difficulty: DifficultyId };
   newBest: boolean;
   electionRevealed: boolean;
@@ -172,7 +170,6 @@ export class Store {
       resourceDetail: null,
       panelTab: 'trend',
       abilityPick: null,
-      treeFocus: null,
       setup: { leader: this.data?.leaders[0]?.id ?? 'mupka', difficulty: config.defaultDifficulty },
       newBest: false,
       electionRevealed: false,
@@ -242,7 +239,6 @@ export class Store {
       resourceDetail: null,
       panelTab: 'trend',
       abilityPick: null,
-      treeFocus: null,
       newBest: false,
       electionRevealed: false,
     };

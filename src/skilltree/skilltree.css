@@ -155,9 +155,30 @@
 .tree-panel__node--r, .tree-ability--r, .node--q-r { --q: #6b6080; }
 /* owned active abilities: a row above the leader's abilities, in the map's free corner; quadrant colours */
 .tree-abilities {
-  position: absolute; left: 0; bottom: 100%; z-index: 2; margin-bottom: 6px; max-width: calc(100% - 230px);
+  position: absolute; left: 0; bottom: 100%; z-index: 7; margin-bottom: 6px; max-width: calc(100% - 230px);
   display: flex; flex-wrap: wrap-reverse; gap: 6px;
 }
+.tree-ability.is-picking { outline: 2px solid var(--gold); outline-offset: 1px; }
+/* the target picker: above the row, dark like the hover cards; the preview line keeps its height, so nothing jumps */
+.tree-picker {
+  position: absolute; left: 0; bottom: calc(100% + 6px); width: min(340px, calc(100vw - 24px)); max-height: min(70dvh, 460px); overflow-y: auto;
+  display: flex; flex-direction: column; gap: 6px; padding: 10px 12px;
+  background: #1b1729; color: var(--text); border: 2px solid var(--gold); border-top-width: 4px; box-shadow: var(--shadow);
+  animation: tree-card-in 0.15s steps(3);
+}
+.tree-picker__title { margin: 0; font: 16px var(--f-pixel); color: var(--gold); }
+.tree-picker__head { margin: 0; font-size: 12px; color: var(--text-dim); }
+.tree-picker__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.tree-picker__list--regions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tree-picker__item {
+  width: 100%; min-height: 32px; display: flex; align-items: center; gap: 6px; padding: 2px 8px; cursor: pointer; text-align: left;
+  background: var(--panel-2); color: var(--text); border: 2px solid var(--line); font: 13px var(--f-body);
+}
+.tree-picker__item:hover, .tree-picker__item:focus-visible { border-color: var(--gold); outline: 0; }
+.tree-picker__key { flex: none; width: 9px; height: 9px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); }
+.tree-picker__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-picker__value { flex: none; font: 400 14px var(--f-num); color: var(--text-dim); }
+.tree-picker__preview { min-height: 44px; }
 .tree-ability { --party: var(--q); min-height: 44px; max-width: 170px; animation: tree-card-in 0.2s steps(4); }
 .tree-ability__icon { flex: none; display: inline-grid; place-items: center; width: 28px; height: 28px; background: var(--paper); color: var(--q); }
 .tree-ability--rt.is-ready, .tree-ability--rt.is-ready small { color: #2a2233; }
