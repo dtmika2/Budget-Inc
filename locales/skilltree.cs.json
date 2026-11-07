@@ -94,7 +94,7 @@
   "upgrades.activeEffects": "Při použití",
   "upgrades.cooldown": "Lze použít jednou za {d} dní.",
   "upgrades.readyIn": "Znovu za {d} dní",
-  "upgrades.ready": "Připraveno",
+  "upgrades.ready": "Připraveno k použití",
   "upgrades.use": "Použít",
   "upgrades.pickRegion": "Kraj",
   "upgrades.pickGroup": "Skupina",
