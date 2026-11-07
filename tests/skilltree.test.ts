@@ -30,15 +30,17 @@ describe('card emblems', () => {
 
 describe('political compass tree', () => {
   it('each leader starts on their own box, with its effect active', () => {
-    const mupka = quietSim({ leader: 'mupka' });
-    const abis = quietSim({ leader: 'abis' });
-    const mStart = compass(mupka).start.mupka!;
-    const aStart = compass(abis).start.abis!;
-    expect(mStart).not.toBe(aStart);
-    expect(mupka.state.ownedUpgrades).toEqual([mStart]);
-    expect(abis.state.ownedUpgrades).toEqual([aStart]);
-    expect(mupka.state.modifiers.some((m) => m.origin === `upgrade:${mStart}`)).toBe(true);
-    expect(mupka.state.log.some((e) => e.type === 'upgrade_bought')).toBe(false);
+    const starts = new Set<string>();
+    for (const l of quietSim().data.leaders) {
+      const sim = quietSim({ leader: l.id });
+      const start = compass(sim).start[l.id]!;
+      expect(start, l.id).toBeDefined();
+      starts.add(start);
+      expect(sim.state.ownedUpgrades).toEqual([start]);
+      expect(sim.state.modifiers.some((m) => m.origin === `upgrade:${start}`)).toBe(true);
+      expect(sim.state.log.some((e) => e.type === 'upgrade_bought')).toBe(false);
+    }
+    expect(starts.size).toBe(quietSim().data.leaders.length);
   });
 
   it('only boxes next to an owned box can be bought', () => {

@@ -40,6 +40,7 @@ holds the Progrese and Tradice boxes; each side has an inner pair joined to them
 Rules:
 - **Start box.** Each leader owns their `start` box for free at the beginning of a run, and its effect is
   active from day 1. Placeholders: Mupka `c_r1t` (Pravice · tradice), Abis `c_l1t` (Levice · tradice).
+  Břich `c_prog` (Progrese) and Motůrek `c_trad` (Tradice) start in the middle column, so they can grow to either side.
 - **Paths.** A box can be bought when a box it is linked to is owned. Links have no direction: list each
   connection once, on either box.
 - **Joints.** A box with `requires` needs **all** listed boxes, not just one. The Levice and Pravice
@@ -53,7 +54,7 @@ Rules:
   "id": "compass",
   "name": "upgrades.compass.name",                // key in locales/skilltree.cs.json
   "axes": { "top": "upgrades.compass.axis.top", "bottom": "…", "left": "…", "right": "…" },
-  "start": { "mupka": "c_r1t", "abis": "c_l1t" },  // every leader needs one
+  "start": { "mupka": "c_r1t", "abis": "c_l1t", "brich": "c_prog", "moturek": "c_trad" },  // every leader needs one
   "exclusive": [["c_r3pa", "c_r3pb"], …],          // forks: pick one
   "nodes": [
     { "id": "c_r1t",                    // unique across all trees

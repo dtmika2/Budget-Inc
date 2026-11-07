@@ -2,7 +2,7 @@
   "id": "compass",
   "name": "upgrades.compass.name",
   "axes": {"top": "upgrades.compass.axis.top", "bottom": "upgrades.compass.axis.bottom", "left": "upgrades.compass.axis.left", "right": "upgrades.compass.axis.right"},
-  "start": {"mupka": "c_r1t", "abis": "c_l1t"},
+  "start": {"mupka": "c_r1t", "abis": "c_l1t", "brich": "c_prog", "moturek": "c_trad"},
   "exclusive": [
     ["c_r3pa", "c_r3pb"],
     ["c_r3ta", "c_r3tb"],
