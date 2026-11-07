@@ -903,7 +903,7 @@ body[data-tut='upgrades'] [data-tut-target='upgrades'] {
 .mg-compare__same { margin: 0; font-size: 14px; color: var(--ink-soft); }
 .mg-compare__table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .mg-compare__table th, .mg-compare__table td { padding: 3px 0 3px 10px; text-align: right; white-space: nowrap; border-top: 2px dashed rgba(42, 34, 51, 0.18); }
-.mg-compare__table thead th { border-top: 0; font: 12px var(--f-pixel); color: var(--ink-soft); }
+.mg-compare__table thead th { border-top: 0; font: 12px var(--f-pixel); color: var(--ink-soft); white-space: normal; vertical-align: bottom; }
 .mg-compare__table th:first-child { padding-left: 0; text-align: left; white-space: normal; font-weight: 400; }
 .mg-compare__table td { font: 13px var(--f-num); font-variant-numeric: tabular-nums; }
 .mg-compare__table td.mg-compare__diff--good { color: var(--good-on-paper); }
