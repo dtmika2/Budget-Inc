@@ -169,59 +169,57 @@
   display: grid; grid-template-columns: minmax(260px, 1fr) minmax(0, 2fr); gap: 16px; align-content: start;
 }
 .rs-body--events { grid-template-columns: minmax(0, 3fr) minmax(240px, 2fr); }
-/* Akce tab as a compass rose (RegionActions.tsx, actionArt.tsx): tips in a 3 x 3 grid around the hub; the rose
-   lies under the hub and its arms run behind the tips (tips stack above the hub) */
-.rs-body--actions { grid-template-columns: minmax(0, 3fr) minmax(240px, 1fr); }
+/* Akce tab as a compass rose (RegionActions.tsx, actionArt.tsx): four equal tips around the hub, the history
+   below. Equal 1fr rows and columns keep every tip the same size; north and south take a side column's width.
+   The rose lies under the hub and its arms run behind the tips (tips stack above the hub). */
+.rs-body--actions { grid-template-columns: 1fr; }
+.rs-body--actions > .rs-col { width: 100%; max-width: 1340px; justify-self: center; }
 .cmp {
-  position: relative; display: grid; gap: 18px 34px; align-items: center; justify-items: center; padding: 6px 0 12px;
-  grid-template-columns: minmax(220px, 1fr) 236px minmax(220px, 1fr); grid-template-areas: 'n n n' 'w hub e' 's s s';
+  --hub: 224px; --gap-x: 34px;
+  position: relative; width: 100%; max-width: 1340px; justify-self: center; display: grid; gap: 18px var(--gap-x);
+  align-items: stretch; justify-items: center; padding: 6px 0 12px;
+  grid-template-columns: minmax(0, 1fr) var(--hub) minmax(0, 1fr); grid-template-rows: 1fr 1fr 1fr;
+  grid-template-areas: 'n n n' 'w hub e' 's s s';
 }
 .cmp__tip {
-  position: relative; z-index: 1; width: 100%; display: flex; flex-direction: column; align-self: stretch;
+  position: relative; z-index: 1; width: 100%; display: flex; align-items: stretch;
   background: var(--paper); color: var(--ink); border: 3px solid var(--ink); box-shadow: var(--shadow);
 }
+.cmp__tip--n, .cmp__tip--s { width: calc((100% - var(--hub) - 2 * var(--gap-x)) / 2); }
 .cmp__tip--n { grid-area: n; }
-.cmp__tip--e { grid-area: e; align-self: center; }
+.cmp__tip--e { grid-area: e; }
 .cmp__tip--s { grid-area: s; }
-/* north and south tips lie flat (scene on the left), so the whole compass fits on one screen */
-.cmp__tip--n, .cmp__tip--s { flex-direction: row; max-width: 580px; }
-.cmp__tip--n .cmp__art, .cmp__tip--s .cmp__art { flex: none; width: 150px; height: auto; border-bottom: 0; border-right: 3px solid var(--ink); }
-.cmp__tip--n .cmp__body, .cmp__tip--s .cmp__body { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: end; }
-.cmp__tip--n .cmp__title, .cmp__tip--n .cmp__text, .cmp__tip--s .cmp__title, .cmp__tip--s .cmp__text { grid-column: 1 / -1; }
-.cmp .ranges { display: flex; flex-wrap: wrap; gap: 4px 6px; }
-.cmp .ranges > ul { margin: 0; }
-.cmp .ranges__res .chip { flex: 0 1 auto; }
-.cmp__tip--w { grid-area: w; align-self: center; }
+.cmp__tip--w { grid-area: w; }
 .cmp__tip.is-aimed, .cmp__tip:focus-within { border-color: var(--gold); }
 .cmp__tip.is-locked .cmp__art, .cmp__tip.is-locked .cmp__body { opacity: 0.62; }
 .cmp__tip.is-done { border-color: var(--good-on-paper); }
-.cmp__tip--empty { min-height: 120px; display: grid; place-items: center; background: transparent; color: var(--text-dim); border: 3px dashed var(--line); box-shadow: none; font: 14px var(--f-pixel); }
-.cmp__art { position: relative; display: grid; place-items: center; height: 72px; background: #2a2440; border-bottom: 3px solid var(--ink); }
-.cmp__art svg { display: block; height: 60px; width: auto; }
-.cmp__dir { position: absolute; left: 6px; top: 6px; min-width: 22px; padding: 1px 5px; text-align: center; font: 14px var(--f-pixel); background: var(--gold); color: var(--ground); box-shadow: 2px 2px 0 #0c0a14; }
-.cmp__body { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 8px 10px 10px; }
+.cmp__tip--empty { display: grid; place-items: center; background: transparent; color: var(--text-dim); border: 3px dashed var(--line); box-shadow: none; font: 14px var(--f-pixel); }
+.cmp__art { flex: none; width: 92px; display: grid; place-items: center; background: #2a2440; border-right: 3px solid var(--ink); }
+.cmp__art--mirror { border-right: 0; border-left: 3px solid var(--ink); }
+.cmp__art--mirror svg { transform: scaleX(-1); }
+.cmp__art svg { display: block; width: 78px; height: auto; }
+.cmp__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; padding: 8px 12px 10px; }
 .cmp__title { margin: 0; font: 17px var(--f-pixel); line-height: 1.15; }
 .cmp__text { margin: 0; font-size: 13px; line-height: 1.35; color: var(--ink-soft); }
+.cmp .ranges { display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px 6px; }
+/* the chips of all groups wrap one by one, not group by group */
+.cmp .ranges > ul { display: contents; }
+.cmp .ranges__res .chip { flex: 0 1 auto; }
 .cmp__foot { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
 .cmp__foot .rs-note { color: var(--bad-on-paper); }
 .cmp__stamp {
-  position: absolute; right: 10px; top: 62px; padding: 0 8px; border: 3px solid currentColor; color: var(--good-on-paper);
+  position: absolute; right: 108px; bottom: 16px; padding: 0 8px; border: 3px solid currentColor; color: var(--good-on-paper);
   background: rgba(239, 230, 207, 0.92); font: 700 18px var(--f-pixel); text-transform: uppercase;
   transform: rotate(-8deg); animation: cmp-stamp 0.3s steps(3) both; pointer-events: none;
 }
 @keyframes cmp-stamp { from { transform: rotate(-8deg) scale(2.2); opacity: 0; } to { transform: rotate(-8deg); opacity: 1; } }
 
-.cmp__hub { grid-area: hub; position: relative; z-index: 0; width: 224px; height: 224px; display: grid; place-items: center; }
+.cmp__hub { grid-area: hub; align-self: center; position: relative; z-index: 0; width: var(--hub); height: var(--hub); display: grid; place-items: center; }
 .cmp__rose { position: absolute; left: 50%; top: 50%; width: 592px; height: 592px; transform: translate(-50%, -50%); pointer-events: none; }
 .cmp__disc { position: absolute; left: 50%; top: 50%; width: 168px; height: 168px; transform: translate(-50%, -50%); }
 .cmp__needle { position: absolute; inset: 0; transition: transform 0.32s steps(4); pointer-events: none; }
 .cmp__needle svg { position: absolute; left: 50%; top: 0; width: 40px; height: 32px; transform: translateX(-50%); }
-.cmp__letter { position: absolute; font: 13px var(--f-pixel); color: var(--ink); line-height: 1; }
-.cmp__letter--n { top: 46px; left: 50%; transform: translateX(-50%); }
-.cmp__letter--s { bottom: 46px; left: 50%; transform: translateX(-50%); }
-.cmp__letter--e { right: 46px; top: 50%; transform: translateY(-50%); }
-.cmp__letter--w { left: 46px; top: 50%; transform: translateY(-50%); }
-.cmp__limit { position: relative; width: 96px; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; color: var(--ink); }
+.cmp__limit { position: relative; width: 104px; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; color: var(--ink); }
 .cmp__small { font-size: 10px; line-height: 1.2; color: var(--ink-soft); }
 .cmp__count { font: 400 34px/1 var(--f-num); color: var(--good-on-paper); }
 .cmp__count small { font-size: 16px; color: var(--ink-soft); }
@@ -230,16 +228,17 @@
 [data-reduced-motion] .cmp__needle { transition: none; }
 [data-reduced-motion] .cmp__stamp { animation: none; }
 @media (max-width: 1180px) {
-  .rs-body--actions { grid-template-columns: 1fr; }
+  .cmp__art { width: 76px; }
+  .cmp__art svg { width: 64px; }
+  .cmp__stamp { right: 90px; }
 }
-@media (max-width: 760px) {
-  .cmp { grid-template-columns: 1fr; grid-template-areas: 'hub' 'n' 'e' 's' 'w'; gap: 14px; }
-  .cmp__tip--n, .cmp__tip--s { max-width: none; flex-direction: column; }
-  .cmp__tip--n .cmp__body, .cmp__tip--s .cmp__body { display: flex; }
-  .cmp__tip--n .cmp__art, .cmp__tip--s .cmp__art { width: auto; height: 72px; border-right: 0; border-bottom: 3px solid var(--ink); }
-  .cmp__rose, .cmp__needle { display: none; }
+/* narrow: no rose, the disc first and the tips stacked, one scene each */
+@media (max-width: 960px) {
+  .cmp { grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: 'hub' 'n' 'e' 's' 'w'; gap: 14px; }
+  .cmp__tip--n, .cmp__tip--s { width: 100%; }
+  .cmp__rose, .cmp__needle, .cmp__art--mirror { display: none; }
   .cmp__hub { width: 168px; height: 168px; }
-  .cmp__letter { display: none; }
+  .cmp__stamp { right: 10px; }
 }
 
 .rs-charts { display: flex; flex-direction: column; gap: 16px; min-width: 0; }

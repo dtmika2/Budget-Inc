@@ -1,9 +1,9 @@
 /**
  * Kraj actions on the region screen (P26, regions workspace), laid out as a compass rose: the kraj's actions sit
  * on the four tips (north first, in offeredActions order, so the best trait fit is north and the always-on visit
- * west), each with its scene, text, effects and cost. The centre disc shows the limits (actions left this quarter,
+ * west), all four the same size: the scene on both sides (mirrored on the right), text, effects and cost between. The centre disc shows the limits (actions left this quarter,
  * one action per kraj per year). A needle on the disc turns toward the tip under the pointer and rests on the
- * action done this year. History of this kraj's actions on the right.
+ * action done this year. History of this kraj's actions below.
  */
 import { useState } from 'react';
 import { config } from '@/config';
@@ -69,9 +69,6 @@ export function RegionActions({ code }: { code: string }) {
             >
               <div className="cmp__art">
                 <ActionArt id={a.id} />
-                <span className="cmp__dir" aria-hidden="true">
-                  {t(`regionAction.compass.${dir}`)}
-                </span>
               </div>
               <div className="cmp__body">
                 <h3 id={`ra-${a.id}`} className="cmp__title">
@@ -86,6 +83,9 @@ export function RegionActions({ code }: { code: string }) {
                   </button>
                   {reason === 'cannot afford action' && <span className="rs-note">{t('regionAction.noPc')}</span>}
                 </div>
+              </div>
+              <div className="cmp__art cmp__art--mirror">
+                <ActionArt id={a.id} />
               </div>
               {isDone && (
                 <span className="cmp__stamp" role="status">
@@ -102,11 +102,6 @@ export function RegionActions({ code }: { code: string }) {
           <span className="cmp__needle" style={{ transform: `rotate(${deg}deg)` }} aria-hidden="true">
             <NeedleArt />
           </span>
-          {DIRS.map((d) => (
-            <span key={d} className={`cmp__letter cmp__letter--${d}`} aria-hidden="true">
-              {t(`regionAction.compass.${d}`)}
-            </span>
-          ))}
           <div className="cmp__limit" aria-live="polite">
             {lim.krajUsedThisYear ? (
               <>
