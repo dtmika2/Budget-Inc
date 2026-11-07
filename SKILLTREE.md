@@ -10,7 +10,7 @@ files below; other work does not edit them.
 |---|---|
 | `data/upgrades/compass.json` | the Political Compass tree every leader has (28 boxes: written names and quotes, placeholder effect sizes) |
 | `locales/skilltree.cs.json` | Czech texts: tree and node names/descriptions and the tree screen's UI chrome (`upgrades.*`, `hud.upgrades`) |
-| `src/skilltree/` | tree screen (`UpgradeTree.tsx`, side panel and active list inside), effect lines and quadrants (`nodeText.ts`), HUD button (`UpgradeButton.tsx`), styles (`skilltree.css`) |
+| `src/skilltree/` | tree screen (`UpgradeTree.tsx`, box card and active-ability strip inside), effect lines and quadrants (`nodeText.ts`), HUD button (`UpgradeButton.tsx`), styles (`skilltree.css`) |
 | `src/core/upgrades.ts` | buying rules: node status, which trees a leader has, `buyUpgrade` |
 | `tests/skilltree.test.ts` | skill-tree tests |
 | `tests/fixtures/support-tree.json`, `tests/fixtures/trees.ts` | the old Public Support tree, kept as a fixture for the engine / modifier tests |
@@ -136,5 +136,5 @@ than add more support.
 A box with `active` is an ability the player uses again and again once the box is owned: `bundle` is its effect
 (a negative `pc` is its PK price; the region key `self` is the chosen kraj), `target` is `region`, `group` or null,
 `groupAnger` is the anger change of the chosen group, `cooldownDays` the wait before the next use. Input
-`useUpgradeAction` (`src/core/upgrades.ts`), state `upgradeReady`. Effect lines in the side panel are generated
+`useUpgradeAction` (`src/core/upgrades.ts`), state `upgradeReady`. Effect lines in the box card are generated
 from `modifiers`, so a box description only needs the quote and what the box stands for.

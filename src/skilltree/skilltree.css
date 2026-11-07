@@ -70,16 +70,35 @@
   .node__cost { font-size: 13px; }
   .tree-axis { font-size: 14px; }
 }
-/* P29: the tree on the left, a fixed description panel on the right */
-.tree-body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: start; min-height: 0; }
-.tree-panel {
-  position: relative; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; min-height: 0;
-  max-height: calc(100dvh - 190px); overflow-y: auto; background: var(--paper); color: var(--ink); box-shadow: var(--shadow-sm);
-  border-top: 6px solid var(--gold-dim);
+/* one thin line above the tree: the owned active abilities */
+.tree-strip { display: flex; align-items: center; gap: 10px; min-height: 40px; overflow-x: auto; white-space: nowrap; }
+.tree-strip__h { flex: none; margin: 0; font: 12px var(--f-pixel); color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; }
+.tree-strip__note, .tree-strip__hint { margin: 0; font-size: 13px; color: var(--text-dim); }
+.tree-strip__hint { margin-left: auto; padding-left: 12px; }
+.tree-strip ul { list-style: none; display: flex; gap: 6px; margin: 0; padding: 0; }
+.tree-strip__active {
+  display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 2px 8px; cursor: pointer;
+  background: var(--panel-2); border: 2px solid var(--line); font: 13px var(--f-body); color: var(--text);
 }
-.tree-panel__hint { margin: 0; font-size: 14px; color: var(--ink-soft); }
+.tree-strip__active:hover { border-color: var(--gold-dim); }
+.tree-strip__active span { font-size: 12px; color: var(--text-dim); }
+.tree-strip__active span.is-ready { color: var(--good); font-weight: 700; }
+/* the tree takes the full width; the card opens over the half the selected box is not in, leaving the middle column free */
+.tree-body { position: relative; min-height: 0; }
+.tree-panel {
+  position: absolute; z-index: 5; top: 0; bottom: 0; width: calc(100% * var(--half, 0.44));
+  display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; overflow-y: auto;
+  background: var(--paper); color: var(--ink); box-shadow: var(--shadow); border-top: 6px solid var(--gold-dim);
+}
+.tree-panel--left { left: 0; }
+.tree-panel--right { right: 0; }
+.tree-panel__close {
+  position: sticky; top: 0; z-index: 1; flex: none; align-self: flex-end; width: 28px; height: 28px; margin-bottom: -28px; padding: 0; cursor: pointer;
+  background: var(--paper); color: var(--ink); border: 2px solid rgba(42, 34, 51, 0.3); font: 14px/1 var(--f-pixel);
+}
+.tree-panel__close:hover { border-color: var(--ink); }
 .tree-panel__node { display: flex; flex-direction: column; gap: 6px; }
-.tree-panel__tags { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.tree-panel__tags { margin: 0; padding-right: 34px; display: flex; flex-wrap: wrap; gap: 6px; }
 .tree-panel__quad, .tree-panel__kind { font: 11px var(--f-pixel); padding: 2px 7px; text-transform: uppercase; letter-spacing: 0.04em; }
 .tree-panel__quad { color: #fff; background: var(--q, var(--ink-soft)); }
 .tree-panel__kind { color: var(--ink-soft); border: 1px solid rgba(42, 34, 51, 0.3); display: inline-flex; align-items: center; gap: 4px; }
@@ -96,14 +115,6 @@
 .tree-panel__groups .chip-btn { min-height: 28px; padding: 0 8px; font-size: 13px; color: var(--ink); border-color: rgba(42, 34, 51, 0.3); }
 .tree-panel__groups .chip-btn.is-on { color: var(--ground); }
 .tree-panel__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-.tree-panel__list { margin-top: auto; }
-.tree-panel__list ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.tree-panel__active {
-  width: 100%; display: flex; align-items: center; gap: 6px; padding: 5px 8px; cursor: pointer; text-align: left;
-  background: rgba(42, 34, 51, 0.06); border: 1px solid rgba(42, 34, 51, 0.2); font: 14px var(--f-body); color: var(--ink);
-}
-.tree-panel__active span { margin-left: auto; font-size: 12px; color: var(--ink-soft); }
-.tree-panel__active span.is-ready { color: var(--good-on-paper); font-weight: 700; }
 /* quadrant colours (panel tags, box edges, list markers) */
 .tree-panel__node--lp, .tree-panel__quad--lp, .node--q-lp { --q: #c42f86; }
 .tree-panel__node--rp, .tree-panel__quad--rp, .node--q-rp { --q: #2b56c9; }
@@ -138,9 +149,9 @@
   background: #f3d36b; color: #6b4a00; box-shadow: 1px 1px 0 #0c0a14;
 }
 .node--owned .node__bolt { background: var(--ground); color: #f3d36b; }
+/* a half of a narrow tree is too small for the card: it sits under the tree instead */
 @media (max-width: 1000px) {
-  .tree-body { grid-template-columns: 1fr; }
-  .tree-panel { max-height: none; }
+  .tree-panel { position: static; width: auto; margin-top: 14px; overflow-y: visible; }
   .tree { height: min(calc(100dvh - 300px), 520px); }
 }
 

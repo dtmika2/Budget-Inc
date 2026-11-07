@@ -1,8 +1,9 @@
 /**
  * Upgrade tree (spec §8.3): node graph with locked / available / owned / excluded states. Pauses the
  * clock while open. Fork links carry a lock; buying a node that locks out others asks for confirmation.
- * P29: four tinted compass quadrants, a fixed side panel describing the hovered / selected box, and active
- * abilities (bolt icon) that can be used again and again with a cooldown.
+ * P29: four tinted compass quadrants and active abilities (bolt icon) that can be used again and again with
+ * a cooldown. The tree takes the modal's full width; the selected box's card opens over the half of the tree
+ * the box is not in, and a thin strip above the tree lists the owned active abilities.
  */
 import { useEffect, useRef, useState } from 'react';
 import { canUseUpgradeAction, isForkLink, neighboursOf, nodeStatus, rivalsOf, startNodeOf, treesFor, upgradeCooldownLeft, type NodeStatus } from '@core/upgrades';
@@ -76,7 +77,8 @@ export function UpgradeTree() {
   const [treeId, setTreeId] = useState(trees[0]?.id);
   const tree = trees.find((x) => x.id === treeId) ?? trees[0];
   const [selected, setSelected] = useState<string | null>(null);
-  const [hovered, setHovered] = useState<string | null>(null);
+  // the half of the tree the card covers; a middle-column box belongs to neither half and keeps the last side
+  const [side, setSide] = useState<'left' | 'right'>('right');
   const [target, setTarget] = useState<string>('');
   // re-render after using an ability (cooldowns, PC)
   useStore((s) => s.sim?.state.log.length ?? 0);
@@ -89,6 +91,16 @@ export function UpgradeTree() {
     const node = startId ? box?.querySelector<HTMLElement>(`[data-node="${startId}"]`) : null;
     if (box && node) box.scrollLeft = node.offsetLeft - box.clientWidth / 2;
   }, [tree?.id, startId]);
+  // Escape closes the fork confirmation first, then the card
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (confirming) setConfirming(null);
+      else setSelected(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [confirming]);
   if (!tree) return null;
 
   const cols = Math.max(...tree.nodes.map((n) => n.pos.col)) + 1;
@@ -101,10 +113,22 @@ export function UpgradeTree() {
   const status = new Map<string, NodeStatus>(tree.nodes.map((n) => [n.id, nodeStatus(owned, n, tree)]));
   const start = startId;
   const nameOf = (id: string) => t(byId.get(id)?.name ?? `upgrade.${id}.name`);
-  const shownId = hovered ?? selected;
-  const sel = shownId ? (byId.get(shownId) ?? null) : null;
+  const sel = selected ? (byId.get(selected) ?? null) : null;
   const selStatus = sel ? status.get(sel.id)! : null;
   const edges = edgesOf(tree);
+
+  /** Open a box's card over the other half of the tree; the open box closes it again. */
+  const select = (id: string) => {
+    setConfirming(null);
+    if (selected === id) {
+      setSelected(null);
+      return;
+    }
+    const col = byId.get(id)!.pos.col;
+    const mid = (cols - 1) / 2;
+    if (col !== mid) setSide(col < mid ? 'right' : 'left');
+    setSelected(id);
+  };
 
   const edgeClass = (e: Edge) => {
     if (e.joint) {
@@ -177,8 +201,15 @@ export function UpgradeTree() {
             ))}
           </nav>
         )}
+        <ActiveStrip tree={tree} owned={owned} hint={!sel} onPick={select} />
         <div className="tree-body">
-        <div className="tree-scroll" ref={scrollRef}>
+        <div
+          className="tree-scroll"
+          ref={scrollRef}
+          onClick={(e) => {
+            if (!(e.target as Element).closest('.node')) setSelected(null);
+          }}
+        >
           <div className={`tree-frame${tree.axes ? ' has-axes' : ''}`}>
             {tree.axes && <span className="tree-axis tree-axis--top">{t(tree.axes.top)}</span>}
             {tree.axes && <span className="tree-axis tree-axis--left">{t(tree.axes.left)}</span>}
@@ -237,13 +268,8 @@ export function UpgradeTree() {
                     key={n.id}
                     data-node={n.id}
                     className={`node node--${st} node--q-${quadrantOf(n, cols, rows)}${n.active ? ' node--active' : ''}${selected === n.id ? ' is-selected' : ''}${st === 'available' && pc >= n.cost ? ' node--affordable' : ''}${n.id === start ? ' node--start' : ''}`}
-                    onPointerEnter={() => setHovered(n.id)}
-                    onPointerLeave={() => setHovered(null)}
                     style={{ left: `${c.x}%`, top: `${c.y}%` }}
-                    onClick={() => {
-                      setSelected(n.id);
-                      setConfirming(null);
-                    }}
+                    onClick={() => select(n.id)}
                     aria-label={`${t(n.name)}: ${t(`upgrades.${st}`)}`}
                   >
                     {n.active && (
@@ -261,14 +287,14 @@ export function UpgradeTree() {
             {tree.axes && <span className="tree-axis tree-axis--bottom">{t(tree.axes.bottom)}</span>}
           </div>
         </div>
-        <aside className="tree-panel" aria-live="polite">
-          {sel ? (
+        {sel && (
+          <aside className={`tree-panel tree-panel--${side}`} style={{ ['--half' as string]: Math.floor(cols / 2) / cols }}>
+            <button className="tree-panel__close" onClick={() => setSelected(null)} aria-label={t('common.close')}>
+              {'✕'}
+            </button>
             <NodePanel node={sel} status={selStatus!} isStart={sel.id === start} pc={pc} target={target} onTarget={setTarget} onBuy={() => buy(sel)} meta={meta(sel)} />
-          ) : (
-            <p className="tree-panel__hint">{t('upgrades.selectHint')}</p>
-          )}
-          <ActiveList tree={tree} owned={owned} onPick={(id) => setSelected(id)} />
-        </aside>
+          </aside>
+        )}
         </div>
         {confirming && (
           <div className="tree-confirm" role="alertdialog" aria-modal="true" aria-labelledby="tree-confirm-title" aria-describedby="tree-confirm-body">
@@ -301,7 +327,7 @@ export function UpgradeTree() {
   );
 }
 
-/** The fixed description panel: quadrant, kind, description, effects, price and the buy / use controls. */
+/** The selected box's card: quadrant, kind, description, effects, price and the buy / use controls. */
 function NodePanel({
   node,
   status,
@@ -410,22 +436,22 @@ function NodePanel({
   );
 }
 
-/** Owned active abilities with their readiness; a click shows one in the panel. */
-function ActiveList({ tree, owned, onPick }: { tree: Tree; owned: string[]; onPick: (id: string) => void }) {
+/** One thin line above the tree: owned active abilities with their readiness; a click opens one's card. */
+function ActiveStrip({ tree, owned, hint, onPick }: { tree: Tree; owned: string[]; hint: boolean; onPick: (id: string) => void }) {
   const sim = getStore().sim!;
   const actives = tree.nodes.filter((n) => n.active && owned.includes(n.id));
   return (
-    <section className="tree-panel__list">
-      <h4 className="tree-panel__h">{t('upgrades.yourActives')}</h4>
+    <section className="tree-strip">
+      <h4 className="tree-strip__h">{t('upgrades.yourActives')}</h4>
       {actives.length === 0 ? (
-        <p className="tree-panel__meta">{t('upgrades.noActives')}</p>
+        <p className="tree-strip__note">{t('upgrades.noActives')}</p>
       ) : (
         <ul>
           {actives.map((n) => {
             const left = upgradeCooldownLeft(sim, n.id);
             return (
               <li key={n.id}>
-                <button className="tree-panel__active" onClick={() => onPick(n.id)}>
+                <button className="tree-strip__active" onClick={() => onPick(n.id)}>
                   <BoltIcon /> {t(n.name)}
                   <span className={left === 0 ? 'is-ready' : ''}>{left === 0 ? t('upgrades.ready') : t('upgrades.readyIn', { d: left })}</span>
                 </button>
@@ -434,6 +460,7 @@ function ActiveList({ tree, owned, onPick }: { tree: Tree; owned: string[]; onPi
           })}
         </ul>
       )}
+      {hint && <p className="tree-strip__hint">{t('upgrades.selectHint')}</p>}
     </section>
   );
 }

@@ -8,7 +8,7 @@
   "upgrades.available": "Dostupné",
   "upgrades.requires": "Vyžaduje: {list}",
   "upgrades.cost": "Cena: {n} PK",
-  "upgrades.selectHint": "Najeď nebo klepni na políčko: tady uvidíš, co dělá.",
+  "upgrades.selectHint": "Klikni na políčko a uvidíš, co dělá.",
   "upgrades.excluded": "Vyřazeno volbou",
   "upgrades.start": "Výchozí pole lídra",
   "upgrades.linksTo": "Navazuje na: {list}",
